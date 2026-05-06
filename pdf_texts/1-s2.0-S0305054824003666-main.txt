@@ -1,0 +1,3265 @@
+Computers & Operations Research 174 (2025) 106894
+ContentslistsavailableatScienceDirect
+ComputersandOperationsResearch
+journalhomepage:www.elsevier.com/locate/cor
+Theminmaxmulti-tripdronelocationarcroutingproblem
+TeresaCorberána,IsaacPlanab,JoséMaríaSanchisc,∗
+aDepartamentd’EstadísticaiInvestigacióOperativa,UniversitatdeValència,Spain
+bDepartamentdeMatemàtiquesperal’Economiail’Empresa,UniversitatdeValència,Spain
+cInstitutUniversitarideMatemàticaPuraiAplicada,UniversitatPolitècnicadeValència,Spain
+A R T I C L E I N F O A B S T R A C T
+Keywords: This paper studies the Min Max Multi-Trip drone Location Arc Routing Problem (MM-MT-dLARP), an arc
+Drones routing problem that combines trucks and drones. We have a set of lines (usually curved) that have to be
+Locationarcroutingproblem flownoverbydronestoperformaservice(inspection,forexample).Thereisadepotfromwhichthetrucks
+Multi-trip leave, each one carrying a drone, and a set of potential launching points where the truck can launch and
+Lengthconstraints
+pickupthedrone.Droneshavelimitedautonomy,buttheycanmakeseveralflights.Weconsideramin–max
+Matheuristic
+objective,inwhichthemakespan,ortimenecessarytocompletetheservice,mustbeminimized.Usingaerial
+Branch-and-cut
+Polyhedralstudy dronesinsteadofgroundvehiclesallowstotraveloffthenetwork:dronescanenteralinethroughanyofits
+points,serviceonlyaportionofthatlineandthenexitthroughanotherofitspoints,withoutfollowingthe
+linesofthenetwork.Thisallowsforfindingbettersolutionsbutalsoincreasesthedifficultyoftheproblem.
+ThisissuecanbeaddressedbydigitizingtheMM-MT-dLARPinstances,approximatingeachlinebyapolygonal
+chain with a finite number of intermediate points, and requiring that drones can only enter and exit a line
+throughthoseintermediatepoints.Thus,aninstanceofadiscreteMinMaxMulti-TripLocationArcRouting
+Problem (MM-MT-LARP) is obtained. Here, an integer formulation for the MM-MT-LARP is proposed, some
+familiesofvalidinequalitiesareprovedtobefacet-inducingofarelaxedpolyhedron,andabranch-and-cut
+algorithmbasedonthestrengthenedformulationisdeveloped.Thisalgorithmhasonlybeenappliedtosmall
+instanceswithoutintermediatepointsonthelines.Inaddition,wehavedevelopedamatheuristicalgorithmfor
+theMM-MT-dLARPthatcombinesaconstructionphase,fourlocalsearchproceduresintegratedintoaVariable
+Neighborhood Descent (VND) algorithm, and a set of rules for selecting intermediate points to improve the
+solutions.Wepresenttheresultsobtainedonasetofrandomlygeneratedinstancesinvolvingupto6launching
+pointsand88originallines.
+1. Introduction terrestrial vehicles. While terrestrial vehicles are restricted to traveling
+through the links of the network (roads, streets,...), drones can travel
+The use of drones (unmanned aerial vehicles) for delivery or in- off the network directly between any two points. Moreover, drones can
+spection tasks is becoming more common, since they offer several
+enter and exit a link at any point, allowing for shorter routes than
+advantages compared to traditional means of transportation, being able
+with traditional vehicles. However, this implies that the problem is
+to reach places that are difficult to access or dangerous for people or
+conventional vehicles. Research in the design of routes for drones has
+a continuous optimization one and, therefore, quite more difficult to
+so far focused on two types of problems: those related to the delivery of
+solve. Arc Routing Problems with drones were studied for the first
+goods, usually modeled as node routing problems (see, for example, the time by Campbell et al. (2018), where each continuous line is given
+surveys by Macrina et al. (2020) and Rojas Viloria et al. (2021)) and by a polygonal chain, with a large (but finite) number of points that
+those dedicated to the inspection or mapping of surfaces or networks, can be used by drones to enter and leave the line. A heuristic for
+modeled as arc routing problems (see, for example,Campbell et al. the same problem is proposed in Xie et al. (2024) and tested on
+(2018)). Lately, some papers have appeared that perform both types the same instances. The same discretization of the lines is considered
+of tasks, surveillance of lines and delivery of goods, simultaneously
+in Campbell et al. (2021, 2022) to solve a multi-drone version of the
+(Campbell et al.,2023;Corberán et al.,2024).
+Rural Postman Problem, in which the service of the lines is performed
+The specific characteristics of drones make arc routing problems
+by a fleet of drones with limited autonomy. A more advanced type
+with drones quite different from arc routing problems with traditional
+∗ Corresponding author.
+E-mail addresses: tecorfa@alumni.uv.es(T. Corberán),isaac.plana@uv.es(I. Plana),jmsanchis@mat.upv.es(J.M. Sanchis).
+https://doi.org/10.1016/j.cor.2024.106894
+Received 18 July 2024; Received in revised form 30 October 2024; Accepted 31 October 2024
+Available online 9 November 2024
+0305-0548/© 2024 The Authors. Published by Elsevier Ltd. This is an open access article under the CC BY license ( http://creativecommons.org/licenses/by/4.0/ ).
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+of drone that can make deliveries and map surfaces in the same LARP with vehicle capacity constraints, present two mixed integer for-
+flight, called a multi-purpose drone, is considered in Campbell et al. mulations to obtain lower bounds, and propose a simulated annealing
+(2023), where the authors present a formulation for the problem and metaheuristic.Lopes et al.(2014) propose some heuristic algorithms for
+propose a branch-and-cut procedure and a matheuristic algorithm. A solving the LARP with capacity constraints. More recently,Fernández
+stochastic arc-inventory routing problem applied to traffic monitoring et al.(2019) studied several families of LARPs and proposed exact solu-
+with drones is studied byChow(2016), who proposes an approximate tion procedures for them. For more information on LARPs, we refer the
+dynamic programming algorithm. The capacitated and inventory arc reader to the recent survey byAlbareda-Sambola and Rodríguez-Pereira
+routing problems are combined byLi et al.(2018) in a mixed integer (2019).
+programming formulation for solving a drone scheduling problem in There are real applications in which a set of lines that form a
+traffic monitoring. network (power lines, pipelines, roads, etc.) must be monitored or
+Given that drones have limited flight autonomy, for some appli- inspected. As we have mentioned before, drones equipped with video
+cations it is necessary to use other types of support ground vehicles cameras are increasingly being used for these jobs, which only have
+that can serve as a point for launching and retrieving the drones, to fly over the lines and retransmit or record the captured images. If
+as well as recharging or exchanging batteries. The coordination of the network to be inspected is very large, such as electrical, pipe, or
+ground vehicles with drones has been widely discussed in the literature road networks, this work must be carried out by several drones, since
+for node routing problems (see, for example, Chung et al. (2020)). a single drone does not have a sufficiently large range. In addition,
+However, few works have addressed this problem from the point of drones must be supported by ground vehicles that bring them closer
+view of arc routing problems. Amorosi et al. consider a problem in to the network. These ground vehicles need an operational point close
+which there is a mothership that can move freely in a two-dimensional to the infrastructure for parking and performing the necessary tasks for
+space. In these works, a single mothership and one (Amorosi et al.,
+launching, handling and retrieving the drone. In addition, the vehicle
+2021,2024) or several drones (Amorosi et al.,2023), are considered,
+can carry a set of batteries so that, if the drone does not have sufficient
+which must travel a certain percentage of the length of a set of lines.Xu
+autonomy to perform the entire task, it can return to the vehicle, have
+et al.(2023) study a problem in which a ground vehicle, which moves
+its battery replaced by a new one, and then fly again to continue
+on a directed network, carries several drones that can be launched to
+inspecting the lines. Therefore we need to select an operational point
+perform patrolling tasks on some arcs. They propose a formulation and
+for each vehicle and design the flights that the drone will perform from
+a metaheuristic algorithm for its solution. Luo et al. (2019) studied a
+this point so that every line of the network is supervised by one drone.
+patrolling problem with one ground vehicle and one drone, in which
+The goal is to complete the work as soon as possible, so we need to
+both vertices and arcs of an urban road network had to be visited. They
+take into account the time used by each vehicle to get to the assigned
+propose a heuristic algorithm with a neighborhood search strategy.
+point and back plus the flight time of its drone, and then minimize the
+Arc routing problems with several depots have not been given much
+longest time among all the vehicles.
+attention in the literature. Fernández and Rodríguez-Pereira (2017)
+Consider a set of (usually curved) lines that must be serviced while
+study the Multi-Depot Rural Postman Problem (MD-RPP), in which
+traversed by drones, each with an associated service cost, a point called
+there is a fleet of vehicles, each one based on a different depot, that has
+the depot where there are𝑃 trucks, each one carrying a drone, and a set
+to collectively traverse a subset of required edges. They consider two
+of𝐷≥𝑃 points called the launching (and landing) points. Each truck
+different objective functions, one minimizing the total cost and another
+has to travel to one of the launching points to launch and then pick up
+one the length of the longest route. The same problem is addressed
+the drone from there, which can perform several flights. Two different
+by Fernández et al. (2018), who perform a worst-case comparison
+between the optimal values of the MD-RPP and the RPP, propose an
+trucks cannot go to the same launching point. We assume that we know
+alternative formulation of the problem and implement a branch-and-cut
+the cost (in distance or time) of a truck traveling from the depot to each
+algorithm. Another multi-depot arc routing problem that has been stud-
+one of the launching points, we know the cost (in distance or time) of
+ied is the Multi-Depot Capacitated Arc Routing Problem (MD-CARP).
+traveling while servicing with a drone each line, and that the cost (in
+In this problem, there is a demand associated with each required edge
+distance or time) for a drone to deadhead between any two points is
+and a maximum capacity for each vehicle. For this problem, Amberg
+proportional to the Euclidean distance. The cost of each drone flight
+et al. (2000) propose a tabu search algorithm that transforms the
+cannot be greater than a certain constant𝐿(related to the drone’s flight
+problem into a multiple center capacitated minimum spanning tree
+range). The goal is to determine to which launching point each truck
+problem.Muyldermans et al.(2003) present heuristic algorithms based
+has to go, and find, for each truck, a set of some drone routes starting
+on clustering the required arcs into districts. Wøhlk (2004) develops
+and ending at this launching point and with costs no greater than𝐿in
+a mathematical model for the MD-CARP that also takes into account such a way that they jointly traverse all the given lines completely and
+the fixed costs of the vehicles and designs a heuristic algorithm for its that the maximum cost of a truck plus all the corresponding flights of
+solution.Xing et al.(2010) andHu et al.(2013) propose metaheuristic its drone is minimum. This problem will be called Min Max Multi-trip
+algorithms for the problem.Krushinsky and Van Woensel(2015) study drone Location Arc Routing Problem, MM-MT-dLARP.
+an asymmetric version of the MD-CARP and provide a formulation and Given that drones can travel off the network and go directly be-
+an exact algorithm. As far as we know, the only work dealing with tween any two points, not necessarily the endpoints of the required
+a multi-depot arc routing considering the use of drones is the one lines, this is a continuous optimization problem in which the shape
+by Corberán et al. (2024), who study the Multi-Depot Drone General of the lines to service must be taken into account. To deal with this
+Routing Problem with duration and capacity constraints. In that prob- problem, the instances are digitized, that is, each line to be serviced
+lem, a fleet of drones, each one based on a different depot, have to is described as a polygonal chain, with a sequence of points given by
+jointly traverse a set of required lines and deliver some commodities their coordinates and assuming that drones can only enter and exit a
+in a set of required vertices, without exceeding the capacity or the line through these points. Each segment in the polygonal chain has a
+maximum flight time of the drones. A branch-and-cut algorithm and service cost that is proportional to the service cost of the line so that
+two matheuristics are proposed. the sum of the costs of the segments that approximate a line is equal to
+Problems that combine the design of routes servicing some arcs and the service cost of the line. The depot and the𝐷launching points are
+the decision of where to locate the depots from which these routes also given by their coordinates. We assume that drones can fly directly
+start are called Location Arc Routing Problems (LARP). These problems between any two points, with a deadheading cost proportional to the
+were first described inGhiani(1998), where location and allocation arc Euclidean distance computed from their coordinates. Hence, we have
+routing problems are introduced. Doulabi and Seifi (2013) consider a an instance of an ARP (studied in Section2).
+2
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+The main contributions of this paper are the following. We in- • there are at most 𝑃 launching points that have some of their
+troduce a new problem, the MM-MT-dLARP, that considers drones flights not empty, and therefore, there are at least𝐷−𝑃 launching
+and terrestrial support vehicles and combines multi-depot, location points that have all their flights empty,
+and arc routing problems. We propose a matheuristic algorithm for • they jointly service (traverse) all the required edges, and
+its solution. Furthermore, we present a formulation for its discrete • the length of each one of these𝐷 𝐾 tours is less than or equal to
+version, theMin Max Multi-Trip Location Arc Routing Problem, MM-MT- 𝐿.
+LARP, and introduce several families of inequalities that strengthen the
+These MM-MT-LARP solutions can be expressed with the following
+formulation. We use this polyhedral study to develop a branch-and-cut
+binary variables (in the absence of ambiguity, we will use the notation
+algorithm. A new set of benchmark instances for the MM-MT-LARP has
+𝑑 𝑘∈×instead of(𝑑 , 𝑘) ∈×for simplicity):
+been generated and extensive computational experiments have been
+conducted to assess the performance of the proposed methods. • For each edge 𝑒 ∈ 𝐸 and for each tour 𝑑 𝑘 ∈ ×, variable
+The remainder of this paper is structured as follows. In Section 2, 𝑥𝑑 𝑘 takes the value 1 if 𝑒 is traversed by tour 𝑘 starting at the
+we describe the MM-MT-LARP, propose a formulation and conduct the la
+𝑒
+unching point𝑑, and 0 otherwise.
+polyhedral study. The branch-and-cut algorithm for its exact solution • For each edge𝑒∈𝐸 and for each tour𝑑 𝑘∈×, variable𝑦𝑑 𝑘
+is detailed in Section3while Section4is devoted to the description of
+takes the value 1 if
+𝑁
+𝑒
+𝑅
+is traversed twice by tour𝑘starting at th
+𝑒
+e
+the matheuristic algorithm for the MM-MT-dLARP. The computational
+launching point𝑑, and 0 otherwise.
+experiments are reported in Section5and some conclusions and future
+research lines are discussed in Section6. Variable 𝑥𝑑 𝑘 represents the first traversal of edge 𝑒 and 𝑦𝑑 𝑘 the
+second one. N
+𝑒
+ote that the required edges do not need variab
+𝑒
+le 𝑦𝑑 𝑘
+𝑒
+2. The Min Max Multi-Trip Location Arc Routing problem since a second traversal, if needed, will always be done through the
+parallel non-required edges, which is cheaper. Hence, associated with
+The MM-MT-LARP is defined on an undirected graph 𝐺 = (𝑉 , 𝐸). each MM-MT-LARP solution we can consider:
+The set of edges𝐸contains a subset𝐸 𝑅 of required edges (correspond- ∙𝐷 𝐾 incidence vectors(𝑥𝑑 𝑘, 𝑦𝑑 𝑘) ∈Z2|𝐸𝑁𝑅|+|𝐸𝑅|, one for each drone
+ing to the segments of the polygonal chains). The set of vertices 𝑉 tour𝑑 𝑘, where variables𝑥𝑑 𝑘take the value 1 if edge𝑒is traversed once,
+s
+c
+u
+o
+b
+n
+s
+ta
+et
+in
+
+s t
+w
+h
+i
+e
+t h
+s u
+th
+b
+e
+s e
+v
+t
+e
+𝑉
+rt
+𝑅
+ic
+w
+es
+i t
+c
+h
+o r
+t
+r
+h
+e
+e
+s p
+v
+o
+e
+n
+r
+d
+ti
+i
+c
+n
+e
+g
+s
+t
+i
+o
+n c
+th
+id
+e
+e
+l
+n
+a
+t
+u
+w
+nc
+i
+h
+th
+in
+e
+g
+d
+p
+g
+o
+e
+i
+s
+n
+i
+t
+n
+s,
+𝐸
+an
+𝑅
+d
+, a
+a
+vari
+∙
+ab
+𝐷
+le
+𝐾
+s𝑦
+s
+𝑑 𝑒
+u
+𝑘
+pp
+ta
+o
+k
+r
+e
+t
+t
+g
+h
+r
+e
+a p
+v
+h
+a
+s
+lu
+𝑒
+(
+e
+𝑉
+1
+, 𝐸
+if
+( 𝑥
+e
+𝑑
+d
+𝑘,
+g
+𝑦𝑑
+e
+𝑘)
+𝑒
+),
+i s
+o
+t
+n
+r
+e
+a v
+f
+e
+o
+r
+r
+s e
+e
+d
+a c
+tw
+h
+ic
+d
+e
+r
+,
+o n
+an
+e
+d
+tour 𝑑 𝑘,
+vertex0that represents the depot (and can also be a launching point). where 𝐸(𝑥𝑑 𝑘,𝑦𝑑 𝑘) contains one copy of edge 𝑒 ∈ 𝐸 for each variable
+The set of non-required edges𝐸 𝑁𝑅 ⊂ 𝐸includes an edge between each 𝑥𝑑 𝑘= 1or𝑦𝑑 𝑘= 1.
+pair of vertices in𝑉. Note that each𝑒∈𝐸 𝑅 has a parallel non-required
+𝑒
+Note tha
+𝑒
+t the support graphs are even and connected. Conversely,
+edge, which we denote as 𝑒′. 𝐸 𝑁 ′ 𝑅 represents the set of non-required any even and connected subgraph of 𝐺 corresponds to a tour on 𝐺.
+edges parallel to a required one, while𝐸 𝑁 ′′ 𝑅 =𝐸 𝑁𝑅 ⧵𝐸 𝑁 ′ 𝑅 . In fact, an incidence vector or a subgraph may correspond to several
+Each𝑒∈𝐸 𝑅 has a service cost𝑐 𝑒 𝑠 >0and each non-required edge different closed walks, but all of them have the same cost and they can
+𝑒 ∈ 𝐸 𝑁𝑅 has a deadheading cost 𝑐 𝑒 > 0. We assume that 𝑐 𝑒 𝑠 ≥ 𝑐 𝑒′ for be easily computed (with the Hierholzer algorithm (1873) (Hierholzer,
+each required edge𝑒and its corresponding parallel non-required edge
+1873), for example). Hence, and for the sake of simplicity, we will
+𝑒′, and that the deadheading costs satisfy the triangle inequality. For let ‘‘tour on 𝐺’’ denote the closed walk, its incidence vector, and its
+each launching point𝑑∈,𝑐
+0𝑑
+≥0is the cost for a truck to travel from
+corresponding support graph.
+depot 0 to point𝑑. There is a fixed number𝑃 of trucks, and the goal
+is to select𝑃 launching points, one for each truck, and find, for each
+2.1. A formulation
+one of these launching points, a set of drone flights (or drone tours,
+i.e., closed walks starting and ending at the launching point) with cost The variables 𝑥𝑑 𝑘, 𝑦𝑑 𝑘 defined above are enough to represent an
+no greater than a given constant 𝐿 in such a way that all the tours MM-MT-LARP solution: We can check, for each 𝑑 𝑘, if (𝑥𝑑 𝑘, 𝑦𝑑 𝑘) forms
+jointly traverse all the required edges, and that the maximum of the
+a tour starting and ending at 𝑑, we can see if there are exactly 𝑃
+costs calculated as the sum of the cost of the travel truck plus the costs
+launching points with, at most, 𝐾 non-empty tours starting at it, we
+of all its corresponding tours, is minimum. The launching points could
+can check if the length of each tour is less than or equal to 𝐿, and
+be considered as some facilities to be opened if a truck goes to this
+we can calculate the total cost of the route (truck plus drone flights)
+point to launch its drone. The cost 2𝑐 can be understood as a fixed
+0𝑑 associated with each launching point. However, to formulate the MM-
+cost of opening the point𝑑 considered as a facility. In this way, we do
+MT-LARP problem we need, or at least are convenient, some additional
+not need the depot to be a given vertex in the graph and we assume
+𝑧𝑑 variables to indicate which launching point is open to receive a
+𝑉 =𝑉 ∪. Therefore, our problem can be considered as aLocation Arc
+𝑅 truck:
+Routing Problem. Hence, we will call the problem theMin Max Multi-trip
+Location Arc Routing Problem, MM-MT-LARP. • For each 𝑑 ∈ , variable 𝑧𝑑 takes the value 1 if the launching
+Although in the definition of the problem the number of flights that point𝑑 is used by a truck, and 0 otherwise.
+each drone performs is not limited, to formulate the problem we need
+to define this number. We will call𝐾 the maximum number of flights
+These 𝑧 variables are ‘‘superfluous’’ in the sense that if we know the
+that a drone can perform from its launching point. The value of𝐾for a
+𝑥, 𝑦variables associated with an MM-MT-LARP solution, we know the
+given instance is obtained from the solutions reached with the heuristic
+corresponding variables𝑧. But they are useful to formulate the problem,
+algorithm presented in Section 4. We want to note that the instance
+as we will see next.
+may have a better solution with more than 𝐾 flights. Since there are We use the following notation. Given two subsets of vertices𝑆 , 𝑆′⊆
+𝐷 = |  | launching points and each single drone can perform up to 𝑉,(𝑆∶𝑆′)denotes the edge set with one endpoint in𝑆 and the other
+𝐾 flights, a feasible solution of the MM-MT-LARP on 𝐺 can have up one in 𝑆′. Given a subset 𝑆 ⊆ 𝑉, let us denote 𝛿(𝑆) = (𝑆 ∶ 𝑉⧵𝑆)
+to 𝐷 𝐾 drone tours, although only 𝑃 𝐾 drone tours can be non-empty and 𝐸(𝑆) = (𝑆 ∶ 𝑆). For simplicity, when 𝑆 = {𝑖}, 𝑖 ∈ 𝑉, we write
+in a feasible solution (up to 𝐾 flights for each of the 𝑃 trucks). Let a 𝛿(𝑖) instead of 𝛿({𝑖}). For any subset 𝐹 ⊆ 𝐸 = 𝐸 𝑅 ∪𝐸 𝑁𝑅 , we denote
+MM-MT-LARP solution denote any set of 𝐷 𝐾 tours on graph 𝐺 (some 𝐹 𝑅 =𝐹 ∩𝐸 𝑅 and𝐹 𝑁𝑅 =𝐹 ∩𝐸 𝑁𝑅 , and, for simplicity, we write𝛿 𝑅 (𝑆)
+maybe empty), satisfying that instead of𝛿(𝑆) 𝑅 . Moreover, given a vector𝑥indexed on the edges set
+𝐸 and a subset of edges𝐹 ⊂ 𝐸,𝑥(𝐹)denotes ∑ 𝑥 . Given a vector
+𝑒∈𝐹 𝑒
+• there are up to 𝐾 tours starting and ending at each launching 𝑦 indexed on the set 𝐸 and a subset of edges 𝐹 ⊂ 𝐸, 𝑦(𝐹) denotes
+𝑁𝑅
+point𝑑∈, ∑ 𝑦 . Finally,(𝑥+𝑦)(𝐹)and(𝑥−𝑦)(𝐹)represent𝑥(𝐹) +𝑦(𝐹)and
+𝑒∈𝐹𝑁𝑅 𝑒
+3
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+𝑥(𝐹) −𝑦(𝐹), respectively. Note that(𝑥+𝑦)(𝐹)includes variables𝑥 for Proof.If a solution satisfies𝑥𝑑 𝑘+𝑦𝑑 𝑘= 2, necessarily satisfies𝑥𝑑 𝑘= 1
+𝑒∈𝐹, and variables𝑦 for𝑒∈𝐹 .
+𝑒
+(because𝑥𝑑 𝑘≥𝑦𝑑 𝑘 holds) and
+𝑒
+the d
+𝑒
+r
+′
+one travels three times betw
+𝑒′
+een𝑖
+𝑒 𝑁𝑅 𝑒′ 𝑒′
+The MM-MT-LARP can be formulated as follows: and𝑗, so we can remove two copies and get a better feasible solution.
+⧫
+Minimize 𝑡 (1)
+2.2. Polyhedral study
+s.t.
+∑ ∑ 𝑐𝑠𝑥𝑑 𝑘+ ∑ ∑ 𝑐 ( 𝑥𝑑 𝑘+𝑦𝑑 𝑘) + 2𝑐 𝑧𝑑 ≤𝑡, ∀𝑑∈ (2) To study the polyhedron associated with the solutions of the MM-
+𝑒 𝑒 𝑒 𝑒 𝑒 0𝑑 MT-LARP, we have to ignore the restriction that limits the length of the
+𝑘∈𝑒∈𝐸
+(
+𝑅
+𝑥𝑑 𝑘+𝑦𝑑 𝑘
+𝑘
+)
+∈
+(
+
+𝛿
+𝑒
+(
+∈
+𝑣
+𝐸
+) )
+𝑁𝑅
+≡0(mod 2), ∀𝑑 𝑘∈×, ∀𝑣∈𝑉 (3) d
+co
+ro
+n
+n
+v
+e
+e x
+t o
+h
+u
+u
+r
+l
+s
+l
+t
+o
+o
+f
+𝐿
+a
+.
+l l
+L
+t
+e
+h
+t
+e
+M
+i
+T
+n
+-
+c
+L
+id
+A
+e
+R
+n
+P
+c
+(
+e
+𝐺
+v
+)
+e
+d
+c
+e
+to
+n
+r
+o
+s
+t e
+o f
+t h
+M
+e
+T
+p
+-
+o
+L
+l
+A
+y
+R
+to
+P
+p e
+s o
+d
+l
+e
+u
+f
+t
+i
+i
+n
+o
+e
+n
+d
+s
+a
+o
+s
+n
+th
+𝐺
+e
+,
+( 𝑥𝑑 𝑘+𝑦𝑑 𝑘 )( 𝛿(𝑆) )≥2𝑥𝑑 𝑘, ∀𝑑 𝑘∈×, i.e., MM-MT-LARP solutions in 𝐺 without considering the mentioned
+𝑓 restriction on the length of the drone tours, or any set of𝐷 𝐾 tours on
+∀𝑆 ⊆ 𝑉∖{𝑑}, ∀𝑓 ∈𝐸(𝑆) (4) graph𝐺(closed walks, maybe empty),
+∑ ∑
+𝑥𝑑 𝑒 𝑘≥1, ∀𝑒∈𝐸 𝑅 (5)
+(
+𝑥1,1, 𝑦1,1, 𝑥1,2, 𝑦1,2,…, 𝑥1,𝐾, 𝑦1,𝐾, 𝑥2,1, 𝑦2,1…, 𝑥𝐷 ,𝐾, 𝑦𝐷 ,𝐾, 𝑧
+)
+𝑘∈𝑑∈
+𝑥
+
+𝑑 𝑘≥𝑦𝑑 𝑘, ∀𝑒∈𝐸 , ∀𝑑 𝑘∈× (6)
+∈Z𝐷 𝐾(2|𝐸𝑁𝑅|+|𝐸𝑅|)+𝐷,
+𝑒 𝑒 𝑁𝑅
+∑ 𝑐𝑠𝑥𝑑 𝑘+ ∑ 𝑐 (𝑥𝑑 𝑘+𝑦𝑑 𝑘)≤𝐿𝑧𝑑, ∀𝑑 𝑘∈× (7) satisfying that
+𝑒 𝑒 𝑒 𝑒 𝑒
+𝑒∈𝐸𝑅 𝑒∈𝐸𝑁𝑅 • each tour ( 𝑥𝑑 ,𝑘, 𝑦𝑑 ,𝑘) starts and ends at launching point𝑑∈,
+∑
+𝑧𝑑 ≤𝑃 (8) • there are at most 𝑃 launching points that have some of their
+𝑥𝑑 𝑒
+𝑑
+𝑘
+∈
+∈ {0,1}, ∀𝑒∈𝐸 , ∀𝑑 𝑘∈× (9)
+f
+1
+l
+,
+ights not empty, and at most 𝑃 𝑧𝑑 variables taking the value
+𝑦𝑑 𝑘∈ {0,1}, ∀𝑒∈𝐸 , ∀𝑑 𝑘∈×(10) • there are at least 𝐷−𝑃 launching points have all their flights
+𝑒 𝑁𝑅
+empty, andat least𝐷−𝑃 𝑧𝑑 variables taking the value 0, and
+𝑧𝑑 ∈ {0,1}, ∀𝑑∈. (11)
+• they jointly service (traverse) all the required edges.
+In this section we are going to use some results about the𝐾-vehicles
+The objective function (1) minimizes 𝑡, which is the maximum of Rural Postman Problem (𝐾-RPP) polyhedron studied inCampbell et al.
+the costs calculated as the sum of the cost of the truck travel plus (2022). In that paper, all vertices of the graph 𝐺 are assumed to be
+the costs of all its corresponding drone flights, defined by constraints incident with required edges. However, it can be seen that the results on
+(2). Constraints(3)force that the number of times a drone flight visits the polyhedron are also valid for graphs in which there are ‘‘isolated’’
+a vertex is even, possibly zero. Constraints (4) avoid subtours and vertices, that is, vertices that are not incident with any required edge.
+ensure that each tour is connected and connected to its corresponding This is necessary in this section since if in the graph 𝐺 we declare a
+launching point and are calledconnectivity inequalities. Constraints(5) launching point as the depot to define a 𝐾-RPP instance, the other
+force each required edge to be serviced at least once. Note that these launching points may be ‘‘isolated’’ vertices.
+inequalities could be replaced by equalities, ∑ 𝑘∈ ∑ 𝑑∈𝑥𝑑 𝑒 𝑘 = 1, but
+we need the inequalities to do the polyhedral study. Nevertheless, in 2.2.1. The length-constrained𝐾-Drones RPP and𝐾-RPP
+the branch-and-cut algorithm, we use the equalities to strengthen the The Length-Constrained 𝐾-Drones Rural Postman Problem (LC 𝐾-
+formulation. Constraints (6) guarantee that a second traversal of an DRPP), presented in Campbell et al. (2018) and studied in Campbell
+edge by a drone can only occur when it has been traversed previously et al. (2022), is defined as follows: ‘‘Given a set of lines, each one
+by this drone. Constraints (7) guarantee that the cost of each tour with an associated service cost, and a point called the depot (vertex
+corresponding to a given launching point does not exceed𝐿if this point 1, for example), assuming that the cost of deadheading between any
+is used by a truck and that the tour is empty if that launching point is two points is the Euclidean distance, and given a constant 𝐿, find a
+not used by a truck. Constraint (8) ensures that at most 𝑃 locations set of drone routes starting and ending at the depot and with lengths
+are used (one for each truck). Constraints (9), (10), and (11) are the no greater than 𝐿 such that they jointly traverse all the given lines
+binary conditions for the variables. Note that the𝑧variables are used completely with minimum total cost’’. With the previous notation,
+to compute the total cost associated with each truck(2), to ensure that except that now variables 𝑥𝑘 𝑒 , 𝑦𝑘 𝑒 have a superindex 𝑘 referring the
+at most𝑃 launching points are opened(8)and that if a launching point drone,𝑘∈ {1,2,…, 𝐾}, the discrete version of the LC𝐾-DRPP, called
+is not open then all the tours that start at it are zero while, if it is open, LC𝐾-RPP, is formulated in Campbell et al.(2022) as follows:
+then the length of the tours that start at it are of length less than or Minimize ∑ 𝐾 ( ∑ 𝑐𝑠𝑥𝑘+ ∑ 𝑐 ( 𝑥𝑘+𝑦𝑘) )
+equal to𝐿(7). 𝑒 𝑒 𝑒 𝑒 𝑒
+For each drone, there are three variables to represent the traversals
+𝑘=1 𝑒∈𝐸𝑅 𝑒∈𝐸𝑁𝑅
+between the two endpoints𝑖and𝑗 of a required edge𝑒. The reason is s.t.
+that we need to distinguish between traversing𝑒while serving it (with a ( )( )
+𝑥𝑘+𝑦𝑘 𝛿(𝑖) ≡0 (mod 2), ∀𝑖∈𝑉 , ∀𝑘= 1,…, 𝐾 (12)
+cost𝑐 𝑒 𝑠) or deadheading𝑒′once or twice (with a cost𝑐 𝑒′ ≤𝑐 𝑒 𝑠). Although ( )( )
+in all the optimal solutions the three variables will never be non-zero 𝑥𝑘+𝑦𝑘 𝛿(𝑆) ≥2𝑥𝑘, ∀𝑆 ⊆ 𝑉⧵{1},∀𝑓∈𝐸(𝑆),
+simultaneously (seeProposition 1), we need the three variables to state
+𝑓
+the length of a route in the problem formulation (constraints (2) and ∀𝑘= 1,…, 𝐾 (13)
+(7)). ∑ 𝑐𝑠𝑥𝑘+ ∑ 𝑐 ( 𝑥𝑘+𝑦𝑘)≤𝐿, ∀𝑘= 1,…, 𝐾 (14)
+𝑒 𝑒 𝑒 𝑒 𝑒
+𝑒∈𝐸𝑅 𝑒∈𝐸𝑁𝑅
+Proposition 1. For each𝑒∈𝐸 and its parallel edge𝑒′∈𝐸′ , for each 𝐾
+tour𝑑 𝑘∈×, the inequality 𝑅 𝑥𝑑 𝑒 𝑘+𝑦𝑑 𝑒′ 𝑘 ≤1is satisfied by 𝑁 a 𝑅 ny optimal ∑ 𝑥𝑘 𝑒 ≥1, ∀𝑒∈𝐸 𝑅 (15)
+solution of the MM-MT-LARP on𝐺(if𝑐 𝑒′ >0). 𝑘=1
+𝑥𝑘≥𝑦𝑘, ∀𝑒∈𝐸 , ∀𝑘= 1,…, 𝐾 (16)
+𝑒 𝑒 𝑁𝑅
+4
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+𝑥𝑘∈ {0,1}, ∀𝑒∈𝐸 , ∀𝑘= 1,…, 𝐾 (17) corresponds to a feasible MT-LARP solution and the columns labeled
+𝑒 𝑅
+𝑥𝑘, 𝑦𝑘∈ {0,1}, ∀𝑒∈𝐸 , ∀𝑘= 1,…, 𝐾 . (18) (𝑥𝑑∗, 𝑦𝑑∗)correspond to the flights departing from the launching point
+𝑒 𝑒 𝑁𝑅 𝑑. It can be seen that similar solutions could be built with all values for
+𝐷≥𝑃 ≥2. Furthermore, if𝑓 and𝑚 are the first row of matrices𝐴̄1
+1 2
+If we remove constraints(14), we have the𝐾-RPP. In what follows, and𝐴2, respectively, the last three rows of the matrix inFig. 1a, with a
+we recall some results presented in Campbell et al. (2022) for the 𝐾- single drone but two launching points open, are also feasible solutions.
+RPP with 𝐾 ≥ 2 on graph 𝐺 = (𝑉 , 𝐸) = (𝑉 , 𝐸 ∪ 𝐸′ ∪ 𝐸′′ ). Again, it can be seen that similar solutions could be built with all values
+𝑅 𝑅 𝑁𝑅 𝑁𝑅
+Let 𝐾-RPP(𝐺) denote the polytope defined as the convex hull of the for𝐷≥𝑃 ≥2, where𝑃 ≥2is needed to open two launching points.
+vectors (𝑥1, 𝑦1, 𝑥2, 𝑦2,…, 𝑥𝐾, 𝑦𝐾) ∈ Z𝐾(2|𝐸𝑁𝑅|+|𝐸𝑅|) corresponding to 𝐾- This matrix has𝐷 𝑚+ 1 +𝐷rows representing MT-LARP solutions. If
+RPP solutions. The proofs of the following two propositions can be we subtract the first row from all the others, we subtract the first row
+found in Campbell et al.(2022): of block two from the last row, and remove the first row, we obtain
+the matrix inFig. 1b, which has its𝐷 𝑚+𝐷rows linearly independent.
+Proposition 2. If(𝑉 , 𝐸 )is a 3-edge connected graph, then𝐾-RPP(𝐺) Hence, we have𝐷 𝑚+ 1 +𝐷affinely independent MT-LARP solutions and
+𝑁𝑅
+is a full-dimensional polyhedron, i.e., dim(𝐾-RPP(𝐺))=𝐾(2|𝐸 𝑁𝑅|+|𝐸 𝑅|). the dimension of the polyhedron is𝐷 𝑚+𝐷=𝐷 𝐾(2|𝐸 𝑁𝑅|+|𝐸 𝑅|) +𝐷.
+⧫
+In the following, we will assume that𝐷≥𝑃 ≥2and that(𝑉 , 𝐸 )
+Proposition 3. The following inequalities are facet-inducing of 𝐾- 𝑁𝑅
+is a 3-edge connected graph and thus MT-LARP(𝐺) is a full-dimensional
+RPP(𝐺):
+polytope. Therefore, every facet of the polyhedron is induced by a
+1. Inequality 𝑦𝑘 ≥ 0, for each edge 𝑒 ∈ 𝐸 , and for each drone unique inequality (except scalar multiples).
+𝑒 𝑁𝑅
+𝑘∈ {1,2,…, 𝐾}.
+2. Inequality 𝑥𝑘 ≤ 1, for each edge 𝑒 ∈ 𝐸 , and for each drone Proposition 5. Inequality𝑦𝑑 𝑘≥0, for each edge𝑒∈𝐸 , and for each
+𝑒 𝑁𝑅 𝑒 𝑁𝑅
+𝑘∈ {1,2,…, 𝐾}. flight𝑑 𝑘∈×, is facet-inducing of MT-LARP(𝐺).
+3. Inequality(16)𝑥𝑘≥𝑦𝑘, for each edge𝑒∈𝐸 , and for each drone
+𝑒 𝑒 𝑁𝑅
+𝑘∈ {1,2,…, 𝐾}, if graph(𝑉 , 𝐸 ⧵{𝑒})is 3-edge connected.
+𝑁𝑅 Proof.Without loss of generality, let us suppose that𝑑= 1and𝑘= 1.
+4. Inequality 𝑥𝑘 ≤ 1, for each edge 𝑒 ∈ 𝐸 , and for each drone
+𝑒 𝑅 Consider the 𝐾-RPP defined on graph 𝐺 considering the launching
+𝑘∈ {1,2,…, 𝐾}.
+point𝑑= 1as the depot and looking for𝐾 tours that jointly traverses
+5. Inequality 𝑥𝑘 ≥ 0, for each edge 𝑒 ∈ 𝐸 , and for each drone
+𝑒 𝑅 all the required edges 𝑒 ∈ 𝐸 . Since (𝑉 , 𝐸 ) is 3-edge connected,
+𝑘∈ {1,2,…, 𝐾}. 𝑅 𝑁𝑅
+6. Inequalities(15), ∑𝐾 𝑥𝑘≥1, for each edge𝑒∈𝐸 . inequality 𝑦1 𝑒 ≥ 0 is facet inducing of 𝐾-RPP(𝐺) (Proposition 3) and
+7. Connectivity inequal
+𝑘
+i
+=
+ti
+1
+es
+𝑒
+(13), if subgraph (𝑆 , 𝐸
+𝑁
+𝑅
+𝑅
+(𝑆)) is 3-edge
+t
+fo
+h
+r
+e
+m
+re
+e d
+ar e
+wi
+𝑚
+th
+=
+𝐾
+𝐾
+t
+(
+o
+2
+u
+|𝐸
+rs
+𝑁 𝑅
+th
+|
+a
++
+t
+|
+j
+𝐸
+o
+𝑅
+in
+|
+t
+)
+ly
+a ff
+t
+i
+r
+n
+a
+e
+v
+l
+e
+y
+r s
+i
+e
+n d
+a
+e
+ll
+p e
+th
+n
+e
+d e
+r
+n
+e
+t
+q
+𝐾
+ui
+-
+r
+R
+ed
+P P
+e d
+so
+g
+l
+e
+u
+s
+t i
+a
+o
+n
+n
+d
+s
+connected and either |𝑉⧵𝑆| = 1 or subgraph (𝑉⧵𝑆 , 𝐸 𝑁𝑅 (𝑉⧵𝑆)) satisfy𝑦1= 0. Given that vector zero is in the affine hull of the vectors
+is 3-edge connected. satisfyin 𝑒 g𝑦1= 0, there are𝑚− 1linearly independent𝐾-RPP solutions
+𝑒
+formed with 𝐾 tours that jointly traverse all the required edges and
+Furthermore, other inequalities such as parity or 𝑝-connectivity
+satisfy𝑦1= 0.
+inequalities are also studied inCampbell et al.(2022) and proved that, 𝑒
+Let 𝐵1 be the incidence matrix of these 𝑚 − 1 𝐾-RPP linearly
+under mild conditions, they also are facet inducing of𝐾-RPP(𝐺). These
+independent solutions as rows indexed by the variables𝑥, 𝑦as columns.
+inequalities are adapted to the MT-LARP in Section2.3. This matrix has rank𝑚− 1. For the remaining launching points𝑑 ≠1
+let𝐴𝑑 be the incidence matrices inProposition 4. If we assign one of
+2.2.2. The polytope of solutions the𝐾-RPP solutions in𝐵1 to the launching point𝑑= 1and the vector
+zero to the remaining launching points, we obtain a feasible solution for
+Proposition 4. If (𝑉 , 𝐸 𝑁𝑅 ) is a 3-edge connected graph, then MT- the MT-LARP in𝐺satisfying𝑦11= 0. If we assign the vector zero to the
+LARP(𝐺) is a full-dimensional polyhedron, i.e., dim(MT-LARP(𝐺))= 𝐷 𝐾 launching point𝑑= 1, one of th 𝑒 e𝐾-RPP solutions in𝐴𝑑to a point𝑑≠1
+(2|𝐸 𝑁𝑅|+|𝐸 𝑅|) +𝐷, for𝐷≥𝑃 ≥2.
+and zero to the remaining launching points, we obtain also a feasible
+solution for the MT-LARP in𝐺 satisfying𝑦11 = 0. By expressing these
+𝑒
+Proof. Consider the 𝐾-RPP defined on graph 𝐺 considering a given solutions as the rows of a matrix we obtain the three first row blocks of
+launching point 𝑑 as the depot and looking for 𝐾 tours that jointly the matrix inFig. 2for𝐷= 3launching points and𝑃 = 2trucks, where
+traverses all the required edges𝑒∈𝐸 . Since(𝑉 , 𝐸 )is 3-edge con- 𝑧variables have been defined accordingly. Furthermore, if𝑓 1 ,𝑚 2 and
+|
+a
+n
+𝐸
+f
+e
+f
+𝑅
+c
+in
+t
+|
+e
+)
+e
+d
+ly
+=
+, f
+i
+r
+n
+𝑚
+o
+d
+m
+e
+(f
+p
+u
+P
+e
+l
+r
+n
+l
+o
+-
+d
+d
+p
+e
+i
+o
+n
+m
+s
+t
+i
+e
+,
+t
+n
+i
+a
+o
+s
+n
+n
+i
+d
+o
+2
+n
+a
+a
+l
+w
+l
+s o
+e
+p
+𝑚
+o
+h
+l
+a
+y
+l
+v
+i
+h
+n
+e
+e
+e
+d
+t
+a
+h
+r
+r
+𝑅
+o
+a
+ly
+n
+t
+)
+d
+i
+.
+n
+im
+d
+T
+e
+h
+(
+p
+𝐾
+e
+e
+r
+-
+n
+e
+R
+f
+d
+o
+P
+e
+r
+P
+n
+e
+𝑁 (
+t
+,
+𝐺 𝑅
+𝐾
+t
+)
+h
+)
+-
+e
+=
+R
+r
+P
+e
+𝐾
+P
+a
+( 2
+s
+r
+o
+e
+|𝐸
+lu
+𝑚
+𝑁
+t
+𝑅
+io
++
+|
+n
++
+1
+s
+𝑚
+t
+s
+h
+e
+3
+e
+re
+n
+a
+e
+r
+t
+e
+h
+r o
+a
+t
+w
+h
+t
+e
+s
+s u
+o
+f
+c
+i
+f
+r
+h
+s
+t
+t
+h
+a
+e
+r
+c
+o
+o
+m
+w
+n
+a
+s
+t
+o
+t
+r
+r
+f
+i
+u
+x
+m
+c t
+i
+a
+n
+io
+tr
+n
+F
+i
+i
+c
+g
+c
+e
+a
+.
+s
+n
+2
+𝐵
+b
+a
+1
+e
+r
+,
+e
+d
+𝐴
+a
+o
+2
+l
+n
+s
+a
+e
+o
+n
+w
+f
+d
+e
+i
+a
+t
+𝐴
+h
+si
+3
+b
+a
+,
+l
+l
+e
+r
+l
+e
+𝐷
+s
+s
+o
+p
+l
+≥
+e
+u
+c
+t
+𝑃
+t
+i
+i
+o
+v
+n
+≥
+e
+s
+l
+.
+y
+2
+,
+I
+v
+t
+t
+a
+h
+c
+l
+a
+e
+u
+n
+e
+l
+s
+a
+b
+.
+s
+e
+t
+formed with𝐾 tours that jointly traverse all the required edges.
+This matrix has 𝐷 𝑚+𝐷− 1 rows representing MT-LARP solutions
+For each launching point 𝑑, let 𝐴̄𝑑 be the incidence matrix of the satisfying𝑦1 𝑒 1= 0. The rank of this matrix is𝐷 𝑚+𝐷− 1and, given that
+corresponding 𝑚 + 1 𝐾-RPP affinely independent solutions as rows
+vector zero is in the affine hull of the vectors satisfying𝑦1
+𝑒
+1= 0, we have
+indexed by the variables𝑥, 𝑦as columns. This matrix𝐴̄𝑑 has𝑚+ 1rows 𝐷 𝑚+𝐷affinely independent MT-LARP solutions satisfying𝑦1 𝑒 1= 0and
+and we can assume, without loss of generality, that,
+the inequality𝑦1
+𝑒
+1≥0is facet inducing of MT-LARP(𝐺). ⧫
+Note that inequality𝑦𝑑 𝑘 ≤1, for each edge𝑒∈𝐸 , is dominated
+• after removing the first row we obtain a matrix, say𝐴𝑑 with rank
+by inequality (6), 𝑥𝑑 𝑘 ≥
+𝑒
+𝑦𝑑 𝑘, and, hence, it does no
+𝑁
+t
+𝑅
+induce a facet.
+𝑚, and that
+Similarly, we have th
+𝑒
+at ineq
+𝑒
+uality𝑥𝑑 𝑘≥0, for each edge𝑒∈𝐸 , does
+• after subtracting the first row of𝐴̄𝑑from the rows of𝐴𝑑we obtain
+not induce a facet. On the other ha
+𝑒
+nd, inequalities𝑥𝑑 𝑘≤1an
+𝑁
+d
+𝑅
+𝑧𝑑 ≥0
+a matrix, say𝑀𝑑, also with rank𝑚.
+are dominated by inequality𝑥𝑑 𝑘≤𝑧𝑑.
+𝑒
+If we assign one of these𝐾-RPP solutions to one launching point𝑑,
+𝑒
+the vector zero to the remaining launching points𝑑′ ≠𝑑,𝑧𝑑 = 1, and Proposition 6. Inequality𝑥𝑑 𝑘≥𝑦𝑑 𝑘, for each edge𝑒∈𝐸 , and𝑥𝑑 𝑘≥0,
+𝑧𝑑′ = 0, we obtain a feasible solution for the MT-LARP. For example, for each edge𝑒∈𝐸 , and fo 𝑒 r each 𝑒 flight𝑑 𝑘∈×, ar 𝑁 e 𝑅 facet-in 𝑒 ducing
+for𝐷= 3launching points and𝑃 = 2trucks we can build in this way of MT-LARP(𝐺).
+𝑅
+the three first block rows of the matrix in Fig. 1a, where each row
+5
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+Fig. 1. Matrices appearing in the proof ofProposition 4for𝐷= 3and𝑃= 2.
+Fig. 2. Matrix appearing in the proof ofProposition 5for𝐷= 3and𝑃= 2. Fig. 3. Matrix appearing in the proof ofProposition 7for𝐷= 3and𝑃= 2.
+Proof.The proof is similar to that ofProposition 5and is omitted here
+for the sake of brevity. ⧫
+If we assign one of the𝐾-RPP solutions in𝐵𝑑to the launching point
+𝑑 and the vector zero to the remaining launching points, we obtain a
+Proposition 7. Inequality (5), ∑ 𝑘∈ ∑ 𝑑∈𝑥𝑑 𝑒 𝑘 ≥ 1, for each edge f B e y a s d ib ef l i e n s in o g lu t t h io e n 𝑧 fo v r a r t i h a e b l M es T a -L c A co R r P d i i n n gl 𝐺 y a sa n t d is f e y x i p n r g es ∑ si 𝑘 n ∈ g  t ∑ he 𝑑 s ∈ e  s 𝑥 o 𝑑 𝑒 lu 𝑘 ti = o n 1 s .
+𝑒∈𝐸 , is facet-inducing of MT-LARP(𝐺).
+𝑅 as the rows of a matrix we obtain a matrix similar to that in Fig. 3
+for 𝐷 = 3 and 𝑃 = 2, where each 𝑓 is the first row of matrix 𝐵𝑖.
+𝑖
+Proof.Consider a given launching point𝑑 and the𝐾-RPP defined on This matrix has𝐷 𝑚+𝐷rows representing MT-LARP solutions satisfying
+g fo r r ap 𝐾 h t 𝐺 ou c r o s n t s h i a d t e r jo in in g tl t y h e t r l a a v u e n r c se h s i n a g l l p t o h i e n t re 𝑑 qu a i s r e t d h e e d d g e e p s o 𝑒 t a ∈ n 𝐸 d lo . o S k in in c g e ∑ 𝑘∈ ∑ 𝑑∈𝑥𝑑 𝑒 𝑘 = 1. The rank of this matrix is 𝐷 𝑚+𝐷 and, given
+𝑚
+( o 𝑉 f , 𝐾
+=
+𝐸 - 𝑁 R
+𝐾
+𝑅 P
+(
+) P
+2
+(
+|
+is
+𝐸
+𝐺
+𝑁
+3 )
+𝑅
+- ( e s
+|
+d e
++
+g e e C
+| 𝐸
+c a o
+𝑅
+m n
+|
+p
+)
+n b e
+a
+e c
+f
+l
+f
+t l
+i
+e
+n
+d e
+e
+t ,
+l
+a
+y
+in l . e
+i
+,
+n
+q 2
+d
+u 0
+e
+a 2
+p
+li 2
+e
+t
+n
+y o
+d
+r ∑
+e
+P
+n
+𝐾 𝑘 r
+t
+= o 1
+𝐾
+p 𝑥 o
+-
+𝑘 𝑒 s
+R
+i ≥ t
+P
+i
+P
+o 1 n
+s
+i
+o
+3 s
+l
+) f
+u
+a a
+t
+c
+i
+n
+o
+e d
+n
+t
+s
+t i h 𝑅 n
+f
+e d
+o
+r u
+r
+e
+m
+c i a n
+e
+r
+d
+g e ∑ t
+s
+h
+o
+a 𝑘
+lu
+∈ t
+t
+
+i
+v
+o
+∑ e
+n
+c
+s
+𝑑 t ∈ o
+s
+ r
+a t
+𝑥 z
+i
+𝑑 𝑒
+s
+e 𝑘
+f
+r
+y
+o
+i
+=
+n
+i
+g
+s 1 ,
+∑
+n w o
+𝑘
+t e
+∈ 
+i h n a
+∑
+v t
+𝑑
+h e
+∈
+e
+
+𝐷 a
+𝑥
+𝑚 f
+𝑑 𝑒
+f
+𝑘
++ ine 𝐷
+=
+h a
+1
+u f
+.
+f l l i
+T
+n o
+h
+e f l
+e
+y
+r
+t
+e
+h i
+f
+n e
+o
+d
+r
+e s
+e
+o p
+,
+l e u
+i
+n
+n
+t d
+e
+io
+q
+e n n
+u
+s t
+a l
+M s
+it
+a
+y
+T ti - s
+(
+L f
+5
+y A
+)
+i R n
+i
+P g
+s
+with 𝐾 tours that jointly traverse all the required edges and satisfy facet inducing of MT-LARP(𝐺). ⧫
+∑𝐾 𝑥𝑘= 1. Furthermore, as vector zero is not in the affine hull of the
+𝑘=1 𝑒
+vectors satisfying ∑𝐾 𝑥𝑘= 1, there are𝑚linearly independent𝐾-RPP
+𝑘=1 𝑒
+solutions that satisfy ∑𝐾 𝑥𝑘= 1. Let𝐵𝑑 be the incidence matrix of the Proposition 8. Inequality 𝑧𝑑 ≤ 1, for each 𝑑 ∈ , is facet-inducing of
+𝑘=1 𝑒
+above𝑚 𝐾-RPP linearly independent solutions as rows indexed by the MT-LARP(𝐺).
+variables𝑥, 𝑦as columns, with rank𝑚.
+6
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+linearly independent solutions as rows indexed by the variables𝑥, 𝑦as
+columns. This matrix𝐵1 has rank𝑚− 1. For the remaining launching
+points 𝑑 ≠ 1 let 𝐴𝑑 be the incidence matrices in Proposition 4. The
+remaining of the proof is similar to that ofProposition 5. ⧫
+2.3. Other valid inequalities for the MM-MT-LARP
+In this section we present two families of inequalities that are
+valid for the MM-MT-LARP and are also facet-inducing of MT-LARP(𝐺)
+under mild conditions, the parity inequalities and the 𝑝-connectivity
+inequalities, as well as the max-length inequalities, which we do not
+know if they induce a facet of the polyhedron or not but are valid for
+the MM-MT-LARP and have proven to be very useful computationally.
+2.3.1. Parity inequalities
+Although constraints (3) could be linearized by adding some new
+variables, we consider the followingparity inequalitiesinstead:
+(𝑥𝑑 𝑘−𝑦𝑑 𝑘)(𝛿(𝑆)∖𝐹)≥(𝑥𝑑 𝑘−𝑦𝑑 𝑘)(𝐹) −|𝐹|+ 1, ∀𝑑 𝑘∈×,
+Fig. 4. Matrix appearing in the proof ofProposition 9for𝐷= 3and𝑃= 2.
+∀𝑆 ⊂ 𝑉 ,∀𝐹 ⊆ 𝛿(𝑆) ∶
+|𝐹| is odd (19)
+Proof. Without loss of generality, let us suppose that 𝑑 = 1. All the
+solutions constructed in Proposition 4 but changing all the entries 0 Proposition 11. Parity inequalities (19), for all 𝑑 𝑘 ∈  × , for
+in the column corresponding to 𝑧1 by 1, are also MT-LARP solutions all 𝑆 ⊂ 𝑉, and for all 𝐹 ⊆ 𝛿(𝑆) such that |𝐹| is odd, are valid for
+satisfying 𝑧1 = 1 (see the matrix in Fig. 1a). Removing the last row, MT-LARP(𝐺).
+since it is now the same as the first row of block rows two, and
+proceeding as inProposition 4, we obtain that the remaining𝐷 𝑚+𝐷
+rows are affinely independent, and all satisfy that 𝑧1 = 1. Therefore, Proof.Let(𝑥̄, 𝑦̄, 𝑧̄)be an arbitrarious MT-LARP solution and let us see
+the inequality𝑧1≤1induces a facet of MT-LARP(𝐺). ⧫ that it satisfies(𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘)(𝛿(𝑆)∖𝐹)≥(𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘)(𝐹) −|𝐹|+ 1.
+If (𝑥̄, 𝑦̄, 𝑧̄) satisfies (𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘)(𝐹) ≤ |𝐹|− 1, the inequality reduces
+to (𝑥̄𝑑 𝑘 −𝑦̄𝑑 𝑘)(𝛿(𝑆)∖𝐹) ≥ 0, which is obviously satisfied. Otherwise,
+Proposition 9. Inequality (8), ∑ 𝑑∈𝑧𝑑 ≤ 𝑃, is facet-inducing of the solution (𝑥̄, 𝑦̄, 𝑧̄) satisfies (𝑥̄𝑑 𝑘 −𝑦̄𝑑 𝑘)(𝐹) = |𝐹|, i.e., 𝑥̄𝑑 𝑘(𝐹) = |𝐹|
+MT-LARP(𝐺) if, and only if,𝑃 < 𝐷. and𝑦̄𝑑 𝑘(𝐹) = 0, and the inequality reduces to(𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘)(𝛿(𝑆)∖𝐹)≥1.
+Since the drone tour𝑑 𝑘must traverse the cut-set𝛿(𝑆)an even number
+Proof.If𝑃 =𝐷 then ∑ 𝑑∈𝑧𝑑 ≤𝑃 =𝐷 is the sum of the inequalities o
+o
+f
+f
+t
+t
+i
+i
+m
+m
+e
+e
+s
+s
+,
+.
+a
+H
+n
+e
+d
+nc
+|
+e
+𝐹
+,
+|
+t
+i
+h
+s
+e r
+o
+e
+d d
+is
+,
+,
+𝛿
+a
+(𝑆
+t
+)
+l
+∖
+e
+𝐹
+ast
+m
+a
+u
+n
+s t
+e
+b
+d
+e
+g e
+tr
+𝑒
+a
+∗
+ver
+∈
+sed
+𝛿 (𝑆
+an
+)∖ 𝐹
+odd
+s u
+n
+ch
+um
+t
+b
+h
+e
+a
+r
+t
+𝑧𝑑 ≤1for all𝑑.
+𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘= 1and we are done. ⧫
+If𝑃 < 𝐷, the proof is similar to that ofProposition 4and we omit 𝑒∗ 𝑒∗
+the details for brevity. Just note that the solutions built inProposition 4 Constraints(19)cut off infeasible solutions in which there is a cut-
+but changing the entries corresponding to the variables𝑧as stated in set with an odd number of edges traversed exactly once (these edges
+the matrix in Fig. 4 are MT-LARP solutions that satisfy ∑ 𝑑∈𝑧𝑑 = 𝑃. define the set𝐹) and the other edges are traversed twice or none.
+Proceeding as inProposition 4, we obtain that these𝐷 𝑚+𝐷rows are
+affinely independent, and the inequality ∑ 𝑑∈𝑧𝑑 ≤𝑃 is facet inducing Proposition 12. Parity inequalities (19), for all 𝑑 𝑘 ∈ ×, for all
+of MT-LARP(𝐺). ⧫ 𝑆 ⊂ 𝑉, and for all 𝐹 ⊆ 𝛿(𝑆) such that |𝐹| is odd, are facet-inducing of
+MT-LARP(𝐺) if subgraphs(𝑆 , 𝐸 (𝑆))and(𝑉⧵𝑆 , 𝐸 (𝑉⧵𝑆))are 3-edge
+𝑁𝑅 𝑁𝑅
+connected.
+Proposition 10. Connectivity inequalities(4), ( 𝑥𝑑 𝑘+𝑦𝑑 𝑘)( 𝛿(𝑆) )≥2𝑥𝑑 𝑘,
+𝑓
+∀𝑑 𝑘 ∈ ×, ∀𝑆 ⊆ 𝑉∖{𝑑}, and ∀𝑓 ∈ 𝐸(𝑆), are facet-inducing of MT-
+L
+or
+A R
+su
+P
+b
+(
+g
+𝐺
+ra
+)
+p
+i
+h
+f s
+(
+u
+𝑉
+bg
+⧵
+r
+𝑆
+a
+,
+p
+𝐸
+h(𝑆 ,
+( 𝑉
+𝐸
+𝑁
+⧵
+𝑅
+𝑆
+(
+)
+𝑆
+)
+)
+i
+)
+s
+i
+3
+s
+-
+3
+e
+-
+d
+e
+g
+d
+e
+g e
+c o
+c
+n
+o
+n
+n
+e
+n
+c
+e
+t
+c
+e
+t
+d
+e
+.
+d and either|𝑉⧵𝑆|= 1
+l
+P
+e
+r
+t
+o
+u
+o
+s
+f.
+a
+(
+s
+a
+s
+)
+u m
+Le
+e
+t
+t
+u
+h
+s
+a t
+su
+𝑑
+pp
+=
+o se
+1
+t
+a
+h
+n
+a
+d
+t |
+𝑘
+𝐹|
+=
+=
+1 .
+1 .
+C o
+W
+n
+i
+s
+t
+i
+h
+d
+o
+e
+u
+r
+t
+th
+lo
+e
+ss
+𝐾
+o
+-R
+f
+P
+g
+P
+e n
+d
+e
+e
+ra
+fi
+l
+n
+it
+e
+y
+d
+,
+𝑁𝑅
+on graph 𝐺 considering the launching point 𝑑 = 1 as the depot and
+looking for 𝐾 tours that jointly traverses all the required edges 𝑒 ∈
+Proof. Without loss of generality, let us suppose that 𝑑 = 1 and 𝐸 . Since subgraphs (𝑆 , 𝐸 (𝑆)) and (𝑉 ⧵𝑆 , 𝐸 (𝑉 ⧵𝑆)) are 3-edge
+𝑅 𝑁𝑅 𝑁𝑅
+𝑘 = 1. Consider the 𝐾-RPP defined on graph 𝐺 considering the connected, inequality (𝑥1 −𝑦1)(𝛿(𝑆)∖𝐹) ≥ (𝑥1 −𝑦1)(𝐹) −|𝐹|+ 1 is
+launching point 𝑑 = 1 as the depot and looking for 𝐾 tours that facet inducing of𝐾-RPP(𝐺) (see Campbell et al.,2022) and there are
+jointly traverses all the required edges𝑒∈𝐸 𝑅 . Since(𝑉 , 𝐸 𝑁𝑅 )is 3-edge 𝑚 = 𝐾(2|𝐸 𝑁𝑅|+|𝐸 𝑅|) affinely independent 𝐾-RPP solutions formed
+connected, and subgraph (𝑆 , 𝐸 𝑁𝑅 (𝑆)) is 3-edge connected and either with 𝐾 tours that jointly traverse all the required edges and satisfy
+|𝑉⧵𝑆|= 1or subgraph(𝑉⧵𝑆 , 𝐸 𝑁𝑅 (𝑉⧵𝑆))is 3-edge connected, inequality (𝑥1−𝑦1)(𝛿(𝑆)∖𝐹) = (𝑥1−𝑦1)(𝐹) −|𝐹|+ 1. Given that vector zero is in
+𝑥1(
+𝛿(𝑆)
+) +𝑦1(
+𝛿(𝑆)
+)≥2𝑥1
+is facet inducing of𝐾-RPP(𝐺) (seeCampbell the affine hull of the vectors satisfying the inequality as equality (since
+𝑓
+et al., 2022 or Proposition 3) and there are 𝑚 = 𝐾(2|𝐸 𝑁𝑅|+|𝐸 𝑅|) |𝐹|= 1), there are𝑚− 1linearly independent𝐾-RPP solutions formed
+affinely independent𝐾-RPP solutions formed with𝐾 tours that jointly with 𝐾 tours that jointly traverse all the required edges and satisfy
+traverse all the required edges and satisfy𝑥1( 𝛿(𝑆) ) +𝑦1( 𝛿 𝑁𝑅 (𝑆) ) = 2𝑥1 𝑓 . (𝑥1−𝑦1)(𝛿(𝑆)∖𝐹) = (𝑥1−𝑦1)(𝐹) −|𝐹|+ 1. Let𝐵1be the incidence matrix
+Given that vector zero is in the affine hull of the vectors satisfying of these 𝑚− 1 𝐾-RPP linearly independent solutions as rows indexed
+𝑥1( 𝛿(𝑆) ) +𝑦1( 𝛿 𝑁𝑅 (𝑆) ) = 2𝑥1 𝑓 , there are𝑚− 1of such solutions linearly by the variables 𝑥, 𝑦 as columns. This matrix 𝐵1 has rank 𝑚− 1. The
+independent. Let 𝐵1 be the incidence matrix of these 𝑚− 1 𝐾-RPP remaining of the proof is similar to that ofProposition 5in this case.
+7
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+Proof.For the sake of simplicity we will assume that𝑑∈𝑆 . Let(𝑥̄, 𝑦̄, 𝑧̄)
+0
+be any MT-LARP solution and let us prove that it satisfies
+𝑝
+(𝑥̄𝑑 𝑘+𝑦̄𝑑 𝑘)(𝛿(𝑆 )) + 2
+∑
+𝑥̄𝑑 𝑘(𝑆 ∶𝑆)≥2
+∑
+𝑥̄𝑑 𝑘.
+0
+1≤𝑟<𝑡≤𝑝
+𝑟 𝑡
+𝑗=1
+𝑒𝑗
+If𝑥̄𝑑 𝑘= 0for some𝑗∈ {1,…, 𝑝}, then we could consider a new(𝑝− 1)-
+con
+𝑒
+n
+𝑗
+ectivity configuration where sets 𝑆 and 𝑆 have been merged
+𝑗 𝑗+1
+into a single vertex 𝑆 ∪𝑆 (or 𝑆 and 𝑆 if 𝑗 = 𝑝). It can be
+𝑗 𝑗+1 𝑗 𝑗−1
+proved that if its associated (𝑝− 1)-connectivity inequality is satisfied
+by(𝑥̄𝑑 𝑘, 𝑦̄𝑑 𝑘), then the original𝑝-connectivity inequality is also satisfied
+by(𝑥̄𝑑 𝑘, 𝑦̄𝑑 𝑘). So, we can assume that𝑥̄𝑑 𝑘=⋯=𝑥̄𝑑 𝑘= 1.
+If 𝑥̄𝑑 𝑘 = 1 for some 𝑒 ∈ (𝑆 ∶ 𝑆) w
+𝑒
+i
+1
+th 1 ≤ 𝑟 <
+𝑒𝑝
+𝑡 ≤ 𝑝, then we can
+𝑒 𝑟 𝑡
+consider a new(𝑝− 1)-connectivity configuration where sets𝑆 and𝑆
+𝑟 𝑡
+have been merged into 𝑆′ = 𝑆 ∪𝑆 and where 𝑒′ = 𝑒. Again, it can
+𝑟 𝑟 𝑡 𝑟 𝑟
+be proved that if its associated(𝑝−1)-connectivity inequality is satisfied
+by(𝑥̄𝑑 𝑘, 𝑦̄𝑑 𝑘), then the original𝑝-connectivity inequality is also satisfied
+by(𝑥̄𝑑 𝑘, 𝑦̄𝑑 𝑘). Hence, we can assume that𝑥̄𝑑 𝑘(𝑆 ∶𝑆) = 0for each𝑟, 𝑡,
+𝑟 𝑡
+1≤𝑟 < 𝑡≤𝑝.
+Therefore, since 𝑑 ∈ 𝑆 and 𝑥̄𝑑 𝑘 = 1, (𝑥̄𝑑 𝑘+𝑦̄𝑑 𝑘)(𝑆 ∶ 𝑆) ≥ 2 for
+Fig. 5. Matrix appearing in the proof ofProposition 12for𝐷= 3and𝑃= 2. each𝑖= 1,…, 𝑝, and the in
+0
+equality
+𝑒𝑖
+holds.
+0 𝑖
+⧫
+Proposition 14. 𝑝-connectivity inequalities (20) are facet-inducing for
+(b) Let us suppose now that |𝐹| > 1. In this case, the proof is MT-LARP(G) if subgraphs (𝑆 , 𝐸 (𝑆 )), ∀𝑗 = 0,…, 𝑝, are 3-edge con-
+s re im pr i e la s r e n to te t d h e i n p r t e h v e i o m us a t o r n ix e b in ut F u ig si . n 5 g M (th T e -L A ra R n P k s o o f l u s t u io b n m s a b t u ri i x lt 𝐵 as 1 th is os 𝑚 e c n o e n ct n e e d c , te | d (𝑆 , 0 an ∶ d 𝑆 a 𝑗 l ) l | th ≥ e e 2 d , ge ∀ s 𝑗 𝑒
+𝑗
+= ∈ 1
+𝑁
+𝐸 ,
+𝑅
+… (𝑆 ,
+𝑗
+𝑝 ), , ∀ t 𝑗 he ∈ g { r 0 a , p … h i , n 𝑝 d } u ⧵ c { e 𝑖 d } , b a y re 𝑉 re ⧵ q 𝑆 ui 0 re i d s
+since vector zero is not in the affine hull of the vectors satisfying the edges.
+𝑗 𝑗
+inequality as equality). This matrix has𝐷 𝑚+𝐷rows representing MT-
+LARP solutions satisfying the inequality as equality and its rank is
+𝐷 𝑚+𝐷. Therefore, since vector zero is not in the affine hull of the Proof.Without loss of generality, let us suppose that𝑑= 1and𝑘= 1.
+solutions satisfying the inequality as equality, the parity inequality with Consider the 𝐾-RPP defined on graph 𝐺 considering the launching
+|𝐹| ≥3is facet inducing of MT-LARP(𝐺). ⧫ point𝑑= 1as the depot and looking for𝐾 tours that jointly traverses
+all the required edges 𝑒 ∈ 𝐸 . Since subgraphs (𝑆 , 𝐸 (𝑆 )), ∀𝑗 =
+𝑅 𝑗 𝑁𝑅 𝑗
+Remark 1. It can be seen thatProposition 12also applies if one of the
+0
+g
+,
+ra
+…
+ph
+, 𝑝
+i
+,
+n
+a
+d
+r
+u
+e
+c e
+3
+d
+-e d
+b
+g
+y
+e
+𝑉
+c
+⧵
+on
+𝑆
+nec
+is
+t e
+c
+d
+o
+,
+n
+|
+n
+(𝑆
+ec
+0
+te
+∶
+d
+𝑆
+,
+𝑗
+a
+)|
+nd
+≥
+a
+2
+ll
+,
+t
+∀
+h
+𝑗
+e
+=
+e d
+1
+g
+,
+e
+…
+s 𝑒
+, 𝑝,
+∈
+an
+𝐸
+d
+( 𝑆
+th
+)
+e
+,
+two shores𝑆 or𝑉⧵𝑆 consists of only one vertex. ∀𝑗∈ {0,…, 𝑝}⧵{𝑖}, are r
+0
+equired edges, inequality
+𝑗 𝑗
+( 𝑥1+𝑦1) ( 𝛿(𝑆 ) ) + 2 ∑ 𝑥1(𝑆 ∶𝑆)≥2 ∑ 𝑥1
+2.3.
+T
+2
+h
+.
+e
+𝑝
+s
+-
+e
+c o
+c
+n
+o
+n
+n
+e
+s
+c
+t
+t
+r
+i
+a
+v
+i
+i
+n
+ty
+t s
+i n
+a
+e
+r
+q
+e
+u
+b
+a
+a
+li
+s
+ti
+e
+e
+d
+s
+on those introduced inCorberán et al.
+0
+1≤𝑟<𝑡≤𝑝
+𝑟 𝑡
+𝑗∈{0,…,𝑝}⧵{𝑖}
+𝑒𝑗
+(2013) for the maximum benefit CPP to cut off some fractional solutions is facet inducing of 𝐾-RPP(𝐺) (see Campbell et al., 2022) and there
+in which several variables take value 0.5. For example, consider an MT- are𝑚=𝐾(2|𝐸 𝑁𝑅|+|𝐸 𝑅|)affinely independent𝐾-RPP solutions formed
+LARP instance with the vertex set 𝑉 divided into three subsets 𝑆 , 𝑆 with𝐾 tours that jointly traverse all the required edges and satisfy the
+and 𝑆 as shown in Fig. 6a, with a given launching point 𝑑 ∈
+0
+𝑆
+1
+, previous inequality as equality.
+represe
+2
+nted by a triangle, and a fractional solution where, for a give
+0
+n Given that vector zero is in the affine hull of the vectors satisfying
+𝑘, we have 𝑥𝑑 𝑘 = 𝑦𝑑 𝑘 = 0.5 for the three edges depicted in the figure the inequality as equality, there are𝑚− 1linearly independent𝐾-RPP
+joining the se
+𝑒
+ts 𝑆,
+𝑒
+𝑥𝑑 𝑘 = 𝑦𝑑 𝑘 = 0 for the remaining edges joining solutions formed with 𝐾 tours that jointly traverse all the required
+the sets 𝑆, and 𝑥𝑑 𝑖 𝑘 = 𝑒 1, 𝑦𝑑 𝑘 𝑒 = 0 for the two edges drawn in 𝐸(𝑆 ) edges and satisfy the inequality as equality. Let 𝐵1 be the incidence
+and𝐸(𝑆 ).
+𝑖
+It can b
+𝑒
+e seen tha
+𝑒
+t this solution satisfies all the inequalitie
+1
+s matrix of these 𝑚− 1 𝐾-RPP linearly independent solutions as rows
+2
+presented in previous sections. In particular, it satisfies as equality indexed by the variables𝑥, 𝑦as columns. This matrix𝐵1has rank𝑚− 1.
+the connectivity inequality(4)associated with sets𝑆 , 𝑆 and𝑆 . The The remaining of the proof is similar to that ofProposition 5. ⧫
+0 1 2
+previous fractional solution is cut by the following inequality, valid for
+the MT-LARP (Proposition 13): 2.3.3. Max-length inequalities
+( 𝑥𝑑 𝑘+𝑦𝑑 𝑘)( 𝛿(𝑆 ) ) + 2𝑥𝑑 𝑘 ( 𝑆 ∶𝑆 ) ≥2𝑥𝑑 𝑘+ 2𝑥𝑑 𝑘. The inequalities presented in this section are based on the limit𝐿
+0 1 2 𝑒1 𝑒2 to the cost of a drone flight. Consider an edge set𝐹 ⊆ 𝐸 such that the
+𝑅
+cost of the optimal tour (or a lower bound to it) starting and ending at
+In general, let {𝑆 0 ,…, 𝑆 𝑝 } be a partition of 𝑉, a launching point a given launching point𝑑̄, and traversing all the edges in𝐹, is greater
+𝑑∈, and a flight𝑘∈. Assume that𝑑∈𝑆 𝑖 ,𝑖∈ {0,…, 𝑝}, and select than𝐿. We have that a single flight𝑘cannot service all the arcs in𝐹
+an edge𝑒 𝑗 ∈𝐸(𝑆 𝑗 )for each𝑗∈ {0,…, 𝑝}⧵{𝑖}(seeFig. 6b). We will call from𝑑̄and, hence, inequalities
+p
+(
+-
+𝑥
+c
+𝑑
+o
+𝑘
+nn
++
+e
+𝑦
+ct
+𝑑
+i
+𝑘
+v
+)
+it
+(
+y
+𝛿
+i
+(
+n
+𝑆
+eq
+) )
+ua
++
+l i
+2
+ty t
+∑
+o:
+𝑥𝑑 𝑘(𝑆 ∶𝑆)≥2 ∑ 𝑥𝑑 𝑘 (20)
+𝑥𝑑̄ 𝑘(𝐹)≤ |𝐹|− 1, ∀𝑘∈, (21)
+0
+1≤𝑟<𝑡≤𝑝
+𝑟 𝑡
+𝑗∈{0,…,𝑝}⧵{𝑖}
+𝑒𝑗
+called disaggregate max-length inequalities, are valid for the MM-MT-
+LARP.
+On the other hand, under the same circumstances, for a given𝑘, at
+Proposition 13. 𝑝-connectivity inequalities (20) are valid for MT- least another flight different from(𝑑̄ , 𝑘)must enter any subgraph of𝐺
+LARP(G). that contains all edges in𝐹 but does not contain any launching point
+8
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+Fig. 6. 𝑝-connectivity inequalities.
+𝑑 ∈. Hence, if𝑊 ⊂ 𝑉⧵is a set of vertices containing the vertices (c) Let us suppose a tour visits a given vertex 𝑗 ∈ 𝑉𝑛 more than
+𝑅
+incident with the edges in𝐹, the following inequalities 𝑛 times (each visit implies traversing two edges). Note that there are
+∑ ( 𝑥𝑑′𝑘′+𝑦𝑑′𝑘′ )( 𝛿(𝑊) ) ≥2, ∀𝑘∈, (22) only 𝑛 services associated with vertex 𝑗: the service of the 𝑛 required
+(𝑑′,𝑘′)≠(𝑑̄ ,𝑘)
+edges incident with it. Therefore, all visits to the vertex𝑗, except𝑛of
+them, are performed by deadheading two edges consecutively, which
+calledaggregate max-lengthinequalities, are also valid for the MM-MT-
+contradicts (a).
+LARP on𝐺.
+(d) Let us suppose a tour traverses a cutset 𝛿(𝑖) three times in
+deadheading. From (a), we can assume that no two of these traver-
+Remark 2. If, in inequalities (22) the set 𝑊 includes some launching
+sals are consecutive. Hence, each visit to 𝑖 consists of traversing one
+points, the inequality cou ld be changed to
+required edge and one non-required one. Let us suppose that two visits
+∑ ( 𝑥𝑑′𝑘′+𝑦𝑑′𝑘′ )( 𝛿(𝑊) ) ≥2 − ∑ 2𝑧𝑑, ∀𝑘∈. (23) are performed by traversing first the required edge and then the non-
+(𝑑′,𝑘′)≠(𝑑̄ ,𝑘) 𝑑∈𝑊∩ required one (if it is the other way round, the argument is analogous),
+𝑑∉𝑊
+and let (𝑖, 𝑣 ) and (𝑖, 𝑣 ) be these two non-required edges. Then, by
+1 2
+removing these two traversals, changing the direction of traversal of
+2.4. Other inequalities that strengthen the formulation the edges between𝑣 1 and𝑖and then adding the traversal of the non-
+required edge(𝑣 , 𝑣 )we obtain a new drone tour with lower or equal
+1 2
+The inequalities in this section are not valid for the MM-MT-LARP, cost, because𝑐 𝑣1𝑣2 ≤𝑐 𝑣1𝑖 +𝑐 𝑖𝑣2 . ⧫
+because they are not satisfied by all the MM-MT-LARP solutions, but
+they can be used because there is at least one optimal solution that
+satisfies them. Furthermore, the following results allow us to remove
+Corollary 1. The following inequalities can be added to the formulation:
+some𝑦variables from the formulation (see Note3). (𝑥𝑑 𝑘+𝑦𝑑 𝑘)(𝛿(𝑑))≤2, ∀𝑑 𝑘∈× (24)
+2.4.1. Maximum deadheading inequalities 𝑥𝑑 𝑘=𝑦𝑑 𝑘= 0, ∀𝑑 𝑘∈×, ∀𝑒∈𝛿(𝑑′), ∀𝑑′∈⧵{𝑑} (25)
+For each 𝑛 = 1,2,…, let 𝑉𝑛 denote the set of vertices in 𝑉 with 𝑒 𝑒
+𝑅 𝑅
+required degree 𝑛 (the number of required edges incident with the ∑ 𝑥𝑑 𝑘=𝑥𝑑 𝑘, ∀𝑖∈𝑉1, (𝑖, 𝑗) ∈𝐸 , ∀𝑑 𝑘∈× (26)
+vertex). Note that the required degree of vertices inis zero. 𝑒 𝑖𝑗 𝑅 𝑅
+𝑒∈𝛿𝑁𝑅(𝑖)
+Proposition 15. There is an optimal MM-MT-LARP solution in which
+𝑦𝑑
+𝑒
+𝑘= 0, ∀𝑑 𝑘∈×, ∀𝑒= (𝑖, 𝑗) ∈𝐸
+𝑁𝑅
+with𝑖∈𝑉
+𝑅
+1 (27)
+each drone tour 𝑑 𝑘 ∈ ×, considered as a walk (sequence of edge
+traversals), satisfies: ∑ ( 𝑥𝑑 𝑒 𝑘+𝑦𝑑 𝑒 𝑘)≤ ∑ 𝑥𝑑 𝑒 𝑘, ∀𝑖∈𝑉 𝑅 𝑛 (𝑛 >1), ∀𝑑 𝑘∈× (28)
+𝑒∈𝛿𝑁𝑅(𝑖) 𝑒∈𝛿𝑅(𝑖)
+(a) It does not deadhead two edges(𝑖, 𝑗),(𝑗 , 𝑘)consecutively. ∑ ( 𝑥𝑑 𝑘+𝑦𝑑 𝑘)≤2, ∀𝑖∈𝑉 , ∀𝑑 𝑘∈×. (29)
+(b) It does not visit the vertices in, except the initial and final visit to 𝑒 𝑒
+𝑑.
+𝑒∈𝛿𝑁𝑅(𝑖)
+(c) It does not visit a vertex in𝑉𝑛 more than𝑛times.
+𝑅
+(d) It does not deadhead more than twice a cutset 𝛿(𝑖) for any vertex
+Proof. All these inequalities except for (26) can be trivially deduced
+𝑖∈𝑉.
+fromProposition 15: Inequalities(24)and equalities(25)are deduced
+from (b). Note that inequalities (24) are not equalities because some
+drone tours could be empty. If 𝑖 ∈ 𝑉1 and (𝑖, 𝑗) ∈ 𝐸 , from (c) it is
+Proof. (a) Let us suppose a tour deadheads two edges (𝑖, 𝑗), (𝑗 , 𝑘) deduced that ∑ ( 𝑥𝑑 𝑘+𝑦𝑑 𝑘) ≤ 𝑅 𝑥𝑑 𝑘. Since the n 𝑅 umber of edges
+consecutively. These two edges are non-required since each required
+incident with any
+𝑒∈
+v
+𝛿𝑁
+e
+𝑅
+rt
+(𝑖
+e
+)
+x m
+𝑒
+ust b
+𝑒
+e even, t
+𝑖
+h
+𝑗
+is inequality must be satisfied
+edge is only traversed once when it is serviced. Recall that the non-
+with equality. Moreover, given that the right-hand side is at most 1
+required edge(𝑖, 𝑘)exists because𝐸
+𝑁𝑅
+induces a complete graph, and
+and 𝑦𝑑 𝑘 ≤ 𝑥𝑑 𝑘, all the variables 𝑦𝑑 𝑘 must be 0 and can be removed,
+that 𝑐
+𝑖𝑘
+≤ 𝑐
+𝑖𝑗
++𝑐
+𝑗 𝑘
+due to the triangle inequality. The tour obtained
+thus o
+𝑒
+btainin
+𝑒
+g (26) and (27). Ineq
+𝑒
+ualities (28) are deduced from (c).
+after replacing the traversal of(𝑖, 𝑗),(𝑗 , 𝑘)with the traversal of(𝑖, 𝑘)has
+Inequalities(29)are deduced from (d). ⧫
+a lower or equal cost and services the same required edges as the former
+tour.
+(b) A drone tour starts and ends at a given launching point𝑑∈. Remark 3. The variables in(25)and(27)for each drone tour𝑑 𝑘can
+If it visits𝑑 again, or another𝑑′ ∈, it deadheads two edges, which be removed from the formulation, rather than set equal to zero.
+contradicts (a).
+9
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+2.4.2. Symmetry-breaking inequalities and the edge in𝛿(𝑆)⧵𝐹 with the highest value of𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘(or𝑥̄𝑑 𝑘), and
+𝑒 𝑒 𝑒
+To avoid equivalent solutions produced by the symmetry among we choose either to remove the first one from𝐹 or to add the second
+the different flights of each drone, the following symmetry-breaking one to𝐹. Finally, the parity inequality corresponding to sets𝑆 and𝐹
+inequalities are also added. Assume the required edges are ordered as is checked for violation.
+( 𝑒 1 , 𝑒 2 ,…, 𝑒 𝑚 ) . For each launching point𝑑∈we add the constraints In addition to the previous algorithm, we try a second one consisting
+𝑖−1 of applying the Ghiani and Laporte procedure to all sets𝑆 containing
+𝑥𝑑 𝑒𝑖 𝑘≤
+∑
+𝑥 𝑒 𝑑 𝑗 (𝑘−1), ∀𝑘= 2,…, 𝐾 , 𝑖=𝑘,…, 𝑚 (30) one single vertex. Note that, by applying this algorithm, we guarantee
+𝑗=𝑘−1 that the integer solutions found will satisfy the parity conditions.
+𝑥𝑑 𝑘= 0, ∀𝑘=𝑖+ 1,…, 𝐾 , 𝑖= 1,…, 𝑚− 1 (31)
+𝑒𝑖
+𝑝-connectivity inequalities(20)
+Constraints(30)ensure that a flight𝑑 𝑘can only service edge𝑒 if To separate these inequalities, we have devised the following heuris-
+𝑖
+the previous flight 𝑑(𝑘− 1) has serviced at least one of the previous tic algorithm. We first compute the connected components of the graph
+edges in the ordering. Constraints (31) ensure that no edge before 𝑒 𝑘 induced by the required edges with𝑥̄𝑑 𝑒 𝑘>0. Let us call𝐶𝑖to the vertex
+in the ordering can be served by flight 𝑑 𝑘. Note that flights based sets of these components. We iteratively shrink two sets 𝐶𝑖 and 𝐶𝑗 if
+on different launching points are not interchangeable, because they (𝑥̄𝑑 𝑘+𝑦̄𝑑 𝑘)(𝐶𝑖∶𝐶𝑗)≥2, while possible. For each resulting set of vertices
+have to start and end at a different vertex. Therefore, we do not 𝐶𝑖 we proceed as follows. For each 𝐶𝑖 that contains more than one
+need symmetry-breaking constraints involving flights from different vertex or the launching point𝑑, let us denote𝑆 0 =𝐶𝑖and the remaining
+launching points. sets𝐶𝑗 as𝑆 1 ,…, 𝑆 𝑝 . For each set𝑆 𝑖 containing one single vertex, we
+merge it with the more convenient set 𝑆 . Then, for each set 𝑆 not
+𝑗 𝑖
+3. Branch-and-cut algorithm for the MM-MT-LARP
+W
+co
+h
+n
+i
+t
+l
+a
+e
+in
+𝑝
+i n
+>
+g
+2
+𝑑
+,
+,
+w
+w
+e
+e
+t
+c
+r
+h
+y
+o
+t
+o
+o
+s e
+m
+t
+e
+h
+r
+e
+g e
+e d
+p
+g
+a
+e
+ir
+𝑒
+s
+𝑖
+o
+∈
+f
+𝐸
+se
+(
+t
+𝑆
+s
+𝑖 )
+𝑆
+w
+a
+it
+n
+h
+d
+m
+𝑆
+ax
+a
+im
+cc
+u
+o
+m
+rd
+v
+in
+a
+g
+lu
+t
+e
+o
+𝑥̄
+t
+𝑑 𝑒
+h
+𝑖 𝑘
+e
+.
+𝑖 𝑗
+Based on the formulation presented in Section 2, we have imple- following rules (to allow a simpler notation, we will assume that for
+mented a branch-and-cut algorithm for the MM-MT-LARP. The initial the set𝑆 𝑖 containing𝑑,𝑥̄𝑑 𝑒𝑖 𝑘= 1):
+LP includes inequalities(2),(6),(7)and(8), inequalities(5)as equali-
+ties, and the bounds on the variables. It also includes inequalities in • If 𝑖, 𝑗 ≠ 0 and 𝑥̄𝑑 𝑘(𝑆 ∶ 𝑆 ) ≥ min{𝑥̄𝑑 𝑘, 𝑥̄𝑑 𝑘}, we merge 𝑆 and
+Proposition 1 for each 𝑒 ∈ 𝐸 𝑅 , the constraints in Corollary 1, and 𝑆 𝑗 . Notice that if we
+𝑖
+shrink
+𝑗
+𝑆 𝑖 and𝑆 𝑗 ,
+𝑒 𝑖
+the
+𝑒 𝑗
+LHS of the inequ
+𝑖
+ality
+the symmetry-breaking inequalities(30)–(31). Moreover, the variables (20) decreases by 2𝑥̄𝑑 𝑘(𝑆 ∶ 𝑆 ) while the RHS decreases by
+𝑖 𝑗
+considered in Note 3 are fixed to zero. Connectivity inequalities (4), 2 min{𝑥̄𝑑 𝑘, 𝑥̄𝑑 𝑘}.
+a (2 n 2 d ) th in e e p q r u e a v l i i o ti u e s s p c a a r n it y b ( e 1 9 se ), p 𝑝 a - r c a o te n d n e w ct i i t v h i ty th ( e 2 0 a ) l , g a o n ri d t h m m a s x - d le e n sc g r t i h be (2 d 1 ) in – • I 𝑆 f𝑗 ) = ≥ 0(
+𝑒
+o 2
+𝑖
+r m 𝑖 i
+𝑒
+= n
+𝑗
+{ 0 𝑥̄ ) 𝑑 a 𝑘 n , 𝑥 d ̄𝑑 𝑘 ( } 𝑥̄𝑑 𝑘 w + e 𝑦̄ m 𝑑 𝑘 a ) k ( e 𝑆 0 𝑆 ∶𝑆 ∶ 𝑖 = ) + ∑ 𝑆 𝑟≠ ∪ 0,𝑖 𝑆 ( 𝑥̄ . 𝑑 𝑘 N − ot 𝑦 e ̄𝑑 𝑘 t ) h ( a 𝑆 t 𝑖 i ∶ f
+this section. The order and frequency in which these algorithms are
+w
+𝑟
+e shrink 𝑆 a
+𝑒
+n
+𝑖
+d 𝑆
+𝑒0
+, the LHS of t
+0
+he inequ
+0
+ality
+𝑖
+(20) decreases
+applied will be determined by the computational experiments described by ( 𝑥̄𝑑 𝑘+𝑦̄𝑑 𝑘 0 ) (𝑆 ∶ 𝑖 𝑆) since these variables disappear, and by
+in Section5. ∑
+(𝑥̄𝑑
+𝑟≠
+𝑘
+0
++
+,𝑖 (
+𝑦̄
+𝑥̄
+𝑑
+𝑑
+𝑘
+𝑘
+)(
+−
+𝑆
+𝑦̄
+∶
+𝑑 𝑘
+𝑆
+) 0 (
+)
+𝑆
+,
+𝑖
+wh
+∶ 𝑖
+ile
+𝑆 𝑟
+t
+)
+he
+s i
+R
+n
+H
+ce
+S
+e
+d
+a
+e
+c
+c
+h
+rea
+2
+s
+𝑥̄
+e
+𝑑
+s
+𝑘 (
+b
+𝑆
+y
+𝑖
+2
+∶
+mi
+𝑆
+n{
+𝑟 )
+𝑥̄𝑑
+b
+𝑘
+e
+,
+c
+𝑥̄
+o
+𝑑
+m
+𝑘}
+e
+.
+s
+3.1. Separation algorithms 𝑖 𝑟 𝑒𝑖 𝑒0
+The 𝑝-connectivity inequality (20) associated with the resulting sets
+The separation algorithms are used at each iteration of the cutting- 𝑆 , 𝑆 ,…, 𝑆 is checked for violation. If no violated 𝑝-connectivity
+plane procedure to identify valid inequalities violated by the current in
+0
+equ
+1
+ality h
+𝑝
+as been generated, we repeat the previous process starting
+LP solution, say (𝑥̄, 𝑦̄, 𝑧̄). In some of these procedures, we will use a from the connected components of the graph induced by the edges
+parameter𝜀that takes values close to zero. In what follows we describe (required or not) with𝑥̄𝑑 𝑘>0.5.
+these separation procedures.
+𝑒
+Max-length inequalities(21)–(22)
+Connectivity inequalities(4)
+Although connectivity inequalities (4) for each flight 𝑑 𝑘 ∈ × Max-length inequalities are separated by using a heuristic proce-
+can be exactly separated in polynomial time, this exact procedure is
+dure. This procedure first looks for violated inequalities(21). Given a
+quite time-consuming and usually produces many violated inequalities
+set of edges 𝐹, let grp𝑑(𝐹) be a lower bound of the cost of the GRP
+that are very similar to each other. Therefore, we have decided not
+instance defined in 𝐺 by the edges in 𝐹 as required edges and the
+t
+F c 𝑒
+o
+o o ∈ m r
+u
+𝐸 e
+s
+p
+e
+a u c s t
+i
+u h e
+t
+c c t
+a
+h h o
+n
+e n t
+d
+h n c a
+i
+e o
+m
+t c n t 𝑥
+p
+̄ n e 𝑑 𝑒
+l
+e d
+e
+𝑘 c
+m
+c + te o
+e
+d 𝑦 m ̄
+n
+𝑑 𝑒
+t
+c p 𝑘 o o
+a
+> m n
+h
+e 𝜀 p
+e
+n , o
+u
+t p n
+r
+a l e
+i
+u
+s
+n n
+t
+s d t
+i
+s
+c
+t t h o h
+s
+e f
+e
+e
+p
+l t e a h
+a
+d u e
+r
+g n
+a
+g e
+t
+c
+i
+r h
+o
+𝑓 a i
+n
+p n w h g
+a
+i
+l
+i t p
+g
+n h o
+o
+d i m
+r
+u n
+it
+c t a
+h
+e x 𝑑
+m
+d i , m b i
+i
+f u y
+n
+m n
+s
+t
+t
+e h
+e
+c 𝑥̄ e
+a
+e 𝑑
+d
+s e 𝑘 s
+.
+d , a
+W
+g t r h e y e
+e
+s .
+l
+⋯
+l
+n
+e
+a
+u
+t
+u
+m ≥
+n
+{
+c
+b
+𝑒
+𝑥
+h
+̄ 1 e 𝑑 𝑒
+,
+i
+r 𝑚 𝑘
+n
+𝑒
+s 2
+g
+≥ u
+, …
+c
+p
+0 h
+o
+. 5
+,
+i
+t
+n
+𝑒
+. h 𝑚
+t
+W a
+}
+𝑑
+t e
+b
+𝑥 ̄
+a
+d
+e
+𝑘
+s
+e ( 𝐹
+a
+f
+a
+i n )
+s
+r
+e
+e
+>
+e
+t
+q
+𝐹
+u
+|
+o
+𝐹
+i
+f
+=
+r
+|
+e
+r
+{ −
+d
+e
+𝑒
+q
+1 1
+v
+u
+,
+e
++
+i
+𝑒
+r
+r
+2
+t
+e
+, 𝜀
+e
+d
+… .
+x .
+W
+e
+,
+d
+F
+𝑒 e
+g
+o
+𝑓
+e
+r
+c }
+s
+h ,
+e
+e w
+a
+s
+c
+u
+c
+h k
+h
+c
+e
+h
+i r
+f
+f e
+l
+t
+i
+g
+h
+g
+𝑓 r
+a
+h
+p
+t
+t
+i 𝑑 s (
+𝑥
+𝑑
+̄
+𝐹 t
+𝑑
+𝑒
+𝑘
+h 1 )
+𝑘
+e
+∈
+i
+≥
+s m
+
+g a
+𝑥
+r
+̄
+x e
+𝑑
+𝑒
+×
+i 2 a
+𝑘
+m t
+
+e a
+≥
+r l
+,
+corresponding inequality(4)is checked for violation.
+𝑓
+than 𝐿 and, therefore, the corresponding inequality (21) is violated.
+Otherwise, for each edge𝑒∈ {𝑒 ,…, 𝑒 }, we iteratively consider the
+𝑓+1 𝑚
+Parity inequalities(19) set𝐹 =𝐹∪ {𝑒}and check ifgrp𝑑(𝐹) is greater than𝐿. For each subset𝐹
+For each flight𝑑 𝑘∈×we consider all the subsets𝑆 ⊂ 𝑉 obtained (or 𝐹) whose corresponding inequality (21) is violated, we check the
+by computing the connected components of the graph induced by the max-length inequality (22) corresponding to the cut-set 𝛿(𝑊), where
+edges𝑒∈𝐸 with𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘 > 𝜀and the edges𝑒∈𝐸 with𝑥̄𝑑 𝑘 > 𝜀, 𝑊 is the set of vertices incident with the edges in𝐹 (or𝐹).
+𝑁𝑅 𝑒 𝑒 𝑅 𝑒
+plus the launching point𝑑, if necessary. For each one of these subsets Given a set of edges𝐹, the value ofgrp𝑑(𝐹) is computed by solving
+𝑆, we apply a procedure similar to that described inGhiani and Laporte the corresponding GRP with the branch-and-cut algorithm described
+(2000) for choosing the subset of edges𝐹 ⊆ 𝛿(𝑆)that produces the most in Corberán et al. (2007). To minimize the number of GRPs solved,
+violated parity inequality(19)associated with𝑆. This procedure is as two lists containing the already studied sets𝐹 of edges are managed.
+follows: Note that we do not separate max-length inequalities(23), since in our
+We first include in𝐹 each edge𝑒∈𝛿 (𝑆)with𝑥̄𝑑 𝑘−𝑦̄𝑑 𝑘>0.5and instances, the launching points are not incident with required edges,
+e
+w
+a
+e
+c h
+co
+𝑒
+n
+∈
+sid
+𝛿
+e
+𝑅
+r
+( 𝑆
+th
+)
+e
+w
+e
+it
+d
+h
+ge
+𝑥̄ 𝑑 𝑒
+i
+𝑘
+n
+>
+𝐹
+0
+w
+.5.
+i t
+I
+h
+f |
+t
+𝐹
+he
+| i
+l
+s
+o w
+od
+𝑁
+e
+d
+s
+𝑅
+t
+, w
+va
+e
+l u
+a
+e
+re
+o
+d
+f
+o
+𝑥
+𝑒
+̄
+n
+𝑑
+e
+𝑘
+.
+−
+If
+𝑒
+𝑦̄
+|
+𝑑
+𝐹
+𝑘
+|
+(
+i
+o
+s
+r
+ev
+𝑥̄
+e
+𝑑
+n
+𝑘)
+, a
+re
+n
+m
+d
+o
+t
+v
+h
+i
+u
+n
+s
+g t
+t
+h
+h
+e
+e s
+l
+e
+a u
+i
+n
+n
+c
+e
+h
+q
+i
+u
+n
+a
+g
+l i
+p
+ti
+o
+e
+i
+s
+n t
+c
+s
+a
+f
+n
+r o
+b
+m
+e
+s
+r
+e
+e
+t
+d
+𝑊
+uc
+.
+ed to inequalities (22) by
+𝑒 𝑒 𝑒
+10
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+3.2. The cutting-plane algorithm be the sequence of required edges in the order determined by the
+giant tour 𝑇𝑑. The first flight starts at 𝑑 and follows the giant tour
+The cutting-plane algorithm is applied at each node of the search while the time limitation of the flight is satisfied, taking into account
+tree. It applies, at each iteration and for each flight𝑑 𝑘∈×, all the the time of the way back to the launching point. Let 𝑒 𝑖 be the last
+separation heuristic algorithms described in Section3.1: required edge of𝑇𝑑 traversed by the previous flight. Then, a new flight
+starts at 𝑑 and goes to 𝑒 . It continues following 𝑇𝑑 until adding
+𝑖+1
+• The heuristic for connectivity inequalities(4)with𝜀= 0,0.25,0.5, one more edge would make the flight infeasible. This procedure is
+where the value of𝜀is increased only if no violated inequalities repeated until all edges assigned to 𝑑 are traversed by a flight. After
+are found with the previous value. applying this procedure to all the giant tours𝑇𝑑, we have an MM-MT-
+• The exact parity separation procedure for single vertices and LARP solution. We iteratively repeat this process until we have a given
+the heuristic procedure for parity inequalities (19) with 𝜀 = number of different MM-MT-LARP solutions or a given computing time
+0,0.25,0.5. is reached. Specifically, if 300 different solutions have been generated
+• The heuristic for identifying violated max-length inequalities in less than 30 s, the algorithm stops. Otherwise, it stops when it
+(21)–(22)with𝜀= 0.5. reaches 20 different solutions or after 600 s, whatever happens first.
+• The heuristic separation algorithm for𝑝-connectivity inequalities
+(20). 4.2. Local search procedures
+The order and frequency in which these separation algorithms are
+To improve a given MM-MT-LARP solution, we have implemented
+applied are established from the computational study carried out in
+the following local search procedures that iteratively explore different
+Section5.2.
+ways of exchanging required edges either within the same flight or
+between different flights:
+4. Matheuristic algorithm for the MM-MT-dLARP
+(𝑖) Destroy and repair move. For the launching point𝑑with the largest
+In this section, we introduce a matheuristic algorithm proposed makespan, this second method randomly selects𝑛required edges
+for the approximate solution of the MM-MT-dLARP. Each instance of among all the flights of𝑑, where𝑛is a random number between
+MM-MT-dLARP has required lines and launching points (including the 1 and 𝑛 = 5, and removes them from their flights. Then,
+𝑚𝑎𝑥
+depot). Each line in an MM-MT-dLARP instance is represented by a in the same order they were removed, we evaluate the cost of
+polygonal chain with a large number of points and segments, offering inserting them in any flight and position. If the new solution
+a close approximation to the original line. Our first simplification of obtained is not better than the starting one (the makespan has
+the problem is to restrict the drone entry and exit to the line through not been reduced), or if it is not possible to insert an edge in
+these points, thus obtaining the MM-MT-LARP, a discrete optimization any flight without exceeding 𝐿, the changes are discarded and
+problem. Note that if the number of points describing each line is a new iteration is executed. This procedure stops when𝑖𝑡 𝑚𝑎𝑥 = 30
+large, given that the non-required edges induce a complete graph, the consecutive iterations that do not improve the current solution
+size of the MM-MT-LARP instances makes them very hard to solve. are performed.
+Our proposed approach is to address this complexity by working with (𝑖𝑖) Intraroute move. This first procedure is applied to each flight
+smaller MM-MT-LARP instances, not considering all points. We select of each launching point 𝑑 to try to reduce its cost. Iteratively,
+only a small but significant subset of intermediate points of each line. each required edge is moved to the position and traversed in the
+The resulting segments connecting these points form the required edges direction of that flight which minimizes its total cost until no
+of the MM-MT-LARP instance, with service costs proportional to the improvements can be found.
+lengths of the segments in such a way the sum of these costs equals The following two methods swap sequences of at most𝓁 consec-
+𝑚𝑎𝑥
+the service cost of the original line. At the beginning of the algorithm, utive required edges between two flights by applying afirst improvement
+no intermediate points are considered, and each line is represented by strategy.
+a single segment. Thereafter, some intermediate points are added and
+removed following the rules described in Section4.3. (𝑖𝑖𝑖) 0 to𝓁 exchange. This procedure starts with𝓁= 1and studies the
+The algorithm we present combines a construction phase, four local removal of all the possible sequences of 𝓁 edges from a flight
+search procedures integrated into a Variable Neighborhood Descent based on the launching point 𝑑 with the largest makespan, and
+(VND) algorithm for improving the solutions, and a set of guidelines their insertion into another flight and position. If the solution is
+for selecting intermediate points. improved,𝓁is reset to 1, otherwise, it is incremented by one unit.
+The procedure stops when𝓁reaches𝓁 = 3.
+𝑚𝑎𝑥
+4.1. Construction phase (𝑖𝑣) 𝓁 1 to𝓁 2 exchange. As in the previous move, chains of𝓁 1 consec-
+utive edges of flights from the launching point𝑑 with the largest
+To find an initial set of MM-MT-LARP solutions, we proceed iter- makespan are selected, but this move tries to swap these chains
+atively as follows. We select randomly 𝑃 launching points from the with another chain of 𝓁 2 consecutive edges from another flight.
+set. Then, each required edge is assigned randomly to one of the𝑃 We begin with𝓁 1 =𝓁 2 = 1and then increase𝓁 2 one by one until
+launching points with some probabilities that are inversely proportional 𝓁 2 reaches𝓁 𝑚𝑎𝑥 = 3(without improvement). We then increase𝓁 1
+to the distance from the edge to each launching point. Once the edges and reset𝓁 2 to 1. If an improvement is achieved, both parameters
+are assigned to the launching points, for each launching point 𝑑 we are reset to 1, and we stop when𝓁 1 =𝓁 2 =𝓁 𝑚𝑎𝑥 .
+construct a giant tour𝑇𝑑, starting and ending at𝑑and traversing all the To improve the MM-MT-LARP solutions, we have embedded the
+edges assigned to it, following the Nearest Neighbor strategy. Starting above improvement procedures into a Variable Neighborhood Descent
+at𝑑, the tour goes to its closest vertex incident with an assigned edge (VND) algorithm (see Hansen and Mladenović, 2001). Once the VND
+𝑒. After traversing edge𝑒, from the other endpoint of𝑒, the tour goes procedure has been performed, an optimization procedure is applied to
+to the closest vertex incident with an assigned edge not traversed yet. each flight from the launching point𝑑 with the largest makespan. For
+This process is repeated until all the assigned edges are traversed and each flight, we define a GRP instance on the graph induced in 𝐺 by
+the tour ends at𝑑. the required edges and its launching point. This GRP instance is solved
+Each tour𝑇𝑑 determines an ordered sequence of edges but does not to optimality with the branch-and-cut algorithm proposed inCorberán
+necessarily satisfy the time limitation 𝐿 for the flights. Therefore, we et al.(2007). If after this procedure the launching point with the largest
+split each𝑇𝑑 into feasible flights in the following way. Let{𝑒 , 𝑒 ,… } makespan has changed, it is applied again to the flights of the new one.
+1 2
+11
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+4.3. ‘‘Splitting’’ phase: the selection of intermediate points Table 1
+Characteristics of the 340 MM-MT-dLARP instances.
+For each of the 10 best solutions obtained so far, and in order
+to take advantage of the fact that drones can enter and leave a line
+Instance Average Average Average
+name original original total
+through any intermediate point, we try to obtain better solutions by
+lines vertices vertices
+‘‘splitting’’ some required edges by adding intermediate points to them.
+MM-MT-dLARP4_4_1 9.0 14.2 149.4
+These intermediate points are selected as follows: for each required MM-MT-dLARP4_4_2 10.4 17.2 172.6
+edge, the midpoint (equidistant to the two endpoints of the edge) is MM-MT-dLARP5_5_1 16.6 23.2 271.8
+added, creating a new instance where each original edge becomes now MM-MT-dLARP5_5_2 21.8 26.4 353.8
+two required edges. Note that each previous solution can be trivially
+MM-MT-dLARP5_6_1 17.2 24.4 281.6
+MM-MT-dLARP5_6_2 20.0 27.0 326.8
+converted to a solution in this new instance, where the two halves
+MM-MT-dLARP6_6_1 21.4 29.4 349.6
+of each edge are traversed consecutively. The VND procedure is now MM-MT-dLARP6_6_2 28.4 34.4 460.0
+applied to this solution to try to find a better solution that uses these MM-MT-dLARP5_8_1 25.2 33.6 411.0
+new intermediate points to enter or leave the lines. If the new solution MM-MT-dLARP5_8_2 33.8 37.6 545.0
+uses some of these intermediate points, we construct a new instance as MM-MT-dLARP6_8_1 29.6 40.6 484.0
+follows. For those points that are used to enter or leave a required edge, MM-MT-dLARP6_8_2 48.6 47.2 776.4
+we add two new midpoints on their incident required edges. Those
+MM-MT-dLARP7_7_1 30.6 42.0 501.2
+MM-MT-dLARP7_7_2 50.4 48.6 804.4
+intermediate points that are not used are removed. We apply the VND MM-MT-dLARP5_10_1 30.8 43.6 506.6
+again to the solution in this new instance. This procedure consisting of MM-MT-dLARP5_10_2 50.0 47.8 797.0
+adding new intermediate points and applying the VND is repeated until MM-MT-dLARP6_10_1 40.6 53.2 662.2
+no improvement is observed.
+MM-MT-dLARP6_10_2 52.8 56.0 848.8
+MM-MT-dLARP7_9_1 44.0 56.4 716.2
+MM-MT-dLARP7_9_2 58.6 59.4 938.0
+5. Computational experiments MM-MT-dLARP8_8_1 45.6 55.8 739.0
+MM-MT-dLARP8_8_2 61.8 62.2 989.6
+The computational experiments have been executed on an i7-9700F MM-MT-dLARP7_10_1 50.2 63.0 815.8
+CPU at 3 GHz. All the algorithms have been coded in C++ and the MM-MT-dLARP7_10_2 63.6 64.4 1019.2
+branch and cut uses Cplex 22.1 Concert Technology, with Cplex cuts MM-MT-dLARP8_9_1 52.4 64.8 849.8
+turned off, and a time limit of one hour.
+MM-MT-dLARP8_9_2 66.8 66.2 1068.4
+MM-MT-dLARP8_10_1 53.6 65.6 869.6
+MM-MT-dLARP8_10_2 78.0 74.8 1243.6
+5.1. Instances MM-MT-dLARP9_9_1 53.6 68.4 873.6
+MM-MT-dLARP9_9_2 74.8 70.8 1191.2
+Since we do not have instances based on real-life data, we have
+MM-MT-dLARP9_10_1 59.6 74.0 969.2
+MM-MT-dLARP9_10_2 75.0 79.0 1202.2
+randomly generated some MM-MT-dLARP instances in a similar way
+MM-MT-dLARP10_10_1 66.8 82.0 1086.0
+as the one presented in Campbell et al. (2018) for the DARP. For the MM-MT-dLARP10_10_2 87.4 90.2 1400.4
+generation of these MM-MT-dLARP instances, we consider a total of
+17 different grids with sizes ranging between 4 × 4 and 10 × 10. For
+each grid size, we have generated 𝐷 random points, 3 ≤ 𝐷 ≤ 6, that
+will act as potential launching points. For each combination of grid size
+values for all the required edges. Note that a value for 𝐿 lower than
+and number of launching points, two graphs have been generated with
+𝐿
+𝑚𝑖𝑛
+would produce an infeasible instance. Now we set𝐿= 1.5 ×𝐿
+𝑚𝑖𝑛
+.
+different values for parameters𝑝(probability for an edge to be declared
+It may still be possible that some instance turns out to be infeasible
+required) and𝑐 𝑢𝑟𝑣𝑎𝑡𝑢𝑟𝑒(measure of how curved an edge is). The first
+with the chosen𝐿. In that case, we increase𝐿by 10%.
+one with𝑝= 0.3and𝑐 𝑢𝑟𝑣𝑎𝑡𝑢𝑟𝑒= 0.4and the second one with𝑝= 0.4
+and𝑐 𝑢𝑟𝑣𝑎𝑡𝑢𝑟𝑒= 0.3. For each one of these 136 graphs, generated with a 5.2. Choosing the best separation strategy
+combination of those parameters, we generate several MM-MT-dLARP
+instances, one for each value of 𝑃, with 𝑃 ranging from 2 to 𝐷− 1. To assess the contribution of each family of cuts and determine
+Hence, we obtain a total of 340 instances. The characteristics of these when each separation algorithm should be applied, we have run the
+instances are shown in Table 1, organized into three classes (small, branch-and-cut algorithm on a subset of 10 instances chosen randomly
+medium, and large) according to the number of vertices of the initial among the set of small instances, using different configurations of the
+grid mentioned before. cutting-plane procedure. We start with a base configuration that uses
+Each one of the 34 rows inTable 1corresponds to a set of 4 different the separation algorithms for connectivity inequalities and for parity
+graphs, one for each value of𝐷∈ {3,4,5,6}, and a set of 10 instances, inequalities for sets 𝑆 containing one single vertex, but only when
+one for each value of 𝑃, 2 ≤ 𝑃 ≤ 𝐷− 1. Columns 2 and 3 report the the solution is integer, to guarantee that it is a feasible solution. The
+average numbers of original lines and vertices, respectively, of the 4 results obtained with thisbaseconfiguration are shown in the first row
+graphs. The last column shows the average number of total vertices, of Table 2, providing 7 out of 10 optimal solutions on an average
+including the intermediate points in each line. The digits at the end time of 1417.2 s, and an average gap (calculated as100𝑈 𝐵
+𝑈
+−
+𝐵
+𝐿𝐵, where
+of the name in the first column indicate the grid size and whether the 𝐿𝐵 and 𝑈 𝐵 are the final lower and upper bound, respectively) of
+instances have been generated with version 1 or 2 of the combination 2.61%. The four entries zero in this row means that the separation
+of parameters 𝑝 and 𝑐 𝑢𝑟𝑣𝑎𝑡𝑢𝑟𝑒. Thus, for example, the 10 instances algorithms of the corresponding columns, labeledParity heu(heuristic
+grouped as ‘‘MM-MT-dLARP6_8_2’’ correspond to 4 graphs generated for parity inequalities),Parity 1v (heuristic for parity inequalities with
+with grid size 6×8 and version 2 (𝑝= 0.4,𝑐 𝑢𝑟𝑣𝑎𝑡𝑢𝑟𝑒= 0.3). The 136 sets𝑆containing one single vertex),p-conn(heuristic for𝑝-connectivity
+graphs and the results presented in this section for the corresponding inequalities), andMax-length(heuristic for max-length inequalities), are
+340 instances can be found inhttp://www.uv.es/plani/instancias.html. not used in thisbaseconfiguration.
+For each of these 136 graphs, we must choose a value for 𝐿 such Then we iteratively test the effect of adding only one of these
+that the instance is not infeasible. For each required edge, we calculate four separation algorithms to the base configuration, executing it at
+the cost of flying to it from its closest launching point, servicing it, and all the iterations of the cutting-plane procedure when the solution is
+going back to the launching point. Let 𝐿 be the maximum of such fractional and on every node of the search tree. This is shown in rows
+𝑚𝑖𝑛
+12
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+Table 2
+Cutting-plane configurations 1.
+Parity heu. Parity 1v. p-conn. Max-length # Opt Time (s) %Gap
+Base 0 0 0 0 7 1417.2 2.61
+1 0 0 0 7 1410.3 1.41
+Round 1 0 1 0 0 7 1380.8 2.07
+0 0 1 0 7 1440.4 3.55
+0 0 0 1 7 1288.3 0.57
+Base 0 0 0 1 7 1288.3 0.57
+1 0 0 1 8 1414.8 0.63
+Round 2 0 1 0 1 9 1339.9 0.15
+0 0 1 1 7 1380.7 2.17
+Base 0 1 0 1 9 1339.9 0.15
+Round 3 1 1 0 1 8 1287.0 0.72
+0 1 1 1 7 1296.1 1.47
+Table 3
+Cutting-plane configurations 2.
+Parity heu. Parity 1v. p-conn. Max-length # Opt Time (s) %Gap
+Base 0 1 0 1 9 1339.9 0.15
+2 1 0 1 8 1259.8 0.74
+Round 4 0 2 0 1 9 1193.7 0.15
+0 1 2 0 7 1325.5 0.78
+0 1 0 2 8 1374.2 1.05
+Base 0 2 0 1 9 1193.7 0.15
+2 2 0 1 8 1153.5 0.47
+Round 5 0 2 2 1 9 1160.2 0.15
+0 2 0 2 7 1289.5 1.98
+Base 0 2 2 1 9 1160.2 0.15
+Round 6 2 2 2 1 8 1160.1 0.64
+0 2 2 2 7 1445.1 0.67
+2 to 5 of Table 2, where an entry 1 in these rows means that the 5.3. Results
+separation algorithm corresponding to this column is used. Note that
+the best results are obtained with the version in row 5, corresponding We have run the B&C on the MM-MT-LARP instances with each
+to adding the Max-length separation algorithm. Hence, this algorithm line represented by a single segment, without any intermediate point,
+is incorporated into the cutting-plane procedure of the branch and cut and with a service cost equal to the cost of the original line. We call
+and this new configuration is referred to as the base version for the these instances MM-MT-LARP(0). Furthermore, we are showing only
+next round of runs. In subsequent rounds, we incorporate one more the branch-and-cut results obtained on the MM-MT-LARP(0) instances
+of the remaining separation algorithms and choose the best one, until corresponding to the ‘‘small’’ graphs, since the algorithm was not able
+no improvement in the overall results is observed. The results can be to solve any instance with ‘‘medium’’ or ‘‘large’’ graphs. The heuristic
+seen in Table 2, where each row corresponds to a configuration of has been tested on all the instances, starting with MM-MT-LARP(0) and
+the cutting-plane procedure. In Round 2 we obtain that the version then iteratively adding some intermediate points that are ‘‘promising’’
+with algorithm 1v improves the base version, and this algorithm is to improve the current solution, as explained in Section4.3.
+incorporated to define the base configuration for Round 3. In Round The results obtained with the B&C algorithm with a time limit of
+3 we observe that the incorporation of neither of the two remaining one hour for the ‘‘small’’ MM-MT-LARP(0) instances are reported in
+separation algorithms produces improvements in the overall results, Table 4, grouped by grid size. Each row corresponds to the 20 instances
+and hence the process ends: The best configuration for the cutting-plane associated with the grid size presented in the first column. The column
+procedure is the one using the Max-length and Parity 1v separation ‘‘#opt’’ reports the number of instances out of 20 in which the B&C
+algorithms, providing 9 out of 10 optimal solutions on an average time has reached the optimal solution. Column ‘‘%Gap’’ shows the average
+of 1339.9 s. percentage gaps between the value of the optimal solution (or the best
+Additionally, we have studied the effect of using each separation upper bound found) and the final lower bound. The column ‘‘Time’’
+procedure only at the root node of the search tree. Starting with the reports the average total time, in seconds, used by the B&C on all the
+best version of the previous phase as the base configuration, we check 20 instances, while the column ‘‘Time opt’’ shows the average total
+the effect of using each one of the separation algorithms only at the root time in the instances in which the optimal solution was reached. The
+node of the branch and cut. This is expressed in the rows of Table 3 number of instances out of 20 for which an upper bound (feasible
+with a value of 2 in the corresponding entry. Note that this means solution) has been found by the B&C is shown in the last column ‘‘#
+that if a given separation algorithm is not in the base configuration feasible’’. As it can be seen inTable 4, the B&C obtains good results in
+then it is incorporated into it and used only at the root node, while the smallest instances, those from grids with up to 30 nodes, in which
+if a given separation algorithm is already in the base configuration the optimal solution is obtained in more than half of the instances, a
+(invoked at all the nodes), then it is restricted to be used only at the feasible solution is obtained for all of them, and the average gap in
+root node. The results in Table 3 show that the best version of the these 60 MM-MT-LARP(0) instances is low, 2.43%. In the remaining
+cutting-plane procedure is the one that separates parity inequalities ‘‘small’’ instances, the performance of the B&C algorithm is quite poor:
+for sets 𝑆 with one vertex and 𝑝-connectivity inequalities only at the in the 20 instances that come from the 5×8 grid (last row) after one
+root node, and max-length inequalities at every node. The number of hour of computation only 1 optimal solution has been reached, and the
+optimal solutions found is still 9, but the average time has decreased to average gap is greater than 20%. These results seem to imply that the
+1160.2 s. Therefore, the remaining experiments have been carried out MM-MT-LARP problem is too hard to be solved with a branch-and-cut
+using this cutting-plane configuration. algorithm.
+13
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+Table 4 grouped as small, medium and large. Again, each row in Table 7
+Branch-and-cut results on the ‘‘small’’ MM-MT-LARP(0) instances. corresponds to the 20 instances associated with the grid size. Column
+Size #opt %Gap Time (s) Time opt (s) #feasible ‘‘Z_0’’ shows the average cost of the best solution found by the heuristic
+4×4 20 0 8.3 8.3 20 on the MM-MT-LARP(0) instances while column ‘‘Z_splits’’ shows the
+5×5 13 5.09 1662.4 619.1 20
+average cost after the splitting phase. Column ‘‘Imp’’ reports the aver-
+5×6 15 2.21 1702.1 1069.5 20
+6×6 8 15.38 2843.3 1708.1 19 age percentage improvement in the cost of the solutions obtained by the
+5×8 1 22.29 3467.2 941.5 19 algorithm with the splitting phase with respect to the algorithm without
+Total 57 9.00 1936.7 681.8 98 the splitting phase. The last two columns show the average total times,
+in seconds, of the heuristic algorithm without and with the splitting
+phase, respectively. Note that the splitting phase reduces the cost of
+heuristic solutions by an average of 1.2% in a negligible time, less than
+The previous execution with the exact B&C algorithm also serves
+half a second on average. We want to point out that the improvement
+to evaluate the performance of our heuristic algorithm.Tables 5and6
+report some results obtained with the set of ‘‘small’’ MM-MT-LARP(0)
+of 1.2% on average obtained after the splitting phase is due to a fine
+instances to compare both algorithms. Again the instances are grouped
+readjustment of the entry and exit points of the lines which would not
+by grid size and each row corresponds to 20 instances. The results
+improve further even if more time was given.
+in Table 5 correspond to the set of all the 100 ‘‘small’’ instances, 20
+instances associated with each grid size. Column ‘‘LB’’ contains the av- 6. Conclusions
+erage lower bound at the end of the B&C while column ‘‘Z_heur’’ shows
+the average cost of the best solution found by the heuristic. The number
+This paper addresses the Min-Max Multi-Trip drone Location Arc
+of instances (of those in which the B&C found the optimal solution) for
+Routing Problem (MM-MT-dLARP), which integrates the use of trucks
+which the solution provided by the heuristic is also optimal is shown in
+and drones for arc routing tasks. This continuous optimization problem
+the column ‘‘#opt’’. Column ‘‘%Gap LB’’ reports the average percentage
+is transformed into a discrete one if we allow the drone to enter and exit
+gap between the cost of the heuristic solution and the final lower bound
+at the end of the B&C for all the instances, while column ‘‘%Gap LB
+a line only through a finite set of intermediate points. For the discrete
+opt’’ reports the same data but only for the instances for which the
+problem, we have introduced an integer formulation, as well as a set
+optimum is known. Finally, the two last columns show the total times,
+of valid inequalities that have been shown to be facet-inducing of a re-
+in seconds, of the B&C and the heuristic algorithm, respectively. The
+laxed polyhedron. A branch-and-cut algorithm has been developed and
+performance of the heuristic algorithm in these ‘‘small’’ instances is
+tested on small instances without intermediate points. Additionally, we
+very good, obtaining the optimal solution in 39 of the 57 instances have designed a matheuristic algorithm, incorporating a construction
+for which the optimal solution is known. In addition, the average gap phase, four local search procedures within a Variable Neighborhood
+between the cost of the heuristic solution and the optimal cost (or LB) Descent (VND) framework, and rules for selecting intermediate points
+in these 57 instances is very small, 0.66%. Note that the same average to enhance solutions. The computational experiments, conducted on
+gap in all 100 instances is much larger, 10.81%, which means that a set of randomly generated instances with up to 6 launching points
+the LB of the B&C in the instances that it has not been able to solve and 88 lines, show that this is a difficult problem for which only
+is quite poor. We think that if these lower bounds were closer to the small instances can be expected to be solved exactly and that the
+optimal value, the ‘‘%Gap LB’’ would be quite good in these 100 ‘‘small’’ proposed matheuristic is capable of providing high-quality solutions of
+instances. In summary, the heuristic algorithm is capable of finding in the continuous problem that take advantage of the ability of drones
+54 s on average a solution quite close to the solution provided by the to travel between any pair of points on the network, in reasonable
+B&C algorithm after 1123 s. computing times.
+To compare the cost of the heuristic solutions with the B&C upper
+bounds, the data in Table 6 refer only to the 98 out of 100 ‘‘small’’
+instances for which the B&C has obtained a feasible solution, and
+CRediT authorship contribution statement
+therefore an upper bound (column ‘‘# feasible’’). Column ‘‘UB’’ contains
+the average upper bound at the end of the B&C algorithm and column Teresa Corberán: Writing – review & editing, Writing – original
+‘‘Z_heur’’ shows the average cost of the best solutions found by the draft, Validation, Software, Methodology, Investigation, Funding acqui-
+heuristic. Column ‘‘%Gap UB’’ reports the average percentage gap sition, Formal analysis, Data curation, Conceptualization.Isaac Plana:
+between the values in the two previous columns and the last two Writing – review & editing, Writing – original draft, Validation, Soft-
+columns show the average total times, in seconds. Note that in the ware, Methodology, Investigation, Funding acquisition, Formal anal-
+60 smallest instances ‘‘%Gap UB’’ is positive (although small), because ysis, Data curation, Conceptualization. José María Sanchis: Writing
+many of the upper bounds are optimal. In the 38 largest instances (last – review & editing, Writing – original draft, Validation, Software,
+two rows), ‘‘%Gap UB’’ is negative on average (although again small), Methodology, Investigation, Funding acquisition, Formal analysis, Data
+which means that the heuristic algorithm has been able to find better curation, Conceptualization.
+solutions in 53 s than the B&C in 1106 s on average. In particular, the
+heuristic has found better solutions in 9 out of 19 6×6 instances and
+in 14 out of 19 5×8 instances.
+Acknowledgments
+The previous results of the heuristic algorithm refer only to the MM-
+MT-LARP(0) instances, that is, to the instances without considering any This work was supported by grant PID2021-122344NB-I00 funded
+intermediate point of any original line. This corresponds to the first two by MCIN/AEI, Spain/10.13039/501100011033 and ‘‘ERDF A way of
+parts of the heuristic algorithm: the construction and the local search making Europe’’.
+phases (see Section 4). Once the solutions for the MM-MT-LARP(0)
+instances are obtained, the algorithm applies the splitting phase, an it-
+Data availability
+erative process of insertion (and possible subsequent removing) of some
+intermediate points of the original lines to look for better solutions
+(see Section4.3).Table 7shows the results obtained after this splitting Data will be made available on request.
+phase compared with the results on the MM-MT-LARP(0) instances,
+14
+T. Corberán et al. Computers and Operations Research 174 (2025) 106894
+Table 5
+Comparison between the algorithms in all the ‘‘small’’ instances.
+Size LB Z_heur #opt %Gap LB %Gap LB opt. Time B&C (s) Time Heur (s)
+4×4 1404.03 1404.30 19 of 20 0.03 0.03 584.4 20.0
+5×5 2334.89 2497.38 7 of 13 8.47 1.83 1020.6 52.9
+5×6 2554.60 2638.73 8 of 15 4.19 1.07 1036.1 49.3
+6×6 2934.91 3372.89 4 of 8 17.08 0.37 1456.4 68.4
+5×8 3134.00 3861.71 1 of 1 24.30 0.00 1516.6 80.8
+Total 2472.48 2755.00 39 of 57 10.81 0.66 1122.8 54.3
+Table 6 Campbell, J.F., Corberán, Á., Plana, I., Sanchis, J.M., Segura, P., 2023. The
+Comparison between the algorithms in ‘‘small’’ instances with known UB. multi-purpose𝐾-drones general routing problem. Networks 82 (4), 437–458.
+Size # feasible UB Z_heur %Gap UB Time B&C (s) Time Heur (s) Chow, J.Y.J., 2016. Dynamic UAV-based traffic monitoring under uncertainty as a
+stochastic arc-inventory routing policy. Int. J. Transp. Sci. Technol. 5, 167–185.
+4×4 20 1404.03 1404.30 0.03 584.4 20.0
+Chung, S.H., Sah, B., Lee, J., 2020. Optimization for drone and drone-truck combined
+5×5 20 2451.58 2497.38 1.90 1020.6 52.9
+operations: A review of the state of the art and future directions. Comput. Oper.
+5×6 20 2604.11 2638.73 1.63 1036.1 49.3
+Res. 123, 105004.
+6×6 19 3436.97 3297.13 −3.50 1460.9 66.8
+Corberán, Á., Plana, I., Rodríguez-Chía, A.M., Sanchis, J.M., 2013. A branch-and-cut
+5×8 19 3953.80 3623.58 −4.75 1461.7 78.4
+algorithm for the maximum benefit Chinese postman problem. Math. Program. 141,
+Total 98 2751.22 2676.55 −0.87 1105.6 53.1 21–48.
+Corberán, Á., Plana, I., Sanchis, J.M., 2007. A branch & cut algorithm for the windy
+general routing problem and special cases. Networks 49, 245–257.
+Table 7 Corberán, T., Plana, I., Sanchis, J.M., Segura, P., 2024. The multi-depot drone general
+Comparison of the results obtained with the heuristic without and with splitting routing problem with duration and capacity constraints. Int. Trans. Oper. Res..
+phase. Doulabi, S.H.H., Seifi, A., 2013. Lower and upper bounds for location-arc routing
+Size Z_0 Z_splits Imp Time_0 (s) Time_splits (s) problems with vehicle capacity constraints. European J. Oper. Res. 224 (1),
+189–208.
+4×4 1404.30 1391.11 0.9 20.03 20.15
+Fernández, E., Laporte, G., Rodríguez-Pereira, J., 2018. A branch-and-cut algorithm for
+5×5 2497.38 2438.61 2.2 52.87 53.07
+the multidepot rural postman problem. Transp. Sci. 52, 229–496.
+5×6 2638.73 2606.43 1.4 49.32 49.51
+Fernández, E., Laporte, G., Rodríguez-Pereira, J., 2019. Exact solution of several families
+6×6 3372.89 3339.48 0.9 68.36 68.63
+of location-arc routing problems. Transp. Sci. 53 (5), 1313–1333.
+5×8 3861.71 3802.61 1.4 80.76 81.04
+Fernández, E., Rodríguez-Pereira, J., 2017. Multi-depot rural postman problems. TOP
+5×10 5316.40 5270.04 1.1 113.68 114.07 25, 340–372.
+6×8 4732.53 4665.33 1.3 110.95 111.30 Ghiani, G., 1998. Arc Routing, Allocation-Arc Routing and Location-Arc Routing
+6×10 5979.72 5886.23 1.8 135.54 136.01 Problems (Ph.D. thesis). Università degli Studi di Napoli Federico II, Italy.
+7×7 5206.11 5152.52 1.1 120.46 120.82 Ghiani, G., Laporte, G., 2000. A branch-and-cut algorithm for the undirected rural
+7×9 6426.66 6378.90 0.8 153.78 154.29 postman problem. Math. Program. 87, 467–481.
+8×8 6643.02 6569.25 1.2 165.19 165.73 Hansen, P., Mladenović, N., 2001. Variable neighborhood search: Principles and
+7×10 7198.36 7149.53 0.7 146.79 147.42 applications. European J. Oper. Res. 130, 449–467.
+8×9 7482.77 7423.68 0.9 175.15 175.81 Hierholzer, C., 1873. Über die möglichkeit, einen linienzug ohne wiederholung und
+8×10 8995.63 8866.12 1.5 246.75 247.59 ohne unterbrechung zu umfahren. Math. Ann. 6, 30–32.
+9×9 8406.65 8321.23 1.2 301.02 301.78 Hu, H., Liu, T., Zhao, N., Zhou, Y., Min, D., 2013. A hybrid genetic algorithm with
+9×10 8610.68 8531.67 0.9 256.02 256.82 perturbation for the multi-depot capacitated arc routing problem. J. Appl. Sci. 13,
+10×10 9879.02 9767.08 1.2 353.89 354.94 32–39.
+Krushinsky, D., Van Woensel, T., 2015. An approach to the asymmetric multi-depot
+Total 5803.09 5738.81 1.2 150.03 150.53 capacitated arc routing problem. European J. Oper. Res. 244, 100–109.
+Li, M., Zhen, L., Wang, S., Lv, W., Qu, X., 2018. Unmanned aerial vehicle scheduling
+problem for traffic monitoring. Comput. Ind. Eng. 122, 15–23.
+Lopes, R.B., Plastria, F., Ferreira, C., Sousa Santos, B., 2014. Location-arc routing
+References problem: Heuristic approaches and test instances. Comput. Oper. Res. 43, 309–317.
+Luo, H., Zhang, P., Wang, J., Wang, G., Meng, F., 2019. Traffic patrolling routing
+Albareda-Sambola, M., Rodríguez-Pereira, J., 2019. Location-routing and location-arc problem with drones in an urban road system. Sensors 19, 5164.
+routing. In: Laporte, G., Nickel, S., Saldanha da Gama, F. (Eds.), Location Science. Macrina, G., Di Puglia Pugliese, L., Guerriero, F., Laporte, G., 2020. Drone-aided
+Springer, Cham. routing: A literature review. Transp. Res. C 120, 102762.
+Amberg, A., Domschke, W., Voß, S., 2000. Multiple center capacitated arc routing Muyldermans, L., Cattrysse, D., Van Oudheusden, D., 2003. District design for
+problems: A tabu search algorithm using capacitated trees. European J. Oper. Res. arc-routing applications. J. Oper. Res. Soc. 54, 1209–1221.
+124, 360–376. Rojas Viloria, D., Solano-Charris, E.L., Muñoz-Villamizar, A., Montoya-Torres, J.R.,
+Amorosi, L., Puerto, J., Valverde, C., 2021. Coordinating drones with mothership 2021. Unmanned aerial vehicles/drones in vehicle routing problems: a literature
+vehicles: The mothership and drone routing problem with graphs. Comput. Oper. review. Int. Trans. Oper. Res. 28, 1626–1657.
+Res. 136, 105445. Wøhlk, S., 2004. Contributions to Arc Routing (Ph.D. dissertation). University of
+Amorosi, L., Puerto, J., Valverde, C., 2023. A multiple-drone arc routing and mothership Southern Denmark, Odense, Denmark, (2004).
+coordination problem. Comput. Oper. Res. 159, 106322. Xie, A., Miyagawa, K., Wu, W., Yagiura, M., 2024. A heuristic algorithm for the drone
+Amorosi, L., Puerto, J., Valverde, C., 2024. An extended model of coordination of an rural postman problem. J. Ind. Manag. Optim. 20 (5), 1951–1966.
+all-terrain vehicle and a multivisit drone. Int. Trans. Oper. Res. 31 (2), 780–806. Xing, L., Rohlfshagen, P., Chen, Y., Yao, X., 2010. An evolutionary approach to
+Campbell, J.F., Corberán, Á., Plana, I., Sanchis, J.M., 2018. Drone arc routing problems. the multidepot capacitated arc routing problem. IEEE Trans. Evol. Comput. 14,
+Networks 72, 543–559. 356–374.
+Campbell, J.F., Corberán, Á., Plana, I., Sanchis, J.M., Segura, P., 2021. Solving the Xu, B., Zhao, K., Luo, Q., Wu, G., Pedrycz, W., 2023. A GV-drone arc routing approach
+length-constrained𝐾-drones rural postman problem. European J. Oper. Res. 292, for urban traffic patrol by coordinating a ground vehicle and multiple drones.
+60–72. Swarm Evol. Comput. 77.
+Campbell, J.F., Corberán, Á., Plana, I., Sanchis, J.M., Segura, P., 2022. Polyhedral
+analysis and a new algorithm for the length-constrained 𝐾-drones rural postman
+problem. Comput. Optim. Appl. 83, 67–109.
+15

@@ -1,0 +1,1384 @@
+TransportationResearchPartB166(2022)143–182
+Contents lists available at ScienceDirect
+Transportation Research Part B
+journal homepage: www.elsevier.com/locate/trb
+Rich arc routing problem in city logistics: Models and solution
+algorithms using a fluid queue-based time-dependent travel
+time representation
+Jiawei Lua, Qinghui Nieb, Monirehalsadat Mahmoudic, Jishun Oub,*,
+Chongnan Lid, Xuesong Simon Zhoua,*
+aSchool of Sustainable Engineering and the Built Environment, Arizona State University, Tempe, AZ, 85281, USA
+bCollege of Architectural Science and Engineering, Yangzhou University, Yangzhou, 225127, China
+cSchool of Packaging, College of Agriculture and Natural Resources, Michigan State University, East Lansing, Michigan, 48824, USA
+dSchool of Traffic and Transportation, Beijing Jiaotong University, Beijing, 100044, China
+A R T I C L E I N F O A B S T R A C T
+Keywords: City logistics, as an essential component of the city operation system, aims at managing the
+City logistics complex flow of goods and services from providers to customers efficiently. Delays associated
+Rich arc routing problem (RARP) with peak-period traffic congestion exists in both large and small metropolitan areas. As many of
+Time-dependent travel time
+the service tasks in city logistics are needed to be performed during peak hours, operators of
+Societal impact
+urban management movement should consider reducing the total trip time and delay when
+Lagrangian relaxation
+designing service plans. Equally important, the congestion impact of service vehicles to other road
+Branch and price solution method
+users should also be considered. In this paper, we focus on formulating and solving rich arc
+routing problems (RARPs) in city logistics with a congested urban environment. We highlight the
+needs of embedding a structurally parsimonious time-dependent travel time model in RARP for
+producing high-quality and practically useful solutions. A fluid queue model based analytical
+approach is presented for link travel time calibration in the form of polynomial arrival rate
+functions. Accordingly, system-wide (societal) impact of vehicles routing is analytically derived
+and incorporated into the RARP models which enables traffic managers to systematically consider
+operation costs and societal impacts when designing routing policies in real-life city logistics
+applications. Additionally, we develop two new representation schemes for time-dependent travel
+time modeling in RARPs, including a discretized time-expanded representation scheme and a
+nonlinear polynomial representation scheme. Three modeling approaches for RARPs are pro-
+posed, with different perspectives of capturing time-dependent travel time and formulating
+problem-specific constraints. With a real-life sprinkler truck routing problem as the representative
+example of RARP, we develop two efficient exact solution algorithms, including a Lagrangian
+relaxation-based method and a branch-and-price based method. The latter one is embedded with
+an enhanced parallel branch-and-bound algorithm. Extensive numerical experiments are con-
+ducted based on real-world networks and traffic flow data to demonstrate the effectiveness of the
+proposed methods.
+* Corresponding authors.
+E-mail addresses: jishun@yzu.edu.cn (J. Ou), xzhou74@asu.edu (X.S. Zhou).
+https://doi.org/10.1016/j.trb.2022.10.011
+Received 17 March 2022; Received in revised form 12 October 2022; Accepted 27 October 2022
+Availableonline4November2022
+0191-2615/©2022ElsevierLtd.Allrightsreserved.
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+1. Introduction
+In a broader sense, city logistics refers to the management of the flow of goods and services from providers to customers in urban
+areas. The urban management movement (UMM) problem (Cattaruzza et al., 2017), as an example, aims to find an optimal set of routes
+for a fleet of vehicles to satisfy requests for the development, public maintenance, and other functional needs in a city. An efficient city
+logistics system helps to reduce operation cost, mitigate traffic congestion impact, protect the environment, respond to climate change,
+connect underserved communities, and support economic vitality. Considering the traffic congestion experienced in cities, this type of
+problems needs to be formulated as rich arc routing problems (RARPs) under congested traffic conditions.
+The word “rich” is used in RARP because besides normal constraints in the variants of the standard ARP (e.g., capacity and time
+window constraint), some other problem-specific constraints are also considered. For example, in the winter gritting problem, service
+requests on road links change with time and weather conditions (Eglese and Li, 1992; Eglese, 1994; Li and Eglese, 1996; Tagmouti
+et al., 2007; Tagmouti et al., 2010; Tagmouti et al., 2011), or in the snow plowing problem, truck routes are specified at the lane level
+(Perrier et al., 2007a; Perrier et al., 2007b; Salazar-Aguilar et al., 2012; Dussault et al., 2013; Dussault et al., 2014; Quirion-Blais et al.,
+2017; Castro Campos et al., 2020). Rich constraints considered in RARPs have great practical significance and values while, at the same
+time, they bring additional challenges, especially for large-scale instances. By fully recognizing rich features in transportation net-
+works, we aim to develop a modeling framework and solution approaches for RARPs that can systematically examine traffic-oriented
+characteristics.
+One of the most important “rich” features of transportation networks is time-varying traffic conditions. Service vehicles may
+experience time-dependent travel times on roads when serving customers (Liu et al., 2020; Yao et al., 2021). In early research on both
+vehicle routing problems (VRPs) and ARPs, travel times on links are treated as constant or time-independent; however, in a congested
+urban environment, solutions obtained with the constant travel time assumption may significantly underestimate the delay and could
+even lead to infeasibility under tight schedules in real-life applications. Although many recent VRP studies considered piecewise travel
+time functions to capture time-varying traffic conditions in a more realistic fashion, as discussed by Vidal et al. (2021), additional
+efforts are still critically needed to offer more precise approximations/representations of reality. On the other hand, in the ARP
+literature, time-dependent travel times have been largely simplified or ignored (Gendreau et al., 2015). Vidal et al. (2021) first
+conducted extensive studies on the ARP with time-dependent travel times at a network level and proposed methods for quick travel and
+service time queries as well as quickest path queries, based on the travel speed function definition given by Ichoua et al. (2003).
+Another important goal of RARPs on transportation networks is how to reduce the system-wide (societal) congestion impact of
+service vehicle routings. RARP applications in city logistics are typically fulfilled by large trucks, e.g., freight trucks and street
+sweeping trucks. A service truck with a much lower driving speed could affect traffics on multiple lanes which leads to another
+important class of moving bottleneck problems studied in the literature (see e.g., Li et al., 2020). Thus, RARP applications in city
+logistics should minimize not only the total operating cost for meeting customer requests but also the potential negative effects to the
+Table 1
+Three major methods for representing time-dependent travel times in VRP/ARP.
+Graphical illustration of methods Description
+Method type: piecewise-constant travel time function
+Modeling details: each link has a constant travel time
+within each pre-defined time period
+FIFO property: not necessarily satisfied
+Method type: piecewise-linear travel time function
+Modeling details: each link has a constant travel time
+within each pre-defined time period; a linear transition
+line is built between two adjacent periods
+FIFO property: satisfied
+Method type: piecewise-linear travel time function
+Modeling details: a piecewise-constant travel speed
+function is constructed for each link first; piecewise-linear
+travel time function is then derived based on its
+corresponding speed function
+FIFO property: satisfied
+144
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+background transportation system.
+1.1. Related studies
+In this section, we review related existing studies along two lines: (1) time-dependent travel time modeling in vehicle routing
+problems and arc routing problems and (2) rich arc routing problems
+1.1.1. Time-dependent travel time modeling in vehicle routing problems and arc routing problems
+The important study by Malandraki (1989) first formulated link travel time as a piecewise-constant function of the departure time.
+Later on, this approach was adopted by Malandraki and Daskin (1992) and Chen et al. (2006). Yet, this approach might not satisfy the
+First-In-First-Out (FIFO) property. The FIFO property states that, among two identical vehicles that travel along the same path, the one
+that departs earlier from the origin node could always arrive at the destination node earlier than the other vehicle. Two major ap-
+proaches are proposed to address the potential FIFO violation issue in the piecewise constant representation. First, piecewise-linear
+functions are considered by Ahn and Shin (1991) and improved by Fleischmann et al. (2004). In this approach, a linear transition
+function is built to connect travel times in two adjacent time periods such that travel time changes slowly and smoothly. It can be
+proved that the FIFO property holds if the slope of linear lines is less than 45○. Another method proposed by Ichoua et al. (2003) starts
+with time-dependent link travel speed in the form of a piecewise-constant function and derives/computes piecewise-linear travel times
+satisfying the FIFO property. Table 1 summarizes the above three major methods for time-dependent travel time modeling in VRP and
+ARP models. Xiao and Konak (2016) offers a more detailed classification and illustration.
+Figliozzi (2012) offered a comprehensive set of benchmarks for modeling time-dependent travel times in VRP. The important
+modeling aspect of time discretization is further studied by Boland et al. (2017) for a broader class of continuous-time shortest path and
+service network design problems. One can find the related studies in Scherr et al. (2020), Belieres et al. (2021), He et al. (2021),
+Marshall et al. (2021), Vu et al. (2022), Hewitt (2022), and Lagos et al. (2022). In particular, for the fundamentally important
+time-dependent shortest path problem, the study by He et al. (2021) systematically considers degree 4 and degree 6 polynomial
+functions to approximate time-dependent travel time through the piecewise linear interpolants sampled at integer points. The poly-
+nomial function can be calibrated for an extended time period (e.g., 24 hours of a day) using real world travel time data, while the
+related non-linear functional form could have many local minima and maxima, which could greatly affect the computational efficiency
+of dynamic discretization discovery algorithms (see Boland et al., 2017).
+In fact, how to obtain reliable and accurate travel time estimates from field data has remained a challenging problem for the VRP
+field, while many published papers still use randomly generated or hypothetical travel time distributions for simplicity. By utilizing
+data from advanced traffic information systems in Berlin, Fleischmann et al. (2004) proposed a smoothing method to ensure the
+resulting travel time functions satisfy the FIFO property. By using traffic flow data collected from a Belgian highway, Jabali et al.
+(2009) created a speed profile with five periods, including two periods for morning and afternoon peak hours and three periods for the
+remaining non-peak hours, for each link within the research area. Kritzinger et al. (2012) adopted 15-minute link travel time infor-
+mation from floating car data and developed an extended version of Dijkstra’s algorithm to compute the distance matrices between
+points with various departure times. In the paper by Gmira et al. (2021), the authors developed a discrete-event simulator that
+generates travel speed updates for real-time vehicle routing applications. Different from the aforementioned numerically driven
+approximation approaches, Van Woensel et al. (2007) first proposed an innovative queue-theoretic modeling scheme for calibrating
+expected travel times which was adopted in the studies by Van Woensel et al. (2008) and Lecluyse et al. (2009).
+1.1.2. Rich arc routing problems
+Considerable efforts have been devoted to the ARP and its variants. Interested readers are referred to a number of survey papers
+(Wøhlk, 2008; Corber´an and Prins, 2010; Corber´an and Laporte, 2015; Moura˜o and Pinto, 2017; Corbera´n et al., 2021). In this sub-
+section, with the focus on mathematical modeling and solution method development, we review the existing studies along two
+research lines, including real-life applications of RARP on urban networks and ARP with time-dependent travel times.
+(1) Three representative applications of RARP as the urban management movement problem
+Sprinkler truck routing problem: Li et al. (2008) investigated the water truck routing problem in open pit mines in which the travel
+time along a road for each truck is not fixed but relies on its leading truck on the same road. The authors proposed minimum cost flow
+and set-partitioning based heuristics solution algorithms. Huang and Lin (2014) formulated the street tree watering problem as the
+periodic arc routing problem with refill points where the watering frequency of each street tree may not be fixed and needs to be
+scheduled according to the period of watering activity. A graph transformation strategy was first adopted to convert the original
+problem to a VRP with an ant colony heuristic algorithm. Riquelme-Rodríguez et al. (2014) introduced periodic capacitated arc routing
+problem with inventory constraints that models the loss of humidity on each road with an inventory consumption function. The
+quantity of water delivered was considered to be fixed or variable. Two mathematical optimization models were proposed and solved
+by the commercial solver CPLEX.
+Street sweeping problem: Street sweeping requires a special vehicle equipped with a rotating brush that can move along the roadside
+and sweep material into a container on the vehicle. Early studies (Bodin and Kursh, 1978; Eglese and Murdock, 1991) modeled the
+street sweeping problem as the capacitated Chinese postman problem and developed heuristics to find reasonable routes for the
+road-sweeping vehicles. Blazquez et al. (2012) considered two extra “rich” constraints in sweeper route design: the sweepers must visit
+145
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+each selected street exactly as many times as its number of street sides; certain types of turns are not allowed to use. The original ARP
+was transformed into a VRP which was further solved by a nearest neighbor heuristic algorithm.
+Waste collection problem: Moura˜o and Almeida (2000) and Moura˜o and Amado (2005) examined the waste collection problem on
+randomly generated networks and proposed lower bounds and a three-phase heuristic that transforms one of the lower bound solutions
+to a feasible one. Maniezzo (2004) considered additional bin compatibility, forbidden turns and one-way street constraints in the
+model, which is solved by a local search-based heuristic. Ghiani et al. (2005) considered practical constraints in waste collection, e.g.,
+large vehicles are not allowed to use some narrow streets, or services at some sites have to be scheduled at night to avoid traffic
+congestion. The problem was solved by a cluster-first route-second based heuristic. Many other constraints include traffic regulations
+(Bautista et al., 2008), mobile depots (Del Pia and Filippi, 2006), intermediate facilities (Ghiani et al., 2001), and trip length re-
+strictions (Ghiani et al., 2010). Recently, Willemse and Joubert (2016a) integrated major problem features of early studies and studied
+the mixed capacitated arc routing problem with time window and intermediate facilities (MCARPTWIF). Four constructive heuristics
+were developed and comprehensively evaluated. Given splitting procedures play a key role in giant tour-based heuristics and
+meta-heuristics, the authors further proposed optimal and heuristic splitting procedures for the MCARPTWIF (Willemse and Joubert,
+2016b). In a follow-up study (Willemse and Joubert, 2019), three acceleration mechanisms for local search meta-heuristics were
+developed to better cope with large-scale instances.
+In general, there are three categories of approaches for solving RARPs, including constructive heuristics, meta-heuristics, and exact
+approaches (Corbera´n and Laporte, 2015). Constructive heuristics are designed based on problem features and typically provide a
+single final solution, while meta-heuristics are more general and can be applied to any problems. Both approaches cannot produce
+measurable quality of solutions. Exact optimization approaches and related model reformulations have not been studied extensively
+for RAPPs, especially with the consideration of time-varying traffic conditions.
+(2) ARP with time-dependent travel times
+Several VRP-related studies highlight the significant impact of time-dependent travel times on vehicle routing and scheduling. To
+name a few, Malandraki and Daskin, 1992; Haghani and Jung, 2005; Chen et al., 2006; Donati et al., 2008; Figliozzi, 2012; Dabia et al.,
+2013; Spliet et al., 2018; and Sun et al., 2018. Specifically, instead of using simplified customer-based graphs, some researchers
+directly solve VRPs on graphs that are similar to original road networks to incorporate detailed road-network information in the
+modeling process (Ben Ticha et al., 2021; Huang et al., 2017; Ben Ticha et al., 2019). Ben Ticha et al. (2018) offered a comprehensive
+review on VRP studies using road-network information.
+On the other hand, research on ARP with time-dependent travel times is still limited in the literature. Vidal et al. (2021) recently
+offered an extensive study for the time-dependent capacitated arc routing problem (TDCARP). Based on the piecewise-constant speed
+function proposed by Ichoua et al. (2003), the authors derived a closed-form representation for link arrival time functions and
+developed a continuous preprocessing approach for point-to-point quickest path query. A branch-cut-and-price exact algorithm and a
+hybrid genetic search-based metaheuristic were proposed for solving the TDCARP.
+1.2. Contributions and overview of the paper
+In this paper, we focus on model reformulation and developing exact solution approaches for RARPs in congested city trans-
+portation network. We have the following observations on the modeling challenges in the related VRP and ARP literature. First, most
+studies treat travel speeds on roads as constant, while the time-varying feature of transportation networks is largely simplified. A
+realistic, parsimonious and mathematically rigorous model with a calibration workflow for time-dependent travel time is important for
+VRP deployment and applications. Second, the system-wide impact of service vehicles in city logistics to the entire transportation
+system (with other travelers and road users) has not been systematically studied. Third, in most studies, a single model was developed
+for real-life RARP applications, which lacks a comprehensive investigation and comparison on the effects of rich constraints. Finally,
+recognizing of the high complexity of RAPRs, most studies developed heuristics for solving real-life problems, while exact approaches
+are critically needed to offer theoretical benchmarks for quantifying the solution quality and the degree of optimality. This paper aims
+to offer the following contributions to the growing list of modeling and optimization literature for city logistics.
+First, recognizing the potential negative impacts of service vehicles to background traffics when providing services, we system-
+atically consider service vehicle operation cost and system (societal) impact of vehicle routings in city logistics so as to reduce the
+system-wide congestion impact.
+Second, based on the fluid queue model, a novel time-dependent travel time representation with the form of nonlinear function is
+introduced. Compared to the widely adopted piecewise linear functions, the proposed nonlinear travel time function has advantages on
+parsimonious form, easy calibration, and differentiability. This also leads to the analytical derivations of time-dependent system
+(societal) impact of service vehicles to background traffics.
+Third, three optimization models are developed from different perspectives for modeling RARPs in city logistics, in which the
+impacts of problem-specific rich constraints on modeling complexity are comprehensively investigated.
+Finally, with a real-life sprinkler truck routing problem (SRP) as the representative example of RARP, we develop two exact so-
+lution algorithms, namely a Lagrangian relaxation based method and a branch-and-price based method which are embedded with an
+enhanced parallel branch-and-bound algorithm.
+The remainder of this paper is organized as follows. Section 2 presents the methodology for time-dependent travel time modeling
+and congestion impact analysis on transportation networks. In Section 3, the SRP, as an example of RARPs on transportation networks,
+146
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Fig. 1. General graphical illustration of queue evolution for a road link, adapted from Newell (2013), with a single maximum of queue length/-
+waiting time reached at time t2 during congestion duration P =t3 (cid:0) t0.
+is discussed in detail. In Section 4, three mathematical models are proposed for the SRP from different network modeling perspectives,
+followed by a detailed comparison. Two efficient solution methods, i.e., Lagrangian relaxation and branch-and-price algorithm, are
+designed in Section 5 for solving the models constructed in Section 4. Comprehensive computational experiments are conducted in
+Section 6 to evaluate the proposed models and solution approaches.
+2. Modeling time-dependent travel time and congestion impacts using fluid queue models with polynomial arrival rates
+To calculate the travel time of a specific link, one can divide link length by travel speed, which is in turn derived from simulated/
+estimated flow/density based on empirically calibrated fundamental diagrams (Greenshields et al., 1935). However, as pointed out by
+Van Woensel et al. (2007), in the context of vehicle routing problems, instantaneous speed and density have to be embedded in another
+set of continuum flow models (Kuhne and Michalopoulos, 1997) to characterize congestion evolution. As an alternative method,
+queuing models hold the promise for modeling travel flows with the capability of offering analytical evaluation and sensitivity analysis
+(Heidemann, 1996). However, the queueing-based approach is mainly based on the stochastic queueing principle with under-saturated
+conditions such as M/M/1 or G/G/1 (Van Woensel et al., 2007). In this section, by adapting and extending the fluid queue model with
+quadratic arrival rates proposed by Newell (2013) to represent time-dependent travel times at both link and path levels, we introduce
+analytical forms that satisfy FIFO conditions and offer precise congestion impact measures during a period of oversaturation.
+Compared to the widely used piecewise linear functions, the proposed method has the following three advantages: (1) a parsimonious
+form, (2) an analytical expression with FIFO property, and (3) differentiable.
+2.1. Time-dependent travel time
+Based on free-flow speed or cut-off speed, which is more precisely defined in congestion bottleneck identification (Hale et al.,
+2016), traffic states on transportation networks can be classified into two distinct classes: uncongested state and congested state. Under
+uncongested states or non-peak hours, aggregated vehicle speed on each road link is relatively stable and is approximated using
+free-flow speed in this paper. This assumption is consistent with the constant free-flow speed in the uncongested regime of triangular
+fundamental diagram, which is adopted in the widely used cell transmission model (Daganzo, 1994). Under congested states, vehicle
+travels are constrained by road capacity. Queues form when total inflow travel demand exceeds road capacity. In this case, travel time
+of vehicles includes two parts: (1) free-flow travel time, and (2) time spent in the queue (travel delay). Due to the dynamics of travel
+inflow demands, queue length evolves for an extended congestion period, resulting in time-dependent travel time of vehicle trips. In
+this study, we mainly focus on time-dependent vehicle travel time calibration during each single congested period and use constant or
+piecewise-linear travel time functions during uncongested periods. It should be noted that, to keep the differentiability of calibrated
+travel time functions, one can also adopt the proposed single-period calibration method in multi-period applications to avoid con-
+necting adjacent periods with constant functions. To depict potential arrival pattern changes across different periods, high-order
+arrival rate functions should be applied to reduce modeling errors, but it needs additional calibration efforts (Cheng et al., 2022).
+Interested readers are also referred to a recent study by Zhou et al. (2022) for a comprehensive investigation on a meso-to-macro
+cross-resolution performance approach for connecting polynomial arrival queue models to volume-delay functions.
+Without loss of generality, each congested road link on transportation networks is modeled as a single queuing system with a
+constant service rate that equals to the maximum link discharge rate. Fig. 1 shows a graphical illustration of queue evolution for a road
+link in the classical work by Newell (2013).
+147
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Fig. 2. Graphic illustration of the four-step method for calibrating the key parameters in Eq. (7).
+In Fig. 1(a), the blue curve and red straight line represent the arrival rate λ(t) and departure (discharge) rate μ, respectively. t0, t2,
+and t3 denote the time at which queue starts to form, queue starts to dissipate, and queue disappears; t1 is the time with the highest
+arrival rate. By using the second-order Taylor approximation at time t1, arrival rate λ(t) can be approximated by the following
+quadratic function:
+λ(t)=λ(t 1 )+λ′(t 1 )(t(cid:0) t 1 )+ 1 2 λ′′(t 1 )(t(cid:0) t 1 )2. (1)
+With the observation that λ′(t1) =0, Eq. (1) can be simplified as
+λ(t)=λ(t 1 )(cid:0) γ(t(cid:0) t 1 )2, (2)
+where γ=(cid:0) 1
+2
+λ′′(t1 )(γ >0). Notice that λ(t) passes two points (t0,μ) and (t2,μ), arrival rate λ(t) can also be expressed by the following
+factored form:
+λ(t)=γ(t(cid:0) t 0 )(t 2 (cid:0) t)+μ. (3)
+With Eq. (3), time-dependent queue length Q(t) can be derived as follows:
+∫t [ ]
+t (cid:0) t t(cid:0) t
+Q(t)=A(t)(cid:0) D(t)= [λ(τ)(cid:0) μ]dτ=γ(t(cid:0) t 0 )2 2 2 0(cid:0) 3 0 , (4)
+t0
+where A(t) and D(t) denote the cumulative arrival and departure at time t, respectively. By introducing the queue clearance time t3 (i.e.,
+Q(t3) =0), the following relationship between critical time points can be derived from Eq. (4). The detailed derivation process can be
+found in Newell (2013) for the quadratic arrival rates and cubic arrival rates by Cheng et al. (2022).
+3
+t 3 =t 0 + 2 (t 2 (cid:0) t 0 ). (5)
+Then, Eq. (4) can also be written as
+∫t
+γ
+Q(t)=A(t)(cid:0) D(t)= [λ(τ)(cid:0) μ]dτ= 3 (t(cid:0) t 0 )2(t 3 (cid:0) t). (6)
+t0
+The discharge rate μ, queue forming time t0, and queue clearance t3 can be directly observed from field data. Thus, time-dependent
+queue length Q(t) in Eq. (6) only has one inflow demand curvature parameter γ that needs to be calibrated from observed spatial queue
+length or link travel times. Interested readers can refer to a recent paper by Cheng et al. (2022) for the detailed calibration process that
+connects the above queuing model with the observations from a spatial queue representation. Finally, by integrating w(t) =Q(t)/μ,
+time-dependent delay w(t) can be expressed as
+γ
+w(t)= 3μ (t(cid:0) t 0 )2(t 3 (cid:0) t). (7)
+In many city logistics applications, only a single data source of observed speed vobsis available, where observation time interval t
+t
+can be 5 minutes or 15 minutes. The following paragraphs describe four steps for calibrating the key parameters of μ and γ in Eq. (7),
+and the corresponding graphic illustration is provided in Fig. 2.
+148
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+(1) Even without the flow count observations, we can still obtain an estimate of the ultimate road capacity c according to the facility
+types and speed limit. The cutoff speed can be determined based on the well-established traffic fundamental diagram between
+flow, density and speed, such as Greenshields model (Greenshields et al., 1935).
+(2) One can determine the congestion duration P, while t0 and t3 correspond to the timestamps at which speed is dropping from or
+recovering to the cutoff speed.
+(3) The average discharge rate μ can be estimated from the volume-speed curve and the observed speed during the congestion
+duration. A default value of μ for undersaturated links can be ultimate road capacity c.
+(4) The space-mean speed vobscan be converted to the virtual waiting time w(t) in Eq. (7), and one can use nonlinear regression
+t
+methods to calibrate parameter γ accordingly. Alternatively, as w(t2 ) = 6 γ μ (t2 (cid:0) t0 )3, we can also quickly estimate γ based on the
+lowest speed and converted highest waiting time.
+It should be noted that, as derivations are based on the point queue model (Vickrey, 1963), w(t) in Eq. (7) represents the delay of a
+link for vehicles arriving the downstream node (stop line) of the link at time t. With link free-flow travel time FFTT, time-dependent
+travel time of a link during congested periods (denoted by LT(t)) can be calculated using Eq. (8) for vehicle leaving from the upstream
+node of a link at time t.
+γ
+LT(t)=w(t+FFTT)+FFTT= 3μ (t+FFTT(cid:0) t 0 )2(t 3 (cid:0) t(cid:0) FFTT)+FFTT. (8)
+We next derive the range of feasibility for parameter γ in Eq. (8). For a queuing system on transportation networks, the arrival and
+departure rates must be positive. As we have assumed departure rate μ as a constant parameter, we also require that arrival rate λ(t)
+during the analysis period be nonnegative for any t between t0 and t3. The quadratic function λ(t) has the lowest value at time t3 in the
+congestion period. That is, λ(t3) ≥0 ensures λ(t) ≥0, ∀t ∈[t0,t3]. Integrating Eq. (3) and Eq. (5) yields Eq. (9):
+( )
+2 1 1
+λ(t 3 )=γ(t 3 (cid:0) t 0 )(t 2 (cid:0) t 3 )+μ=γ(t 3 (cid:0) t 0 ) 3 t 3 + 3 t 0 (cid:0) t 3 +μ=(cid:0) 3 γP2+μ≥0, (9)
+where P =t3 (cid:0) t0 represents the congestion duration.
+Proposition 1. The time-dependent link travel time function LT(t) in Eq. (8) satisfies the FIFO property within the time period of
+interest [t0,t3].
+Proof. The FIFO property can be proved if t +LT(t) ≤t′+LT(t′) holds for any t ≤t′, t ∈[t0,t3],t′∈[t0,t3]. Alternatively, it can be
+proved if dL
+d
+T
+t
+(t)≥(cid:0) 1 holds for any t ∈[t0,t3] (Carey et al., 2014). Based on the derivation of LT(t) given in Eq. (8), dL
+d
+T
+t
+( t) can be expressed
+as
+[ ] [ ]
+dLT(t) = d 3 γ μ (t(cid:0) t 0 )2(t 3 (cid:0) t)+FFTT = d 3 γ μ (t(cid:0) t 0 )2(t 3 (cid:0) t) . (10)
+dt dt dt
+Let h =t (cid:0) t0,h ∈[0, P], Eq. (10) can be rewritten as
+[ ]
+dLT(t) = dLT(h+t 0 )dh = d 3 γ μ h2(P(cid:0) h) = γ (cid:0) 2hP(cid:0) 3h2 ) . (11)
+dt dh dt dh 3μ
+It is easy to observe that γ (2hP(cid:0) 3h2)is a quadratic function of h ∈[0, P] and reaches its minimum at h =P. That is,
+3μ
+dLT(t) γ (cid:0) ) γ (cid:0) ) γ
+= 2hP(cid:0) 3h2 ≥ 2PP(cid:0) 3P2 =(cid:0) P2. (12)
+dt 3μ 3μ 3μ
+By utilizing the range of feasibility for γ derived in Eq. (9), it is obvious that (cid:0) 3 γ μ P2≥ (cid:0) 1, indicating dL d T t (t)≥ (cid:0) 1, ∀t∈[t0 ,t3 ]. Thus,
+function LT(t) satisfying the FIFO property is proved.
+On the basis of the time-dependent link travel time function, travel time derivations and FIFO property proof are further performed
+on a path level. Consider two arbitrary nodes i and j on a transportation network, and there are φ paths from i to j. Take path ρ ∈{1, 2,
+…, φ} as an example, the travel time of path ρ at time t (PTρ(t)) can be calculated as
+∑L (cid:0) )
+PT ρ (t)= LT l at l , (13)
+l=1
+where l ∈{1, 2, …, L} denotes the index of links in path ρ; L is the total number of links in path ρ; LTl represents the link travel time
+function of the lth link in path ρ; atis the arrival time at the upstream node of the lth link if departure from node i at time t. at =t, at
+l 1 l
+=at l(cid:0)1 +LTl(cid:0)1 (at l(cid:0)1 )when 2 ≤l ≤L.
+Proposition 2. Path travel time function PTρ(t) in Eq. (13) satisfies the FIFO property.
+Proof. Consider two vehicles, v1 and v2, departing along the same path ρ at time t and time t′respectively, and t ≤t′. That is, at ≤at ′ .
+1 1
+′ ′ ′
+As the travel time function of link 1 satisfies the FIFO property, we have at
+2
+=at
+1
++LT1 (at
+1
+)≤at
+2
+=at
+1
++LT1 (at
+1
+). Note that all links
+149
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Fig. 3. Illustration of road link marginal delay adapted from Ghali and Smith (1995).
+′ ′ ′
+along path ρ satisfy the FIFO property, we can obtain at
+3
+=at
+2
++LT2 (at
+2
+)≤at
+3
+=at
+2
++LT2 (at
+2
+), and apply the process recursively till the
+′ ′ ′
+last link L, i.e., at L =at L(cid:0)1 +LTL(cid:0)1 (at L(cid:0)1 )≤at L =at L(cid:0)1 +LTL(cid:0)1 (at L(cid:0)1 ). Thanks to the FIFO property on link L, we can easily conclude that
+vehicle v1 will arrive at node j earlier than vehicle v2. Thus, path travel time PTρ(t) satisfying the FIFO property is proved.
+It should be noted that the derived path travel time might still have multiple local minima and maxima, but its structurally
+parsimonious form could balance the tradeoff between computational tractability and the required level of details in representing real-
+world traffic congestion.
+2.2. Analytical form of modeling system-wide congestion impacts to background traffic
+As mentioned earlier, service vehicles used in RARP applications are typically slow-moving trucks, thus may bring significant
+impacts to background traffics, especially during peak hours. In this subsection, we further utilize calibrated queuing profile to
+analytically measure the system impact of service vehicles, by following the approach proposed by Ghali and Smith (1995).
+In Fig. 3, the blue and red solid lines denote the cumulative arrival and departure on a road link, respectively. Let us assume that
+there is a service truck entering the link at time t. Note that, similar to Section 2.1, we still focus on the congested period, i.e., t0 ≤t ≤t3.
+The marginal delay arising from the service truck is the blue dash area, which also equals to the grey area. The marginal delay includes
+two parts w(t) and SI(t). w(t) is the delay experienced by the service truck, while SI(t) denotes the additional delay experienced on that
+link by every vehicle arriving between time t and t3, due to the arrival of the service truck at time t, which is called system-wide
+(societal) congestion impact in this paper. Therefore, with the derivation of w(t) in Section 2.1, SI(t) can be calculated as follows:
+γ
+SI(t)=t 3 (cid:0) t(cid:0) w(t)=t 3 (cid:0) t(cid:0) 3μ (t(cid:0) t 0 )2(t 3 (cid:0) t). (14)
+With the consideration that service trucks typically move slower than passenger cars and use more road resources, SI(t) obtained in
+Eq. (14) further is multiplied by a passenger car equivalent (PCE), i.e., SI(t) ×PCE, to measure the system impact of a service truck
+entering a road link at time t.
+With the link-level marginal cost formulation in Eq. (14), system-wide impact along a given path can also be recursively derived
+similar to travel time derivations in Section 2.1.
+3. Sprinkler truck routing: an arc routing application with rich constraints in a congested traffic network
+Vehicle travels as well as the action of wind could incur serious airborne particulate matters from roads (Li et al., 2008), causing
+dust emissions that bring substantial negative effects to surrounding workers and pedestrians. The dust in the air also reduces the
+visibility of roads and is therefore likely to cause traffic accidents (Bhattachan et al., 2019). Street watering constitutes one of the most
+common and essential services provided by municipal departments (Gambatese et al., 2001). In such a service, sprinkler trucks, also
+known as water carts or water trucks, are assembled into a fleet to spray water and wash the road surface alongside streets in urban
+networks. As a crucial component in street watering operation systems, sprinkler truck route design aims to determine a set of optimal
+routes for a fleet of sprinkler trucks such that total cost is minimized while road cleaning tasks can be completed as required.
+In this study, we use the SRP as an example to illustrate the modeling framework and solution approaches for RARPs on urban
+networks. The SRP studied in this work is essentially a capacitated arc routing problem with time window (CARPTW), with the
+consideration of following additional rich features:
+(1) time-varying traffic conditions on urban transportation networks,
+(2) turn delays at intersections,
+150
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Fig. 4. An illustrative network and the route of a sprinkler truck.
+(3) repeated cleaning services on certain links, and
+(4) water refilling at water refilling stations.
+It should be noted that the rich constraints listed above can also be generalized to many other city logistics applications. For
+example, for the emerging electric vehicle routing problem in green logistics, the rich constraint (4) can be changed to charging
+vehicles at charging stations, without changing the essence of the resulting problem.
+For a given transportation network G =(N, L), where N and L denote the set of nodes and road links respectively, the SRP studied in
+this paper is to find a set of routes for sprinkler trucks such that all cleaning tasks can be fulfilled as required and the total cost is
+minimized. Each link (i, j) ∈L is associated with a cleaning task. That is, link (i, j) must be cleaned mi,j ∈Z times within its time window
+[si,j, ei,j], where si,j and ei,j denote the earliest and latest service starting time, respectively. To clean link (i, j) once, a sprinkler truck will
+consume wi,j unit of water. Some nodes belonging to N also serve as water refilling stations. For simplicity, in this paper, we consider
+the following three assumptions on water consumption and refilling: (a) once a sprinkler truck starts to clean a road link, it must clean
+the whole link. In other words, cleaning part of a link then going to refill water is not allowed; (b) a sprinkler truck is always refilled to
+its maximum water tank capacity when visiting a water refilling station, and the time used for refilling is fixed, e.g., 5 minutes, no
+matter how much water left before visiting a water refilling station; (c) sprinkler trucks are full of water when departing from their
+origin depot. Due to the existence of assumption (a), the water consumption wi,j of each link (i, j) should not exceed the maximum water
+capacity C of sprinkler trucks. In the case that wi,j is larger than C, link (i, j) will be split into multiple short links, with each of which
+meeting the requirements mentioned above.
+The total cost to be optimized is calculated by TOC +ω ×TSIC, where TOC and TSIC represent total operating cost and total system-
+wide impact cost respectively; parameter ω is a user-defined weight of TSIC to measure the importance of societal cost in routing
+solutions. The societal impact of using a specific link has been derived in Eq. (14). The total operation cost TOC consists of sprinkler
+truck acquisition cost and total travel time cost. We assume all sprinkler trucks used are identical, and acquisition cost h will be applied
+for each used sprinkler truck. Besides, the number of available sprinkler trucks is unlimited. The travel time cost of each sprinkler truck
+equals to the time difference between leaving depot and returning back to the depot, which further consists of four parts: cleaning time,
+deadheading time, waiting time, and water refilling time. Deadheading means a sprinkler truck traverses a road link without cleaning
+the link. It may occur in two situations: (a) the link does not need to clean or has been cleaned; (b) a sprinkler has used up water and is
+heading to a water refilling station. For each road link, its time-dependent deadheading time DT(t) and cleaning time CT(t) are
+calculated as follows:
+DT(t)=w(t)+LL/v d , (15)
+CT(t)=max[DT(t),LL/v c ], (16)
+where w(t) is time-dependent link delay derived in Eq. (7); LL represent the length of the link, vd and vc denote the maximum speed of
+151
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Fig. 5. A simple network and its corresponding time-expanded network.
+Fig. 6. A simple network and its corresponding time-expanded networks in SRP.
+sprinkler trucks in the deadheading mode and cleaning mode respectively. Waiting time represents the time gap between the arrival
+time and service starting time of a sprinkler on links (due to time window), rather than the waiting time at intersections caused by
+control delay. Note that we do not allow sprinkler trucks to wait if they do not have to, e.g., keep staying at a link after cleaning service
+is complete.
+Fig. 4 shows an illustrative example with a simple network and a route of a sprinkler truck. The network consists of 17 nodes
+(intersections) indexed from 0 to 16. The depot is located at node 0, and two water refilling stations are located at node 11 and 12
+respectively. The orange line denotes an example route, which is composed of solid lines (truck in cleaning mode) and dash lines (truck
+in deadheading mode). In Fig. 4, the sprinkler truck starts from depot node 0, cleans links (0,4), (4,1), (2,5), (5,8), refills water at node
+11, cleans links (16,15), (15,14), (14,13), (13,7), (7,4), (4,0), and returns back to depot node 0.
+4. Mathematical formulations of the optimization problem
+In this section, three models are developed for the proposed SRP from different perspectives. Specifically, a discretized time-
+expanded network based arc routing model M1 in Section 4.1, an arc-based node routing model M2 in Section 4.2, and a path-
+based node routing model M3 in Section 4.3. Section 4.4 offers a comprehensive comparison.
+152
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Table 2
+Notations used in model M1-TEN.
+Symbols Definition
+Indices
+i, j Index of nodes in graph GI
+t, t′ Index of time intervals
+f Index of sprinkler trucks
+Sets
+LI Set of links in graph GI
+F Set of sprinkler trucks
+V Set of vertexes in graph GST
+A Set of arcs in graph GST
+CAi,j Cleaning arc set associated with link (i,j)∈LI
+RA Set of water refilling arcs in graph GST
+Parameters
+oST (dST ) Origin (destination) vertex of sprinkler trucks in graph GST
+cti,j, t, t′ Travel time cost of arc (i, j, t, t′) ∈A
+cgi,j, t, t′ System impact cost of arc (i, j, t, t′) ∈A
+ci,j, t, t′ General cost of arc (i, j, t, t′) ∈A
+mi,j Number of cleaning requests of link (i, j) in graph GI
+wi,j, t, t′ Water consumption of arc (i, j, t, t′) ∈A
+C Water tank capacity of sprinkler trucks
+r Water refilling time
+h Sprinkler truck acquisition cost
+Variables
+xf i,j,t,t′ Binary variable. xf i,j,t,t′ =1 if sprinkler f uses arc (i, j, t, t′); otherwise, xf i,j,t,t′ =0
+qf
+i,t
+Water level of sprinkler f at vertex (i, t)
+4.1. An arc routing model based on time-expanded network (model M1-TEN)
+A standard VRP or ARP typically assumes, each customer must be served once and exactly once. Benefitting from the assumption,
+vehicle states (arrival time, cumulative loads) can be associated with customers, thus a concise physical network based model can be
+built (Cordeau, 2006). However, in the SRP considered in this study, some road links may be required to be cleaned multiple times,
+implying a road link may be serviced multiple times by sprinkler trucks, which makes vehicle states intractable if associating them with
+physical networks. As a result, we adopt a time-expanded network based modeling approach. In the literature, the time-expanded
+network based modeling approach has been successfully applied in solving a wide range of transportation supply-side optimization
+problems, e.g., dynamic traffic assignment (Lu et al., 2016), VRP (Yao et al., 2019), passenger flow state estimation (Shang et al.,
+2019), and train timetabling problem (Zhang et al., 2019). By extending a physical network to a time-expanded network, nodes and
+road links in the original physical network are extended to vertexes and arcs with an extra time dimension. With the extended time
+dimension, the multiple-services requirements can be systematically modelled as well as time-dependent travel times. To enable model
+M1 to accommodate the need of turn delay modeling, with the intersection expansion process similar to the approach discussed by
+Kirby and Potts (1969), Ziliaskopoulos and Mahmassani (1996), and Pallottino and Scutella (1998), a new network GI =(NI ,LI )is
+first constructed from the network G described in Section 3.
+For a time-expanded network GST from GI, vertex (i, t) ∈V is constructed from physical node i∈NI, where t denotes time. Arc (i,
+j, t, t′) ∈A represents a space-time traveling activity from vertex (i, t) to vertex (j, t′). As the time dimension is continuous, we evenly
+discretize the entire planning horizon [0, T] into short time intervals, e.g., 10 seconds, so that the number of vertexes and arcs is finite.
+As a result, t and t′both represent the indices of discretized time intervals. We use χ ={0, 1, 2, …, s} to denote the set of indices of
+discretized time intervals, where s is the index of the last time interval. Arcs in a time-expanded network consist of two categories:
+traveling arc (i, j, t, t′) and waiting arc (i, i, t, t +1). A traveling arc (i, j, t, t′) means a vehicle enters link (i,j)∈LI at time t and leaves at
+time t′, and t′(cid:0) t equals the travel time of the link at time t. Note that link (i, j) can either be a road link or a movement link in network
+GI. A waiting arc (i, i, t, t +1) corresponds to the waiting activity of a vehicle at node i∈NI for one time interval. Waiting arcs are
+used when a sprinkler truck arrives at a road link earlier than the link’s earliest service starting time. Fig. 5 depicts a simple three-node
+network with its corresponding time-expanded network, where the travel time of link (1, 2) and link (2, 3) are 1 and 2, respectively.
+With the basic concepts introduced above, we present the time-expanded network built for the SRP in Fig. 6, with the following
+problem-specific highlights:
+(1) Cleaning arc and deadheading arc: When a sprinkler moves on a road link, it has two possible modes, i.e., cleaning mode and
+deadheading mode. In the cleaning mode, the sprinkler truck cleans the link when traveling on it, but not in the deadheading
+mode. Note that sprinkler trucks typically have different speeds in the cleaning mode and deadheading mode. Therefore, it is
+necessary to build cleaning arcs (Fig. 6(a)) and deadheading arcs (Fig. 6(b)) with different travel times for each physical link.
+For a cleaning arc (i, j, t, t′) in Fig. 6(a), t′(cid:0) t equals to cleaning time on link (i, j); for a deadheading arc arc (i, j, t, t′) in Fig. 6(b),
+t′(cid:0) t equals to deadheading time on link (i, j). Another difference between cleaning arcs and deadheading arcs is about water
+153
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+consumption. If we use wi,j, t, t to denote the water consumption of arc (i, j, t, t′), wi,j, t, t′ =wi,j if the arc is a cleaning arc;
+otherwise, wi,j, t, t′=0.
+(2) Time-dependent travel time: For a deadheading arc (i, j, t, t′), t′(cid:0) t equals to DT(t) in Eq. (15); for a cleaning arc (i, j, t, t′), t′(cid:0) t
+equals to CT(t) in Eq. (16). One can observe that each traveling arc (including deadheading arc and cleaning arc) in Fig. 6 is
+associated with its own travel time, which can be viewed as a fine discretized approximation of continuous functions in Eqs. (15)
+and (16).
+(3) Service time window: In the SRP, each link is associated with a service time window, within which cleaning services must be
+started. In other words, for a specific link, cleaning arcs outside its service time window are not allowed to use. We can easily
+impose this constraint by deleting cleaning arcs outside service time windows when building a time-expanded network. For
+example, in Fig. 6(a), the service time window of link (1, 2) is [2, 6], then the arcs with a red cross will be deleted.
+(4) Waiting arc: According to the problem description in Section 3, waiting is only allowed when a sprinkler truck arrives earlier
+than link service starting time. Therefore, compared with the illustrative example in Fig. 5, tighter restrictions are considered in
+building waiting arcs for the SRP to avoid invalid waiting. First, waiting arcs are only built for inbound nodes of road links that
+need cleaning services. Second, waiting arcs with entering time later than the corresponding link’s service starting time will not
+be generated. For road link (1, 2) with time window [2, 6] in Fig. 6, waiting arcs (1, 1, t, t +1) are only constructed for t =0, 1.
+(5) Water refilling arc: Water refilling arcs (i, i, t, t +r) are built on each water refilling station i, where r denotes the time required to
+refill a sprinkler truck.
+(6) Origin and destination: In the newly generated time-expanded network, vertex oST (o,0)and dST (d,s)will serve as the origin
+and destination vertex of sprinkler trucks, where o and d denote the origin node and destination node in network GI; s is the
+index of the last discretized time interval in the whole planning horizon. Waiting arcs on destination d are constructed to ensure
+that sprinkler trucks are able to return back to and keep staying at the destination depot after finishing cleaning tasks.
+To reduce the size of time-expanded networks and simplify the subsequent optimization model, we can further remove vertexes and
+arcs outside the space-time prism between the origin vertex oST and destination vertex dST . A space-time prism is an envelope that
+covers all possible paths between two space-time vertexes. Interested readers are referred to Miller (2005) and Tong et al. (2015).
+With the preparation of intersection expansion and time-expanded network construction, we now present the arc routing
+formulation on time-expanded network (model M1-TEN) for the proposed SRP. Notations are summarized in Table 2.
+Model M1-TEN:
+Objective function
+∑ ∑ ∑ ∑ ∑ ∑
+minZ 1 = ct i,j,t,t′xf i,j,t,t′ +h xf o,j,0,t′ +ω cg i,j,t,t′xf i,j,t,t′ (17)
+f∈F(i,j,t,t′)∈A f∈F(j,t′):(o,j,0,t′)∈A f∈F(i,j,t,t′)∈A
+Subject to:
+Flow balance constraint:
+/
+∑ ∑
+xf i,j,t,t′ = xf j,i,t′,t , ∀f ∈F,(i,t)∈V {o ST ,d ST } (18)
+(j,t′):(i,j,t,t′)∈A (j,t′):(j,i,t′,t)∈A
+Cleaning request satisfaction constraint:
+∑ ∑
+xf i,j,t,t′ =m i,j , ∀(i,j)∈L I (19)
+f∈F(i,j,t,t′)∈CAi,j
+Sprinkler truck water level updating constraint:
+(cid:0) ) /
+qf j,t′ ≤qf i,t (cid:0) w i,j,t,t′xf i,j,t,t′ +C 1(cid:0) xf i,j,t,t′ , ∀f ∈F,(i,j,t,t′)∈A RA (20)
+Decision variables:
+xf ∈{0,1}, ∀f ∈F,(i,j,t,t′)∈A
+i,j,t,t′
+0≤qf i,t ≤C, ∀f ∈F,(i,t)∈V (21)
+The objective function in Eq. (17) minimizes the total cost to complete cleaning tasks, which includes three parts: travel time cost
+∑ ∑ ∑ ∑ ∑ ∑
+f∈F(i,j,t,t ′)∈A
+ct i,j,t,t ′xf i,j,t,t′, vehicle acquisition cost h
+f∈F(j,t ′):(o,j,0,t ′)∈A
+xf i,j,t,t′, and system impact cost ω
+f∈F(i,j,t,t ′)∈A
+cg i,j,t,t ′xf i,j,t,t′. The travel time cost cti,
+j, t, t′of arc (i, j, t, t′) equals to t′(cid:0) t for all arcs in set A, except waiting ∑ arcs b ∑ uilt at sprinkler destination node d. We let the cost of waiting
+arcs at node d equal to 0 (i.e., ci,i, t, t +1 =0 if i =d). Expression
+f∈F(j,t ′):(o,j,0,t ′)∈A
+xf i,j,t,t′ denotes the number of sprinkler trucks used. By
+integrating three types of coefficient of each xf
+i,j,t,t
+′, Eq. (17) can be simplified as
+∑ ∑
+minZ 1 = c i,j,t,t′xf i,j,t,t′ , (22)
+f∈F(i,j,t,t′)∈A
+154
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Table 3
+Additional notations used in the node routing model.
+Symbols Definition
+Indices
+i, j Index of nodes in graph GN
+ρ Index of edges between each pair of nodes in graph GN
+p Index of time slots
+Sets
+NN Set of nodes in graph GN
+Ns N Set of service nodes in graph GN
+Nw N Set of water refilling stations in graph GN
+EN Set of edges in graph GN
+PN Set of time slots
+Parameters
+φ Number of edges between each pair of nodes in graph GN
+τ i,p Service time of node i∈NN in slot p
+τ i,j, ρ, p Travel time of edge (i,j,ρ)∈EN in slot p
+cgi,p Congestion impact of serving node i∈NN in slot p
+cgi,j, ρ, p Congestion impact of using edge (i,j,ρ)∈EN in slot p
+wi Water consumption of node i∈NN
+si(ei) The earliest (latest) service starting time of node i∈NN
+Ti,p Ending time of slot p for node i
+Variables
+xi,j, ρ, p Binary variable. xi,j, ρ, p =1 if a sprinkler uses edge (i, j, ρ) in slot p; otherwise, xi,j, ρ, p =0
+yi,p Binary variable. yi,p =1 if cleaning service starts on node i in slot p; otherwise, yi,p =0
+qi Water level of a sprinkler at node i
+ti d Departure time of a sprinkler from node i
+ti s Service starting time of node i
+where ci,j, t, t′represents the general cost of arc (i, j, t, t′), consisting of travel time cost, vehicle acquisition cost, and system impact cost.
+Constraint (18) guarantees that the incoming flow equals to outgoing flow on vertexes. Note that we do not impose this constraint on
+the origin vertex oST and destination vertex dST . Constraint (19) makes sure that links are cleaned as requested, while constraint
+(20) is used to update the water level of sprinkler trucks. Finally, constraint (21) specifies decision variables with their domains.
+Specifically, xf i,j,t,t′ are binary variables, and qf i,t are positive continuous variables with an upper bound of C, where C represents the
+water tank capacity of sprinkler trucks.
+4.2. Graph transformation and a slot-based time discretization node routing model (model M2-STD)
+The adoption of intersection expansion and time-expanded networks can allow the consideration of various rich constraints into the
+generated network, contributing to a concise form of model M1-TEN. Yet, additional movement links created at intersections and high-
+dimension time-expanded networks significantly increase the size of model M1-TEN, making it extremely challenging to solve on large-
+scale instances. In this section, we further propose a node routing model by converting the original ARP to a node routing problem
+(NRP). Solving an ARP by converting it to an NRP was first proposed by Pearn et al. (1987) and was adopted and improved by Longo
+et al. (2006). The core idea behind the conversion process is treating arcs to be served as activity nodes in the NRP and building virtual
+edges to connect each pair of the resulting nodes based on the shortest paths in the original network.
+In the proposed SRP, due to the consideration of additional rich features, there are three major challenges during the conversion
+process. First, on a congested urban transportation network with time-varying traffic conditions, the shortest path (in terms of travel
+time) between two nodes changes during the day. Second, cost of a path consists of travel time cost and system impact cost, therefore a
+shortest path with the least travel time between two activity nodes does not necessarily correspond to the best path with the least total
+cost. Third, due to the existence of service time window, even the best path with the least total cost does not guarantee an optimal
+solution. Consider two paths (e.g., path 1 and path 2) between a pair of activity nodes, where path 1 has a lower total cost than path 2.
+However, path 1 takes longer travel time, causing some future service nodes not to be served from path 1 due to time windows.
+Adopting path 1 with a lower total cost may need additional vehicles to visit these unserved service nodes, which could result in a
+suboptimal routing solution. To address this issue, we keep φ paths between each pair of activity nodes in the resulting NRP. The details
+of the transformation process are illustrated in Appendix A.
+Due to the adoption of nonlinear functions for representing time-varying traffic conditions in the converted graph GN, i.e., τ i(t), τ i,j,
+ρ(t), cgi(t), and cgi,j, ρ(t), one can expect that an optimization model built on GN is highly nonconvex and extremely hard to solve (see
+Appendix B). Therefore, in model M2-STD, nonlinear functions are approximated by piecewise-constant functions. That is, the entire
+planning time horizon [0, T] is split into multiple time slots with the same duration, e.g., 10 minutes, and nonlinear functions are
+approximated by constants within each slot. Model M2-STD is presented as follows, where notations are illustrated in Table 3.
+Model M2-STD:
+Objective function
+155
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+( )
+∑ ∑ ∑ ∑
+minZ 2 = t d d f +h x oN,j,ρ,p +ω cg i,j,ρ,p x i,j,ρ,p + cg i,p y i,p (23)
+f∈F N (j,ρ):(oN,j,ρ)∈EN,p∈PN (i,j,ρ)∈EN,p∈PN i∈NN,p∈PN
+Subject to:
+Cleaning request satisfaction constraint:
+∑ ∑
+x j,i,ρ,p =1, ∀i∈N N s (24)
+(j,ρ):(j,i,ρ)∈ENp∈PN
+Sprinkler truck spatial route constraint:
+∑ ∑ ∑ ∑
+x j,i,ρ,p = x i,j,ρ,p ,∀i∈N N s ∪N N w (25)
+(j,ρ):(j,i,ρ)∈ENp∈PN (j,ρ):(i,j,ρ)∈ENp∈PN
+∑ ∑ { }
+x j,i,ρ,p ≤1, ∀i∈N N w ∪ d N f |f ∈F (26)
+(j,ρ):(j,i,ρ)∈ENp∈PN
+Sprinkler truck temporal route constraint:
+t o d N =0 (27)
+(cid:0) )
+t j s≥t i d+τ i,j,ρ,p +M x i,j,ρ,p (cid:0) 1 , ∀(i,j,ρ)∈E N ,∀p∈P N (28)
+t i d≥t i s+τ i,p y i,p , ∀i∈N N ,∀p∈P N (29)
+∑
+y i,p =1, ∀i∈N N (30)
+p∈PN
+(cid:0) )
+T p(cid:0)1 x i,j,ρ,p ≤t i d<T p +M 1(cid:0) x i,j,ρ,p , ∀(i,j,ρ)∈E N ,∀p∈P N (31)
+(cid:0) )
+T p(cid:0)1 y i,p ≤t i s<T p +M 1(cid:0) y i,p , ∀i∈N N ,∀p∈P N (32)
+Time window constraint:
+s i ≤t i s≤e i , ∀i∈N N (33)
+Sprinkler truck water level updating constraint:
+q oN =C (34)
+(cid:0) ) { }
+q j ≤q i (cid:0) x i,j,ρ,p w j +C 1(cid:0) x i,j,ρ,p , ∀(i,j,ρ)∈ E N |i∈N N s ,∀p∈P N (35)
+{ }
+q j ≤C(cid:0) x i,j,ρ,p w j , ∀(i,j,ρ)∈ E N |i∈N N w ∪{o N } ,∀p∈P N (36)
+Decision variables:
+x i,j,ρ,p ∈{0,1}, ∀(i,j,ρ)∈E N ,∀p∈P N
+y i,p ∈{0,1}, ∀i∈N N ,∀p∈P N
+0≤q i ≤C, t i d≥0, t i s≥0, ∀i∈N N (37)
+The objective function in Eq. (23) aims to minimize the total cost, where oN represents the origin node of sprinkler trucks in graph
+GN, and df N denotes the copy of destination node dN for sprinkler f in graph GN. By creating a dummy copy df N of the destination depot
+for each sprinkler truck f, the arrival time of sprinkler truck f at the destination depot df N is the time used by sprinkler truck f. Note that
+since service time at destination depots is zero, arrival times and departure times at destination depots are the same, thus we can use
+departure time td in the objective function to avoid defining extra variables. Constraint (24) ensures that each service node is serviced
+df
+N
+exactly once. Constraint (25), (26) and Eqs. (27)–(32) formulate the spatial and temporal route constraints of sprinkler trucks,
+respectively. In constraint (29), τ i,p denotes the service time of node i if service starts in time slot p. For service nodes, τ i,p equals to the
+cleaning time of corresponding road links in slot p. For water refilling stations and depot nodes, τ i,p equals to the water refilling time
+and zero, respectively. Constraint (33) makes sure that cleaning services start within preset time windows. Constraints (34)–(36) are
+used to track the water level updating of sprinkler trucks. Finally, constraint (37) specifies decision variables and their domains used in
+model M2-STD.
+In addition to the essential constraints (24)–(37), two sets of constraints are further constructed below to tighten the linear
+relaxation of model M2-STD. Specifically, constraint (38) ensures that at least one sprinkler is needed to complete cleaning tasks. Note
+156
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Table 4
+Parameters of polynomial travel time functions.
+Link t0 t3 γ μ FFTT Link travel time function
+1-2 3 16 15 1200 1.36 LT(t)=
+3 ×
+15
+1200
+(t(cid:0) 3)2(16(cid:0) t)+1.36
+2-3 4 18 12 1000 1.54 LT(t)=
+3 ×
+12
+1000
+(t(cid:0) 4)2(18(cid:0) t)+1.54
+that, as sprinkler trucks are allowed to refill water during their trips, we cannot calculate the minimum number of sprinkler trucks
+using total water needed divided by water tank capacity of sprinkler trucks. Although constraint (38) seems to be very loose, it does
+serve as the lower bound of many instances in the numerical experiment section. Constraint (39) is used to break the symmetry of
+model M2-STD.
+∑
+x oN,j,ρ,p ≥1 (38)
+(j,ρ):(oN,j,ρ)∈EN,p∈PN
+t d d N 1 ≤t d d N 2 ≤…≤t d d N |F|(cid:0)1 ≤t d d N |F| (39)
+4.3. Path-based set partition formulation with continuous-time representation (model M3-CTR)
+In this section, we further propose a path-based model (set partition formulation) on the graph GN constructed in Appendix A.
+Instead of time discretization, the original continuous polynomial form of service time function and travel time function is adopted. As
+pointed by Boland et al. (2017), the granularity of the discretization has an impact on both candidate solutions and the computational
+tractability. Let r ∈Ω denote a feasible sprinkler truck route, where Ω represents the set of all feasible routes. A feasible route r should
+satisfy constraints (B3–B12) in Appendix B. The set partition formulation can be expressed as follows:
+Model M3-CTR:
+Objective function
+∑
+minZ 3 = c r θ r (40)
+r∈Ω
+Subject to:
+Cleaning request satisfaction constraint:
+∑
+α i,r θ r =1, ∀i∈N N s (41)
+r∈Ω
+Decision variables:
+θ r ∈{0,1}, ∀r∈Ω (42)
+The objective function Eq. (40) minimizes the cost of all selected routes, where θ r is a binary variable indicating whether route r is
+chosen in a solution or not; cr is the cost of route r, including operation cost and system impact. Constraint (41) states that all service
+nodes are serviced once, where α i,r is a mapping coefficient between service node i and route r (number of times that route r passes
+activity node i).
+4.4. Model comparison in terms of time-varying travel time representation and model formulation
+An illustrative example with two consecutive links is first used to show the difference in time-dependent travel time modeling
+among the three models. Table 4 presents the sample values for the parameters of polynomial travel time functions proposed in Section
+2. The time unit in this example is minute.
+Fig. 7 shows the travel time functions (blue lines) used in the three models, among which piecewise-constant functions depicted in
+Fig. 7(b) correspond to the first method in Table 1, while functions in Fig. 7(a) and Fig. 7(c) are the two proposed approaches in this
+study. For model M1-TEN, the time dimension is discretized into 0.2-minute time intervals. Therefore, both link travel times and node
+arrival (departure) times are approximated with a 0.2-minute resolution. For model M2-STD, the entire time horizon is split into four 5-
+minute slots, and travel times remain constant in each slot. For model M3-CTR, the original polynomial form of travel time functions is
+used.
+In Table 5, a comprehensive summary of the three proposed models is further provided. For the formulation with continuous-time
+representation M3-CTR, it is important to use a well-behaved travel time function satisfying the FIFO property; otherwise, unnecessary
+and unrealistic waiting could be observed from the final solutions. In Section 6, extensive numerical experiments will be performed to
+examine the computational efficiency of the three models.
+157
+158
+TransportationResearchPartB166(2022)143–182 Fig. 7. An illustrative example of time-dependent travel time modeling in three models, ranging from high-fidelity discretization M1-TEN, semi-dynamic slot-based discretization M2-STD and
+continuous-time representation M3-CTR.
+J.
+Lu
+et
+al.
+159
+TransportationResearchPartB166(2022)143–182
+Table 5
+Comparisons among the three proposed models.
+Model M1-TEN Model M2-STD Model M3-CTR
+Model type Arc routing model (MILP) Arc-based node routing model (MILP) Path-based node routing model (MILP)
+Network type Time-expanded networks from physical networks Activity node-based networks from physical networks
+Rich constraint (1) Embedded in arcs; approximated with a fine resolution Piecewise-constant approximation; extra slot dimension Directly using polynomial travel time
+handling TV functions for an entire congestion
+period
+(2) Intersection expansion Embedded in edges between activity nodes
+TD
+(3) Allow multiple visits along extra time dimension Dummy activity nodes Dynamically considered when
+RS constructing a path
+(4) Water refilling arcs Dummy water refilling nodes
+WR
+Main decision variables xf i,j,t,t′ ∈{0,1}, ∀f ∈F, (i, j, t, t′) ∈A x
+yi
+i
+,
+,
+p
+j,
+∈
+p ∈
+{0
+{
+,
+0
+1
+,
+}
+1
+,
+}
+∀
+,
+i
+∀
+∈
+(i,
+N
+j)
+N
+∈
+,∀
+E
+p
+N
+∈
+,∀
+P
+p
+N
+∈PN θ r ∈{0, 1}, ∀r ∈Ω
+Side constraints Flow balance constraint; Sprinkler spatial route constraint; Cleaning request satisfaction constraint
+Cleaning request satisfaction constraint; Sprinkler temporal route constraint;
+Sprinkler truck water level updating constraint Cleaning request satisfaction constraint;
+Time window constraint;
+Sprinkler truck water level updating constraint
+Features Embed various rich constraints into time-expanded networks, Turn delays are considered in the activity node-based graph construction stage, without increasing the complexity of
+resulting in a concise model formulation; subsequent optimization models
+Fine time-dependent travel time modeling Less number of decision variables compared with the other two models Only one set of side constraint
+Challenges A large number of additional decision variables are introduced Time-dependent travel times are approximated with piecewise-constant functions For large-scale instances, feasible paths
+due to intersection expansion and the use of time-expanded and modeled with an additional slot dimension which increases the model size cannot be explicitly numerated.
+network (complexity)
+Notes: MILP – mixed integer linear programming, TV - time-varying traffic conditions on urban transportation networks, TD - turning delays at intersections, RS - repeated cleaning services on certain
+links, WR - water refilling at water refilling stations.
+J.
+Lu
+et
+al.
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+5. Exact solution methods
+The models developed in Section 4 are all (mixed) integrated linear programming models and theoretically solvable using existing
+solvers such as Gurobi and CPLEX. While, in real-life applications, the size of resulting models could be extremely large, making it hard
+to obtain desirable solutions from solvers within a reasonable time. In this section, recognizing the mathematical characteristics of
+each proposed model, we develop two exact solution methods for efficiently solving these models. Specifically, a Lagrangian relaxation
+(LR) based method is proposed for solving model M1-TEN, while a branch-and-price (BnP) based approach is proposed for solving
+model M3-CTR.
+5.1. Lagrangian relaxation
+The concise form of model M1-TEN provides the possibility of using decomposition techniques to obtain good solutions quickly.
+Model M1-TEN consists of three sets of side constraints, among which only cleaning request satisfaction constraint (19) couples
+different sprinkler trucks. If constraint (19) is relaxed, model M1 can be decomposed into multiple easier sprinkler-specific sub-
+problems, which can be solved independently. In this work, we propose a LR-based method for solving model M1-TEN.
+Under the LR framework, coupling constraint (19) is relaxed, and the violation is penalized in objective function Eq. (17) using
+Lagrangian multipliers λ i,j. The relaxed problem is
+Objective function
+⎛ ⎞
+∑ ∑ ∑
+minZ 4 =Z 1 + λ i,j ⎝ xf i,j,t,t′ (cid:0) m i,j ⎠ (43)
+(i,j)∈LI f∈F(i,j,t,t′)∈CAi,j
+Subject to:
+(18), (20), (21).
+By reorganizing the coefficients of decision variable xf i,j,t,t′, the objective function Eq. (43) can be further simplified to Eq. (44).
+Given the value of λ i,j, the relaxed problem needs to find the least cost shortest path on the discretized time-expanded network with
+′
+modified arc cost c i,j,t,t′ for each sprinkler truck, which can be exactly solved by the dynamic programming approach (Mahmoudi and
+Zhou, 2016; Yao et al., 2019).
+∑ ∑ ∑
+minZ 4 = c′ i,j,t,t′ ,xf i,j,t,t′ (cid:0) λ i,j m i,j (44)
+f∈F(i,j,t,t′)∈A (i,j)∈LI
+We adopt the classical sub-gradient method to update the values of Lagrangian multipliers λ i,j using Eq. (45) and Eq. (46), where λk i,j
+and αk denote the value of λ i,j and step length at iteration k, respectively. It should be noted that, as constraint (19) is an equality
+constraint, Lagrangian multipliers can be positive, negative, or 0. A positive Lagrangian multiplier means an additional penalty when
+serving the corresponding arc, while a negative value means an additional bonus. Lagrangian iteration stops when constraint (19) is
+satisfied on all links, i.e., no Lagrangian multipliers updating in Eq. (45).
+⎛ ⎞
+∑ ∑
+λk i, + j 1=λk i,j +αk⎝ xf i,j,t,t′ (cid:0) m i,j ⎠ (45)
+f∈F(i,j,t,t′)∈CAi,j
+/
+αk=1 (k+1) (46)
+A detailed illustration of the Lagrangian relaxation based solution process is presented in Appendix C. Interested readers are also
+referred to Zhang et al. (2019) and Yao et al. (2019) for efficiently solving a model with coupling constraints on time-expanded
+networks under a dual decomposition framework using alternating direction method of multipliers.
+5.2. Branch and price algorithm
+For model M3-CTR, the number of feasible routes in set Ω can be extremely large in large-scale problems, making it nearly
+impossible to enumerate all routes and solve the resulting model using existing solvers. In this section, we further propose a Branch and
+Price (BnP)-based exact solution approach to solve model M3-CTR. The proposed BnP algorithm consists of two modules, i.e., column
+generation (CG) and branch-and-bound (BnB). Model M3-CTR is denoted as the master problem (MP), then we need to use CG module
+to solve the linear master problem (LMP), while the BnB module is needed to obtain integer solutions based on the results from the CG
+module. The LMP is the same as MP except the domain of decision variables. In LMP, we relax the integer requirement of decision
+variable θ r, i.e., 0 ≤θ r ≤1. Due to the existence of constraint (41), we can further simplify the domain constraint 0 ≤θ r ≤1 to θ r ≥0.
+Column generation
+The LMP is still hard to solve due to the large size of route set Ω. Therefore, instead of directly solving the LMP, we iteratively solve
+its corresponding restricted linear master problem (RLMP), whose route set Ω′ only contains part of feasible routes and is extended
+with new routes as needed. The RLMP is presented as follows:
+160
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Algorithm 1
+Label extension procedure.
+Input: label l ={node, Rc,Rt,Rw,prev, Φ}, node service time function τ i(t), edge travel time function τ i,j, ρ(t), system impact functions cgi(t) and cgi,j, ρ(t)
+Output: new label l′on node j
+1: label l′=null
+2: if j∕∈Φ and Rw (cid:0) wj ≥0 then
+3: arrival time at node j: atj =Rt +τ i(Rt) +τ i,j, ρ(Rt +τ i(Rt))
+4: if atj ≤ej then
+5: the earliest service starting time at node j: R′ t =max(atj ,sj )
+6: the earliest time to return back to the depot after visiting node j:
+atdN =R ′ t +τ j (R ′ t )+m ρ i ′ n{τ j,dN,ρ′(R ′ t +τ j (R ′ t ))}
+7: if atdN ≤edN then
+8: R′
+t
+={ Rc
+R
++
+c
+R
++
+′ t
+R
+(cid:0)
+′ t
+R
+(cid:0)
+t
+R
++
+t
+c
++
+gi,
+c
+j,
+g
+ρ
+i
+(
+,j
+R
+,ρ
+t
+(
++
+Rt
+τ
++
+i (R
+τ i
+t
+(
+)
+R
+)
+t
++
+))
+c
++
+gi (
+c
+R
+gi
+t
+(
+)
+R
+(cid:0)
+t )
+π j i
+i
+f
+fj
+j
+∕∈
+∈
+N
+Ns N
+s N
+9: R′
+w
+={
+Rw
+C
+(cid:0) wj
+i
+i
+f
+f
+j
+j
+∈
+∕∈
+N
+N
+w N
+w N
+10: prev′ =l
+11: Φ′={ Φ∩V j ifj∈Nw N
+Φ∩V j ∪{j} ifj∕∈Nw N
+12: label l ′ ={j,R ′ c ,R ′ t ,R ′ w ,prev ′,Φ′}
+13: return label l′
+Objective function
+∑
+minZ 5 = c r θ r (47)
+r∈Ω′
+Subject to:
+Cleaning request satisfaction constraint:
+∑
+α i,r θ r =1, ∀i∈N N s (48)
+r∈Ω′
+Decision variables:
+θ r ≥0, ∀r∈Ω′ (49)
+In this paper, the initial routes in set Ω′are generated by assigning one sprinkler for each service node. Note that, when generating
+initial routes, if a node cannot be serviced due to the violation of time window constraint or water consumption constraint, the original
+problem is then infeasible. The route set Ω′in RLMP is extended by solving the so-called pricing problem, during which routes with
+negative reduced cost are added into set Ω′.
+(a) Formulation of the pricing problem
+The pricing problem is formulated as follows:
+Objective function
+( )
+∑ (cid:0) ) ∑ ( ) ∑
+minZ 5 =h+t d d N +ω cg i,j,ρ t i d x i,j,ρ + cg j t j s x i,j,ρ (cid:0) x i,j,ρ π j (50)
+(i,j,ρ)∈EN (i,j,ρ)∈EN (i,j,ρ)∈EN:j∈N
+N
+s
+Subject to: constraints B3–B12 in Appendix B.
+Objective function Eq. (50) minimizes the reduced cost of a feasible route, where π j is the reduced cost associated with node j.
+Essentially, the optimization problem presented above is an elementary shortest path problem with resource constraint (ESPPRC).
+(b) Dynamic programming algorithm for the pricing problem
+Finding an elementary shortest path with resource constraint in a network is an NP-hard problem. Therefore, finding the exact
+solution for the aforementioned pricing problem may be extremely time-consuming in large-scale instances. In the literature, to reduce
+the computational complexity of the pricing problem, following the pioneering work by Christofides et al. (1981), researchers started
+to develop efficient algorithms for finding non-elementary shortest paths with resource constraint through relaxing the elementary
+requirement, i.e., allowing visiting a node multiple times (Irnich and Villeneuve, 2006; Baldacci et al., 2011; Martinelli et al., 2014).
+The use of non-elementary shortest paths will not affect finding the optimal solution of the original problem but will weaken its linear
+relaxations. In this paper, we adopt the dynamic programming ng-route algorithm proposed by Martinelli et al. (2014) with some
+modifications. Specifically, in Martinelli et al. (2014), a vehicle only needs to collect goods during its trip, therefore the load of a
+161
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Algorithm 2
+Dynamic programming ng-route algorithm.
+Input: node-based graph GN, ng-set V i for each node i∈NN
+Output: the best ng-route
+1: create a root label l0 ={oN,h,0,C,null,{oN}}
+2: U ←{l0 }
+3: while U ∕=∅ do
+4: choose a label l with the minimum service starting time from U, and delete l from U
+5: for j∈NN do
+6: for ρ:=1,2,…,φ do
+7: if label l can be extended to node j via edge ρ (feasibility checking in Algorithm 1) then
+8: create a new label l′on node j from label l
+9: insertLabel ← true
+10: for label l′′∈U on node j do
+11: if label l′′dominates l′then
+12: insertLabel ← false
+13: break
+14: else if label l′dominates l′′then
+15: delete l′′
+16: if insertLabel then
+17: U ←U ∪{l′}
+18: best label l* ← the label with the least reduced cost on the destination depot node
+19: retrieving the best route from label l*
+20: return the best route
+vehicle keeps increasing along with its trip. As a result, a two-dimension matrix with vehicle load as one axis can be created, and the
+dynamic programming process can be performed in the order of vehicle load increasing. However, in the SRP considered in this work,
+sprinkler trucks are allowed to refill water during their trips, hence the water level changes on sprinkler trucks are not monotonous
+anymore. Another challenge is that demands are assumed to be discrete in Martinelli et al. (2014), while it is continuous in the
+proposed SRP, thus creating a matrix with sprinkler water level as an axis is impossible.
+We first introduce the three key components of a dynamic programming algorithm, including state (label) definition, extension
+rule, and dominance rule, followed by the modified ng-route algorithm developed in this paper.
+Label definition. Labels used in the pricing problem have the following form: l ={node, Rc,Rt,Rw,prev, Φ}, where node means current
+node label l is on; Rc, Rt, Rw denotes the reduced cost, the actual service starting time, and the water level of the sprinkler at current
+node, respectively; prev stands for the previous label of label l; Φ represents the set of forbidden nodes that are not allowed to extend
+from label l, which will be introduced in the extension rule below.
+Extension rule. The process of extending current label l to node j via edge ρ is presented in Algorithm 1. In Algorithm 1, line 2-4 check
+if node j is reachable from current node i; line 7 checks if the destination depot is reachable after visiting node j. Line 12 creates a new
+label l′on node j from label l via edge ρ. Specifically, the ng-set V j of node j is used when updating forbidden set Φ′. For each node i, a
+ng-set V i is predefined which includes a certain number of nearest nodes of i (including itself). A label on node i only includes the
+intersection of visited nodes and V i into its forbidden set Φ, resulting in the possibility of forming cycles. Generally, the larger the ng-
+sets are, the less likely to contain cycles in routes, and also closer to the original ESPPRC (harder to solve). Water refilling stations will
+also not be put into forbidden sets as they are always allowed to revisit in the SRP settings.
+Dominance rule. For two labels l and l′on the same node, label l′is dominated by label l if the following conditions are satisfied and at
+least one of them is not equal:
+(i) l.Rc ≤l′.Rc (cid:0) (l′.Rt (cid:0) l.Rt)
+(ii) l.Rt ≤l′.Rt
+(iii) l.Rw ≤l′.Rw
+(iv) l.Φ⊆l′.Φ
+It should be noted that condition (i) is much tighter than the condition that is commonly used in VRPs with the objective of
+minimizing total travel distance, i.e., l.Rc ≤l′.Rc. A stricter dominance rule means less labels can be dominated, thus there are more
+labels to be processed (the pricing problem is harder to solve). If label l′ is dominated by other labels, label l′ can then be safely
+discarded without affecting the final optimal results.
+The dynamic programming ng-route algorithm is presented in Algorithm 2. Algorithm 2 finds the best route with given graph GN
+and ng-sets V i, which may be very time-consuming in large instances. When used under CG, to save computing time, Algorithm 2 can
+be terminated as soon as a certain number of paths with negative reduced cost have been found.
+(c) Acceleration techniques
+Although finding non-elementary shortest paths using Algorithm 2 is faster than finding the exact solution for elementary shortest
+path problem, the pricing problem is still hard to solve, especially in large-scale instances. In this work, we further utilize the following
+162
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Algorithm 3
+Edge-based branching procedure.
+Input: path usages from a CG solution
+Output: two child nodes of the current node
+1: Calculate edge usages based on path usages from a CG solution.
+2: Select multiple candidate edges (10 edges in this study) with their usages closed to 0.5. Evaluate the impact of performing branching on these candidate edges
+as in Dabia et al. (2013). The quick pricing heuristic used in this study is the dynamic programming algorithm using heuristic domination and truncated labels
+introduced in the aforementioned acceleration techniques. Select an edge, say (i, j, ρ), from all candidate edges such that branching on it results in the tightest
+estimated lower bound.
+3: (Child node one) remove edge (i, j, ρ) from the graph used in the pricing problem.
+4: (Child node two) remove edge set {(i′, j′, ρ′)|(i′, j′, ρ′) ∈EN,i′=i}, edge set {(i′, j′, ρ′)|(i′, j′, ρ′) ∈EN,j′=j}, and edge set {(i′, j′, ρ′)|(i′, j′, ρ′) ∈EN,i′=j, j′=i} from
+the graph used in the pricing problem, but keep edge (i, j, ρ).
+5: return child node one, child node two
+Fig. 8. The overall framework of the BnB module.
+163
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Fig. 9. Corridors used for time-dependent travel time modeling evaluation.
+three techniques to speed up Algorithm 2.
+Decremental state-space relaxation. It is observed that the larger ng-set of nodes are, the harder it is to solve the pricing problem.
+Therefore, instead of directly using the complete ng-set V i, Algorithm 2 can start with a subset of ng-set V i, i.e., V ′
+i
+, for each node i
+and iteratively add nodes from V i to V ′ i until a valid ng-route is found. A node to be added to V ′ i should satisfy the following
+requirement: the absence of that node in V ′ leads to a cycle in the final route that prevents the route from being an ng-route.
+i
+Heuristic domination. The first condition in the dominance rule presented above is by far stricter than the condition used in VRPs
+with the objective of minimizing total travel distance, which is l.Rc ≤l′.Rc. Using the condition l.Rc ≤l′.Rc is of course helpful to
+dominate more labels, then accelerates the pricing process. However, some valid labels will also be discarded, which may affect the
+final solution. In our experiments, we found that only a small portion of valid labels are discarded due to the use of the loose
+domination condition. In other words, a relatively good solution can still be obtained with condition l.Rc ≤l′.Rc in a much shorter time.
+Therefore, before using the exact dominance condition, i.e., l.Rc ≤l′.Rc (cid:0) (l′.Rt (cid:0) l.Rt), the loose condition will be used until no valid
+route can be found.
+Truncated labels. As in Yao et al. (2021), a truncated version of dynamic programming is used before calling the exact dynamic
+programming presented in Algorithm 2. In the truncated version, each node only maintains a limited number of promising labels, e.g.,
+100 labels with the least reduced cost. Note that, as the number of labels in the truncated version is limited, running one iteration of the
+truncated version is very fast, therefore we do not allow node revisiting and do not use heuristic domination such that routes with
+higher quality can be obtained.
+Branch and bound
+An optimal solution obtained from the CG module may contain fractional path usages, making it infeasible for the MP (model M3-
+CTR). Therefore, BnB module is further utilized to produce an integer optimal solution based on results from the CG module.
+(a) Branching rule
+If an optimal solution obtained from the CG module is fractional, the BnB module will perform branching on an edge with a
+fractional usage. The branching process is presented in Algorithm 3.
+Child node one forces sprinkler trucks not to use edge (i, j, ρ), while child node two forces sprinkler trucks to use edge (i, j, ρ) if
+164
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Table 6
+Characteristics of the 12 corridors.
+Corridor name Type # of links Corridor length (mile) LLS (mph) HLS (mph) ALS (mph) ALCD (hour)
+US15 South_S Arterial 39 28.6 8.5 60.8 39.41 2.73
+VA267 West_W Freeway 20 13.0 16.6 74.7 63.80 0.49
+VA659_S Arterial 17 10.3 8.9 45.1 31.18 2.39
+RT7 North_W Arterial 36 19.7 14.0 62.1 44.76 3.68
+VA28 North_N Expressway 28 13.8 19.2 68.1 60.59 1.10
+I66 outside Beltway_W Freeway 50 27.9 15.0 74.7 58.47 2.93
+US29 West_W Arterial 27 13.1 14.0 55.9 42.19 2.82
+US29 Middle_W Arterial 17 11.8 11.5 51.2 26.45 6.76
+VA234_N Arterial 25 21.8 20.1 57.2 43.40 2.60
+VA286 South_N Arterial 27 19.1 14.4 58.1 47.15 1.40
+I395_E Freeway 28 9.7 6.1 65.8 43.26 5.63
+US1 Middle_N Arterial 14 13.7 8.8 52.7 36.88 4.74
+Notes: HLS – highest link speed, LLS – lowest link speed, ALS – average link speed, ALCD – average link congestion duration for an entire day
+Table 7
+Comparison between observed and modeled speed across all links and 15-min interval resolution on 12 selected corridors.
+Corridor name Mean link MAE (mph) Mean link MAPE (%) Max link MAE (mph)
+US15 South_S 2.77 8.83 4.77
+VA267 West_W 2.86 4.52 3.22
+VA659_S 2.38 8.48 3.62
+RT7 North_W 4.09 11.04 5.91
+VA28 North_N 2.47 4.55 5.03
+I66 outside Beltway_W 4.35 9.10 7.52
+US29 West_W 2.91 7.75 6.34
+US29 Middle_W 4.02 16.92 7.64
+VA234_N 3.20 8.14 7.53
+VA286 South_N 3.05 7.47 5.94
+I395_E 7.55 27.27 12.50
+US1 Middle_N 3.41 11.08 6.99
+Notes: MAE – mean absolute error, MAPE – mean absolute percentage error
+service node i is in their routes.
+(b) Searching strategy
+A searching strategy determines the sequence of solving active BnB nodes, and different strategies may affect the performance of
+the BnB module for a specific problem. Breadth-first search (BFS) and depth-first search (DFS) are the two widely used searching
+strategies. Generally, BFS is helpful to improve the global lower bound (GLB) of a problem, while DFS is useful to quickly find a feasible
+solution thus contributes to improving the global upper bound (GUB) of the problem. Benefitting from mature parallel computing
+technologies, both BFS and DFS are implemented and run in parallel in this work. The overall framework of the BnB module designed
+in this paper is presented in Fig. 8.
+From Fig. 8, in our implementation, in addition to performing BnB-DFS loop and BnB-BFS in parallel, as nodes in the same layer in
+BnB-BFS are independent from each other, solving nodes in Step 2b.1 is also conducted in a parallel manner.
+6. Computational experiments
+In this section, extensive numerical experiments are conducted to evaluate the methods developed in this paper. Specifically, 12
+corridors in the Washington DC metropolitan area are first selected to demonstrate the suitability of the proposed time-dependent
+travel time modeling method. Based on calibrated travel time functions, three sets of SRP instances with different sizes are
+designed to examine the performance of the three models, followed by an analysis on the system impact of vehicle routings. Finally,
+sensitivity analysis of solution methods is performed.
+6.1. Modeling of time-dependent travel time
+Fig. 9 presents the 12 corridors selected for evaluating the proposed time-dependent travel time modeling method, including 1
+expressway corridor, 3 freeway corridors, and 8 arterial corridors that experience different levels of traffic congestion. Table 6
+summarizes the characteristics of the selected corridors. The time horizon of interest is set as 6:00 – 20:00. Note that transportation
+networks typically experience two or three congestion periods across a day (morning peak hours, afternoon peak hours, and possibly
+midday hours), while the method proposed in Section 2 is suitable for a single congestion period analysis. Hence, we split the analysis
+165
+166
+TransportationResearchPartB166(2022)143–182
+Fig. 10. Heatmap comparison between observed and modeled speed on corridor US29 Middle_W.
+J.
+Lu
+et
+al.
+167
+TransportationResearchPartB166(2022)143–182
+Fig. 11. Heatmap comparison between observed and modeled speed on corridor I395_E.
+J.
+Lu
+et
+al.
+168
+TransportationResearchPartB166(2022)143–182
+Fig. 12. Modeled speed and observed speed comparison on two links.
+J.
+Lu
+et
+al.
+J. Lu et al. T r a n s p o r t a t i o n R e s e a r c h P a r t B 1 6 6(2022)143–182
+Table 8
+Characteristics of three benchmark instance sets.
+Small-size benchmark instance set Medium-size benchmark instance set Large-size benchmark instance set
+Instance Links MinLL MaxLL Instance Links MinLL MaxLL Instance Links MinLL MaxLL
+S1 16 0.19 0.53 M1 28 0.14 0.68 L1 72 0.04 0.68
+S2 14 0.22 0.28 M2 36 0.11 0.65 L2 66 0.11 0.65
+S3 16 0.09 0.29 M3 28 0.09 0.31 L3 60 0.09 0.54
+S4 16 0.07 0.24 M4 30 0.14 0.42 L4 54 0.08 0.42
+S5 16 0.13 0.50 M5 30 0.15 0.5 L5 60 0.13 0.5
+S6 14 0.10 0.46 M6 38 0.13 0.44 L6 74 0.13 0.54
+S7 18 0.18 0.50 M7 32 0.18 0.5 L7 62 0.18 0.63
+S8 14 0.07 0.18 M8 34 0.07 0.49 L8 62 0.07 0.49
+S9 16 0.13 0.37 M9 30 0.13 0.56 L9 50 0.13 0.56
+S10 16 0.08 0.31 M10 28 0.15 0.33 L10 62 0.09 0.62
+S11 15 0.09 0.68 M11 32 0.07 0.23 L11 60 0.07 0.7
+S12 14 0.10 0.44 M12 30 0.09 0.41 L12 60 0.09 0.38
+S13 18 0.09 0.23 M13 28 0.07 0.7 L13 58 0.07 1.43
+S14 18 0.09 0.27 M14 32 0.09 0.37
+S15 16 0.15 0.74 M15 28 0.1 0.74
+Average 16 0.12 0.40 Average 31 0.11 0.49 Average 62 0.10 0.63
+Notes: MinLL and MaxLL represent minimum link length and maximum link length respectively, with the unit of mile
+time horizon into three periods, including AM (6:00-10:00), MD (10:00-14:00), and PM (14:00-20:00), then sequentially apply the
+method for each period. The dataset used for method evaluation was collected from the Regional Integrated Transportation Infor-
+mation System (RITIS). The raw dataset contains 5-minute space-mean traffic speed data from loop detectors and probe vehicles for a
+majority of links along each corridor. We first calibrate congestion duration P, average discharge rate μ, and inflow demand curvature
+parameter γ using the four-step method proposed in Section 2.1. Then smoothed time-dependent travel times are estimated based on
+Eq. (8) for each link along corridors.
+Table 7 compares the observed speed and modelled speed calibrated from the fluid-queue model with polynomial arrival rates. The
+measure in terms of travel speed is selected as it is more intuitive than link travel time depending on a specific link length. First,
+reasonable modeling accuracy was achieved on all corridors with varied degrees of congestion. The heavily congested corridor I395_E
+has the highest mean link MAE (7.55 mph) and mean link MAPE (27.27%), as it has a relatively long congestion duration (5.63 hours
+for all three congestion periods during the entire day in Table 6). It should be remarked that, under a low average traffic speed
+associated with a heavy congestion, a typical deviation in absolute speed values could still result in a relatively large percentage
+difference, due to the smaller value in the denominator. In this regard, the mean link-based MAPE of corridor I395_E is still explainable.
+Second, for each corridor, max link MAE are not significantly worse than corresponding mean link MAE, indicating that the
+approximation error is reasonably bounded along each corridor. In short, better calibration results are observed on the corridors with a
+shorter congestion duration, whereas the corridors with severer congestion have larger modeling errors (e.g., corridor US29 Middle_W
+and I395_E).
+To further examine the travel time modeling accuracy, Fig. 10 and Fig. 11 present the heatmap comparison between the observed
+and modeled travel speed on two corridors with a relatively poor modeling accuracy in Table 7, i.e., corridor US29 Middle_W and
+I395_E. On both corridors, the overall modeled speed pattern is closed to the corresponding observed one. Specifically, areas affected
+by congestion propagation (grey dash rectangles) have been realistically captured.
+Focusing on two links with different traffic congestion patterns from corridor I395_E and corridor US1 Middle_N, Fig. 12 provides
+the time-dependent observed and modeled speed across the analysis time horizon. The congestion occurs in the periods of AM and MD
+on link 32609, whereas only am experiences significant delay on link 31948. One can observe that, for the link with a single congestion
+period (link 31948), the modeled speed closely matches the observed speed. However, for the link with multiple congestion periods
+(link 32609), there are still obvious deviations between two lines, which highlights the challenges in modeling complex and heavy
+traffic congestion.
+6.2. Performance evaluation of the solution methods
+As summarized in Table 8, three sets of instances with different sizes are designed to evaluate the three optimization models
+developed in this paper. Instance networks consist of expressway, freeway and arterial link. Travel time functions calibrated on the 12
+representative corridors are applied to links in benchmark instances according to their road types. Our open-source repository can be
+found on Github at https://github.com/jiawlu/Time_Dependent_VRP_BnP.
+The first instance set includes 15 small-size instances. The average number of road links to be cleaned is 16. The length of links in
+the first set ranges from 0.07 to 0.74 mile. The second set contains 15 medium-size instances, where the number of road links ranges
+from 28 to 38. The last set includes 13 large-size instances, with 62 links to be cleaned on average for each instance network. For all of
+the instances, the planning horizon is 3 hours. The vehicle capacity is 1200 gallons of water, and it is assumed that cleaning 1 mile of
+road consumes 400 gallons of water. The speed limit of sprinkler trucks in the cleaning mode and deadheading mode is set as 5 mph
+and 14 mph, respectively. We assume that there is no limit on sprinkler fleet size, but each sprinkler has an acquisition cost of
+169
+170
+TransportationResearchPartB166(2022)143–182
+Table 9
+Performance comparisons of three proposed models on small-size instances.
+Instance M1-TEN (LR) M2-STD (MILP Solver) M3-CTR (BnP)
+LB UB Gap (%) ST (s) MU (GB) LB UB Gap (%) ST (s) MU (GB) LB UB Gap (%) ST (s) MU (GB)
+S1 108.01 112.6 4.08 136 0.14 23.34 112.38 79.23 900 22.33 112.38 112.38 0.0 1 0.0
+S2 70.73 76.0 6.94 135 0.17 15.15 78.07 80.59 900 21.74 75.65 75.65 0.0 3 0.0
+S3 65.96 73.4 10.13 540 0.54 10.0 73.03 86.31 900 22.46 73.03 73.03 0.0 20 0.0
+S4 48.16 51.6 6.66 591 0.55 11.28 51.87 78.25 900 26.97 51.85 51.85 0.0 212 1.15
+S5 77.64 82.6 6.01 315 0.28 12.59 83.24 84.87 900 22.68 82.36 82.36 0.0 5 0.0
+S6 71.91 77.0 6.61 274 0.37 21.09 77.05 72.63 900 20.71 77.05 77.05 0.0 4 0.0
+S7 120.59 132.0 8.64 284 0.29 15.32 131.87 88.38 900 21.72 131.87 131.87 0.0 6 0.0
+S8 39.31 45.6 13.8 899 1.18 11.76 45.84 74.35 900 17.79 45.84 45.84 0.0 264 3.65
+S9 74.91 82.6 9.31 293 0.24 13.24 80.28 83.5 900 13.67 80.02 80.02 0.0 4 0.0
+S10 63.25 71.4 11.42 333 0.33 12.44 71.12 82.5 900 20.15 71.12 71.12 0.0 16 0.0
+S11 121.22 130.8 7.32 900 0.94 62.99 130.69 51.8 900 19.88 130.69 130.69 0.0 1 0.0
+S12 59.30 59.4 0.16 143 0.17 15.4 72.27 78.69 900 19.02 59.48 59.48 0.0 1 0.0
+S13 68.94 78.0 11.62 227 0.26 11.32 78.9 85.65 900 27.19 78.53 78.53 0.0 62 6.83
+S14 53.81 56.0 3.91 434 0.64 10.0 56.35 82.25 900 4.1 54.49 56.29 3.2 900 0.47
+S15 109.57 111.4 1.65 273 0.37 26.66 113.35 76.48 900 26.75 111.4 111.4 0.0 1 0.0
+Average 7.22 385 0.43 79.03 900 20.48 0.21 100 0.81
+J.
+Lu
+et
+al.
+171
+TransportationResearchPartB166(2022)143–182
+Table 10
+Performance comparisons of three proposed models on medium-size instances.
+Instance M1-TEN (LR) M2-STD (MILP Solver) M3-CTR (BnP)
+LB UB Gap (%) ST (s) MU (GB) LB UB Gap (%) ST (s) MU (GB) LB UB Gap (%) ST (s) MU (GB)
+M1 199.29 226.2 11.9 1265 0.98 151.12 212.76 28.97 1800 77.36 211.4 211.4 0.0 758 106.24
+M2 215.73 245.8 12.23 1800 1.58 38.14 - - 1800 17.23 221.28 221.28 0.0 27 0.0
+M3 125.77 147.4 14.68 1182 1.08 10.0 146.64 93.18 1800 62.52 134.04 146.64 8.59 1800 156.71
+M4 185.04 193.2 4.22 1800 1.11 53.32 193.07 72.39 1800 24.98 190.07 190.07 0.0 14 0.0
+M5 217.37 232.4 6.47 1800 1.25 232.48 232.48 0.0 1186 9.19 232.48 232.48 0.0 4 0.0
+M6 198.56 227.2 12.61 1800 1.35 10.0 253.17 96.05 1800 11.4 202.72 215.2 5.8 1800 169.99
+M7 215.99 237.6 9.1 1800 1.09 15.2 - - 1800 14.71 225.52 225.52 0.0 20 0.0
+M8 132.51 160.4 17.39 1800 1.6 10.03 153.4 93.46 1800 28.81 136.06 150.12 9.37 1800 1.45
+M9 185.2 201.2 7.95 1800 1.11 22.0 194.04 88.66 1800 35.02 189.89 192.76 1.49 1800 179.87
+M10 148.68 156.0 4.69 1223 0.79 25.78 155.64 83.44 1800 24.82 153.03 153.03 0.0 22 0.0
+M11 98.67 116.4 15.23 1800 1.7 10.0 112.2 91.09 1800 93.41 106.22 112.92 5.93 1800 4.62
+M12 199.69 218.6 8.65 1245 0.92 13.29 222.67 94.03 1800 23.09 205.63 215.16 4.43 1800 132.7
+M13 167.8 189.0 11.22 1800 1.27 10.02 186.37 94.62 1800 118.91 173.61 184.68 5.99 1800 175.27
+M14 192.94 225.6 14.48 1800 1.1 10.0 197.49 94.94 1800 74.56 197.49 197.49 0.0 14 0.0
+M15 198.52 225.0 11.77 1800 0.8 31.31 222.55 85.93 1800 30.59 204.3 222.55 8.2 1800 132.2
+Average 10.84 1648 1.18 81.12 1759 43.11 3.32 1017 70.6
+J.
+Lu
+et
+al.
+172
+TransportationResearchPartB166(2022)143–182
+Table 11
+Performance comparisons of three proposed models on large-size instances.
+Instance M1-TEN (LR) M2-STD (MILP Solver) M3-CTR (BnP)
+LB UB Gap (%) ST (s) MU (GB) LB UB Gap (%) ST (s) MU (GB) LB UB Gap (%) ST (s) MU (GB)
+L1 203.71 632.0 67.77 3600 9.61 10.0 - - 3600 25.26 531.0 543.87 2.37 3600 8.39
+L2 159.6 540.4 70.47 3600 8.59 10.0 - - 3600 21.36 450.57 467.53 3.63 3600 22.02
+L3 112.4 629.6 82.15 3600 6.15 10.0 - - 3600 13.5 553.44 558.19 0.85 3600 3.39
+L4 10.0 346.8 97.12 3600 9.27 10.0 431.64 97.68 3600 19.71 330.26 341.46 3.28 3600 12.14
+L5 10.0 789.8 98.73 3600 10.08 10.0 - - 3600 15.8 371.99 403.93 7.91 3600 4.19
+L6 10.0 647.0 98.45 3600 9.86 10.0 - - 3600 17.99 465.71 504.8 7.74 3600 10.46
+L7 69.64 1111.2 93.73 3600 8.29 186.99 - - 3600 14.08 503.75 519.44 3.02 3600 19.36
+L8 10.0 625.8 98.40 3600 9.50 10.0 - - 3600 22.12 303.62 320.1 5.15 3600 7.55
+L9 396.03 772.4 48.73 3600 5.32 105.18 - - 3600 13.59 602.83 602.83 0.0 12 0.71
+L10 27.06 637.4 95.76 3600 8.36 10.0 - - 3600 16.8 382.14 399.41 4.32 3600 4.24
+L11 10.0 694.0 98.56 3600 8.45 10.0 - - 3600 17.55 320.05 338.0 5.31 3600 4.57
+L12 162.28 1022.2 84.12 3600 7.55 10.0 - - 3600 15.8 514.32 545.44 5.7 3600 23.17
+L13 313.87 935.8 66.46 3600 5.32 10.0 - - 3600 15.32 639.36 678.18 5.72 3600 15.72
+Average 84.65 3600 8.18 99.82 3600 - 4.23 3324 10.45
+J.
+Lu
+et
+al.

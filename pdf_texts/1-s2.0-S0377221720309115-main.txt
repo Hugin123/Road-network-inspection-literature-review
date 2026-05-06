@@ -1,0 +1,2583 @@
+European Journal of Operational Research 292 (2021) 60–72
+Contents lists available at ScienceDirect
+European Journal of Operational Research
+journal homepage: www.elsevier.com/locate/ejor
+Discrete Optimization
+Solving the length constrained K-drones rural postman problem
+James F. Campbell a, Ángel Corberán b, Isaac Plana c , ∗, José M. Sanchis d, Paula Segura d
+a Supply Chain and Analytics Department, University of Missouri-St. Louis, St. Louis, MO 63121-4499, USA
+b Department d’Estadística i InvestigacióOperativa, Universitat de València, Avda. Dr. Moliner 50, Burjassot, Valencia 46100, Spain
+c Department de Matemáticas Para la Economía y la Empresa, Universitat de València, Avda. Tarongers s/n, Valencia 46022, Spain
+d Department de Matemática Aplicada, Universidad Politécnica de Valencia, Camino de Vera s/n, Valencia 46022, Spain
+a r t i c l e i n f o a b s t r a c t
+Article history: In this paper we address the Length Constrained K-Drones Rural Postman Problem (LC K-DRPP). This is a
+Received 15 January 2020 continuous optimization problem where a fleet of homogeneous drones have to jointly service (traverse)
+Accepted 27 October 2020 a set of (curved or straight) lines of a network. Unlike the vehicles in classical arc routing problems,
+Available online 1 November 2020
+a drone can enter a line through any of its points, service a portion of that line, exit through another
+Keywords: of its points, then travel directly to any point on another line, and so on. Moreover, since the range of
+Logistics the drones is restricted, the length of each route is limited by a maximum distance. Some applications
+Drones for drone arc routing problems include inspection of pipelines, railway or power transmission lines and
+Arc routing traffic monitoring.
+Length constraints To deal with this problem, LC K-DRPP instances are digitized by approximating each line by a polyg-
+Matheuristic onal chain with a finite number of points and allowing drones to enter and exit each line only at these
+points. In this way we obtain an instance of the Length Constrained K-vehicles Rural Postman Problem
+(LC K-RPP). If the number of points used to discretize the lines is large, the LC K-RPP instance can be ex-
+tremely large and, hence, very difficult to solve optimally. Even heuristic algorithms can fail in providing
+feasible solutions in reasonable computing times. An alternative is to generate smaller LC K-RPP instances
+by approximating each line with few but “significant”segments.
+We present a formulation and some valid inequalities for the LC K-RPP. Based on this, we have de-
+signed and implemented a branch-and-cut algorithm for its solution. Moreover, in order to be capable of
+providing good solutions for large LC K-RPP instances, we propose a matheuristic algorithm that begins
+by finding good solutions for the LC K-RPP instance obtained by approximating each line by a single seg-
+ment. Then, to find better solutions, some promising intermediate points are sequentially incorporated.
+Extensive computational experiments to assess the performance of both algorithms are performed on
+several sets of instances from the literature.
+©2020 Elsevier B.V. All rights reserved.
+1. Introduction routing problem (CARP), where there is a fleet of vehicles with
+limited capacity to jointly service the required links. In classi-
+Classical arc routing problems (ARPs) consist of finding a tour, cal ARPs, the streets to be cleaned, roads where snow must be
+or a set of tours, with total minimum cost traversing (servicing) removed, or pipelines to be inspected, for example, are repre-
+a set of links (arc or edges), called required links, of a graph sented by edges or arcs of a network that ignore the line shape
+(see Corberán, Eglese, Hasle, Plana, & Sanchis, 2020; Corberán (although not its true cost or distance) since the vehicles have
+& Laporte, 2014; Mourão & Pinto, 2017 ). Well-known ARPs are to traverse an arc from one endpoint to the other one. Further,
+the Chinese postman problem (CPP) and the rural postman prob- the vehicles in these classical ARPs are not permitted to travel
+lem (RPP), where a single vehicle has to traverse all or some off the network. In the following, we call these Postman ARPs,
+of the links of the graph, respectively, and the capacitated arc and we use Drone ARPs to refer to arc routing problems where
+aerial drones are used to optimize the service of the required
+links of a graph, and these drones have the capability to travel
+∗ Corresponding author. off the network. Aerial drones may be used to replace ground ve-
+E-mail addresses: campbell@umsl.edu (J.F. Campbell), angel.corberan@uv.es hicles because of their reduced costs, higher speeds and/or safety
+(Á. Corberán), isaac.plana@uv.es (I. Plana), jmsanchis@mat.upv.es (J.M. Sanchis),
+psegmar@upvnet.upv.es (P. Segura).
+improvements.
+https://doi.org/10.1016/j.ejor.2020.10.035
+0377-2217/©2020ElsevierB.V.Allrightsreserved.
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+Fig. 1. The shape of the lines is important when using drones.
+As pointed out in Campbell, Corberán, Plana, and Sanchis and stochastic multi-period arc-inventory routing problems (AIRP).
+(2018) , the use of drones to perform the service in ARPs involves Li, Zhen, Wang, Lv, and Qu (2018) also consider inventory routing
+significant changes in the traditional way of modeling and solv- with a capacitated ARP (CARP) for monitoring road traffic, where
+ing these problems. These changes are mainly due to the ability of over-monitoring of an edge is treated as inventory and is penal-
+drones to travel directly between two points, not necessarily be- ized. A mixed integer programing model is used to solve small
+tween vertices of the graph. Hence, drones do not need to follow problems with up to 40 links, and a local branching algorithm is
+the edges of the graph and may start the service of an edge at any used to solve larger problems with up to 50 links. A cooperative
+point along the edge. On the one hand, this means it is important system of a ground vehicle and a drone for the inspection of pow-
+to take into account the shape of the lines to service, as the exam- erlines is presented in Liu, Shi, Liu, Huang, and Zhou (2019) . The
+ple in Fig. 1 illustrates. Fig. 1 b shows the optimal solution of the ground vehicle is used as a mobile base station that can drive to
+Drone RPP instance depicted in Fig. 1 a, where dotted edges repre- several locations near the powerline in the road network to launch
+sent the movement of the drone outside the graph, and its cost is the drone and recharge its battery. Several heuristics are proposed
+the sum of the costs of the required lines (a fixed value) plus the to design the routing planning for the vehicle and the drone to
+deadheading cost, which is the one to minimize in the Drone RPP). minimize the completion time or the cost for inspecting all the
+On the other hand, an important consequence of taking the shape powerlines. The performance of the heuristics is illustrated in three
+of the lines into consideration is that the problem becomes a con- practical instances based on the powerline and road network of
+tinuous optimization problem with an infinite and non-countable Ji (China). Another combined problem of a ground vehicle and a
+number of feasible solutions. In Campbell et al. (2018) this draw- drone is studied by Luo, Zhang, Wang, Wang, and Meng (2019) .
+back is overcome by modeling the curved lines by means of polyg- It concerns the road traffic patrolling problem in an urban road
+onal chains and then allowing the drones to enter and leave each system, where the vehicle transports the drone and performs traf-
+curve only at the points of the polygonal chain. In particular, a fic patrols through the release and recovery of the drone, while
+curve can be approximated by its endpoints and a set of inter- the vehicle also performs mission visits. The authors present two
+mediate points defining segments with an associated service cost heuristics for this problem and a case study on the relevant roads
+so that the sum of the costs associated with all the segments of in Hefei (China).
+the polygonal chain equals the service cost of the original curve. Applications for drone arc routing problems include inspection
+Hence, the segments define the set of required edges of the trans- of railroad and energy infrastructure, and detection or surveillance
+formed graph and, since the drones can travel directly between any of borders. While early drone use has often been limited to short
+two points, the set of (non-required) edges form a complete graph drone flights due to line-of-sight regulations and small battery
+with (deadheading) costs given by the Euclidean distances. capacities for electric drones, regulatory changes and newer drones
+Although there are a large number of articles in the academic allow long flights and BVLOS (beyond visual line-of-sight) flight.
+literature that address node routing problems with drones (see For example, the major US railroad BNSF has flown BVLOS flights
+Chung, Sah, & Lee, 2020; Khoufi, Laouiti, & Adjih, 2019; Macrina, (with an exemption from FAA regulations) since 2016, with the
+Di Puglia Pugliese, Guerriero, & Laporte, 2020; Otto, Agatz, Camp- first flight being for a 132-mile stretch of track Franz (2018) . Other
+bell, Golden, & Pesch, 2018; Poikonen & Campbell, 2020 ), there are major railroads around the world now operate drone fleets for
+only a few papers dealing with the use of aerial drones for ARPs. infrastructure and asset inspection, vegetation monitoring, etc.
+Oh, Kim, Tsourdos, and White (2014) ; Oh, Shin, Tsourdos, White, United Nations ESCAP (2019) . Drones used for long range (or long
+and Silson (2011) consider a search problem using drones on an endurance) applications (as for BNSF) are typically large aircraft
+unconnected portion of a road network, and present a greedy in- (e.g., wingspans of 12–15 feet), often with both electric and gas
+sertion heuristic algorithm. Dille and Singh (2013) consider a re- motors (electric motors allow VTOL (vertical take-off and landing)
+lated road (edge) covering problem for a drone carrying sensor and gas engines allow efficient forward flight) (e.g., Franz, 2018;
+with a given radius of coverage. They convert this to a TSP by dis- Railway, 2019 ). For example, BNSF reports flights of up to 16 hours
+cretizing the road network into a set of points where each point ( Railway, 2019 ). Reports of drones used for the energy industry
+covers a certain part of the road network based on the sensor include BVLOS applications for inspection of power transmission
+range of a drone. Results were compared to those in Oh et al. lines (e.g., 90 kilometers in Sweden, Press, 2020 ), up to 150 miles
+(2014) for several simulated networks. Chow (2016) considers the of lines in the US ( Garrett-Glaser, 2019; Zeisee, 2019 ), and for gas
+use of drones to monitor road traffic and presents deterministic and electricity lines in the UK ( Networks, 2019 ). Other applications
+61
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+with drone flights covering linear features include surveillance ral Postman Problem (LC K-RPP). These last instances are defined
+along borders ( Delair, 2020 ) and surveillance to prevent marine on an undirected graph G = (V, E) , where the set of vertices V is
+ingress near nuclear power plants ( Catapult, 2020 ). Drones have formed by all the points of the polygonal chains plus the depot,
+been used for asset inspection, in which case the area to be the set of required edges, E
+R
+⊂E, is formed by all the segments of
+inspected can be represented as a network of linear features (pro- the polygonal chains, and the non-required edges, E
+NR
+⊂E, define
+viding sensor coverage of the desired areas). These applications a complete graph over the vertex set V . The cost of traversing and
+cover a diverse set of assets in a wide range of environments, servicing each required edge (a segment) e ∈ E
+R
+, c
+e
+s ≥0 , is equal to
+including bridges, oil rigs (above and below the sea surface), and the proportional part of the total cost of servicing the correspond-
+cargo ships (both the inside and outside of the hull, including ing original line (assuming that the cost rate of servicing a line is
+inspection below the sea surface) ( Bonnin-Pascuala & Ortiz, 2019; the same in all its parts), while the (deadheading) cost, c e ≥0 , as-
+Knight, 2019; Seo, Dudue, & Wacker, 2018 ). sociated with the traversal of a non-required edge e = (i, j) ∈ E
+NR
+The recent paper devoted to Drone ARPs ( Campbell et al., 2018 ) is given by the Euclidean distance from i to j. Note that, for each
+discuses the relationship between Drone and Postman ARPs. In required edge e ∈ E
+R
+, there is a non-required parallel edge e (cid:6) ∈ E
+NR
+.
+particular, it is shown that the worst-case ratio of the costs of We assume c e s ≥c e (cid:6) . The goal of the LC K-RPP is to find K routes
+Postman ARPs with respect to that of Drone ARPs is infinite. The (tours) starting and ending at the depot that jointly traverse all
+authors define a Drone ARP for a single vehicle, the Drone RPP, the required edges and such that the total cost, or length, of each
+for which they propose an algorithm that iteratively solves RPP route does not exceed a maximum value L, with minimum total
+instances with an increasing number of intermediate points. This cost.
+procedure is capable of solving medium size instances of this very Note that, if the number of points used to discretize the lines
+hard problem. In addition, the length constrained K-drones rural of an LC K-DRPP instance is large, the corresponding LC K-RPP in-
+postman problem (LC K-DRPP) is introduced and some of its char- stance can be extremely large and therefore very difficult to solve
+acteristics are described. optimally, and even heuristic algorithms can fail to provide feasi-
+This paper is organized as follows. In Section 2 we present the ble solutions in reasonable computing times. For example, an in-
+LC K-DRPP and in Section 3 we propose a formulation with binary stance with 84 polygonal chains with 20 intermediate points per
+variables and some families of valid inequalities for the LC K-RPP. chain has 1763 vertices, 1764 required edges, and 1,553,203 non-
+The general scheme of the matheuristic we propose for this prob- required edges. Moreover, unlike in the (single) Drone RPP, we can-
+lem is described in Section 4 , while Section 5 presents a branch- not remove some non-required edges without losing some optimal
+and-cut algorithm (B&C) based on the proposed formulation. The solutions. An alternative is to generate smaller LC K-RPP instances
+computational results obtained with the B&C and the matheuristic by approximating each line with very few segments, provided that
+on a large set of instances are shown and commented in Section 6 . the intermediate points are significant points.
+Finally, some conclusions are drawn in Section 7 . The smallest LC K-RPP instance, and the least tight approxima-
+tion to the corresponding LC K-DRPP instance, is the one obtained
+2. The Length Constrained K-Drones Rural Postman Problem by approximating each line of the LC K-DRPP instance by a sin-
+gle edge (a polygonal chain with a single segment, without inter-
+The Length Constrained K-Drones Rural Postman Problem (LC mediate points). Let us call these instances LC K-RPP(0). They can
+K-DRPP) was introduced in Campbell et al. (2018) and defined as be meaningful in real situations where it is mandatory, or recom-
+follows: Given a set of lines, each one with an associated service mended, that each line is fully serviced by the same drone, from
+cost, and a point called the depot, assuming that the cost of dead- one endpoint to the other. We want to point out that since drones
+heading between any two points is the Euclidean distance, and can fly directly between any two endpoints, in these instances the
+given a constant L, find a set of drone routes starting and end- non-required edges form a complete graph, whereas in Postman
+ing at the depot and with lengths no greater than L such that they ARPs the graph often corresponds to a sparse network.
+jointly traverse all the given lines completely with minimum to-
+tal cost. This problem envisions a set of K drones, each with route 3. A formulation for the LC K-RPP
+length limit L, that start and end at a common (given) depot and
+need to be routed to cover a set of lines at minimum cost, where We are going to formulate the LC K-RPP on the graph G = (V, E)
+the drones can travel in a straight line between any two points. described in Section 2 . This is an undirected multigraph with a
+Unlike the vehicles in classical ARPs, which have to follow the non-required edge parallel to each required edge, with different
+links of a given graph, drones can fly directly between any two costs c e and c e s . Given that G is undirected, we note that the single
+points. Thus, a drone can enter a line that requires service through tour associated with any drone traverses each edge in G at most
+any of its (infinite) points, traverse and service part of it, exit the twice (if a tour traverses an edge e three or more times, we can re-
+line through another of its points, then travel directly to any point move two traversals of e and obtain another tour with lower cost).
+on another required line, and so on. In this way, shorter solutions Furthermore, it can be seen that, for each tour that traverses an
+can be obtained using drones than with ground vehicles. The price edge e twice in the same direction, we can build an equivalent tour
+to pay is that the problem is much more difficult. In fact, it is a (with the same cost) that traverses e once in each direction. There-
+continuous optimization problem, with an uncountable number of fore, we can assume that the tours associated with each drone tra-
+feasible solutions. verse each edge at most once in each direction. We can formulate
+To deal with this problem, each specific instance can be digi- the LC K-RPP with the following binary variables.
+tized, defining each curved line by a (usually) large set of points, For each edge e = (i, j) ∈ E and for each drone k ∈ { 1 , . . . , K } we
+each one with its corresponding coordinates. In other words, each define two binary variables x k ij , x k ji . If e is required, variables x k ij , x k ji
+line is approximated by a polygonal chain and drones are allowed take the value 1 if, and only if, e is serviced and traversed by drone
+to enter and leave each line only at the points of the polygonal k from i to j or from j to i, respectively. If e is non-required, vari-
+chain, thus obtaining a discrete optimization problem. Obviously, ables x k
+ij
+, x k
+ji
+take the value 1 if, and only if, e is deadheaded (tra-
+the greater the number of points, the closer the discrete problem versed without service) by drone k from i to j or from j to i, re-
+is to the continuous problem. spectively.
+When an LC K-DRPP instance is discretized, we obtain an in- We use the following notation. Given a subset S ⊆V, δ(S) de-
+stance of a Postman ARP, the Length Constrained K-vehicles Ru- notes the edge set with one endpoint in S and the other one in
+62
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+V \ S, and E(S) denotes the set of edges with both endpoints in S. parts by different drones or, equivalently, that some drones only
+We denote δ
+R
+(S) = δ(S) ∩ E
+R
+and (cid:2)E
+R
+(S) = E(S) ∩ E
+R
+. Finally, for any service part of some lines. The procedure developed here has three
+subset F ⊆E, we denote x k (F ) = e =(i,j) ∈ F (x k ij + x k ji ) . The LC K-RPP phases.
+can be formulated as follows:
+• In phase 1, we consider the LC K-RPP(0) instance in which each
+(cid:3)K (cid:3) (cid:3)K (cid:3)
+original line is approximated by only one (required) edge with-
+Minimize c
+e
+( x k
+ij
++ x k
+ji
+) + c
+e
+s ( x k
+ij
++ x k
+ji
+) (1)
+out intermediate points. The algorithm first computes a “giant
+k =1 e =(i,j) ∈ E NR k =1 e =(i,j) ∈ E R tour” traversing all the required edges by optimally solving an
+s.t.: RPP on the corresponding graph G . This giant tour is then parti-
+(cid:3)
+( x k
+ij
+−x k
+ji
+) = 0 , ∀ i ∈ V, ∀ k ∈ { 1 , . . . , K } (2) t
+s
+i
+o
+o
+l
+n
+u
+e
+ti
+d
+o n
+in
+.
+t
+T
+o
+h
+K
+e
+r
+p
+o
+r
+u
+o
+t
+c
+e
+e
+s
+s
+,
+s
+o n
+o
+e
+f
+f
+f
+o
+o
+r
+r m
+ea
+in
+c
+g
+h d
+a
+ro
+g
+n
+ia
+e
+n
+,
+t
+t o
+r o
+o
+u
+b
+t
+t
+e
+a in
+an
+a
+d
+n
+p
+L
+a
+C
+r t
+K
+it
+-
+i
+R
+o
+P
+n
+P
+-
+(i,j) ∈ δ(i )
+ing it into K routes is repeated several times to obtain different
+x k (δ( S )) ≥2 ( x k
+ij
++ x k
+ji
+) , ∀ S⊂V \{ 1 } , ∀ ( i, j ) ∈ E
+R
+( S ) , ∀ k (3) L
+se
+C
+a r
+K
+c
+-
+h
+R P
+p
+P
+ro
+s
+c
+o
+e
+l
+d
+u
+u
+ti
+r
+o
+e
+n
+s
+s
+a
+.
+r
+T
+e
+h
+t
+i
+h
+s
+e
+i
+n
+s d
+ap
+es
+p
+c
+li
+r
+e
+ib
+d
+e
+t
+d
+o
+i
+e
+n
+a c
+S
+h
+e c
+o
+ti
+f
+o
+t
+n
+h e
+4
+s
+.1
+e
+.
+s
+T
+o
+h
+lu
+re
+ti
+e
+o n
+lo
+s
+c
+t
+a
+o
+l
+improve the routes (described in Section 4.2 ), and then each of
+(cid:3)K the single routes of the resulting solutions are optimized (de-
+( x k
+ij
++ x k
+ji
+) = 1 , ∀ ( i, j ) ∈ E
+R
+(4) scribed in Section 4.3 ).
+k =1 • In phase 2, we consider the n best solutions obtained in phase
+(cid:3) (cid:3) 1. For each of these solutions, we add an intermediate vertex to
+c
+e
+( x k
+ij
++ x k
+ji
+) + c
+e
+s ( x k
+ij
++ x k
+ji
+) ≤L, ∀ k ∈ { 1 , . . . , K } (5) each required edge, thus obtaining n solutions of the LC K-RPP
+e =(i,j) ∈ E NR e =(i,j) ∈ E R instance where each original line is approximated by a polygo-
+nal chain with two segments (edges). We then apply the local
+x k
+ij
+, x k
+ji
+∈ { 0 , 1 } , ∀ ( i, j ) ∈ E, ∀ k ∈ { 1 , . . . , K } (6) s
+th
+ea
+e
+r
+s
+c
+e
+h
+s
+a
+o
+n
+lu
+d
+t i
+t
+o
+h
+n
+e
+s
+s
+t
+i
+o
+n g
+p
+le
+o s
+r
+s
+o
+ib
+u
+l
+t
+y
+e
+i
+o
+m
+p
+p
+ti
+r
+m
+ov
+iz
+e
+a t
+t
+i
+h
+o
+e
+n
+m
+p
+.
+ro
+W
+c
+e
+e d
+c
+u
+a
+r
+l
+e
+l
+s
+t h
+to
+is
+e
+p
+a
+r
+c
+o
+h
+c e
+o
+-
+f
+The objective function (1) minimizes the total cost of the dure “1-splitting”and it is described in Section 4.4 .
+routes. The first term represents the “deadheading cost” while the • In phase 3, the most “promising” segments of each solution
+second represents the cost of the required edges that, due to con- obtained in phase 2 are split again by adding one new in-
+straints (4) , is a constant and therefore(cid:4) c an be remov(cid:5)ed : termediate vertex to them, while some unused intermediate
+(cid:3)K (cid:3) (cid:3) (cid:3)K (cid:3) vertices are removed. This procedure is called “3-splitting” be-
+c
+e
+s (x k
+ij
++ x k
+ji
+) = c
+e
+s (x k
+ij
++ x k
+ji
+) = c
+e
+s .
+cause some of the original lines are approximated by a polyg-
+k =1 e =(i,j) ∈ E R e =(i,j) ∈ E R k =1 e =(i,j) ∈ E R onal chain with three intermediate vertices (four edges). Again,
+Symmetry constraints (2) force each drone k to exit a vertex i
+the local search and the single route optimization procedures
+as many times as it enters it. Connectivity inequalities (3) ensure
+are applied to improve each solution. In a second step of this
+each single route is connected and connected to the depot, while
+phase, called “7-splitting”, we add once again new intermedi-
+constraints (5) guarantee that the length or cost of each route does
+ate vertices on the “promising”segments and remove some un-
+not exceed L . The traversal of all the required edges exactly once
+used vertices of each improved solution. After applying the lo-
+is ensured by Eq. (4) . Constraints (6) are the binary conditions for
+cal search and the single route optimization procedures to the
+the variables.
+resulting solutions, we keep the best of them. This is described
+The above formulation can be strengthened with the follow-
+in Section 4.5 .
+ing inequalities. Given e = (i, j) ∈ E
+R
+and its corresponding parallel
+edge e (cid:6) = (i, j) (cid:6) ∈ E
+NR
+, and given that the tour performed by a vehi- Before describing in detail the different procedures that com-
+cle k travels at most once from i to j, the following single-traversal pose the matheuristic algorithm, let us introduce some notation. A
+inequalities are satisfied: solution S is a set of K drone routes, with each route starting and
+x k ij + x k (i j) (cid:6) ≤1 . (7) e re n q d u in ir g e d a t e t d h g e e d i e s p s o e t r v a i n c d e d o f ( t l r e a n v g e t r h s e n d o ) g in re a e t x e a r c t t l h y a n o n L e , s r u o c u h te t . h A a t r e o a u c t h e
+Moreover, parity inequalities are also valid and very useful to cut T is represented by a sequence { (i, j) , (k, l) , . . . , (u, v ) } of required
+many fractional “solutions”: edges, which will be denoted E
+T
+. A route T is called feasible if its
+x k (δ( S ) \ F ) ≥x k ( F ) −| F |+1 , ∀ S⊂V, ∀ F ⊆δ( S ) with | F | od d , length is not greater than L . It is assumed that route T services
+∀ k ∈ { 1 , . . . , K } (8) the required edges on E T in the same order as they appear in the
+sequence. It is also assumed that the deadheading from the depot
+These inequalities are based on the fact that all vehicles have to to vertex i, from the end of a required edge to the beginning of
+traverse any edge cutset an even, or zero, number of times, and the following edge in the sequence, and from vertex v back to the
+it is easy to see that they are valid for the K-RPP on G . Since depot, is done by traversing the corresponding non-required edge.
+| F | is odd, the tours x k for which x k (F ) = | F | holds, should satisfy Note that the length of a route T is the sum of the costs of the re-
+x k (δ(S) \ F ) ≥1 . Tours x k for which x k (F ) < | F | , obviously satisfy quired edges on E T and the deadheading costs of the non-required
+x k (δ(S) \ F ) ≥0 . Inequalities (8) are referred to as cocircuit inequal- edges. Throughout this section we will denote by T i the i th route
+ities by Barahona and Grötschel (1986) and were proposed for the in S, with i ∈ { 1 , 2 , . . . , K } .
+RPP by Ghiani and Laporte (20 0 0) .
+4.1. Initial LC K-DRPP solutions
+4. A matheuristic for the LC K-DRPP
+In the first step of the algorithm, a giant tour T
+G
+on G = (V, E)
+In this section we present a matheuristic algorithm for the LC (the graph corresponding to the LC K-RPP(0) instance) traversing
+K-DRPP. It begins by finding good solutions for the LC K-RPP(0) all the required edges is found by solving this RPP instance op-
+instances. Then we sequentially incorporate some promising inter- timally with the branch-and-cut algorithm proposed by Corberán,
+mediate points to find better solutions. Eventually, the matheuris- Plana, and Sanchis (2007) . This giant tour (see Fig. 2 a) is then par-
+tic provides feasible solutions for the LC K-DRPP with the charac- titioned into K routes of length no greater than L (see Fig. 2 b)
+teristic, typical of drones, that some lines are serviced in different by means of the procedure proposed by Ulusoy (1985) for the
+63
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+Fig. 2. Splitting an optimal giant tour T G into Kfeasible routes.
+Fig. 3. The auxiliary graph G ∗generated from T G = { (i, j) , (k, (cid:3) ) , ((cid:3), m ) , (n, p) , (q, 1) } .
+CARP. This procedure works on an auxiliary directed graph G ∗ con- shortest paths from a single source in O(| V | + | E | ) time for di-
+structed from T
+G
+as follows: rected acyclic graphs (see Cormen, Leiserson, Rivest, & Stein, 2009 ).
+(i) G
+ti
+∗
+lin
+is
+e a
+a
+r
+d
+r
+i
+e
+r
+p
+e
+r
+c
+e
+te
+se
+d
+n
+g
+ta
+ra
+ti
+p
+o
+h
+n
+w
+(s
+i
+e
+th
+e
+|
+F
+E
+ig R
+|
+.
++
+3 )
+1
+. T
+n
+h
+o
+e
+d e
+fi
+s
+r s
+t
+t
+h a
+n
+t
+o d
+ad
+e
+m
+o
+i
+f
+t s
+G ∗
+a
+,
+r
+d
+e
+e
+c
+-
+- I
+p
+n
+a t
+U
+h
+lu
+d
+s
+e
+o
+fi
+y
+n e
+(1
+s
+9
+a
+8 5
+p
+)
+a r
+it
+t it
+i
+i
+s
+o n
+p r
+o
+o
+f
+v e
+t
+d
+h e
+t h
+g
+a
+ia
+t
+n
+t
+t
+h
+t
+e
+o u
+se
+r
+t
+T
+o
+G
+f
+in
+ar
+to
+cs
+K
+in
+f e
+t
+a
+h
+s
+i
+i
+s
+b l
+s
+e
+h o
+to
+r
+u
+te
+r
+s
+s
+t
+,
+and this partition is optimal regarding the ordering of the traversal
+n
+ea
+o
+c
+t
+h
+ed
+r e
+b
+q
+y
+u
+v
+ir 1 e
+,
+d
+c o
+e
+r
+d
+r
+g
+e
+e
+s p
+(
+o
+i,
+n
+j
+d
+)
+s
+o
+t
+f
+o
+G
+th
+w
+e
+e
+d e
+a
+p
+d
+o
+d
+t
+a
+o f
+n
+G
+od
+.
+e
+A s
+v
+s
+i
+o
+j
+c
+o
+ia
+n
+t e
+G
+d
+∗ .
+w
+T
+i
+h
+th
+e o gr f a t p h h e G re ∗ q i u n i r F e i d g . e 3 d , g r e e s p r in es T e G n . t e F d o r i n e x b a o m ld p l l e in , e th s, e c s o h rr o e r s t p es o t n d p s a t t h o i t n h e th K e
+nodes are arranged from left to right following the order in
+feasible routes depicted in Fig. 2 b. These K routes define a solution
+which their associated required edges are traversed in the
+Sof the LC K-RPP(0) to which we will apply the local search phase.
+giant tour T
+G
+. Recall that each required edge is traversed
+In order to obtain a larger set of initial solutions, we repeat the
+only once in the optimal giant tour since drones can travel
+above algorithm with other giant tours on G defined by other Eule-
+between any pair of vertices of G through a non-required
+rian circuits obtained from the optimal RPP solution. Note that an
+edge with equal or lower cost due to the completeness of
+(ii)
+t
+E
+h
+a
+e
+c h
+g r
+a
+a
+r
+p
+c
+h
+o
+(
+n
+V ,
+g
+E
+r N a R p
+)
+h
+.
+G ∗ represents a feasible drone route on
+R
+en
+P
+t
+P
+w
+so
+a
+l
+y
+u
+s
+t
+.
+i o
+W
+n
+e
+i s
+t r
+a
+y
+n
+t o
+E u
+g
+l
+e
+e
+n
+ri
+e
+a
+r
+n
+a t
+g
+e
+r a
+d
+p
+if
+h
+fe r
+th
+en
+at
+t
+c
+E
+a
+u
+n
+le r
+b
+i
+e
+a n
+t
+|
+r
+c
+a
+i
+v
+r |
+e
+cu
+rs
+i
+e
+ts
+d
+b
+i
+y
+n
+a
+d
+p
+if
+p
+fe
+ly
+r
+-
+-
+G r ( e k . q , A u (cid:3) ) n ir i e n a d r t c e h d e fr g o g e m i a ( n i, n t j o t ) o d u i e s r v t T h i
+G
+j e . t T o l h a s i n s t o a o d r n e c e r v e s k p e (cid:3) r re v is s i c e e a n d d t d s b e t e d h f e o t r o r e o u G th t ∗ e e i s f e t a d t r h g t e e - i e d n a if g c f h e t r h t e e i n m t H e i i n e w i r t h i i t a o h l l z a L e C r d i K a f l f - g e R o r P e r P i n t ( t h 0 m r ) e s q ( o u H l i u i r e t e i r d o h n o e s l d , z g e w e r, . i t W 1 h 8 e 7 | S ¯ 3 t | ) h ≤ u E s | R E o R b | t . t i a m in e s a , s s t e a t r t S¯ i n o g f
+ing at the depot, deadheading to vertex k, servicing edge
+(k, (cid:3) ) , and deadheading back to the depot, that is, the route 4.2. Local search procedures
+{ (k, (cid:3) ) } . The cost (length) of arc (v ij , v k(cid:3) ) in G ∗ is equal to the Three local search procedures are used in the matheuristic to
+cost of its associated route. Furthermore, an arc from node
+v
+ro 1 u
+t
+t
+o
+e
+t
+{
+h
+(i
+e
+, j
+fi
+)
+r
+}
+s t
+in
+n
+G
+od
+(
+e
+se
+v
+e i j F
+i
+i
+s
+g.
+a
+3
+d
+)
+d
+.
+ed to G ∗ with cost that of the a
+ex
+tt
+c
+e
+h
+m
+an
+p
+g
+t
+e
+t o
+o f
+i m
+ed
+p
+g
+ro
+e
+v
+s
+e
+b e
+a
+t w
+se
+e
+t
+e
+o
+n
+f
+d
+d
+i
+r
+ff
+o
+e
+n
+r
+e
+e n
+r
+t
+o u
+ro
+te
+u
+s
+t
+.
+e s
+T h
+in
+e y
+o
+a
+rd
+re
+e r
+b
+t
+a
+o
+s e
+m
+d
+in
+on
+im
+t
+i
+h
+ze
+e
+(iii) There are additional arcs included in graph G ∗ associated the total cost. The first two procedures explained below are ap-
+plied by following a first improvement strategy. These procedures
+with feasible drone routes that service more than one re-
+q if u t i h re e d r e o d u g te e . f A ro n m a r t c h e (v fi rs r , s v t t w r e ) q i u s i a re d d d e e d d g to e t a h f e te a r u ( x r i , l s ia ) ry to g e ra d p g h e a w r i e l l a a p ls p o li e b d e t a o p p th li e e d i n l i a t t i e a r l s to o lu th ti e o n se s t fo o r f s th ol e u t L i C o n K s - i R n P P th (0 e ) 1 i - n s p S¯ l . i t T ti h n e g y ,
+(t, w ) is feasible. Furthermore, there is an arc in G ∗ from 3-splitting and 7-splitting procedures.
+n ed o g d e e o v f 1 t t h o e th gi e a n n t o d to e u v r t w to if e d th g e e r ( o t, u w te ) f i r s o m fe a t s h ib e le fi . r s T t h r e e q le u n ir g e th d 4.2.1. 0 to (cid:3) –exchange
+In this procedure, a move consists of removing (cid:3) consecutive
+of these arcs is the cost associated with the corresponding
+r { o (k u , t e (cid:3) . ) , I ( n (cid:3) , F m ig ) . , ( 3 n , , a p r ) c } ( h v a i s j , v a n p l e ) n i g n t h G ∗ no i m g p re li a e t s e r t h th at a n t h L e . H ro o u w te - r th eq e u m ir e b d e t e w d e g e e n s f t r w o o m c t o h n e s e r c o u u t t i e v e s e r r e v q ic u i i n re g d t h e e d m ge s a n o d f i a n n s o e t r h ti e n r g r a o l u l t o e f .
+e { ( v i e , r j , ) , a ( rc k , ( (cid:3) v ) 1 , , ( (cid:3) v , n m p ) ) , i s ( n n , o p t ) } i n is c l n u o d t e d fe a in si b G le ∗ . because the route T m h o e v a a l l g o o f r a it l h l m th e u s p e o s s s t i h bl e e f s o e l t l s o w of in (cid:3) g c s o t n ra se te c g u y t . i ve W r e e q c u o i n re si d d e e r d g t e h s e a r n e d -
+their insertion in all the possible positions of other routes such
+In graph G ∗ we compute a shortest path from node v
+1
+to that the total cost is smaller than the original and the length of
+node v
+q 1
+using the topological ordering, a technique that calculates the new route does not exceed L . The procedure starts with (cid:3) = 1 .
+64
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+If no exchange that improves the current solution is found, we in- making it possible to obtain a solution better than the starting one
+crement (cid:3) by 1, otherwise (cid:3) is reset to 1. The procedure stops when (prior to the 1-splitting).
+(cid:3) = (cid:3) max and there are no moves (insertions) that improve the total For a better understanding of this phase, Fig. 4 shows an exam-
+cost, where (cid:3) max is a given parameter. ple of the behavior of a solution before ( Fig. 4 a) and after ( Fig. 4 b)
+the 1-splitting procedure. For this instance, the deadheading cost
+4.2.2. (cid:3)
+1
+to (cid:3)
+2
+–exchange is reduced by 6.12% due to drones entering and leaving three of
+This procedure is similar to the one described above but now a the original required edges through their middle point.
+move consists of interchanging (cid:3)
+1
+consecutive required edges from
+a route T
+i
+with (cid:3)
+2
+consecutive required edges from another route
+T
+j
+, with (cid:3)
+1
+≤(cid:3)
+2
+and i, j ∈ { 1 , 2 , . . . , K } . The algorithm starts with 4.5. 3-splitting and 7-splitting procedures
+(cid:3)
+1
+= 1 and (cid:3)
+2
+= 1 , and tries to interchange the required edges be-
+tween the two routes in order to find an improving move. If there The last phase of the matheuristic focuses on improving the in-
+are no exchanges that reduce the total cost, then (cid:3)
+2
+increases by tensification of the search for good solutions. The idea is to gen-
+one unit and the process is repeated. If (cid:3) 2 reaches (cid:3) max and no im- erate a new set of intermediate vertices for each solution consid-
+proving exchanges are found, then (cid:3)
+1
+increases by one unit and ered (vertices that a drone can use to enter and leave an edge)
+(cid:3)
+is 2 e
+is
+xe
+s
+c
+e
+u
+t
+t e
+e
+d
+q u
+a
+a
+n
+l
+d
+t o
+(cid:3)
+1
+(cid:3)
+, 1 (cid:3)
+.
+2
+If
+ar
+a
+e
+n
+re
+im
+se
+p
+t
+ro
+to
+v in
+1
+g
+. T
+e
+h
+x
+e
+ch
+a
+a
+l
+n
+g
+g
+o
+e
+rit
+i
+h
+s
+m
+d is
+e
+c
+n
+o
+d
+v
+s
+e re
+w
+d
+h
+,
+e
+i
+n
+t b
+ti
+a
+o
+s
+n
+e
+.
+d
+L e
+o
+t
+n
+S ¯
+b
+(cid:6)
+t h
+d
+e
+e n
+b
+o
+e
+t
+h
+e
+a v
+th
+io
+e
+r
+s
+o
+et
+f
+o
+th
+f
+e
+s o
+d
+lu
+ro
+ti
+n
+o
+e
+n
+s
+s
+o
+o
+n
+b ta
+e
+i
+a
+n
+c
+e
+h
+d
+r
+a
+o
+f
+u
+te
+te
+r a
+o
+p
+f
+p
+t
+l
+h
+y
+e
+in g
+s o
+t
+l
+h
+u
+e
+-
+(cid:3) 1 = (cid:3) 2 = (cid:3) max and there are no exchanges that improve the total 1-splitting phase to each solution in S¯ b . The K routes of any solu-
+cost. tion S (cid:6) ∈ S¯
+b
+(cid:6) service 2 | E
+R
+| required edges. The idea now is to split
+again these required edges to give more options to the drones in
+4.2.3. Destroy and repair order to possibly shorten their routes. However, splitting all 2
+|
+E
+R
+|
+In each iteration of the destroy and repair algorithm, we ran- required edges would lead to apply the local search and route op-
+domly choose rrequired edges, where ris a random value between timizing algorithms to a solution with 3 | E
+R
+| + | V | vertices, 4 | E
+R
+|
+2 and 8, and these edges are removed from the routes servicing required edges and (3 | E
+R
+| + | V | ) ×(3 | E
+R
+| + | V | −1) / 2 non-required
+them. This strategy randomly shortens some of the routes of the edges, which would be an excessive computational effort, more so
+solution in order to possibly complete them again differently with if we consider that most of the non-required edges have a very
+lower total cost. Then, we try to relocate these required edges one low probability of being used by the drones.
+by one in the same order they were removed. Each required edge Hence, instead of splitting all the 2
+|
+E
+R
+|
+required edges, in each
+is inserted in the route and the position that minimizes the to- solution we split only those required edges incident to a non-
+tal cost, only if the length of the resulting route does not exceed required edge, as this creates new promising locations for the
+L . Note that it is possible that a required edge can not be placed drone to enter or leave a required edge. Thereby, for each solu-
+in its original position because another edge has been previously tion S (cid:6) ∈ S¯ (cid:6) , the required edges of S (cid:6) that are incident with a non-
+b
+added to its route. If an edge cannot be inserted in any route, a required edge used by any of the routes are split by introducing
+new route servicing it is created. If the obtained solution does not a new intermediate vertex on it. Furthermore, in order to reduce
+improve the starting one, the changes made in this iteration are the computational effort of this phase, we remove the intermediate
+discarded. This procedure is repeated until r max consecutive iter- vertices added in the 1-splitting procedure that are not incident
+ations without any improvement are performed, where r max is a with non-required edges in the solution (as these may be unlikely
+given parameter. to be used in a near-optimal solution). We call this “3-splitting”
+because some of the original lines have been approximated by a
+4.3. Optimization of the routes polygonal chain with three intermediate vertices (see edge (i, j) in
+Fig. 5 b).
+The route optimization phase is applied to a solution Sonce the Fig. 5 a and 5b illustrate how the 3-splitting works in a part of
+local search procedures are terminated. It is aimed at optimizing a solution where two routes, T
+1
+and T
+2
+, are involved. On these fig-
+each drone route in S by solving an RPP instance with the branch- ures, white nodes i, j, and k represent original vertices, whereas
+and-cut algorithm proposed in Corberán et al. (2007) . Thus, for black nodes are intermediate vertices added on the required edges
+each route T
+i
+in the solution Swe define an RPP instance on graph (in 1-splitting). Dashed lines represent (incomplete) non-required
+G
+ar e
+w i
+t
+t
+r
+h
+a v
+s
+e
+e
+r
+t
+s e
+o
+d
+f r
+a
+e
+n
+q
+d
+u ir
+s
+e
+e
+d
+rv
+e
+ic
+d
+e
+g
+d
+e s
+i n
+E
+T i r o
+fo
+u
+r
+t
+m
+e
+e
+T
+d
+i
+.
+b
+T
+y
+h i
+t
+s
+h e
+R P
+r
+P
+eq
+i
+u
+n
+i
+s
+r
+t
+e
+a
+d
+n c
+e
+e
+d g
+i
+e
+s
+s
+t
+t
+h
+h
+e
+a
+n
+t e
+in
+d g
+t
+e
+h
+s
+e
+.
+m
+Th
+id
+e
+d
+3
+le
+- s
+o
+p
+f
+l it
+t
+t
+h
+in
+e
+g
+e d
+p
+g
+r
+e
+o
+s
+c e
+(
+d
+i,
+u
+i
+r
+1
+e
+)
+(
+a
+F
+n
+ig
+d
+.
+(
+5
+i
+1
+b
+,
+)
+j
+a
+) ,
+d d
+re
+s
+s p
+ve
+e
+r
+c
+t
+t
+i
+i
+c
+v
+e
+e
+s
+ly ,
+i
+(cid:6)
+1 b e
+a
+c
+n
+a
+d
+u s
+i
+e
+(cid:6)
+2
+solved optimally. Each obtained route is feasible and has a cost less vertex i
+1
+(added in the 1-splitting phase) is incident with non-
+than or equal to that of the original route. required edges. Moreover, vertex k (cid:6)
+1
+is added to edge (j
+1
+, k ) and
+vertex j
+1
+(added in the 1-splitting phase) is removed. Then we ap-
+4.4. 1-splitting procedure ply the local search and the route optimization procedures. The re-
+sult is shown in Fig. 5 c, where the drone entry/exit of edge (i, j)
+The best solutions obtained after applying the local search and shifts from i
+1
+to i
+(cid:6)
+1
+.
+the route optimization procedures to all the initial solutions in S¯ The 7-splitting phase is the last part of the algorithm and it
+are stored and define the set S¯
+b
+. In order to improve them, we first works similarly to the 3-splitting. Again the idea is to add new
+apply the 1-splitting procedure to each S ∈ S¯
+b
+as follows. An inter- intermediate vertices “near” to those that are incident with non-
+mediate vertex (equi-distant from both endpoints) is added to each required edges in the solution and remove the intermediate ver-
+required edge to obtain a solution S
+(cid:6)
+of the LC K-RPP with twice tices previously added that are not incident with non-required
+the number of original required edges. Thus, a required edge (i, j) edges in the solution. The intermediate vertices added are selected
+of S is transformed in two required edges (i, i
+1
+) , (i
+1
+, j) , where i
+1
+among the seven vertices obtained when the original line is parti-
+denotes the intermediate point added, that will be traversed con- tioned in eight segments of similar length. Fig. 5 c and 5 d show
+secutively in the “new”solution S
+(cid:6)
+. We then apply the local search how the 7-splitting works. Fig. 5 d is created by adding two 7-
+a
+t
+in
+e
+n
+r
+g
+d
+s
+t
+t
+h
+o
+h
+l
+e
+u
+e
+d
+t
+r
+i
+r
+o
+o
+o
+n
+u
+n
+.
+t
+e
+e
+N
+t
+o
+o
+o
+p
+t e
+e
+t i
+n
+m
+t
+t
+h
+e
+i
+a
+z
+r
+t
+a
+a
+t
+w
+n
+io
+d
+it
+n
+h
+l e
+p
+a
+t
+r
+h
+v
+o
+i
+e
+c
+s
+e
+a
+s
+d
+n
+p
+u
+y
+l
+r
+i
+e
+t
+e
+t
+s
+d
+i n
+g
+t
+g
+o
+e t
+p
+S
+h
+(cid:6)
+r
+r
+o
+t
+o
+c
+o
+u
+e
+g
+t
+d
+r
+h
+u
+y
+r
+i
+e
+t
+t
+o
+s
+w
+m
+o
+e
+b
+i d
+t
+a
+a
+d
+r
+i
+e
+l
+n
+e
+a
+a
+p
+l l
+o
+b
+o
+i
+e
+w
+n
+t
+t
+-
+-
+,
+s
+s
+m
+p
+p
+o
+l
+l
+i
+i
+v
+t
+t
+t
+t
+in
+i
+i
+n
+n
+g
+g
+g
+)
+k
+(cid:6)
+1
+n
+a
+.
+o
+n
+L
+d
+d
+o
+e
+c
+i
+s
+(cid:6)
+2
+a l
+i
+(
+(cid:6)
+1
+s
+a
+(cid:6) ,
+e
+d
+a
+d
+i
+r
+(cid:6)
+2
+e
+(cid:6)
+c
+d
+h
+a n
+i
+a
+n
+d
+n d
+3
+r
+-
+e
+t
+s
+h
+m
+p
+e
+l
+o
+i t
+r
+v
+t
+o
+i
+i
+n
+n
+u
+g
+g
+te
+);
+t
+o
+w
+a
+p
+n
+o
+t
+d
+i m
+n
+a
+o
+i
+l
+z
+s
+d
+a
+o
+e
+t
+s
+i
+a
+o
+d
+n
+i
+1
+d
+a
+in
+l
+(
+g
+a
+g
+o
+d
+k
+r
+d
+i
+(cid:6)
+1
+e
+t
+(cid:6)
+h
+d
+a
+m
+n
+i
+d
+s
+n
+a
+r
+1
+e
+re
+-
+-
+65
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+Fig. 4. Two solutions of a DroneRPP68 instance before and after the 1-splitting procedure.
+Fig. 5. Illustration of 3- and 7-splitting.
+66
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+applied and the best solution among the | S¯
+b
+| ones obtained is se- T
+C
+a
+h
+b
+a
+l
+r
+e
+a c
+1
+te ristics of the Campbell et al.
+lected as the final solution of the matheuristic.
+(2018) Drone RPP instances.
+5. A branch-and-cut algorithm for the LC K-RPP Instance Original Original
+name vertices lines
+We have implemented a branch-and-cut algorithm for the LC DroneRPP56 22.3 21.3
+K-RPP based on the formulation presented in Section 3 . The initial DroneRPP66 27.0 23.3
+DroneRPP58 34.0 29.6
+LP is defined by all inequalities (2), (5), (7) , and Eq. (4) , while con-
+DroneRPP68 36.6 35.0
+nectivity inequalities (3) and parity inequalities (8) , which are ex- DroneRPP77 38.6 41.6
+ponential in number, are separated at each iteration of the cutting- DroneRPP510 41.6 42.0
+plane algorithm and added to the LP. Let x¯ k , k = 1 , . . . , K be the DroneRPP610 50.0 46.6
+fractional solution obtained at an iteration of the cutting-plane al- DroneRPP79 50.3 53.6
+DroneRPP88 56.3 51.0
+gorithm. We use the following separation algorithms:
+DroneRPP710 58.3 56.6
+DroneRPP89 60.3 56.3
+separation of connectivity inequalities (3) DroneRPP99 66.3 65.3
+DroneRPP810 68.6 67.0
+For each drone k, we compute the connected components of DroneRPP910 78.6 74.6
+the graph induced by the edges e ∈ E such that x¯ k + x¯ k ≥1 −ε, DroneRPP1010 82.0 81.0
+ij ji
+ε
+where is a given parameter, and the depot, if necessary. For each
+connected component with node set Snot including the depot, we
+select the edge e = (i, j) ∈ E
+R
+(S) with maximum value for x¯ k
+ij
++ x¯ k
+ji
+a
+to
+c t
+z
+iv
+e
+a
+r
+t
+o
+e d
+a n
+i
+d
+n a
+b
+u
+e
+t
+s
+o
+t
+m
+bo
+at
+u
+i
+n
+c
+d
+m
+s
+o
+tr
+d
+a
+e
+t
+.
+e
+T
+g
+h
+y
+e
+w
+o
+a
+p
+s
+t i
+s
+m
+el
+a
+e
+l
+c
+it
+t
+y
+e d
+g
+.
+a
+T
+p
+h
+t
+e
+o l
+b
+e
+r
+r
+a
+a
+n
+n
+c
+c
+h
+e
+- a
+w
+n
+a
+d
+s
+- c
+s
+u
+et
+t
+and check the corresponding inequality x k (δ(S)) ≥2(x k ij + x k ji ) for algorithm described in Corberán et al. (2007) , used for obtaining
+violation. We start with ε = 0 and, while the algorithm fails in the initial optimal giant tour and for optimizing the routes after
+finding a violated inequality, we successively try ε = 0.25, 0.5, and the local search phase was also coded in C ++ and uses CPLEX 12.6
+0.75. MIP Solver too.
+Connectivity inequalities can be exactly separated with the fol-
+lowing polynomial time algorithm. In the graph induced by the de-
+pot and the edges e = (i, j) ∈ E such that x¯ k + x¯ k > 0 , we compute, 6.1. Instances
+ij ji
+for each edge e = (i, j) ∈ E
+R
+, the minimum cut separating edge e
+The two proposed procedures have been tested first on two
+from the depot. If the weight of this cut is less than 2( x¯ k + x¯ k ) ,
+ij ji sets of instances based on the ones proposed in Campbell et al.
+then the corresponding inequality (3) is violated. (2018) for the Drone RPP. The first set consists of 30 randomly
+generated instances, and the second set consists of 15 instances
+Separation of parity inequalities (8) generated from the first set by replacing some required edges in
+order to reduce the number of odd-degree vertices, thus obtaining
+Parity inequalities can also be separated in polynomial time by harder instances, called even instances. These all have between 22
+means of a procedure similar to the one proposed by Padberg and and 83 original nodes and between 18 and 92 original lines (for
+Rao (1982) . However, since the procedure is time consuming, we details see Tables 2 and 3 in Campbell et al., 2018 ). Each row of
+do not use it in the cutting-plane algorithm. Instead, we use the Table 1 reflects three instances (two randomly generated and one
+following heuristic. even instance) and shows the average number of vertices and orig-
+First, note that parity inequalities can be written as inal lines of the three instances defined on a particular grid indi-
+(cid:3) (cid:3)
+( x k
+ij
++ x k
+ji
+) + ( 1 −x k
+ij
+−x k
+ji
+) ≥1 . (9) c
+th
+a
+e
+te d
+th
+b
+re
+y
+e
+th
+in
+e
+s t
+d
+a
+i
+n
+g
+c
+it
+e
+s
+s
+a
+f
+t
+o r
+t h
+“
+e
+D r
+e
+o
+n
+n
+d
+e R
+o
+P
+f
+P
+t
+7
+h
+1
+e
+0
+i
+”
+ns
+h
+t
+a
+a
+v
+n
+e
+c e
+b e
+n
+e
+a
+n
+m
+g
+e
+e
+.
+n
+F
+e
+o
+r
+r
+a
+e
+te
+x
+d
+a m
+o
+p
+n
+l e
+a
+,
+(i,j) ∈ δ(S)\F (i,j) ∈ F
+grid with 7 ×10 points, and the original graphs (before any split-
+For each vehicle k, we compute the connected components of the ting) of these three instances have 58 vertices and 51 lines, 59 ver-
+graph induced by the edges e = (i, j) ∈ E such that x¯ k ij + x¯ k ji ≥1 −ε, tices and 65 lines, and 58 vertices and 54 lines, respectively.
+ε
+where is a given parameter, and the depot, if necessary. For each In addition, we have generated 15 new larger instances as in
+connected component with node set Swe check the edges in
+δ(S)
+. Campbell et al. (2018) , ten of which have been randomly gener-
+For each e = (i, j) ∈ δ(S) , if x¯ k
+ij
++ x¯ k
+ji
+> 0 , 5 , we put e in F . If | F | is ated, while the other five have been built trying to obtain few
+odd, we are done. Otherwise, it is easy to determine the edge to be odd-degree vertices. The characteristics of these new instances are
+removed from or added to F , in such a way that the resulting set shown in Table 2 . The first block, labeled “R”, corresponds to the
+F minimizes theLHS of (9) . If theLHS is lessthan1, theinequality random instances and the “E” block to the even instances. Column
+(9) is then violated. Otherwise there is no set F ⊆δ(S) for which 2 shows the name of the instances. The last digit in the name
+(9) is violated for the given set S. We start with ε = 0 and, while of each random instance indicates if this is the first or the sec-
+the algorithm fails in finding a violated inequality, we successively ond instance generated from the same grid. Columns 3 to 5 show
+try ε = 0.25, 0.5, and 0.75. the number of vertices and lines of the original instance and the
+number of non-required edges. Columns 6 and 7 give the num-
+6. Computational experiments ber of vertices and required edges for the instance generated in
+the 1-splitting procedure of the matheuristic. The last five columns
+In this section, we present the instances used to analyze the show the same data for the instances generated in the 3- and 7-
+behavior of the proposed matheuristic and branch-and-cut algo- splitting phases, plus the number of non-required edges in the 7-
+rithms, as well as the computational study performed. The algo- splitting case. The values in these last columns are average data,
+rithms have been implemented in C ++ and all the tests have been since the size of the 3-splitting (7-splitting) instances depends on
+run on an Intel Core i7 at 3.4 gigahertz with 32 gigabytes RAM. the solution provided by the 1-splitting (3-splitting) procedure. Re-
+The B&C uses CPLEX 12.6 MIP Solver with a single thread. CPLEX call that the 3-splitting and 7-splitting are done only on a (small)
+heuristic algorithms were turned off, and CPLEX’s own cuts were subset of required lines and that the size of the resulting in-
+67
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+Table 2
+Characteristics of the new Drone RPP instances.
+Original Original 1-splitting 3-splitting 7-splitting
+Type Instance vertices lines NR edges Vertices R edges Vertices R edges Vertices R edges NR edges
+DroneRPP10111 88 72 3828 160 144 215.0 199.0 270.8 254.8 36549.8
+DroneRPP10112 93 98 4278 191 196 243.0 248.0 294.6 299.6 43289.2
+DroneRPP10121 95 80 4465 175 160 240.4 225.4 308.6 293.6 47500.0
+DroneRPP10122 102 110 5151 212 220 266.2 274.2 319.6 327.6 50960.8
+R DroneRPP11111 99 82 4851 181 164 250.8 233.8 322.4 305.4 51882.4
+DroneRPP11112 109 112 5886 221 224 280.8 283.8 340.4 343.4 57798.6
+DroneRPP11121 100 93 4950 193 186 258.6 251.6 325.0 318.0 52675.6
+DroneRPP11122 124 126 7626 250 252 320.0 322.0 391.6 393.6 76487.6
+DroneRPP12121 102 101 5151 203 202 262.2 261.2 322.4 321.4 51819.2
+DroneRPP12122 127 137 8001 264 274 337.2 347.2 408.4 418.4 83243.2
+DroneRPP1011 88 72 3828 160 144 214.8 198.8 270.2 254.2 36381.8
+DroneRPP1012 95 99 4465 194 198 244.0 248.0 295.4 299.4 43511.0
+E DroneRPP1111 99 106 4851 205 212 250.2 257.2 295.0 302.0 43392.8
+DroneRPP1112 100 109 4950 209 218 257.0 266.0 306.0 315.0 46698.0
+DroneRPP1212 102 114 5151 216 228 262.0 274.0 309.6 321.6 47775.0
+Table 3
+Computational results with the B&C on the LC K-RPP(0) instances.
+Number of Gap0 (%) Gap (%) Nodes Time UB Time
+drones inst opt
+2 20 19 3.47 0.04 821.5 77.0 258.8
+3 20 12 11.96 6.49 3133.5 1219.5 1651.9
+R 4 20 4 21.52 16.83 7084.7 1919.9 2980.3
+5 20 2 27.68 24.50 5251.2 2441.2 3339.9
+6 20 3 28.74 25.40 2759.1 2744.0 3144.1
+2 20 18 1.88 0.22 399.6 624.4 1258.1
+3 20 1 10.16 9.38 989.1 2357.0 3429.1
+R 4 20 0 22.80 22.25 547.6 2997.9 3600.0
+5 20 0 30.00 29.84 321.3 3028.5 3600.0
+6 20 0 36.06 35.95 182.2 3327.1 3600.0
+2 10 10 4.88 0.00 629.4 79.2 192.5
+3 10 5 16.95 10.17 5319.4 1858.6 2238.8
+E 4 10 2 25.36 19.08 7471.6 1797.6 3183.9
+5 10 1 30.49 26.32 6151.0 2136.7 3470.6
+6 10 1 30.07 25.99 4034.6 2671.6 3291.6
+2 10 5 10.60 7.88 1695.4 1740.1 2663.1
+3 10 0 18.82 17.81 1119.1 2762.8 3600.0
+E 4 10 0 27.69 27.15 620.8 3091.0 3600.0
+5 10 0 33.86 33.68 363.1 3314.9 3600.0
+6 10 0 36.77 36.52 216.3 3426.8 3600.0
+stance would be much larger if this splitting were made in all the 6.2.1. Results obtained with the branch-and-cut algorithm
+lines. For example, if 7-splitting were made on all the required Table 3 summarizes the computational results obtained with
+edges, instance DroneRPP10122 would have 872 vertices, 880 re- the exact B&C algorithm for all the “random”(R) and “even”(E) LC
+quired edges, and 379,756 non-required edges (independently of K-RPP(0) instances with a time limit of 3600 seconds. The results
+the number of drones used) instead of the 319.6 vertices, 327.6 re- for each type of instances are separated in two blocks according
+quired edges, and 50960.8 non-required edges on average. to the instance size (with those above being for up to 60 original
+The above are instances for the Drone RPP. In order to obtain vertices and those below being with 60 or more). Columns 2 to 4
+instances for the LC K-DRPP we have to define the limit L for the contain the number of drones, the number of LC K-DRPP instances,
+length of the drone routes. To do so, several runs have been per- and the number of the corresponding LC K-RPP(0) instances solved
+formed for each instance with different values for L in order to ob- to optimality. Columns 5 and 6 show the average gaps in percent-
+tain solutions with a number of drones ranging from 2 to 6. Hence, age between the cost of the optimal solution (if known) or that
+we have 5 LC K-DRPP instances for each one of the 60 Drone RPP of the solution provided by the matheuristic before the 1-splitting
+instances for a total of 300 instances. These instances are available phase and the lower bound at the end of the root node (Gap0) and
+at http://www.uv.es/corberan/instancias.htm. the final lower bound (Gap), respectively. Column 7 reports the
+average number of nodes of the branching tree and the last two
+6.2. Computational results columns show the average computing time, in seconds, to reach
+the best feasible solution and the total time, respectively.
+In this section we present the results obtained with the From Table 3 we can observe that the B&C is capable of solving
+branch-and-cut and the matheuristic algorithms described in almost all the instances with 2 drones (52 out of 60) in very
+Sections 5 and 4 , respectively, on the 300 LC K-DRPP instances short computing times and a good number of instances (18) with
+presented before. All the results shown in what follows are given 3 drones. The average final gaps for the instances with 3 drones
+with respect to the deadheading cost of the solutions, which are are quite good if we consider that in most cases they have been
+the only ones that can be minimized.
+68
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+Table 4 those obtained with the branch and cut, as in fact is the case in
+Sensitivity of the matheuristic to the parameter many instances.
+(cid:3) max . Tables 5 and 6 show the results obtained for the “random”and
+(cid:3) max Time Deadheading cost # Best “even” instances, respectively. Both tables present the same struc-
+4 31.28 3103.74 8 ture and, like Table 3 , each one is separated into two groups ac-
+6 34.04 3055.06 17 cording to the size of the instance. Columns 1 to 3 contain the
+8 37.46 3039.11 19 number of drones used by the solution, the number of LC K-DRPP
+10 42.49 3026.44 26
+instances, and the number of the corresponding LC K-RPP(0) in-
+stances for which an optimal solution has been obtained with the
+branch and cut. Column 4 (GapLB) shows the percentage average
+obtained comparing the lower bounds with upper bounds and gap between the cost of the solution provided by the matheuristic
+not with optimal values. When the number of drones increases, in phase 1 (0-splitting) and the lower bound (maybe the optimal
+the number of instances optimally solved decreases rapidly and value) given by the branch-and-cut algorithm. Column 5 (GapUB)
+becomes 0 in those instances with 60 vertices or more. Further- provides the average percentage gap between the cost of the so-
+more, the average gaps are far from good, which is a consequence lution of the matheuristic (also before the 1-splitting phase) and
+of the great difficulty of this problem and a reason for the devel- that of the best solution found by the branch and cut in one hour
+opment of approximate algorithms for the LC K-DRPP, such as the of computing time. A negative value in this column means that,
+one proposed here, capable of finding good solutions in reasonable for that particular subset of instances, the solutions provided by
+times. Finally, as we expected, we can observe that the “even” the matheuristic have, on average, lower costs than the best fea-
+instances present a greater difficulty than the “random”ones. sible solutions found by the B&C. Although the solutions obtained
+with the matheuristic with the 1-, 3-, and 7-splitting procedures
+are not feasible solutions of the LC K-RPP(0) instances, they are
+6.2.2. Results obtained with the matheuristic also compared with the best feasible solutions found by the B&C in
+We present here the computational results obtained with the the time limit. The average gaps for these comparisons are shown
+proposed matheuristic on the set of LC K-DRPP instances described in columns 6–8. The final column reports the average total com-
+in Section 6.1 . puting time used by the matheuristic. The idea behind the last
+First, in order to choose a value for the (cid:3) max parameter (the comparisons is to highlight the difference between the solutions
+maximum number of required edges used in the exchange moves), for the original LC K-DRPP instances found by the matheuristic in
+we tested the matheuristic on a representative subset of 30 LC K- less than three minutes on average and those obtained by the B&C
+DRPP instances with different sizes and number of drones with in one hour of computing time.
+(cid:3) max ∈ { 4 , 6 , 8 , 10 } and | S¯ b | = 10 . Table 4 shows the obtained re- We can observe in Table 5 that the solutions obtained by the
+sults. In this table, Column 2 shows the average computing time, in matheuristic on the instances with 2 and 3 drones are very good,
+seconds, used by the algorithm to solve each instance with the dif- showing an average gap before the splitting procedures of less than
+ferent values of (cid:3) max , and Column 3 shows the total deadheading 1.30% and 8.08%. With 4, 5 and 6 drones the gaps are high, but
+cost on average. Column 4 reports the number of instances out of our guess is that these values are due more to the poor quality
+30 for which the respective value of (cid:3) max returns the best cost. In of the lower bound than to the quality of the solution produced
+many cases, several values of (cid:3) max get the same solution. Since the by the algorithm. Note that only 9 optimal solutions are known
+average time is not excessively larger, we chose (cid:3) max = 10 . A simi- for the random instances using 4 or more drones, and that all
+lar test also suggested the value 10 for the parameter r max (number the average gaps with respect to the upper bounds are negative
+of iterations without improvement of the destroy and repair algo- except for the instances with 2 drones, in which the majority of
+rithm). the upper bounds are optimal or near optimal. The 1-splitting, 3-
+To analyze the performance of the matheuristic, we have com- splitting, and 7-splitting procedures improve the solutions in all
+pared its results, using | S¯
+b
+| = 10 , with those of the branch-and-cut the instances and the impact of each procedure on the result of
+algorithm on the LC K-RPP(0) instances. Note that the solutions the previous procedure is significant. For example, the values in
+obtained in the first phase of the matheuristic (no splitting has the last row of Table 5 say that, for the 20 instances with 60 to
+been made yet) are feasible solutions of the LC K-RPP(0) instances. 127 vertices and 6 drones, the costs of the solutions provided by
+Therefore, the lower bounds (or optimal values) obtained by the the matheuristic in 92.04 seconds on average are, without split-
+B&C are also lower bounds for the solutions obtained in the first ting the required lines, 9.27% better than those obtained by the
+phase of the matheuristic, and the upper bounds provided can also branch and cut in one hour, and 10.94%, 12.62%, and 13.49% bet-
+be compared to the matheuristic solutions. However, the solutions ter when the 1-splitting, 3-splitting, and 7-splitting procedures,
+obtained in phases 2 and 3 of the matheuristic may be better than respectively, are applied. On the other hand, note that the val-
+Table 5
+Results of the matheuristic for the “random”instances.
+Number of 0-splitting 1-splitting 3-splitting 7-splitting Total
+drones inst opt GapLB GapUB GapUB GapUB GapUB time
+2 20 19 0.92 0.88 −0.21 −1.10 −1.60 25.80
+3 20 12 6.73 −1.01 −1.42 −3.00 −3.36 23.17
+4 20 4 19.31 −2.76 −4.80 −6.34 −7.61 22.69
+5 20 2 27.70 −5.61 −7.51 −9.24 −9.90 23.48
+6 20 3 32.24 −10.10 −10.95 −13.06 −14.53 26.54
+2 20 18 1.30 1.07 0.30 0.01 −0.25 131.45
+3 20 1 8.08 −2.71 −4.36 −4.91 −5.16 113.32
+4 20 0 16.82 −9.83 −11.35 −12.16 −12.45 98.79
+5 20 0 29.46 −9.77 −11.92 −13.30 −13.86 97.16
+6 20 0 42.76 −9.27 −10.94 −12.62 −13.49 92.04
+69
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+Table 6
+Results of the matheuristic for the “even”instances.
+Number of 0-splitting 1-splitting 3-splitting 7-splitting Total
+drones inst opt GapLB GapUB GapUB GapUB GapUB time
+2 10 10 2.10 2.10 −3.19 −4.81 −5.78 34.1
+3 10 5 9.37 −2.94 −6.77 −7.64 −8.57 24.0
+4 10 2 21.35 −3.92 −7.46 −9.46 −10.06 25.3
+5 10 1 30.10 −6.57 −9.54 −11.04 −11.37 23.0
+6 10 1 32.91 −6.49 −9.93 −11.48 −11.76 23.7
+2 10 5 6.23 −2.62 −5.68 −6.52 −7.91 199.6
+3 10 0 13.36 −7.24 −10.56 −12.45 −12.97 160.2
+4 10 0 23.85 −10.63 −12.40 −15.26 −16.67 153.9
+5 10 0 34.35 −11.76 −14.79 −16.32 −16.88 144.4
+6 10 0 41.97 −10.76 −13.11 −14.46 −15.16 142.1
+Table 7
+Results for the instances with known optimal solutions.
+Number of GapUB Total
+drones opt opt M 0-splitting 1-splitting 3-splitting 7-splitting time
+R 2 37 25 0.86 −0.06 −0.53 −0.94 76.20
+E 15 6 1.76 −2.99 −4.27 −5.20 55.83
+R 3 13 7 1.35 1.07 −0.38 −0.82 22.55
+E 5 4 0.86 −5.30 −6.42 −7.68 15.14
+R 4 4 3 0.08 −0.23 −0.91 −4.94 14.86
+E 2 0 2.55 −2.36 −2.44 −2.78 10.25
+R 5 2 1 3.02 2.82 −1.48 −2.67 10.49
+E 1 1 0.00 −2.72 −4.04 −4.30 7.84
+R 6 3 3 0.00 −0.44 −1.33 −2.72 7.77
+E 1 1 0.00 −6.40 −9.11 −9.38 11.45
+ues in columns GapUB obtained for the larger instances are better tains the average data of 15 instances. The average number of ver-
+than those obtained for the smaller ones. This could be explained tices and original lines of each group of instances are reported in
+by the poorer behavior of the branch and cut in these larger columns 2 and 3. Column 4 shows the average improvement (in
+instances. percentage) obtained by the local search procedures (LS) in the
+Similar comments can be made for the results shown in 0-splitting phase with respect to the cost of the initial solutions,
+Table 6 for the “even”instances. The values in columns GapLB and and Column 5 reports the average time in seconds. The last two
+the computing times for the larger instances are worse than for columns show the same data corresponding to the route optimiza-
+the “random” ones, thus supporting our proposition that, for the tion procedure (RO) when applied to the solutions provided by the
+matheuristic algorithm, the “even” instances are harder than the local search. It can be seen that the improvement obtained with
+“random”ones, as is also the case for the B&C algorithm. the local search, 22.02% on average, is significant, and it does not
+Table 7 shows the results obtained by the matheuristic on the depend on the size of the instance. However, the results seem to
+83 instances for which an optimal solution for the corresponding show a slightly increasing improvement for the route optimization
+LC K-RPP(0) instance is known. Columns 1 and 2 contain the in- procedure as the size of the instance increases.
+stance type (“random” or “even”) and the number of drones. Col- Table 9 shows the contribution of the local search and route op-
+umn 3 shows the number of LC K-RPP(0) instances with known timization procedures when the instances are grouped by number
+optimal value and Column 4 reports the number among them for of drones. While the improvement obtained with the local search
+which phase 1 of the matheuristic provided the same solution. is similar for any number of drones, the impact of the route opti-
+For example, among the 40 “random” instances with two drones, mization procedure on the improvement of the solutions clearly
+37 have been solved to optimality by the branch and cut, while decreases as the number of drones increases. This could be ex-
+the matheuristic found 25 of these optima. Columns 5 to 8 (Ga- plained by the fact that, when the number of drones increases, the
+pUB) show the average percentage gap between the cost of the number of required edges in each route decreases, and there is less
+solution of the corresponding phase of the matheuristic and that room for improvement.
+of the optimal solution found by the branch and cut. The last On the other hand, it is interesting to point out that if the route
+column reports the average computing time in seconds used by optimization procedure is removed from the matheuristic, then the
+the matheuristic. From these results it can be observed that the number of optima found decreases from 39 to 25 in the random
+gaps are very good for the instances with known optimal solu- instances, and from 12 to 8 in the even instances. Hence, the route
+tion. In particular, note that the solutions provided by the 3- and optimization procedure plays an important role in our algorithm,
+7-splitting phases are better than the optimal solutions obtained both in terms of the improvement of the solutions and in the num-
+with the branch and cut on the LC K-RPP(0) instances. ber of optima found, with a reasonable computing time.
+Table 8 reports the effect of the local search and the exact route To further analyze the contribution of the different local search
+optimization procedures on the performance of the matheuristic in components of the matheuristic, we have tested the algorithm on
+the 0-splitting phase. The first column gives the name associated a subset of 30 instances of different sizes and number of drones.
+with the three instances (two “random” and one “even” instance) Each instance is run four times. Three times deactivating each of
+generated in the same grid. Each of these three instances is solved the three local search procedures and a fourth in which none is
+with 2, 3, 4, 5 and 6 drones and, hence, each row in Table 8 con- deactivated. Table 10 reports the results obtained. Column 2 shows
+70
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+Table 8
+Impact of local search and route optimization procedures (instances grouped by size).
+Name |V | | E| LS RO
+Imp (%) Time Imp (%) Time
+DroneRPP56 22.3 21.3 21.57 0.2 1.37 1.2
+DroneRPP66 27.0 23.3 23.95 0.7 0.87 2.6
+DroneRPP58 34.0 29.6 22.80 2.6 0.89 5.7
+DroneRPP68 36.6 35.0 20.65 0.2 1.88 0.9
+DroneRPP77 38.6 41.6 22.58 0.9 1.08 1.8
+DroneRPP510 41.6 42.0 27.94 3.0 1.06 5.5
+DroneRPP610 50.0 46.6 24.08 1.3 1.67 2.6
+DroneRPP79 50.3 53.6 22.70 4.4 1.70 6.6
+DroneRPP88 56.3 51.0 17.07 5.5 1.57 8.8
+DroneRPP710 58.3 56.6 23.86 2.3 1.62 3.4
+DroneRPP89 60.3 56.3 22.31 4.7 2.60 6.5
+DroneRPP99 66.3 65.3 19.25 7.9 1.59 7.7
+DroneRPP810 68.6 67.0 18.68 6.6 1.58 7.6
+DroneRPP910 78.6 74.6 20.22 10.1 1.69 11.3
+DroneRPP1010 82.0 81.0 22.96 13.3 2.71 12.9
+DroneRPP1011 89.6 80.6 23.77 14.8 2.51 12.7
+DroneRPP1012 97.3 96.3 25.59 28.4 1.85 19.3
+DroneRPP1111 102.3 103.6 21.73 27.2 2.24 19.1
+DroneRPP1112 108.0 109.3 16.89 29.3 2.38 19.7
+DroneRPP1212 110.3 117.3 21.70 36.8 2.40 24.2
+Table 9
+Impact of local search and route optimization procedures (instances
+grouped by number of drones).
+Number of LS RO
+drones instances Imp (%) Time Imp (%) Time
+2 60 22.32 9.2 3.40 9.6
+3 60 22.71 9.7 1.99 7.9
+4 60 22.52 10.6 1.59 8.4
+5 60 21.82 10.4 1.01 9.1
+6 60 20.71 10.2 0.82 10.0
+Table 10
+Analysis of the contribution of the different local search procedures.
+Deactivated procedure Time Deadheading cost # Best
+None 51.44 2843.59 15
+0 to (cid:3) exchange 32.81 2903.04 6
+(cid:3) 1 to (cid:3) 2 exchange 36.65 2897.99 8
+Destroy and repair 86.39 2849.48 9
+the average time the algorithm takes to solve each instance de-
+activating the local search procedure indicated in Column 1, and
+Column 3 shows the deadheading cost on average for each case.
+Column 4 reports the number of instances out of 30 for which the
+respective solution mode returns the best deadheading cost of the
+four obtained. From the table we can see that the “0 to (cid:3) exchange” Fig. 6. Solution of an even DroneRPP66 instance with L = 1300 (6 drones).
+is the most effective procedure since when it is deactivated the
+algorithm shows its worst behavior, both in terms of the quality
+of the solutions (deadheading cost) and the number of best solu- the cost of the solution obtained for the same instance without
+tions found. Also the procedure “(cid:3)
+1
+to (cid:3)
+2
+exchange” is important splitting is 3751.85. Note that sometimes drones enter some re-
+to improve the solutions, while it seems that “destroy and repair” quired lines through intermediate points, and that the service of
+provides the least benefit in terms of deadheading cost, although some lines is shared by two drones. The drone routes illustrated
+disabling it makes the other methods take longer to find good so- in Fig. 6 show some of the complexity of these problems and so-
+lutions. Therefore, as confirmed by the results obtained when no lutions, as well as the benefits the drones gain by being able to
+local search method is deactivated, all procedures help to improve fly directly between two points. Observe that the green route in
+the solutions, which justifies their use in the proposed matheuris- Fig. 6 includes parts of two required lines and all of two other re-
+tic. quired lines, which are in two separate components of the net-
+Finally, for illustrative purpose, Fig. 6 shows the solution pro- work. Note that these solutions also reflect the strategy of splitting
+vided by the matheuristic for the even instance DroneRPP66 with the arcs in equi-distant segments, while a different set of interme-
+six drones. Solid lines represent the traversal and service of the diate points may lead to (likely small) improvements. In practice,
+required lines, while dashed lines are associated with deadhead- user-driven selection of splitting points (e.g., based on local condi-
+ing traversals. This solution has a deadheading cost of 3411, while tions) may be employed.
+71
+J.F. Campbell, Á. Corberán, I. Plana et al. European Journal of Operational Research 292 (2021) 60–72
+7. Conclusions Corberán, A. , Plana, I. , & Sanchis, J. M. (2007). A branch & cut algorithm for the
+windy general routing problem and special cases. Networks, 49 , 245–257 .
+Cormen, T. H. , Leiserson, C. E. , Rivest, R. L. , & Stein, C. (2009). Introduction to algo-
+Drone arc routing problems (Drone ARPs) differ from classical
+rithms ((). MIT Press and McGraw-Hill .
+Postman arc routing problems in that drones can fly directly be- Delair (2020). Delair long range surveillance drones help the French ministry of
+tween any two points without following the edges of the graph. foreign affairs to better address counter terrorism in Niger. Accessed September
+24, 2020. https://delair.aero/success-stories/delair-long-range-surveillance-
+This enables Drone ARPs to have better solutions than Postman
+drones- help- the- french- ministry- of- foreign- affairs- to- better- address- counter-
+ARPs. Here we have studied the Length Constrained K-Drones Ru- terrorism- in- niger/ .
+ral Postman Problem, in which the limited capacity of the drones Dille, M., & Singh, S. (2013). Efficient aerial coverage search in road networks. In
+makes it impossible to service all the lines requiring service with a Proceedings of the AIAA guidance, navigation and control (GNC) conference . https:
+//doi.org/10.2514/6.2013-5094 . August 2013.
+single drone. Therefore, we have to find a set of drone routes, each United Nations ESCAP (2019). (Economic and social commission for asia and the pa-
+of limited length. cific), working group on the trans-asian railway network. Inspection and moni-
+For this problem we have presented an ILP formulation and two toring of railway infrastructure using aerial drones. Note by the secretariat, ES-
+CAP/TARN/WG/2019/4.
+solution methods, a branch-and-cut algorithm and a matheuristic.
+Franz, J. (2018). BNSF takes to the sky with drones to inspect montana
+The B&C algorithm is based on the proposed formulation and on main line; program may expand in 2019. November 14, 2018. Ac-
+the strengthening of its linear relaxation through the separation of cessed September 27, 2020. https://trn.trains.com/news/news-wire/2018/11/
+14- bnsf- takes- to- the- sky- with- drones- to- inspect- montana- main- line- program
+a family of valid inequalities that is exponential in number. The
+- may- expand- in- 2019 .
+matheuristic consists of several features, including splitting edges Garrett-Glaser, B. (2019). Evergy inspects 150 miles of power lines with
+to increase flexibility in servicing, local search to improve solu- true BVLOS drone flights. November 13, 2019. Accessed September 24,
+2020. https://www.aviationtoday.com/2019/11/13/evergy- inspects- 150- miles-
+tions, and an optimization procedure that exactly solves RPP in-
+power- lines- true- bvlos- drone- flights/ .
+stances associated with each single drone route. The algorithms Ghiani, G. , & Laporte, G. (20 0 0). A branch-and-cut algorithm for the undirected rural
+have been tested on a large set of Drone RPP instances from the postman problem. Mathematical Programming, 87 , 467–481 .
+Hierholzer, C. (1873). Über die möglichkeit, einen linienzug ohne wiederholung und
+literature and on a new set of larger instances with up to 137 lines
+ohneunterbrechung zu umfahren. Mathematische Annalen, 6 , 30–32 .
+and with 2 to 6 drones. Khoufi, I., Laouiti, A., & Adjih, C. (2019). A survey of recent extended variants of the
+Future research includes exploring some post-processing local traveling salesman and vehicle routing problems for unmanned aerial vehicles.
+improvements to selectively add more intermediate nodes to cer- Drones, 66 (3), 3. https://doi.org/10.3390/drones3030066 .
+Knight, R. (2019). UAV inspection at the biggest oil rig in the world. December 2,
+tain edges. Some interesting nodes to consider could be the inte- 2019. Accessed September 24, 2020, https://www.microdrones.com/en/content/
+rior points on a required edge that are closest to the endpoints of uav- inspection- at- the- biggest- oil- rig- in- the- world/ .
+other required edges, or/and the points on a required edge that are Li, M., Zhen, L., Wang, S., Lv, W., & Qu, X. (2018). Unmanned aerial vehicle schedul-
+ing problem for traffic monitoring. Computers & Industrial Engineering, 122 , 15–
+closest to any point on other required edges.
+23. https://doi.org/10.1016/j.cie.2018.05.039 .
+We are also working on the theoretical study of the problem Liu, Y., Shi, J., Liu, Z., Huang, J., & Zhou, T. (2019). Two-layer routing for high-voltage
+in order to find new families of valid inequalities that can help powerline inspection by cooperated ground vehicle and drone. Energies, 12 (7),
+1385. https://doi.org/10.3390/en12071385 .
+to improve the branch-and-cut algorithm. Another line of future
+Luo, H., Zhang, P., Wang, J., Wang, G., & Meng, F. (2019). Traffic patrolling routing
+research is the study of a more general problem that combines the problem with drones in an urban road system. Sensors, 19 , 5164. https://doi.org/
+visit of vertices and the traversal of certain lines in order to deliver 10.3390/s19235164 .
+Macrina, G., Di Puglia Pugliese, L., Guerriero, F., & Laporte, G. (2020). Drone-aided
+goods and inspect areas, for example.
+routing: A literature review. Transportation Research Part C . https://doi.org/10.
+1016/j.trc.2020.102762 .
+Acknowledgments Mourão, M. C. , & Pinto, L. S. (2017). An updated annotated bibliography on arc rout-
+ing problems. Networks, 70 , 144–194 .
+Networks (2019). Drone project begins flight trials on energy network assets.
+The work by Ángel Corberán, Isaac Plana, José M. Sanchis, and 16th May 2019. Accessed September 27, 2020- https://networks.online/gas/
+Paula Segura was supported by the Spanish Ministerio de Cien- drone-project-begins-flight-trials-on-energy-network-assets/ .
+cia, Innovación y Universidades (MICIU) and Fondo Social Europeo Oh, H. , Kim, S. , Tsourdos, A. , & White, B. A. (2014). Coordinated road-network search
+route planning by a team of UAVs. International Journal of Systems Science, 45 (5),
+(FSE) through project PGC2018-099428-B-I00 . 825–840 .
+Oh, H. , Shin, H. S. , Tsourdos, A. , White, B. A. , & Silson, P. (2011). Coordinated road-
+References -network search for multiple UAVs using dubins path. In F. Holzapfel, & S. Theil
+(Eds.), Advances in aerospace guidance, navigation and control . Berlin Heidelberg:
+Barahona, F. , & Grötschel, M. (1986). On the cycle polytope of a binary matroid.
+Springer . 55–66
+Journal of Combinatorial Theory, 40 , 40–62 .
+Otto, A. , Agatz, N. , Campbell, J. , Golden, B. , & Pesch, E. (2018). Optimization ap-
+Bonnin-Pascuala, F. , & Ortiz, A. (2019). On the use of robots and vision technologies
+proaches for civil applications of unmanned aerial vehicles (UAVs) or aerial
+for the inspection of vessels: A survey on recent advances. Ocean Engineering,
+drones: A survey. Networks, 72 , 411–458 .
+190 , 106420 .
+Padberg, M. W. , & Rao, M. R. (1982). Odd minimum cut-sets and b-matchings. Math-
+Campbell, J. F. , Corberán, A. , Plana, I. , & Sanchis, J. M. (2018). Drone arc routing
+ematics of Operations Research, 7 , 67–80 .
+problems. Networks, 72 , 543–559 .
+Poikonen, S., & Campbell, J. F. (2020). Future directions in drone routing research.
+Catapult, N. D. (2020). UASs (unmanned aerial system) to detect marine ingress near
+Networks . https://doi.org/10.1002/net.21982 .
+nuclear power stations. Accessed September 24, 2020. https://cp.catapult.org.uk/
+Press (2020). BVLOS powerline inspection over a city using VTOL UAVs. 16
+uass- unmanned- aerial- system- to- detect- marine- ingress- near- nuclear- power-
+July 2020. Accessed September 27, 2020. https://www.suasnews.com/2020/07/
+stations-pathfinder/ .
+bvlos- powerline- inspection- over- a- city- using- vtol- uavs/ .
+Chow, J. Y. J. (2016). Dynamic UAV-based traffic monitoring as a stochastic arc-in-
+Railway, B. (2019). It’s a bird, it’s a plane it’s BNSF: How we lead the way in
+ventory routing policy. International Journal of Transportation Science and Tech-
+advanced drone operations. August 21, 2019, Accessed September 24, 2020,
+nology, 5 , 167–185 .
+http://www.bnsf.com/news-media/railtalk/safety/bnsf-drone.html .
+Chung, S. H., Sah, B., & Lee, J. (2020). Optimization for drone and drone-truck
+Seo, J. , Dudue, L. , & Wacker, J. (2018). Drone-enabled bridge inspection methodology
+combined operations: A review of the state of the art and future directions.
+and application. Automation in Construction, 94 , 112–126 .
+Computers & Operations Research, 123 , 105004. https://doi.org/10.1016/j.cor.2020.
+Ulusoy, G. (1985). The fleet size and mix problem for capacitated arc routing. Euro-
+105004 .
+pean Journal of Operational Research, 22 , 329–337 .
+Corberán, A., Eglese, R., Hasle, G., Plana, I., & Sanchis, J. M. (2020). Arc routing prob-
+Zeisee, G. (2019). BVLOS drones improve power line inspections amid increas-
+lems: A review of the past, present, and future. Networks . https://doi.org/10.
+ing fire and storm risks for utilities . May 17, 2019. Accessed September
+1002/net.21965 .
+24, 2020. https://www.utilitydive.com/news/bvlos-drones-improve-power-line-
+Corberán, A. , & Laporte, G. (2014). Arc routing: Problems, methods, and applications,
+inspections- amid- increasing- fire- and- storm/554999/ .
+Philadelphia. In MOS-SIAM series on optimization . SIAM .
+72

@@ -1,0 +1,765 @@
+JournalofIndustrialandManagementOptimization
+Vol. 20,No. 5,May2024,pp. 1951-1966
+doi:10.3934/jimo.2023150
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL
+POSTMAN PROBLEM
+Ailing Xie(cid:0)∗1, Keigo Miyagawa(cid:0)2, Wei Wu(cid:0)2
+and Mutsunori Yagiura(cid:0)1
+1NagoyaUniversity,Japan
+2ShizuokaUniversity,Japan
+(Communicated by Changjun Yu)
+Abstract. In this paper, we consider the drone rural postman problem
+(DRPP). Unlike a vehicle in the traditional rural postman problem, a drone
+cantravel directlybetween any two pointswithoutfollowingtheedges ofthe
+graph. Thus, a drone can start (or restart) and end (or pause) the service of
+an edge at any two points of it, and an edge can be serviced separately (e.g.,
+fromanendpointtothemiddlepointinthefirstvisitandtheremaininghalf
+in the second visit). This property implies that a lower cost solution may be
+obtainedbyusingadrone. InDRPPinstances,theinputdataarerepresented
+by approximating each edge that have to be traversed by a polygonal chain
+withafinitenumberofvertices,allowingthedronetoenterandexiteachedge
+atthesevertices. Forthisproblem,weproposeaheuristicalgorithmconsisting
+of two phases. In the first phase, we reduce the size of the original graph by
+considering the degree of each vertex and the cheapest travel costs between
+connectedcomponents. Inthesecondphase,wesolvetheruralpostmanprob-
+lem on the resulting graph. We show that the proposed two-phase heuristic
+has a performance guarantee of ratio 2. The experimental results on bench-
+mark instances show that the proposed algorithm outperforms other existing
+algorithms.
+1. Introduction. Given a graph and a set of required edges to be serviced, the
+rural postman problem (RPP) aims to find a (closed) route with the minimum
+cost such that all the required edges are traversed. The RPP is known to be NP-
+hard[5,6],whereasawell-knownspecialcase,theChinesepostmanproblem(CPP)
+on undirected graphs and on directed graphs, is polynomially solvable [4, 6]. The
+classicalRPPhasbroadreal-worldapplicationssuchasstreetsnowcleaning,school
+bus routing, solid waste collection, and gas pipeline inspection [5].
+Inthispaper, weconsiderthedroneruralpostmanproblem(DRPP),inwhicha
+drone is used instead of a vehicle. The use of a drone causes a significant change in
+thetraditionalRPPmodel[1]. Aerialdronesaremoreefficient(fromtheviewpoint
+2020 Mathematics Subject Classification. Primary: 90C27,90C10;Secondary: 90B06.
+Key words and phrases. Combinatorial optimization, drone rural postman problem, heuristic
+algorithm,ruralpostmanproblem,dronerouting.
+Thefirstauthorissupportedby[GraduateProgramforLifestyleRevolutionbasedonTrans-
+disciplinaryMobilityInnovation].
+∗Correspondingauthor: AilingXie.
+1951
+1952 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+of traveling cost) than overland traffic because there is no need to consider compli-
+catedroadconditions,anddronescanflyfastanddirectlytoachieveastraight-line
+route between two points. A resent survey [7] shows that there are many different
+types of drones available. Longer-range drones now can fly over 100 km. In this
+paper, we assume that a drone is able to traverse and finish the services of all the
+required edges, that is, the DRPP is uncapacitated.
+IntheclassicalRPP,avehicleisnotallowedtotravelbetweentwoverticesifthere
+isnoedgebetweenthem. Ontheotherhand,adronefortheDRPPcanflybetween
+any two points, which are not necessary to be the end vertices of an edge. This
+propertyimpliesthattherequirededgesneedtobedefinedmorepreciselyaccording
+to the shape of the edges on the map, since some of them may be irregular curves.
+To handle such curves practically, Campbell et al. [1] proposed a model in which
+each required edge is approximately represented by olygonal chain with a finite
+number of vertices, allowing the drone to enter and exit each edge only at these
+vertices. In this paper, in designing our algorithm and conducting computational
+experiments, we use the same assumption for the input data of the problem. That
+is, we are given a set of required edges represented by polygonal chains, and the
+costs between all pairs of vertices on the polygonal chains. The DRPP can be
+considered as an RPP on a complete graph in which the vertex set consists of all
+the vertices on polygonal chains.
+Forexample,Figure1depictstherequirededgesthatmustbeserviced. Figure2
+shows the instance after approximating each curve by a polygonal chain. Figure 3
+depicts an optimal solution to the corresponding instance of Figure 2, where a
+dashed red line represents an unrequired traveral (deadhead) by the drone.
+Figure 1. Required edges of instance DroneRPP66
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL POSTMAN PROBLEM 1953
+Figure 2. Approximation by polygonal chains
+Figure 3. An optimal route for instance DroneRPP66
+For the DRPP, the cost of a route is equal to the sum of the costs of all the
+required edges (service cost included) and those of the other edges on the route
+(deadheads).
+1954 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+In this paper, we propose a heuristic algorithm for the DRPP. It first generates
+candidate edges for deadheads by considering for the graph induced by the set
+of required edges, the degree of each vertex and the cheapest travel costs between
+connectedcomponents. ItthensolvestheRPPconsideringthesecandidateedgesfor
+deadheads instead of the whole complete graph. We first prove that this proposed
+algorithm is guaranteed to obtain a solution whose objective value is within twice
+the optimal value. Then, we conduct computational experiments to compare the
+results of the proposed algorithm with those of existing algorithms in [1] and [3].
+2. Problem description.
+2.1. Rural postman problem. Let G = (V,E) be an undirected graph, where
+V ={1,2,...,n}isavertexsetandE isanedgeset. WedefineE (⊆E)astheset
+R
+ofedgesthatmustbeserviced bythevehicle. EdgesinE arecalledrequired edges,
+R
+and those in E\E are called unrequired edges. Each edge {i,j}∈E has a cost c
+R ij
+(≥ 0) incurred when the vehicle passes through it, and each edge {i,j} ∈ E has
+R
+an additional service cost c′ (≥ 0) incurred when the service is provided, where
+ij
+c = c and c′ = c′ hold for all {i,j} ∈ E. Any edge in E can be traversed any
+ij ji ij ji
+number of times. We call the first traversal of a required edge a required traversal,
+and the others (i.e., the second and later traversals of every required edge and
+all traversals of unrequired edges) unrequired traversals or deadheads. Then, cost
+c +c′ is incurred for the required traversal of each edge {i,j}∈E , and cost c
+ij ij R ij
+isincurredforeachunrequiredtraversalofedge{i,j}∈E. TheRPPsearchesfora
+closedroutewiththeminimumtotalcost,suchthateachrequirededgeistraversed.
+Note that for any feasible solution, the total cost of the required traverals is a fixed
+value. Hence, the RPP can be considered as a problem that aims to find a route
+that minimizes the total cost of deadhead traverals. This problem (on undirected
+graphs) remains NP-hard even if c =1 for all {i,j}∈E, and so does its directed
+ij
+counterpart [6]. Some papers consider the depot at which the route must start and
+end, but we do not consider it because it can be represented by a required edge
+with no costs (i.e., if i is the depot, we can add its copy i′ and set c = c′ = 0
+ii′ ii′
+and c =c for all j). For convenience, we define V as the vertex set consisting
+i′j ij R
+of the end vertices of all edges in E . Without loss of generality, we assume that
+R
+vertex 1 is in V .
+R
+TheChinesepostmanproblemonundirectedgraphsisawell-knownspecialcase
+of the RPP, in which E =E. The CPP on undirected graphs can be transformed
+R
+to a problem that searches for a minimum-cost edge set E′ ⊆ E such that the
+graph induced by E′ ∪E has an Eulerian circuit, which becomes the minimum
+R
+cost perfect matching problem and can be solved in polynomial time. A similar
+argument applies to the directed case. However, the CPP is known to be NP-hard
+on mixed graphs containing both undirected and directed edges [4, 6].
+Let x be a binary variable that takes value 1 if the vehicle traverses from i to
+ij
+j, and 0 otherwise. We present an integer programming (IP) model for the RPP as
+follows:
+(cid:88) (cid:88)
+minimize c′ + c (x +x ) (1)
+ij ij ij ji
+{i,j}∈ER {i,j}∈E
+(cid:88)
+subject to (x −x )=0, ∀i∈V (2)
+ij ji
+j∈V:
+{i,j}∈E
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL POSTMAN PROBLEM 1955
+(cid:88)
+x ≥1, ∀S ⊂V,1∈S,V ̸⊆S (3)
+ij R
+i∈S,j∈V\S:
+{i,j}∈E
+x +x ≥1, ∀{i,j}∈E (4)
+ij ji R
+x ,x ∈{0,1}, ∀{i,j}∈E. (5)
+ij ji
+The objective function (1) minimizes the total cost. Constraints (2) are flow con-
+servation constraints. Constraints (3) are the subroute elimination constraints.
+Constraints (4) ensure that all the required edges are traversed at least once. Con-
+straints (5) are the binary constraints for all the variables.
+Note that even though an edge {i,j} can be traversed any number of times,
+variables x and x are bounded from above by 1 in (5), instead of allowing them
+ij ji
+to take larger values.
+Lemma 1. There is an optimal RPP solution in which every edge {i,j} ∈ E is
+traversed at most once in each direction.
+Proof. Suppose that a route has an edge {i,j} traversed twice (or more) in the
+→−
+direction from i to j. Then the route can be represented as i → j → P → i →
+→− →− →− 1
+j → P →iwith P and P thesequencesofedgesimmediatelyafterthefirstand
+2 1 2
+secondtraversalof{i,j},respectively,withedgesarrangedintheorderoftheroute.
+If {i,j} is in E\E or it is traversed three times or more in the route (including
+R
+thetraversalsintheoppositedirection),thenwecanrearrangetheroutetoanother
+←− →−
+feasible route i → P → j → P → i without increasing the total cost, removing
+1 2 ←− →−
+the two traversals of {i,j}, where P is the sequence of edges in P traversed in
+1 1
+the opposite direction. Otherwise (i.e., {i,j} is in E , it is traversed exactly twice
+R
+in the same direction, and it is not traversed in the opposite direction), we can
+←− →−
+rearrange the route to another feasible route i → P → j → i → j → P → i
+1 2
+without changing the total cost, inverting the direction of one of the two traversals
+of {i,j}. By repeatedly applying these operations, we will reach a desired route for
+the following reasons. The number of times the former operation can be applied is
+atmostahalfofthenumberofedgetraversalsintheinitialroutebecausetwoedge
+traversals are removed whenever it is applied. The latter operation may create a
+newpairoftraversalsofanedgeinthesamedirection;however,thiswillnothappen
+to those edges to which the latter operation has already been applied because after
+suchanoperationtoedge{i,j},traversali→j comesimmediatelyafterj →i,and
+→− →−
+hencebothofthemwillbeincludedinexactlyoneof P or P inlateroperations.
+1 2
+Hence the latter operation can be applied at most |E | times. These indicate that
+R
+after such a number of repetitions, we will reach a route to which we cannot apply
+these two operations, implying that no edge is traversed twice or more in the same
+direction.
+Lemma 1 implies that x and x can be bounded from above by 1 without losing
+ij ji
+the optimality.
+DuetotheexponentialnumberofConstraints(3),aconstraintgenerationframe-
+workisknowntoimproveoverallperformanceinsolvinglarge-scaleinstancesrather
+than considering all of them in advance [2].
+2.2. Drone rural postman problem. In the classical RPP problem, a vehicle
+is not allowed to travel between two vertices if there is no edge between them.
+However, if there is an edge between two vertices, the road shape on the map
+1956 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+corresponding to the edge does not affect the representation of the problem. On
+the contrary, in the drone RPP (DRPP), a drone can directly fly between any two
+pointswithasmalltravelcost. Itindicatesthatamoreefficientroutemayexistby
+takingadvantageofthecurvedshapeofsomeedges. Campbelletal.introducedthe
+following assumptions and they showed that there are cases in which more efficient
+routes exist if these assumptions are imposed compared to the case they are not
+imposed [1].
+Assumption 1. After finishing the service of a required edge at one of its vertices,
+the drone can travel directly to any vertex without following the edges of the given
+graph G.
+Assumption 2. The drone may start and end the service of an edge at any two
+points of it, and each edge can be serviced separately (e.g., from an end point of
+the edge to the middle point in the first visit, and the remaining half in the second
+visit).
+Todefinetheproblembasedontheseassumptions,thetravelcostmustbedefined
+betweenanytwopointsonthecurvesofrequirededges(nb.foreverypairofpoints
+from a curve and every pair of points from two curves (one from each)). It is also
+natural to assume that when the required traversal of a required edge {i,j} ∈ E
+R
+is divided into two or more traversals, the total cost (the sum of travel and service
+costs) of those traversals is equal to the cost c +c′ of a required traversal from i
+ij ij
+to j on that edge (with c the travel cost and c′ (≥ 0) the service cost of {i,j}),
+ij ij
+regardless of how the traversal is divided. To make these points clear, we assume
+the following Assumptions 3 and 4, which are imposed throughout the remainder
+of the paper.
+Assumption 3. For any pair of points u and v on the curves of required edges
+(they can be on one curve or can be on two distinct curves), the travel cost c is
+uv
+defined and is symmetric (i.e., c =c ).
+uv vu
+Assumption4. Letl (≥3)beaninteger, andv ,v ,...,v beanarbitrarysequence
+1 2 l
+of points on the curve of a required edge {i,j} ∈ E , with v = i and v = j, and
+R 1 l
+v ,v ,...,v appear in this order along the curve of {i,j} from i to j. Then,
+2 3 l−1
+for all h = 1,2,...,l−1, the service costs c′ are defined, nonnegative (i.e.,
+vh,vh+1
+c′ ≥ 0), and symmetric (i.e., c′ = c′ ). Moreover, the sum of
+vh,vh+1 vh,vh+1 vh+1,vh
+travel and service costs is equal to the original counterpart (i.e.,
+(cid:80)l−1(c
++
+h=1 vh,vh+1
+c′ )=c +c′ ).
+vh,vh+1 ij ij
+In proving some theorems below, we also assume that the travel costs satisfy the
+triangle inequality.
+Assumption 5. For any points u,v and w on the curves of required edges (they
+can be on one curve, or on two or three distinct curves), the travel costs satisfy the
+triangle inequality c +c ≥c .
+uv vw uw
+Assumptions 3–5 are natural and there would be many cost definitions that
+satisfy them. A typical example in defining travel costs is the Euclidean distance
+(e.g., to describe the cost of an unrequired traversal with a straight-line flight by a
+drone). Itisalsonaturaltodefinethecostofarequiredtraversalbetweentwopoints
+on the curve of a required edge in such a way that it is proportional to the travel
+distance between the points along the curve. The service cost between two points
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL POSTMAN PROBLEM 1957
+is then defined to be the difference between the costs of required and unrequired
+traversalsbetweenthem. Letusconsiderasimplecaseinwhichthecostsofrequired
+and unrequired traversals, respectively, are equal to such distances. Then for any
+pair of two points u and v on the curve of a required edge, c is the straight-line
+uv
+distancebetweenuandv,andc +c′ isthetraveldistancebetweenuandv along
+uv uv
+the curve. Because the latter is not shorter than the former, we have c′ ≥0, and
+uv
+it is not difficult to see that such costs satisfy Assumptions 3–5.
+Concerning the cost savings from the use of drones, Campbell et al. [1] stated
+that the following theorem holds.
+Theorem1(Campbelletal.[1]). Theratiobetweenthecostofanoptimalpostman
+route (an optimal solution to the problem with neither Assumptions 1 nor Assump-
+tion2)andthecostofanoptimaldroneroutetotheproblemwithonlyAssumption1
+can be as large as desired.
+For the DRPP, we show an upper bound on the largest possible improvement
+ratio of introducing Assumption 2. Before showing the details, we first introduce
+solution representations of the DRPP. A solution (route) σ to the DRPP can be
+naturallyrepresentedasasequenceofedgestraversedbythedrone,arrangedinthe
+order of the traversals. If we consider the multigraph induced by all the edges in
+σ, the multigraph must be connected, and each vertex has an even degree. On the
+otherhand, amultisetofedgescoveringalltheedgesinE canalsoberegardedas
+R
+asolutionrepresentationifitsedge-inducedmultigraphisconnectedandthedegree
+of each vertex is even, because such a multigraph always has an Eulerian circuit
+(drone route), and the corresponding route cost depends only on the multiset of
+edges. For convenience, for a route σ (a sequence of edges traversed by the drone),
+we also use the same notation σ to denote the multiset of edges in σ. Based on
+these observations, we propose the following theorem.
+Theorem 2. Suppose that Assumptions 3–5 are satisfied. The cost of an optimal
+drone route σ∗ to the problem with only Assumption 1 is at most twice the cost of
+A1
+an optimal drone route σ∗ to the problem with both Assumptions 1 and 2.
+A1&A2
+Proof. For the graph G = (V ,E ), let V (⊆ V ) denote the set consisting
+R R R odd R
+of all odd-degree vertices. Let C = {C ,C ,...,C } be the set consisting of all
+1 2 r
+connectedcomponentsofG ,andC (⊆C)bethesubsetconsistingofconnected
+R even
+components with only even-degree vertices.
+For the problem with only Assumption 1, consider a feasible route σ′′ obtained
+A1
+by Algorithm 1. In this algorithm, the traveling salesman problem (TSP) in Step 2
+is a well-known problem that aims to find a shortest (with respect to the travel
+cost) possible route that visits every vertex exactly once. The disjoint union (also
+known as discriminated union) in Step 5 is defined as follows. Let E and E be
+1 2
+two multisets of edges. Then their disjoint union E ⊎ E is defined to be the
+1 2
+multiset obtained by keeping between every pair of vertices, all copies of parallel
+edges from both multisets (e.g., by renaming edge labels for distinguishing the
+origin),thusconsistingof|E |+|E |edges. Forexample,whenE ={e ,e ,e ,e }
+1 2 1 a b c d
+and E = {e ,e }, then E ⊎E = {e(1),e(2),e(1),e(1),e(2),e(1)}, as illustrated in
+2 a c 1 2 a a b c c d
+Figure 4, in which the superscripts “(1)” and “(2)” are added to the edge labels
+just to discriminate parallel edges.
+The existence of an Eulerian circuit in Step 6 is guaranteed by the following two
+facts:
+1958 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+e(1)
+d
+e e
+d d
+e(1) e(2)e(1) e(2)
+e e e e a a c c
+a c a c
+e e
+e(1)
+b b b
+(A) G =(V,E ) (B) G =(V,E ) (C) G =(V,E ⊎E )
+1 1 2 2 3 1 2
+Figure 4. Two graphs G and G with edge sets E and E ,
+1 2 1 2
+respectively, and the graph G having edges E ⊎E
+3 1 2
+Algorithm 1 An algorithm for DRPP with Assumption 1
+Input: Graph G =(V ,E ).
+R R R
+Output: A feasible route σ′′ .
+A1
+1: Construct a complete graph G′′ with vertex set V′′ = V odd ∪ V c-even , where
+V is the set of |C | vertices constructed by arbitrarily choosing from
+c-even even
+every C in C , a vertex to be included in V .
+even c-even
+2: Solve the TSP on graph G′′, and obtain a tour σ∗ that minimizes the total
+tsp
+travel cost.
+3: Construct a complete graph G odd with vertex set V odd .
+4: Obtain a perfect matching M odd on G odd that minimizes the total travel cost.
+5: Let H A1 be the multigraph induced by the disjoint union of all edges of σ t ∗ sp ,
+M , and E .
+odd R
+6: Form an Eulerian circuit σ A ′′ 1 in H A1 .
+• All the vertices in H are of even degree, because all the end vertices of
+A1
+the edges involved in σ∗ (resp., M ∪E ) are of even degree in the graph
+tsp odd R
+induced by the set of all edges in σ∗ (resp., the multigraph induced by the
+tsp
+disjoint union M ⊎E ).
+odd R
+• The connectivity of H is guaranteed by σ∗ .
+A1 tsp
+Because σ′′ contains all the required edges in E and it does not involve any
+A1 R
+intermediate points (considered in Assumption 2), σ′′ is a feasible solution to the
+A1
+problem with only Assumption 1.
+Next, we show that the ratio between the cost of σ′′ and that of σ∗ is at
+A1 A1&A2
+most 2. Given a route σ, let f(σ) denote the total cost of σ consisting of the total
+travel cost f (σ) and the total service cost f (σ), that is,
+trav serv
+f(σ)=f (σ)+f (σ).
+trav serv
+Note that by Assumption 4, the total service cost f is nonnegative for any σ.
+serv
+From the fact that all vertices in V′′ are also visited by route σ∗ , we can form
+A1&A2
+atourσ′ onV′′ byvisitingthemaccordingtotheorderofσ∗ ,skippingthose
+tsp A1&A2
+vertices visited more than once. Then, from Assumption 5 (triangle inequality), it
+holds that
+f (σ′ )≤f (σ∗ ). (6)
+trav tsp trav A1&A2
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL POSTMAN PROBLEM 1959
+(A) The curves of the two required edges of the instance
+(B) The edges of σ′′
+A1
+(C) The edges of σ∗
+A1
+(D) The edges of σ∗
+A1&A2
+Figure 5. A tight example
+Because σ∗ is a solution to the TSP on V′′ that minimizes the total travel cost
+tsp
+f , we have
+trav
+f (σ∗ )≤f (σ′ ). (7)
+trav tsp trav tsp
+From (6)–(7) and f (σ∗ )≥0, it holds that
+serv A1&A2
+f (σ∗ )≤f (σ∗ )≤f(σ∗ ). (8)
+trav tsp trav A1&A2 A1&A2
+Because the disjoint union of all the edges in M and E is an optimal solution
+odd R
+to the relaxed DRPP with both Assumptions 1 and 2 in which the route is not
+required to be connected, it also holds that
+(cid:88) (cid:88)
+f(E ⊎M )= (c +c′ )+ c ≤f(σ∗ ). (9)
+R odd ij ij ij A1&A2
+{i,j}∈ER {i,j}∈Modd
+From (8), (9) and the feasibility of σ′′ , route σ∗ has a cost
+A1 A1
+f(σ∗ )≤f(σ′′ )=f (σ∗ )+f(E ⊎M )≤2f(σ∗ ). (10)
+A1 A1 trav tsp R odd A1&A2
+Lemma 2. The upper bound of 2 on the ratio in Theorem 2 is tight.
+Proof. In order to see that the above ratio of 2 is tight, consider an instance in
+Figure5 (A),inwhich thegraph G =(V ,E ), coloredinblack, hasfour vertices
+R R R
+and two curved edges. The cost of an unrequired traversal between any pair of
+points is the Euclidean distance, and the cost of a required traversal of each edge
+{i,j}∈E istheEuclideandistancealongthecurve. Forthisinstance, weobserve
+R
+that
+• therouteσ′′ obtainedbyAlgorithm1istwoblackcurveswithsixblueedges
+A1
+(two solid lines and four dotted lines in Figure 5 (B)),
+• the optimal route σ∗ under only Assumption 1 is two black curves with two
+A1
+solid blue lines (Figure 5 (C)), and
+1960 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+• theoptimalrouteσ∗ underbothAssumptions1and2istwoblackcurves
+A1&A2
+with four red edges (Figure 5 (D)).
+It is easy to see that the ratio of the costs of σ∗ and σ∗ can be as close
+A1 A1&A2
+as possible to 2 by setting the nearest points of the two curves extremely close
+to each other and the two endpoints of each curve extremely close in the vertical
+direction.
+It is often not easy to describe the real shape of a continuous curve (e.g., of a
+curvyroad,stream,etc.)andtodefinethetravelcostalongit. Topracticallyrealize
+the properties in Assumption 2, the curve of each required edge of the DRPP is
+approximated and represented by a polygonal chain, allowing the drone to enter
+and leave the required edge at the vertices of the polygonal chain, as in Campbell
+et al. [1]. In this representation, a segment of a polygonal chain refers to a required
+edge, and V and E are composed of all the vertices and segments of polygonal
+R R
+chains,respectively. Hence,theDRPPafterapproximationcanbeconsideredasan
+RPPinwhichgraphGisthecompletegraphonV . Forconvenienceofdescription,
+R
+werefertotheproblemwithcurvesreplacedbypolygonalchainsastheDRPPand
+the problem with curves as the original DRPP.
+Because G is a complete graph and 1∈V =V holds, the IP model (1)–(5) for
+R
+the case of the DRPP can be simplified as follows:
+(cid:88) (cid:88)
+minimize c′ + c (x +x ) (11)
+ij ij ij ji
+{i,j}∈ER {i,j}∈E
+(cid:88)
+subject to (x −x )=0, ∀i∈V (12)
+ij ji
+j∈V\{i}
+(cid:88)
+x ≥1, ∀S ⊊V,1∈S (13)
+ij
+i∈S,j∈V\S
+x +x ≥1, ∀{i,j}∈E (14)
+ij ji R
+x ,x ∈{0,1}, ∀{i,j}∈E. (15)
+ij ji
+3. Heuristic algorithm. The difficulty in solving the DRPP is that the size of
+the graph can become very large after approximating curves by polygonal chains.
+For example, the instance in Figure 1 has 23 curves, but the resulting graph has
+463 vertices and 106,953 edges. For the DRPP, we propose a heuristic algorithm
+consisting of two phases. The first phase reduces the graph and the second phase
+solves the RPP on the reduced graph.
+In the first phase, we generate a graph G′ that is much smaller in size compared
+to graph G. Graph G′ is initialized as a graph that contains all the segments in
+eachpolygonalchain,thatis,G′ ←(V ,E ). Wethenconsideradding(unrequired)
+R R
+edges to G′ with the following steps:
+I. For every pair of odd-degree vertex i and connected component C that does
+notcontainvertex i, we markthe endvertices ofthe edge connectingi and C
+with the shortest distance.
+II. For every pair of connected components C and C′, we mark the end vertices
+of the edge connecting C and C′ with the shortest distance.
+III. For every marked vertex i, if the degree of i is odd, we add edges from i to
+all the other marked vertices; otherwise, we add edges from i to all marked
+vertices in every connected component not containing i.
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL POSTMAN PROBLEM 1961
+Inthesecondphase,wesolvetheproblemdefinedontheresultinggraphG′ using
+the IP model (1)–(5) presented in Section 2.1.
+The pseudocode of the proposed algorithm is shown in Algorithm 2.
+Algorithm 2 A heuristic algorithm for DRPP
+Input: Graph G=(V ,E ).
+R R
+Output: A feasible route σ .
+alg2
+1: Initialize a graph G′ as G′ ←G.
+2: Add unrequired edges to G′ following Steps I–III.
+3: Exactly solve the IP model (1)–(5) defined on G′ by an IP solver to obtain a
+feasible route σ .
+alg2
+4. Algorithm analysis. We demonstrate the performance guarantee of Algo-
+rithm 2 by using Theorem 2. From the rules in Steps I to III, it is easy to see
+that after Step 2 of Algorithm 2, every odd-degree vertex is marked and there is
+a marked vertex in every connected component. Hence, in Step 2 of Algorithm 1,
+the set V′′ =V ∪V can be chosen in such a way that all members are those
+odd c-even
+that will be marked in Step 2 of Algorithm 2 (to be more precise, all vertices in
+V will be marked, and V can be chosen in that way); even with this choice,
+odd c-even
+the proof of Theorem 2 applies. Suppose that Algorithm 1 chooses such a V
+c-even
+in Step 1. Then, both G′′ and G constructed in Algorithm 1 are subgraphs of
+odd
+G′ constructed in Algorithm 2. Therefore, the route σ obtained by Algorithm 2
+alg2
+is at least as good as the route σ′′ obtained by Algorithm 1, and the following
+A1
+theorem holds.
+Theorem 3. Suppose that Assumptions 3–5 are satisfied. Then the optimal value
+to the RPP on the graph G′ constructed in Algorithm 2 is within twice the optimal
+value to the original DRPP.
+From this theorem, the following corollary is immediate.
+Corollary 4. Algorithm 2 has a performance guarantee of ratio 2 when Assump-
+tions 3–5 are satisfied.
+5. Computational experiments. AllexperimentswerecarriedoutonaPCwith
+a Xeon E-2286G CPU running at 4.00 GHz, with 64 GB memory, with computa-
+tions always conducted on a single thread. All algorithms were coded in Python
+(version 3.8.10). We used Gurobi Optimizer (version 9.5) as an IP solver to solve
+the model (1)–(5) and (11)–(15) in Section 2. The time limit for each run was set
+to 3600 seconds.
+Two types of benchmark instances, random and even [1], are used in the experi-
+ments. The even instances have few odd-degree vertices in graph (V ,E ) and are
+R R
+known to be more difficult to solve than random instances. The travel cost c is
+ij
+given by the Euclidean distance according to the coordinates of i and j.
+Table 1 and 2 show the results obtained by a heuristic algorithm proposed in [1]
+(“existingheuristic”),byanexactbranch-and-boundalgorithmproposedin[3](“ex-
+isting exact”), by our heuristic algorithm (“proposed”), and by applying Gurobi to
+the RPP model defined on the complete graph (“Gurobi”). The results of “ex-
+isting heuristic” and “existing exact” are taken from columns labeled “RPP(3)”
+and “Drone RPP” of Tables 4 and 5 in [1] (to be more precise, the values in our
+1962 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+tables are calculated from the values in columns “Imp.(%)” and “Opt.” of these
+tables in [1]). Values in “%gap” are calculated by 100(UB −LB)/LB, where UB
+is the objective function value obtained by the corresponding algorithm, and LB
+is the optimal value, or a better value between the lower bound provided in [1]
+and the lower bound obtained by applying Gurobi to the RPP model defined on
+the complete graph until memory-over occurs (with no time limit). The best gaps
+are marked in bold. Values in “time” show the CPU times in seconds required
+to obtain the best solutions, where the values in columns “existing heuristic” and
+“existingexact”arethoseonaPCwithanIntelCorei7runningat3.4GHzwith32
+GB memory, and these algorithms were run with a time limit of 3600 seconds. The
+computationtimeincolumn“proposed”containsthetimetogeneratethegraphG′
+explained in Section 3, which does not exceed 0.5 seconds for every instance and is
+usually small compared to the time to solve the IP model defined on G′. Note that
+“existing heuristic” uses the exact method in [3], applying it to an instance with
+heuristically reduced candidates of unrequired edges. The notation “t.l.” means
+that the algorithms failed to exactly solve the instance (in the case of “existing
+heuristic,”theexactalgorithminvokedinsidetheheuristicmethodfailedtoexactly
+solve the reduced instance) within the time limit, and UB values are not available
+in [1] (for such instances, only LB values are provided in [1]).
+For random instances, the proposed heuristic algorithm obtained optimal solu-
+tions for all the 29 instances whose optimal solutions were known. On the other
+hand, the existing heuristic algorithm failed to obtain optimal solutions for three
+instances. For instance DroneRPP8101, for which both existing exact algorithm
+andGurobifailedtosolvetooptimality, boththeexistingandtheproposedheuris-
+tic algorithms obtained a solution with the same objective function value that is
+better than the solution value obtained by Gurobi.
+For even instances, we also confirmed that the proposed heuristic algorithm
+obtainedoptimalsolutionsforalltheinstances(8outof15)whoseoptimalsolutions
+were known. Furthermore, the proposed heuristic algorithm reported best gaps for
+all the other instances. Compared to the existing heuristic algorithm, the proposed
+algorithmobtainedasolutionwithabetterobjectivefunctionvalueforalltheeven
+instances.
+Tobettercomparethe existingheuristicalgorithmwith the proposedalgorithm,
+we implemented the existing heuristic algorithm using the same programming lan-
+guage (Python) and the same RPP solver (Gurobi) as the proposed algorithm. As
+mentioned above, the existing heuristic is also a two-phase method that generates
+in the first phase, a graph by heuristically reducing unrequired edges and then ap-
+plies in the second phase, an exact method to the RPP on the graph generated in
+the first phase. The time spent for the first phase is usually very small, and hence
+implementation skills will have a small influence on the computational results. Ta-
+bles 3 and 4 show the results obtained by the proposed algorithm and the existing
+heuristic algorithm implemented by us, with the same PC and the same time limit
+of 3600 seconds. All notations have the same meaning as in Tables 1 and 2, and
+values in column “#vertices” show the number of vertices in the graph generated
+in the first phase. The computation time in column “time” contains the time to
+generatethegraph. Fortheexistingheuristic,thetimetogeneratethegraphinthe
+first phase does not exceed 0.1 seconds for every instance. Values in bold indicate
+that the corresponding algorithm obtained a better solution within the time limit,
+or obtained a solution with the same cost but in less time.
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL POSTMAN PROBLEM 1963
+Table 1. Results for random instances
+existingheuristic existingexact proposed Gurobi
+instance LB %gap time† %gap time† %gap time‡ %gap time‡
+DroneRPP561 4347.09 0.00 0.30 0.00 8.17 0.00 0.29 0.00 18.53
+DroneRPP562 5123.62 0.00 0.22 0.00 3.26 0.00 0.27 0.00 51.01
+DroneRPP581 5929.64 0.00 0.37 0.00 9.62 0.00 0.65 0.00 45.26
+DroneRPP582 7274.21 0.00 0.94 0.00 14.75 0.00 0.56 0.00 57.76
+DroneRPP5101 6592.95 0.02 0.35 0.00 36.53 0.00 1.07 0.00 72.45
+DroneRPP5102 10259.65 0.00 0.83 0.00 19.98 0.00 1.11 0.00 367.57
+DroneRPP661 4684.62 0.00 0.34 0.00 4.06 0.00 0.34 0.00 16.02
+DroneRPP662 5298.72 0.00 0.30 0.00 13.44 0.00 0.41 0.00 15.80
+DroneRPP681 6391.92 0.00 1.00 0.00 117.08 0.00 0.76 0.00 97.65
+DroneRPP682 8797.11 0.00 0.81 0.00 20.50 0.00 0.91 0.00 245.50
+DroneRPP6101 9258.50 0.01 0.53 0.00 23.68 0.00 9.63 0.00 320.32
+DroneRPP6102 12271.33 0.00 1.81 0.00 163.56 0.00 3.00 0.00 2830.16
+DroneRPP771 6654.00 0.00 1.25 0.00 744.85 0.00 5.07 0.00 450.74
+DroneRPP772 10441.46 0.00 0.94 0.00 5.75 0.00 0.88 0.00 185.02
+DroneRPP791 10039.18 0.00 1.78 t.l. t.l. 0.00 8.35 0.00 1461.35
+DroneRPP792 11946.27 0.01 0.97 0.00 55.77 0.00 3.13 0.00 888.95
+DroneRPP7101 11019.16 0.01 1.78 0.00 177.04 0.00 4.95 0.04 567.25
+DroneRPP7102 13425.04 0.00 0.72 0.00 27.05 0.00 1.85 0.00 480.76
+DroneRPP881 10263.85 0.00 0.88 0.00 41.93 0.00 3.88 0.00 631.35
+DroneRPP882 12538.78 0.00 11.30 0.00 217.18 0.00 2.61 0.00 744.61
+DroneRPP891 10911.38 0.01 2.41 0.00 3266.83 0.00 6.20 0.00 1590.72
+DroneRPP892 12519.73 0.00 0.53 0.00 28.43 0.00 2.28 0.00 534.00
+DroneRPP8101 12414.48 0.66 5.36 t.l. t.l. 0.66 33.68 0.91 2925.44
+DroneRPP8102 16020.01 0.00 1.95 0.00 49.41 0.00 3.27 0.01 2233.96
+DroneRPP991 12118.63 0.00 0.96 0.00 528.07 0.00 6.05 0.00 1977.60
+DroneRPP992 16365.53 0.00 2.66 0.00 159.89 0.00 3.81 0.07 2977.23
+DroneRPP9101 13282.73 0.00 3.53 0.00 46.13 0.00 6.04 0.00 1204.49
+DroneRPP9102 16636.71 0.01 4.20 0.00 830.98 0.00 16.59 0.58 1545.82
+DroneRPP10101 14997.03 0.00 1.28 0.00 129.41 0.00 6.18 0.64 1493.77
+DroneRPP10102 17532.11 0.01 13.13 0.00 1284.55 0.00 5.34 0.28 2926.56
+†TheCPUtimeonaPCwithanIntelCorei7runningat3.4GHzwith32GBmemory.
+‡TheCPUtimeonaPCwithXeonE-2286GCPUrunningat4.00GHz,with64GBmemory,withcompu-
+tationsalwaysconductedonasinglethread.
+From Tables 3 and 4, we observe that the proposed algorithm generated smaller
+graphs in the first phase for all the tested instances. For random instances, the
+proposed algorithm obtained solutions with lower costs for 7 out of 30 instances.
+For the remaining 23 instances, two algorithms obtained solutions with the same
+costs,buttheproposedalgorithmrequiredlessCPUtimefor16outof23instances.
+For even instances, the proposed algorithm obtained better solutions for all the 15
+instances. The results in Tables 3 and 4 indicate that the graph reduction in the
+proposed method is very effective, obtaining solutions with equal or lower costs for
+allthetestedinstances,eventhoughthenumbersofverticesintheRPParesmaller.
+6. Conclusion. We considered the drone rural postman problem (DRPP), which
+can be modeled as a classical rural postman problem (RPP). However, due to ap-
+proximation accuracy, the resulting graph for the classical RPP model tends to be
+very large. To overcome this difficulty, we proposed a two-phase heuristic algo-
+rithm that reduces the graph first and then solves the RPP on the reduced graph.
+We showed that the proposed two-phase heuristic has a performance guarantee of
+1964 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+Table 2. Results for even instances
+existingheuristic existingexact proposed Gurobi
+instance LB %gap time† %gap time† %gap time‡ %gap time‡
+DroneRPP56 5431.55 0.01 0.17 0.00 4.54 0.00 0.31 0.00 7.74
+DroneRPP58 6602.73 0.04 1.02 0.00 730.97 0.00 11.17 0.00 2340.35
+DroneRPP510 9608.49 0.03 1.05 0.00 73.30 0.00 3.12 0.00 3047.43
+DroneRPP66 4861.05 0.04 1.25 0.00 661.78 0.00 1.87 0.00 1026.47
+DroneRPP68 6899.64 0.15 3.55 0.00 2164.14 0.00 13.92 0.39 2041.82
+DroneRPP610 9436.44 1.08 9.19 t.l. t.l. 1.04 45.12 1.25 1645.07
+DroneRPP77 9656.78 0.10 1.92 t.l. t.l. 0.05 1.60 0.05 3267.05
+DroneRPP79 12076.52 0.02 2.14 0.00 1907.81 0.00 14.92 0.56 3552.19
+DroneRPP710 11416.28 0.06 2.86 0.00 929.52 0.00 8.60 0.03 2553.69
+DroneRPP88 10068.64 0.02 2.55 t.l. t.l. 0.00 21.56 0.00 667.88
+DroneRPP89 11236.67 t.l. t.l. t.l. t.l. 0.82 2432.04 0.95 3318.21
+DroneRPP810 13681.12 0.76 4.91 t.l. t.l. 0.68 64.71 0.74 3536.96
+DroneRPP99 12852.00 0.54 7.46 t.l. t.l. 0.51 17.09 0.66 3342.83
+DroneRPP910 17156.69 t.l. t.l. t.l. t.l. 1.35 630.82 2.45 2864.88
+DroneRPP1010 18157.81 0.85 336.21 t.l. t.l. 0.81 58.11 2.16 2069.51
+†TheCPUtimeonaPCwithanIntelCorei7runningat3.4GHzwith32GBmemory.
+‡TheCPUtimeonaPCwithXeonE-2286GCPUrunningat4.00GHz,with64GBmemory,withcompu-
+tationsalwaysconductedonasinglethread.
+ratio 2. The experimental results showed that the proposed algorithm performed
+satisfactorily for all the tested instances, outperforming other existing algorithms.
+Acknowledgments. This work was supported by JSPS KAKENHI [Grant No.
+20H02388, 21K14367].
+REFERENCES
+[1] J. F. Campbell, A´. Corbera´n, I. Plana and J. M. Sanchis, Drone arc routing problems, Net-
+works,72(2018),543-559.
+[2] J. F. Campbell, A´. Corber´an, I. Plana, J. M. Sanchis and P. Segura, Solving the length con-
+strained K-drones rural postman problem, European Journal of Operational Research, 292
+(2021),60-72.
+[3] A. Corber´an, I. Plana and J. M. Sanchis, A branch & cut algorithm for the windy general
+routingproblemandspecialcases,Networks,49(2007),245-257.
+[4] H.A.Eiselt,M.GendreauandG.Laporte,Arcroutingproblems,partI: TheChinesepostman
+problem,Operations Research,43(1995),231-242.
+[5] H.A.Eiselt,M.GendreauandG.Laporte,Arcroutingproblems,partII: Theruralpostman
+problem,Operations Research,43(1995),399-414.
+[6] M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of
+NP-Completeness,W.H.Freeman,1979.
+[7] S. Poikonen and J. F. Campbell, Future directions in drone routing research, Networks, 77
+(2021),116-126.
+Received November 2022; revised October 2023; early access November 2023.
+A HEURISTIC ALGORITHM FOR THE DRONE RURAL POSTMAN PROBLEM 1965
+Table 3. Comparison between the existing heuristic algorithm
+and the proposed algorithm under the same environment for
+random instances
+existingheuristic proposed
+instance #vertices %gap time #vertices %gap time
+DroneRPP561 76 0.00 0.67 33 0.00 0.29
+DroneRPP562 89 0.00 0.36 30 0.00 0.27
+DroneRPP581 109 0.00 0.94 89 0.00 0.65
+DroneRPP582 139 0.00 1.08 24 0.00 0.56
+DroneRPP5101 127 0.02 1.27 78 0.00 1.07
+DroneRPP5102 191 0.00 0.92 40 0.00 1.11
+DroneRPP661 89 0.00 0.60 35 0.00 0.34
+DroneRPP662 107 0.00 0.28 30 0.00 0.40
+DroneRPP681 118 0.00 1.32 53 0.00 0.76
+DroneRPP682 177 0.00 2.77 33 0.00 0.91
+DroneRPP6101 169 0.01 1.91 135 0.00 9.63
+DroneRPP6102 226 0.00 6.19 80 0.00 3.00
+DroneRPP771 128 0.00 3.60 94 0.00 5.07
+DroneRPP772 186 0.00 2.45 22 0.00 0.88
+DroneRPP791 170 0.00 8.25 125 0.00 8.35
+DroneRPP792 232 0.01 5.56 93 0.00 3.13
+DroneRPP7101 211 0.01 10.26 126 0.00 4.95
+DroneRPP7102 254 0.00 1.86 51 0.00 1.85
+DroneRPP881 193 0.00 3.39 149 0.00 3.88
+DroneRPP882 242 0.00 2.68 78 0.00 2.61
+DroneRPP891 220 0.01 7.59 142 0.00 6.20
+DroneRPP892 242 0.00 3.29 59 0.00 2.28
+DroneRPP8101 237 0.66 18.39 169 0.66 33.68
+DroneRPP8102 302 0.00 14.77 71 0.00 3.27
+DroneRPP991 232 0.00 8.40 109 0.00 6.05
+DroneRPP992 308 0.00 11.60 87 0.00 3.81
+DroneRPP9101 254 0.00 4.08 193 0.00 6.04
+DroneRPP9102 315 0.01 36.21 192 0.00 16.59
+DroneRPP10101 281 0.00 6.29 185 0.00 6.18
+DroneRPP10102 335 0.01 20.89 111 0.00 16.59
+1966 AILING XIE, KEIGO MIYAGAWA, WEI WU AND MUTSUNORI YAGIURA
+Table 4. Comparison between the existing heuristic algorithm
+and the proposed algorithm under the same environment for even
+instances
+existingheuristic proposed
+instance #vertices %gap time #vertices %gap time
+DroneRPP56 94 0.01 0.27 22 0.00 0.31
+DroneRPP58 121 0.04 9.96 75 0.00 11.17
+DroneRPP510 185 0.03 16.40 72 0.00 3.12
+DroneRPP66 95 0.04 4.86 39 0.00 1.87
+DroneRPP68 130 0.15 65.52 51 0.00 13.92
+DroneRPP610 175 1.08 78.64 108 1.04 45.12
+DroneRPP77 177 0.10 9.09 38 0.05 1.60
+DroneRPP79 232 0.02 19.60 112 0.00 14.92
+DroneRPP710 220 0.06 14.86 134 0.00 8.60
+DroneRPP88 193 0.02 19.60 169 0.00 21.56
+DroneRPP89 226 0.95 1266.41 144 0.82 2432.04
+DroneRPP810 270 0.76 78.21 132 0.68 64.71
+DroneRPP99 247 0.54 23.17 138 0.51 17.09
+DroneRPP910 339 1.38 3571.23 152 1.35 630.82
+DroneRPP1010 359 0.85 128.94 155 0.81 58.11

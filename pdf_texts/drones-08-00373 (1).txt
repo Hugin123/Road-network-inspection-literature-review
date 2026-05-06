@@ -1,0 +1,2373 @@
+drones
+Article
+Drone Arc Routing Problems and Metaheuristic Solution Approach
+IslamAltin*andAydinSipahioglu
+DepartmentofIndustrialEngineering,EskisehirOsmangaziUniversity,Eskisehir26040,Turkey;
+asipahi@ogu.edu.tr
+* Correspondence:ialtin@ogu.edu.tr
+Abstract:Thedronearcroutingproblem(DARP)isoneofthearcroutingproblems(ARPs)thathas
+beenstudiedbyresearchersrecently. UnliketraditionalARPs,dronescantraveldirectlybetween
+anytwopointsinthegraph.Duetotheflexibilityofdrones,itispossibletouseedgesnotdefined
+inthegraphswhendeadheadingtheedges. Thisadvantageofdronesmakesthisproblemmore
+challengingthananyotherARP.Withthisstudy, theenergycapacitiesofdronesareconsidered
+inaDARP.Thus,anovelDARPcalledthedronearcroutingproblemwithdeadheadingdemand
+(DARP-DD)isaddressedinthisstudy. Dronecapacitiesareusedbothwhenservicingtheedges
+and when deadheading the edges in the DARP-DD. A special case of the DARP-DD, called the
+multiple service drone arc routing problem with deadheading demand (MS-DARP-DD), is also
+discussed, wheresomecriticalrequirededgesmayneedtobeservedmorethanonce. Tosolve
+thesechallengingproblems,asimulatedannealingalgorithmisused,andthecomponentsofthe
+algorithmaredesigned.Additionally,novelneighborsearchoperatorsaredevelopedinthisstudy.
+Thecomputationalresultsshowthattheproposedalgorithmanditscomponentsareeffectiveand
+usefulinsolvingtheDARP-DDandMS-DARP-DD.
+Keywords: capacitated arc routing problem; drone arc routing problem; deadheading demand;
+multipleservice;simulatedannealingalgorithm
+1. Introduction
+Researchershavebeeninterestedinarcroutingproblems(ARPs)sincethe18thcentury,
+Citation:Altin,I.;Sipahioglu,A.
+andARPsareemployedinmodernapplicationareas. Drone-assistedoperationsareone
+DroneArcRoutingProblemsand
+ofthem[1,2]. Withtheadvancementofdronetechnology,theapplicationareasofdrones
+MetaheuristicSolutionApproach.
+havegrown,anddronesarenowemployedinavarietyofareas[3]. Themainapplication
+Drones2024,8,373. https://doi.org/
+areasofdronesarepresentedbelow[4]:
+10.3390/drones8080373
+• Deliveryofgoods(products);
+AcademicEditors:YuWuand • Environmentalmappingandmonitoring;
+LiguoSun
+• Trafficmonitoring;
+Received:3July2024 • Inspectionofinfrastructure,windturbines,railwaylines,energytransmissionlines;
+Revised:28July2024 • Monitoringofforestareasandfiredetection;
+Accepted:29July2024 • Surveillanceinsearchandrescueoperations;
+Published:3August2024 • Controlandsurveillanceofregionalbordersinmilitaryoperations.
+As has been seen, there are difficult and dangerous tasks involved with the em-
+ployment of drones. However, these tasks can be performed with drones quickly and
+effectively[5]. Dronesoffersuperiorsurveillance,imaging,monitoring,andtransmission
+Copyright: © 2024 by the authors.
+capabilitiesduetothesensors,cameras,andcommunicationsystemsthattheyhave. For
+Licensee MDPI, Basel, Switzerland.
+instance,forestareascanbemonitoredbydrones,andtheforest’sconditioncanbeevalu-
+Thisarticleisanopenaccessarticle
+ated[6]. Thus,precautionsagainstthedangerofafirecanbetaken. Inthecaseofafire,
+distributed under the terms and
+dronesmayalsobeusedtodetectthefirequickly,andprovidetheopportunitytorespond
+conditionsoftheCreativeCommons
+Attribution(CCBY)license(https:// effectively. Moreover, dronescontributesignificantlytoensuringnationalsecurityand
+creativecommons.org/licenses/by/ conducting military operations [7], such that regional or national borders can be moni-
+4.0/). toredandcontrolledbydrones. So,dronesareusedtorevealpotentialdangersthatmay
+Drones2024,8,373.https://doi.org/10.3390/drones8080373 https://www.mdpi.com/journal/drones
+Drones2024,8,373 2of30
+poseathreattothecountry’sbordersandtotakethenecessaryprecautions. Inaddition,
+reconnaissancecanbemadeusingdronestoperformmilitaryintelligenceoperations[8].
+Studieshavebeenconductedtodetermineroutesfordronesinasignificantandwide
+rangeofapplicationareas. However,thedroneroutingproblemisgenerallyconsidered
+a node routing problem in the literature. For example, in a recent study conducted by
+Luetal.[9],optimizingtakeoutdeliveryusingdronesandridersjointlywasaddressed.
+Atwo-stageheuristicalgorithmwasproposedtooptimizeorderallocationandrouting.
+Eskandaripour et al. [10] and Coutinho et al. [11] presented a literature review about
+droneroutingstudiesandprovideddetailedinformationaboutthem. Inthenoderouting
+problem,thepoints(customers)thatneedtobeservicedarelocatedatthenodes[12]. On
+theotherhand,inthearcroutingproblem,thepoints(customers)thatneedtobeserviced
+arelocatedonthearcs(edges)[13].
+ThetasksthatdronesarerequiredtoperformweredefinedontheedgesbyCampbell
+etal.[14],andthedronearcroutingproblem(DARP)wasintroducedtotheliterature[1,15].
+ThemaindifferencebetweentheDARPandtheknownARPsistheabilityofthedronesto
+traveldirectlybetweentwopoints(nodes)withoutfollowingtheedgesinthegraph.Dueto
+thisabilityofdrones,thechancetotraverseedgesthatarenotdefinedinthegraphoccurs
+whiledeadheadingtheedgeswithdrones. Ifavehicle(drone)travelsthroughanedge
+withoutperformingatask,thatedgeisreferredtoasadeadheadingedge[16]. Therefore,
+thedistancebetweenthedeadheadingedgesistheEuclideandistancebetweenthetwo
+points. Consideringallofthese,theDARPisdescribedasobtainingtheminimumcosttour
+toservicealltherequirededgeswithasingledrone. Inotherwords,thestatedDARPis
+theruralpostmanproblem(RPP)withsomeassumptions[17].
+Campbelletal.[18]focusedonaDARPwithalengthconstraintfordrones,andthe
+length-constrainedK-dronesruralpostmanproblem(LCK-DRPP)wasintroducedtothe
+literature. Inthisproblem,thedronerouteislimitedtoamaximumlength,necessitating
+theuseofmultipledronestoservicetherequirededges.SimilartotheDARP,afterfinishing
+theserviceofarequirededge,thedronecantraveldirectlytoanyvertexofanotherrequired
+edgewithoutfollowingtheedgesofthegraph. Thus,thisfeatureprovidesflexibilityand
+efficiencyinrouteplanning. Moreover,theLCK-DRPPhasthemainfeaturesoftheDARP
+suggestedbyCampbelletal.[14].
+In this study, surveillance drones used in search and rescue operations, control of
+regionalborders,inspectionofinfrastructure,windturbines,etc.,arediscussed. Surveil-
+lancedronestravelfromthedepot(centralpoint)totheareasthatneedtobeservicedand
+thebordersintherelevantareasaremonitoredorinspected[19]. Dronesusesensorsand
+camerastoperformmonitoringandinspectiontasks. Withtheirlimitedenergycapacity,
+thedronesshouldgototheareasthatneedtobeserved,performmonitoringtasksinthose
+regions,andthenreturntothedepot. Thatistosay,dronesmustperformtheirtasksand
+completetheirrouteswithoutexceedingtheirenergycapacity[4]. Thereisanimportant
+issuetobeemphasizedabouttheenergyconsumptionofdrones. Whilesurveillancedrones
+donotservetheedges,theyonlyconsumeasmuchenergyasthetraveleddistance;when
+servingtheedges,theyconsumeasmuchenergyasdemandedbyboththetraveleddis-
+tanceandthesensors,imaging,andcommunicationdevices(avionics)activatedduring
+surveillance[20–22]. Namely,dronecapacitiesareusedbothwhenservingtheedgesand
+deadheadingtheedges. Therelatedproblemiscalledthedronearcroutingproblemwith
+deadheadingdemand(DARP-DD).Withthisstudy,aDARP-DDconsideringtheenergy
+capacityofdronesisaddressed,andallrequirededgesareservedbydronesonlyoncein
+DARP-DD.Moreover,aspecialcasemaybeencounteredintheDARP-DDinvestigated.
+Insomespecialcases,itmaybenecessarytoprovidemultipleservicestosomerequired
+edges. Thisneedcanariseduetoseveralreasons,suchasensuringmorepreciseimagingof
+therelevantedgeduetoitsimportance,maintainingsecurityforstrategicorcriticalareas,
+improvingdataaccuracyandreliabilitybycollectingdatafromthesameareamultiple
+times,andtakingpreventivemeasuresbyfrequentlymonitoringcertainareas. Theprob-
+Drones2024,8,373 3of30
+lemencounteredinthiscaseiscalledthemultipleservicedronearcroutingproblemwith
+deadheadingdemand(MS-DARP-DD).
+TheDARP-DDandMS-DARP-DDhavereal-lifeapplications. Forexample,theparts
+thatneedtobemonitoredinforestareascanberepresentedbyedges. Inthiscase, the
+monitoring operations of the edges described in the forest area by energy-capacitated
+surveillancedronesareanapplicationareaoftheDARP-DD.Ontheotherhand,incases
+wheresomestrategicandcriticaledgesneedtobemonitoredmorethanoncetoensurethe
+securityoftheforestarea,dronesareexpectedtorespondtothisdemand. Inthiscase,the
+applicationareaoftheMS-DARP-DDisencountered. TheMS-DARP-DDenhancessecurity
+measuresinstrategicareasandfacilitatesproactivemonitoringofsensitivelocations. The
+mentionedapplicationareacanbeexpandedastrafficmonitoringbyrepresentingtraffic
+roadsinacitywithedges,inspectionofrailwaylinesbyrepresentingrailswithedges,and
+surveillanceofregionalbordersbyrepresentingcountryborderswithedges.
+Thesimulatedannealingalgorithm[23,24]isproposedtosolvethesetwonovelprob-
+lemsinthisstudy. Thisalgorithmhasmanycomponents,whichincludesolutionrepre-
+sentation,neighborsearchoperators,constrainthandlingstrategy,andparametervalues
+suchasinitialtemperaturevalue,finaltemperaturevalue,coolingrate,andthenumber
+ofiterations. So,thecomponentsofthealgorithmaredesignedinaccordancewiththese
+problems. Theproposedalgorithmisinitiallyappliedtosolvethecapacitatedarcrouting
+problem(CARP),whichisknownasoneofthemostchallengingARPsbelongingtothe
+NP-hard class. Thus, the success of the proposed algorithm in solving ARPs has been
+provenbyusingthemostchallengingproblemsintheliterature. Inthecontinuationofthis
+study,theproposedalgorithmisthenutilizedtosolvethetestproblemsgeneratedforthe
+DARP-DDandMS-DARP-DD.Theperformanceofthealgorithmisanalyzedindetail. As
+previouslystated,theproblemsaddressedinthisstudyhavemanyreal-lifecounterpartsin
+applications. Asaresult,thesolutionapproachdevelopedinthisstudywillbenefitthese
+areas. It has significant implications for practical applications. For instance, the routes
+obtained for the drones provide efficient resource utilization and increase operational
+efficiencyinvarioussectorsthatrelyondrone-basedsurveillanceandinspectionmissions.
+Theremainderofthispaperisorganizedasfollows: InSection2,theliteraturerelated
+totheDARPisreviewed.InSection3,wegivedescriptionsoftheDARP-DDandMS-DARP-
+DD.Section4givesdetailedinformationabouttheproposedapproach. Section5presents
+thecomputationalresults. InSection6,weconcludeourstudyandmakesuggestionsfor
+futurestudies.
+2. RelatedWork
+The DARP was first described by Campbell et al. [14] in the literature. But in fact,
+therearearcroutingproblemsintheliteraturethataresuitableforthecharacteristicsofa
+DARP.Therefore,informationabouttheseproblemsispresented.
+GarfinkelandWebb[25]definedthecrossingpostmanproblem(XPP)asageneralform
+andapplicationoftheundirectedruralpostmanproblem(RPP).IntheXPP,thepostman
+isallowedtoenterorexitfromanypointofanedgeintheundirectedanddisconnected
+graph. AsapotentialapplicationoftheXPP,GarfinkelandWebb[25]gaveanexample
+ofobtainingtheminimumdistancetourforamachinethatcutspolygonalshapesfroma
+materialsuchasfabricormetal. Inthefollowingyears,cuttingpathproblems(CPPs)were
+studiedasanapplicationoftheXPPintheliterature.
+Dewiletal.[26]conductedaliteraturereviewaboutcuttingpathproblemsandthis
+problemwasclassified. Theendpointcuttingproblem(ECP),continuouscuttingproblem
+(CCP),andintermittentcuttingproblem(ICP)areamongtheseproblems,sharingcommon
+characteristicswiththeDARP.TheECPistheproblemofcuttingshapesfromamaterial
+soastominimizethetotalcost(distance)byusingpredeterminedentryandexitpoints
+ontheshapes. IntheCCP,eachshapemustbecutatoncewithoutdividingitintoedges.
+Additionally,itisnotnecessarytousethepredeterminedpointsontheshapes;cuttingcan
+Drones2024,8,373 4of30
+bestartedfromanypointoftheshape. IntheICP,shapescanbecutintopiecesandthereis
+norestrictionontheentryorexitpointstobeused.
+Campbelletal.[14]definedtheDARPin2018,buttheenergycapacitiesofdrones
+arenottakenintoaccountinthestudy. Therefore,thedemandsoftherequirededgeson
+thegraphcanbemetbyusingasingledrone. ThatiswhytheDARPaddressedinthe
+study is actually a special case of the rural postman problem (RPP). They proposed an
+algorithmtosolvetheDARP.TheproposedalgorithmiterativelysolvesRPPinstanceswith
+anincreasingnumberofsegments. ForthesolutionoftheRPPineachstep,thebranch
+andcutalgorithmproposedbyCorberánetal.[27]forthewindygeneralroutingproblem
+wasapplied.
+Campbelletal.[18]andCampbelletal.[28]focusedonaDARPwithalengthcon-
+straintfordronesin2021and2022.Thatiswhythisproblemiscalledthelength-constrained
+K-dronesruralpostmanproblem(LCK–DRPP).TheLCK–DRPPismorechallengingthan
+theDARPsinceitisnecessarytoservicetherequirededgeswithmultipledrones. How-
+ever, the energy capacity of drones was not taken into account in the study. Campbell
+etal.[18]aproposedbranch-and-cutalgorithmforthelength-constrainedK-vehiclesrural
+postmanproblem(LCK–RPP)andmatheuristicalgorithmstosolvetheLCK–DRPP.In
+2022,Campbelletal.[28]carriedoutapolyhedralstudyandpresentedanewsophisticated
+branch-and-cutalgorithmfortheLCK–RPP.Theyalsodevelopedaglobalalgorithmfor
+the LC K–DRPP that iteratively solves instances of the LC K–RPP using the proposed
+branch-and-cutalgorithm.
+Xieetal.[17]addressedthedroneruralpostmanproblem,wherethereisasingledrone
+withoutanenergycapacityconstraint. Theyproposedatwo-stageheuristicalgorithmto
+solvetheproblem. ThisalgorithmfirstlyreducesthegraphandthensolvestheRPPon
+thereducedgraph. Theproposedtwo-phaseheuristicwascomparedwiththesolution
+approachsuggestedbyCampbelletal.[14],anditwasshownthatthetwo-phaseheuristic
+performedbetter.
+Manyresearchershavehighlightedtheimportanceofdrones’energyconsumption
+features. Abubakaretal.[29]presentedadetailedsurveyonenergyoptimizationtech-
+niquesinunmannedaerialvehicle(UAV)-basedcellularnetworks. Theydiscussedfour
+differenttypesofenergyoptimizationinUAV-basedcellularnetworks: optimizationof
+thepropulsionenergy,optimizationofthecommunicationenergy,jointoptimization,and
+optimizationoftheenergyconsumptioninUAV-assistedcellularnetworks. Then,they
+reviewedconventional(exact,heuristic,andmetaheuristicmethods)andmachinelearning
+algorithmstosolvetheseenergyoptimizationproblems. Cabuketal.[20]focusedonthe
+energyconsumptionpatternsofsmalldronesintheirstudy. Theyconductedexperimental
+studyusingasmalldronetocollectitsenergyconsumptiondata. Theydevelopedfour
+differentmodelsforpredictingthedrone’senergyconsumptionpatterns,whichincludea
+theoreticalmodel,asimplelinearregressionmodel,acubicpolynomialregressionmodel,
+andamachinelearning-basedmodel.Itisnotedthatthedronecouldconsumemoreenergy
+duetoitsavionics,butthisissuewasnottakenintoaccountinthestudy. Inaddition,itwas
+statedinthestudiesbyLuoandChen[21]andZhangetal.[22]thatdronesconsumemore
+energywhileservicingtheedges. Campbelletal.[14]statedthatbatteryconsumptionmay
+beproportionaltotheactivitiesperformedbythedrone. Additionally,theyreportedthat
+thedrones’batteryconsumptioncanincreasewhenservicingtheedges.
+Astructuresimilartotheissueofenergyconsumptionencounteredinsurveillance
+droneswasdescribedintheliterature. KirlikandSipahioglu[16]introducedthecapaci-
+tatedarcroutingproblemwithdeadheadingdemandtotheliterature. Inthisstudy,they
+addressedthemulti-robotcoverageproblem. Theproblemindicatedthateveniftherobot
+passesthroughapathwithoutperformingatask(deadheading),itconsumesitsremaining
+energyandwhenitperformsatask,itconsumesmoreenergyduetotheactivationofthe
+camerasorsensorsonit. Theyproposedamathematicalmodelasanexactsolutionmethod
+to solve the small-sized instances. Moreover, they developed a constructive heuristic
+methodtosolvethemedium-andlarge-sizedinstances.
+Drones2024,8,373 5of30
+ExaminingthestudiesintheliteraturerevealsthattheDARPisconsideredaspecial
+version of the RPP. However, the problems addressed in this study is a special case of
+theCARP.Thus,inthisstudy,dronerouteswereobtainedtoperformedgemonitoring
+andinspectiontaskswithdroneswhiletakingintoaccounttheirenergycapacity,which
+ishighlightedintheliteratureasasignificantissue. Therefore,itisclearthatconsidering
+the energy capacities of the drones makes the problem more realistic and applicable to
+real-world scenarios. This study also discusses a novel case of the DARP-DD, where
+some critical areas or borders need to be monitored more than once with surveillance
+drones. Thisspecialcase(MS-DARP-DD)isencounteredinreal-lifeapplications,especially
+when strategic or critical areas need to be monitored repeatedly in order to ensure the
+securityoftheseareas. Thisworkalsopresentsnovelneighborsearchoperators,which
+havebeendemonstratedtobeusefulinARPsandareeasilyapplicabletothestructureof
+metaheuristicalgorithms.
+3. ProblemDefinition
+Therearevarioustypesofdronesbasedontheirusageareas. Thisstudyfocuseson
+surveillancedrones. Surveillancedronestravelfromacentralpoint(depot)totheareas
+and the borders in these areas are monitored. Monitoring processes are performed by
+thesensorsormonitoringdevicesondrones. Withtheirlimitedenergycapacity,drones
+shouldbeabletotraveltotheareasthatneedtobeserviced,captureimagesoftheseservice
+areas (areas to be monitored) using sensors or monitoring devices, transfer the images
+simultaneously with a communication mechanism if necessary, and then return to the
+centralpoint. ThecharacteristicsoftheDARP-DDinvestigatedduetotheuniquestructure
+observedinsurveillancedronesispresentedbelow:
+• Droneshavelimitedenergycapacity.
+• Dronesconsumeenergybothwhenservicingtheedgesandwhendeadheadingthe
+edges(passingwithoutservicing).
+• Dronesconsumemoreenergywhileservicing.
+• Thedemandvalueofthedeadheadingedgesisequaltotheamountofenergycon-
+sumedbythedroneduringdeadheading.
+• Thedemandvalueofthe(required)edgesthatneedtobeservicedonthegraphis
+equaltotheamountofenergyconsumedbythedronewhileservicing.
+• Afterthedronehascompletedservicingarequirededge,itcandirectlytraveltothe
+nodeofanyotherrequirededgeonthegraph[14]. Thisdistancevalueisequaltothe
+Euclideandistancebetweenthetwonodes.
+• Therequirededgesonthegraphcanbelinearorcurved.
+Consideringallthesefeatures, theDARP-DDisdefinedasanarcroutingproblem
+inwhichkdronesstartandfinishtheirtoursatthedepotnodetominimizethetotaltour
+distance(cost)andensurethattheenergycapacityofthedronesisnotexceeded. Therefore,
+theobjectivefunctionoftheDARP-DDistominimizethetotaldistancetraveledbythe
+drones. Figure1showsthegraphofanexamplegeneratedfortheDARP-DD.Throughthis
+graph,howtheproblemisaddressedisexplained.
+InthegraphshowninFigure1,thereare5components,adepotwheredronesareavail-
+abletoservicetherequirededges,17requirededgesthatneedtobeserviced,and19nodes
+includingthedepotnode. E = {(1−2),(1−3),(3−2),(11−12),(6−4),(6−5),(5−4),
+R
+(7−8),(8−10),(10−9),(9−7),(13−14),(14−15),(15−16),(16−17),(17−18),(18−13)}
+isthesetoftherequirededgesonthegraph. Thecoordinatesofthenodesonthegraphare
+presentedinTable1.
+Drones 2024, 8, x FOR PEER REVIEW 6 of 31
+Drones2024,8,373 6of30
+FiFgiugruer e1.1 D.DAARPR-PD-DDD exeaxmamplpel 1e.1 .
+Table1.CoordinatevaluesofDARP-1nodes.
+In the graph shown in Figure 1, there are 5 components, a depot where drones are
+available to service the required edges, 17 required edges that need to be serviced, and 19
+Nodes CoordinateValues(x,y)
+nodes including the depot node. 𝐸 =(cid:4668)(1−2),(1−3),(3−2),(11−12),(6−4),(6−
+Depot (cid:3019) (0,−110)
+5),(5−4),(7−8),(8−10),(10−9),(9−7),(13−14),(14−15),(15−16),(16−
+1 (0,0)
+17),(17−18),(18−13)(cid:4669) is the set of the required edges on the graph. The coordinates of
+2 (0,−40)
+the nodes on the graph 3 are presented in Table 1. (30,−40)
+4 (30,−80)
+Table 1. Coordinate value5s of DARP-1 nodes. (60,−80)
+6 (60,−20)
+Nod
+7
+es Coordina (−te
+6
+V
+0,
+a−lu
+5
+e
+0)
+s (x, y)
+Dep8ot ((0−, −201,1−0)5 0)
+1 9 (− (06,0 0,) − 90)
+10 (−20,−90)
+2 (0, −40)
+11 (20,10)
+3 (30, −40)
+12 (70,10)
+41 3 (30(−, −5800,0) )
+51 4 (60(−, −2800,0) )
+15 (−10,−20)
+6 (60, −20)
+16 (−20,−40)
+7 (−60, −50)
+17 (−50,−40)
+81 8 (−(2−06,0 −,5−02)0 )
+9 (−60, −90)
+On the graph p1r0e sented in Figure 1, the distance value(s−2o0f, t−h9e0)r equired edges can
+be calculated using11th e Euclidean distances of the nodes be(l2o0n, g1i0n)g to the edges. For
+this reason, the dis1t2a nce values of the edges are calculated(7u0s, i1n0g) the coordinate val-
+ues of the nodes pr1e3s ented in Table 1. For example, the dis(t−a5n0c, e0)v alue of the (1 − 2)
+edgeisequalto401u4n its, whichistheEuclideandistancebet(w−2e0e, n0)t hepoints(0, 0)and
+(0,−40). Thisunitp1r5o videsamoreflexibleframeworkford(is−t1a0n, c−e20m) easurement,andit
+canbeinterpretedinmeters,kilometers,ormiles. Todeterminetheenergyconsumptionof
+16 (−20, −40)
+drones,theenergypermeter(epm)metricproposedbyZhangetal.[22]fordroneswas
+17 (−50, −40)
+considered. Theepmwasdefinedasavaluethatmeasuresenergyconsumptionperunit
+18 (−60, −20)
+distanceandusedasenergyperunitdistanceinthisstudy. Thisway,themetricismade
+applicabletovariousscenarios. Itisassumedthatdronesconsume1Jouleperunitdistance
+On the graph presented in Figure 1, the distance values of the required edges can be
+(1Joule/distance)duringdeadheading. Ontheotherhand,dronesconsume2Joulesper
+calculated using the Euclidean distances of the nodes belonging to the edges. For this rea-
+unitdistance(2Joules/distance)duringservicing. Thiscanalsoworkwithdifferentvalues
+son, the distance values of the edges are calculated using the coordinate values of the
+andtheenergyperunitdistancecanbeadjustedbasedondronetype,usagepurpose,or
+nodes presented in Table 1. For example, the distance value of the (1 – 2) edge is equal to
+environmentalconditions. Ontheotherhand,theamountofenergyconsumedbydrones
+40 units, which is the Euclidean distance between the points (0, 0) and (0, −40). This unit
+whenservicingtheedgesisnotnecessarilyproportionaltothedistancetraveled. Some
+provides a more flexible framework for distance measurement, and it can be interpreted
+edgesneedmoredetailedmonitoring,andmoreenergyisconsumed,whileothersneedless
+in meters, kilometers, or miles. To determine the energy consumption of drones, the en-
+detailedmonitoring,andlessenergyisconsumedwhenservicingthem. Inthisproblem,
+ergy per meter (epm) metric proposed by Zhang et al. [22] for drones was considered. The
+Drones 2024, 8, x FOR PEER REVIEW 7 of 31
+epm was defined as a value that measures energy consumption per unit distance and used
+as energy per unit distance in this study. This way, the metric is made applicable to vari-
+ous scenarios. It is assumed that drones consume 1 Joule per unit distance (1 Joule/dis-
+tance) during deadheading. On the other hand, drones consume 2 Joules per unit distance
+(2 Joules/distance) during servicing. This can also work with different values and the en-
+ergy per unit distance can be adjusted based on drone type, usage purpose, or environ-
+mental conditions. On the other hand, the amount of energy consumed by drones when
+servicing the edges is not necessarily proportional to the distance traveled. Some edges
+need more detailed monitoring, and more energy is consumed, while others need less
+Drones2024,8,373 7of30
+detailed monitoring, and less energy is consumed when servicing them. In this problem,
+the drone consumes 40 Joules when deadheading through an edge (1 – 2) and 80 Joules
+when servicing the same edge. Thus, the deadheading demand value for an edge (1 – 2)
+thedroneconsumes40Jouleswhendeadheadingthroughanedge(1−2)and80Joules
+is 40 Joules, while the servicing demand value is 80 Joules. Please note that the non-re-
+whenservicingthesameedge. Thus,thedeadheadingdemandvalueforanedge(1−2)is
+quired edges only have a deadheading demand value, because drones do not serve these
+40Joules,whiletheservicingdemandvalueis80Joules. Pleasenotethatthenon-required
+edges.
+edgesonlyhaveadeadheadingdemandvalue,becausedronesdonotservetheseedges.
+The mobility of the drone on the graph is determined as follows: The drone can di-
+The mobility of the drone on the graph is determined as follows: The drone can
+rectly traverse from the depot node to all nodes on the graph and from all nodes to the
+directlytraversefromthedepotnodetoallnodesonthegraphandfromallnodestothe
+depot node. The edges where the drone can traverse from the depot to other nodes are
+depotnode. Theedgeswherethedronecantraversefromthedepottoothernodesare
+shown with red dashed lines in Figure 2.
+shownwithreddashedlinesinFigure2.
+FFiigguurree 22.. TTrraavveerrssiinngg ffrroomm tthhee ddeeppoott nnooddee ttoo tthhee ootthheerr nnooddeess iinn tthhee DDAARRPP--DDDD..
+AAss pprreesseenntteedd iinn FFiigguurree 22,, tthhee ddrroonnee ccaann ddiirreeccttllyy ttrraavveerrssee aannyy nnooddee oonn tthhee ggrraapphh ffrroomm
+tthhee ddeeppoott nnooddeeb byyd edaedahdehaedaidnign.gO. Ontnh ethoet hoetrhhera nhda,ntdh,e tdhreo nderocnaen dcairne cdtliyretcrtalvye trrsaevbeertswe ebeen-
+tawlleperne daellfi pnreeddneofidneesdo nnotdheesg ornap thh.e Ignroatphhe.r Iwn oortdhse,ra wfteorrdthse, adfrtoenr ethhea sdrcoonmep hleatse dcosmerpvliectiendg
+stherevriecqinugi rtehde eredqguei,rietdc aendgdei,r ietc ctalyn tdrairveecrtlsye ttroavtheersne otod ethoef naondyeo otfh aenryre oqtuhierre rdeqedugireedo nedthgee
+Drones 2024, 8, x FOR PEER REVIEW o g n ra t p h h e . g T r h a e ph m . o T b h i e li t m y o o b f i t l h it e y d o r f o t n h e e b d e r t o w ne e e b n et n w o e d e e n s n is o p d r e e s s e is n p te r d es i e n n F te ig d u i r n e F 3 i . g S u i r n e c 3 e . t S h i e8n d coefr o t3h n1 e e
+can perform a large number of deadheading between nodes, only a subset of them are
+drone can perform a large number of deadheading between nodes, only a subset of them
+presentedinFigure3.
+are presented in Figure 3.
+FiFgiugruer e3.3 T.rTarvaevresrisning gbebtewtweeenen nnododese sinin ththe eDDAARRPP-D-DDD. .
+InIn FFigiguurree 33,, tthhee ddeeaaddhheeaaddiningge degdegsetsh athtadtr odnreosnceasn ctaranv etrrasveebrestew beeetnwneoedne snaordeessh aorwen
+shboywthne brye dthde arsehde ddalsinheeds. liFnoers.e Fxoarm epxlaem, tphlee,d trhoen dercoanne ccaarnr ycaoruryt doeuatd dheeaaddhineagdbinegtw beee-n
+twdeifefenr ednifftceoremnpt ocnoemnptsowneitnhtse dwgieths seudcgheass s(u1c5h − as1 2()1,5( 9– − 123)), ,(a9n –d 3(1),4 a − nd1 )(1a4s w– e1l)l aass wbeetlwl eaesn
+between nodes of the same component such as the edge (13 – 16). Since the drone is capa-
+ble of traversing between all nodes, the example consists of 19 nodes in total including the
+depot node and 17 required edges. The number of non-required edges in the graph is
+calculated by the number of nodes. The disconnected graph is converted to complete
+graph since the drone can directly traverse between all nodes on the graph. So, this graph
+will have (𝑛×(𝑛−1))/2 non-required edges with n nodes. As a result, this example has
+171 non-required edges.
+In the relevant problem, some critical areas or borders may need to be monitored
+multiple times by drones during surveillance. In this case, servicing the required edges
+that correspond to the relevant boundaries (areas) only once is not sufficient.
+So, we can generate an instance for the MS-DARP-DD using Figure 1. For example,
+on the graph presented in Figure 1, due to the special case of the boundaries represented
+by the edges (2 – 3) and (9 – 10), it may be necessary to monitor the required edge (2 – 3)
+three times and the required edge (9 – 10) two times. The related multiple services to the
+required edges can be performed by the same drone or different drones.
+4. Proposed Solution Approach
+The shortest distances and the shortest paths between all pairs of nodes on the graph
+are first calculated using the Floyd–Warshall algorithm. After this phase, the simulated
+annealing algorithm is used to solve the problems. The simulated annealing algorithm
+was independently developed and introduced to the literature by Kirkpatrick et al. [23]
+and Černỳ [24]. The SA is a stochastic neighborhood search method that imitates the phys-
+ical annealing process where a solid is slowly cooled until the minimum energy state is
+achieved. Therefore, not only improving solutions are always accepted, but also non-im-
+proving (inferior) solutions can be accepted by probability acceptance of the Metropolis
+criterion. This probability acceptance function is the main mechanism of the SA algorithm,
+and this function prevents getting stuck into local optima. Because of its simplicity and
+efficiency, the SA algorithm has been widely applied to solve most combinatorial optimi-
+zation problems.
+In this study, the proposed solution approach and its components are designed to be
+highly flexible, making them easily applicable to solving different ARPs. The solution rep-
+resentation was constructed in a dynamic manner, allowing for its size to be longer and
+shorter during the search process. This enables the effective use of various neighbor search
+Drones2024,8,373 8of30
+nodes of the same component such as the edge (13 − 16). Since the drone is capable
+oftraversingbetweenallnodes,theexampleconsistsof19nodesintotalincludingthe
+depot node and 17 required edges. The number of non-required edges in the graph is
+calculated by the number of nodes. The disconnected graph is converted to complete
+graphsincethedronecandirectlytraversebetweenallnodesonthegraph. So,thisgraph
+willhave(n×(n−1))/2non-requirededgeswithnnodes. Asaresult,thisexamplehas
+171non-requirededges.
+In the relevant problem, some critical areas or borders may need to be monitored
+multipletimesbydronesduringsurveillance. Inthiscase,servicingtherequirededges
+thatcorrespondtotherelevantboundaries(areas)onlyonceisnotsufficient.
+So,wecangenerateaninstancefortheMS-DARP-DDusingFigure1. Forexample,on
+thegraphpresentedinFigure1,duetothespecialcaseoftheboundariesrepresentedby
+theedges(2−3)and(9−10),itmaybenecessarytomonitortherequirededge(2−3)
+threetimesandtherequirededge(9−10)twotimes. Therelatedmultipleservicestothe
+requirededgescanbeperformedbythesamedroneordifferentdrones.
+4. ProposedSolutionApproach
+Theshortestdistancesandtheshortestpathsbetweenallpairsofnodesonthegraph
+arefirstcalculatedusingtheFloyd–Warshallalgorithm. Afterthisphase,thesimulated
+annealingalgorithmisusedtosolvetheproblems. Thesimulatedannealingalgorithmwas
+independentlydevelopedandintroducedtotheliteraturebyKirkpatricketal.[23]and
+Cˇernỳ[24]. TheSAisastochasticneighborhoodsearchmethodthatimitatesthephysical
+annealingprocesswhereasolidisslowlycooleduntiltheminimumenergystateisachieved.
+Therefore, not only improving solutions are always accepted, but also non-improving
+(inferior)solutionscanbeacceptedbyprobabilityacceptanceoftheMetropoliscriterion.
+ThisprobabilityacceptancefunctionisthemainmechanismoftheSAalgorithm,andthis
+functionpreventsgettingstuckintolocaloptima.Becauseofitssimplicityandefficiency,the
+SAalgorithmhasbeenwidelyappliedtosolvemostcombinatorialoptimizationproblems.
+In this study, the proposed solution approach and its components are designed to
+behighlyflexible,makingthemeasilyapplicabletosolvingdifferentARPs. Thesolution
+representationwasconstructedinadynamicmanner,allowingforitssizetobelongerand
+shorterduringthesearchprocess. Thisenablestheeffectiveuseofvariousneighborsearch
+operators. Furthermore,thealgorithmuses8differentneighborsearchoperators. Among
+these,thek-routeshorten,smartedgedirectionchange,andsmartreverseoperatorsare
+novel. Furthermore,theedgepostponeoperatorisusedincombinationwiththemerge
+andsplitprocedures,whichisanotheraspectoftheinnovationoftheproposedalgorithm.
+Underthisheading,detailedexplanationsofthealgorithm’scomponents,including
+thesolutionrepresentation,neighborsearchoperatorsandconstrainthandlingstrategy
+usedinthestructureofthealgorithmareexplained. Additionally,theworkingmechanism
+ofthealgorithmanditsdesignedcomponentsarepresented.
+4.1. SolutionRepresentationandInitialSolution
+The solution representation is constructed as a two-dimensional list based on the
+required edges in the graph. However, when using the neighbor search operators, the
+deadheading edges is also included in the solution representation. Therefore, the solu-
+tion representation to be used in the structure of the algorithm is dynamic. The pro-
+posedsolutionrepresentationisexplainedusingthegraphpresentedinFigure1. E =
+R
+{(1−2),(1−3),(3−2),(11−12),(6−4),(6−5),(5−4),(7−8),(8−10),(10−9),(9−7),
+(13−14),(14−15),(15−16),(16−17),(17−18),(18−13)} is the set of the required
+edgestobevisitedonthegraph. Assumethatthe4drones’routesservingtherequired
+edgesareasshowninFigure4.
+Drones 2024, 8, x FOR PEER REVIEW 9 of 31
+operators. Furthermore, the algorithm uses 8 different neighbor search operators. Among
+these, the k-route shorten, smart edge direction change, and smart reverse operators are
+novel. Furthermore, the edge postpone operator is used in combination with the merge
+and split procedures, which is another aspect of the innovation of the proposed algorithm.
+Under this heading, detailed explanations of the algorithm’s components, including
+the solution representation, neighbor search operators and constraint handling strategy
+used in the structure of the algorithm are explained. Additionally, the working mecha-
+nism of the algorithm and its designed components are presented.
+4.1. Solution Representation and Initial Solution
+The solution representation is constructed as a two-dimensional list based on the re-
+quired edges in the graph. However, when using the neighbor search operators, the dead-
+heading edges is also included in the solution representation. Therefore, the solution rep-
+resentation to be used in the structure of the algorithm is dynamic. The proposed solution
+representation is explained using the graph presented in Figure 1. 𝐸 =(cid:4668)(1−2),(1−
+(cid:3019)
+3),(3−2),(11−12),(6−4),(6−5),(5−4),(7−8),(8−10),(10−9),(9−7),(13−
+14),(14−15),(15−16),(16−17),(17−18),(18−13)(cid:4669) is the set of the required edges
+Drones2024,8,373 to be visited on the graph. Assume that the 4 drones’ routes serving the required e 9 d o g f e 3 s 0
+are as shown in Figure 4.
+FFiigguurree 44.. SSaammppllee ddrroonnee rroouutteess..
+IInn FFiigguurree 44,, eeaacchh ddrroonnee rroouuttee iiss rreepprreesseenntteedd bbyy aa ddiiffffeerreenntt ccoolloorr.. TThhee ddaasshheedd lliinneess
+iinnddiiccaattee tthhee ddeeaaddhheeaaddiinngg eeddggeess.. TThheerreeffoorree,, tthhee rreessuullttiinngg ddrroonnee rroouutteess ccaann bbee eexxpprreesssseedd aass
+follows(dindicatesthedeadheadingontherelevantedge):
+follows (d indicates the deadheading on the relevant edge):
+Firstdroneroute(blue-coloredroute): d(depot−10)−(10−9)−(9−7)−(7−8)−d(8−2)
+First drone route (blue-colored route): d(depot – 10) – (10 – 9) – (9 – 7) – (7 – 8) – d(8 – 2) – (2
+−(2−3)−d(3−depo).
+– 3) – d(3 – depo).
+Seconddroneroute(red-coloredroute): d(depot−4)−(4−5)−(5−6)−d(6−12)−(12−
+Second drone route (red-colored route): d(depot – 4) – (4 – 5) – (5 – 6) – d(6 – 12) – (12 – 11) –
+11)−d(11−depot).
+d(11 – depot).
+Thirddroneroute(green-coloredroute): d(depot−10)−(10−8)−d(8−16)−(16−15)−
+Third drone route (green-colored route): d(depot – 10) – (10 – 8) – d(8 – 16) – (16 – 15) – (15 –
+(15−14)−(14−13)−(13−18)−(18−17)−(17−16)−d(16−depot).
+14) – (14 – 13) – (13 – 18) – (18 – 17) – (17 – 16) – d(16 – depot).
+Forthdroneroute(orange-coloredroute): d(depot−2)−(2−1)−(1−3)−d(3−6)−(6−
+Forth drone route (orange-colored route): d(depot – 2) – (2 – 1) – (1 – 3) – d(3 – 6) – (6 – 4) – d(4
+4)−d(4−depot).
+– depot).
+It is seen that all 17 required edges are serviced. The shortest paths on the route
+It is seen that all 17 required edges are serviced. The shortest paths on the route are
+areexpressedasd, whichstandsfordeadheading. Sincethedroneroutesareincluded
+expressed as d, which stands for deadheading. Since the drone routes are included as a
+asatwo-dimensionallistbasedontherequirededgesinthesolutionrepresentation,the
+two-dimensional list based on the required edges in the solution representation, the solu-
+solutionrepresentationcorrespondingtotheobtaineddroneroutesisasfollows:
+tion representation corresponding to the obtained drone routes is as follows:
+{((10−9)−(9−7)−(7−8)−(2−3)),((4−5)−(5−6)−(12−11)),((10−8)−
+(16−15)−(15−14)−(14−13)−(13−18)−(18−17)−(17−16)),((2−1)−(1−3)
+−(6−4))}
+WecandefinetheedgesinthesolutionrepresentationasRoute : thejthorderedgeof
+ij
+theithdroneroute.Forexample,edge(12−11)isthethird-orderedgeofdroneroute2and
+canbedescribedasRoute . Ontheotherhand,thesolutionrepresentationdoesnothave
+23
+tocontainonlytherequirededges. Thisisbecausetheinformationaboutthenon-required
+edgesintherouteisalsousedinthegeneratingneighborsolutionphase. Inthiscase,itis
+alsonecessarytoincludethedeadheadingedgesinthesolutionrepresentation. Thelength
+ofthesolutionrepresentationcouldincreaseordecrease. Thus,thelengthofthesolution
+representationisdynamic.
+The initial solution was randomly generated with the proposed solution represen-
+tation. Noproblem-specificheuristicalgorithminordertoconstructinitialsolutionwas
+implemented.
+4.2. NeighborSearchOperators
+Inthedevelopmentoftheneighborsearchoperators,wetookadvantageofthemerge
+andsplitoperator,whichisoneofthelocalsearchoperatorssuggestedbyTangetal.[30]
+fortheCARP,andtheshortenprocedure,whichisoneofthepost-optimizationprocedures
+fortheruralpostmanproblemsuggestedbyHertzetal.[31]. Theyproposedtheshorten
+Drones2024,8,373 10of30
+proceduretoimprovetheobtainedroutesfortheRPP.Ashortenprocedureconsistsofthe
+reverseandpostponemechanisms.
+Eightdifferentneighborsearchoperatorsaredescribedtoapplyinthestructureof
+thealgorithm. Ineachiterationofthealgorithm,oneoftheseoperatorswillbeselected
+randomly. Eachoperatorhasanequalchanceofselection.
+K-ReverseOperator: Arandomlyselectedknumberofdroneroutesaremerged. The
+valueofkis2or3. Themergingprocessisperformedaccordingtotheascendingroute
+indexandtheroutesaremergedtoobtainasingleroute. Twopositionvaluesarerandomly
+generatedandthesetofedgesbetweenthesetwopositionsisreversedinthesingleroute.
+Theobtainedrouteisdividedintokroutesbasedonthedronecapacities.
+N-ReverseOperator: Alldroneroutesaremergedbasedontheascendingrouteindex
+toobtainagiantroute. Twopositionvaluesarerandomlygeneratedandthesetofedges
+betweenthesetwopositionsisreversedinthegiantroute. Theobtainedrouteisdivided
+intonroutesbasedonthedronecapacities.
+Intra-RouteReverseOperator: Arouteisrandomlyselectedtochangetheorderand
+directionoftheedgesontheroute. Twopositionvaluesaregeneratedandthesetofedges
+betweenthesetwopositionsisreversedtogeneratetheneighborsolution.
+SmartReverseOperator: Tworandomlyselectedroutesaremergedbasedontheirindex
+valuesinascendingordertoobtainasingleroute.Oneoftherepeatingnodesinthemerged
+routeisrandomlyselected. Theedgesbetweentheselectedrepeatingnodesarereversed
+accordingtothedefinedpriorityrules. Fourpriorityruleshavebeendescribed. Whichever
+rule the repeating node first complies with, the related reverse process isperformed in
+accordancewiththerule. Assumethattherepeatingnodeisnodei.
+• Rule1: Iftherouteincludes(i−j)...(k−i),reverseitto(i−k)...(j−i).
+• Rule2: Ifthereare(i−j)...(i−k)ontheroute,firstchangethedirectionoftheedge
+(i−k)to(k−i). Thenreverseitto(i−k)...(j−i).
+• Rule3: Ifthereare(j−i)...(k−i)ontheroute,firstchangethedirectionoftheedge
+(j−i)to(i−j). Thenreverseitto(i−k)...(j−i).
+• Rule4: Ifthereis(j−i)...(i−k)ontheroute,changethedirectionofbothedges. Then
+reverseitto(i−k)...(j−i).
+Theobtainedrouteafterthereverseprocesswithoneofthepresentedrulesisdivided
+intotwobasedonthedronecapacitiesandthustheneighborsolutionisgenerated.
+K-RouteShortenOperator: Arandomlyselectedknumberofdroneroutesaremerged.
+Thevalueofkisdeterminedrandomlybetween2and5. Inaddition,kcannothaveavalue
+greaterthanthenumberofdrones. Theedgesintheknumberofselectedroutesareadded
+toanedgepoolandthenearestneighboralgorithmisusedtogenerateatourfromthe
+edges. Theobtainedtourisdividedbasedondronecapacitiestoobtainknumberofdrone
+routes. Thestepsofthek-routeshortenalgorithmarepresentedbelow.
+• Step 1: Add all the edges in the selected routes to an edge pool and create an
+emptyroute.
+• Step 2: Obtain a route using the nearest neighbor algorithm with the edges in the
+edgepool.
+a. Randomlyselectoneoftheedgesnearesttothedepotnodefromtheedgepool,
+remove it from the edge pool, and add it to the route as the first edge to be
+visitedintheroute.
+b. Randomlyselectoneoftheedgesnearesttothelastedgeintheroutefromthe
+edgepoolandaddittotheroutebyremovingitfromtheedgepool. Repeatthis
+stepuntiltherearenomoreedgesintheedgepool.
+• Step3:Dividetheobtainedrouteintoknumberofroutesbasedonthedronecapacities.
+EdgePostponeOperator: Arandomlyselectedknumberofdroneroutesaremerged
+basedontheirindexvaluesinascendingordertoobtainasingleroute. Thevalueofkis
+determinedrandomlybetween2and5. Inaddition,kcannothaveavaluegreaterthan
+thenumberofdrones. Then,thedeadheadingedgesareaddedtothemergedroute. In
+Drones2024,8,373 11of30
+fact,theprocessofaddingthedeadheadingedgestotherouteistousetheshortestpath
+whentraversingfromonerequirededgetoanother. Theshortestpathscanbeobtained
+withtheFloyd–Warshallalgorithm. Repeatededgesareencounteredwiththeadditionof
+thedeadheadingedgestotheroute. Inthiscase,ifitispossible,thedeadheadingedgeson
+therouteareconvertedintotherequirededges. Theprocessofconvertingthedeadheading
+edgesintorequirededgesisperformedusingthepostponemechanismdescribedbyHertz
+etal.[31]. Thus,ifthesameedgeisencounteredmultipletimesontheroute,theedgeis
+servicedwhenitistraversedforthelasttimebythedrone. Theneighborsolutionisthen
+obtainedbydividingtheobtainedrouteintokroutesbasedonthedronecapacities. Please
+notethatdronescantraversedirectlybetweenanytwonodesonthegraph, andthisis
+actuallytheshortestpathbetweenthesetwonodes. But, soastoapplyedgepostpone
+and route-repairing operators, it is assumed that the drones can only traverse between
+the nodes of the components that view each other in the mechanism of edge postpone
+androute-repairingoperators. Thus,differentshortestpathsareobtainedusingtheFloyd–
+Warshallalgorithm. So,theprobabilityofdeadheadingontherequirededgesincreases,
+whichenablestheeffectiveuseoftheedgepostponeandroute-repairingoperators.
+Edge Direction and Smart Edge Direction Change Operator: The direction of an edge
+onarandomlyselectedrouteischangedusingtheedgedirectionchangeoperator. The
+smartedgedirectionchangeoperatorisemployedseparatelyforeachdroneroute. Ifthe
+consecutiveedgesintheroutecontaincommonnodes,thedirectionoftheedgesischanged
+sothatthecommonnodesarenexttoeachother. Thesetwooperatorsareusedasasingle
+operator when selecting the neighbor search operator in the structure of the algorithm.
+However,bothoperatorsarenotappliedtothecurrentsolutionatthesametime. Between
+twooperators,onewillbeselectedatrandom.
+Route-Repairing Operator: The aim of this operator is to obtain a new route with a
+shorterdistancethanthecurrentonebyignoringtheedgedemandsanddronecapacityon
+theroute. Therefore,thisproblemissimilartotheRPP.Theshortenproceduresuggested
+byHertzetal.[31]isusedforthisreason. However,theshortenprocedurewillonlybe
+appliedtoarandomlychosendronerouteandarandomlychoseninitialpoint. Thesteps
+oftheshortenprocedurearelistedbelow:
+• Step1: Randomlyselectadroneroute.
+• Step2: Addthedeadheadingedgestotheselectedroute.
+• Step3: Randomlyselectarequirededgeontherouteandmaketheselectedrequired
+edgethestartingpointwithoutalteringthedirectionofthetour.
+• Step4: Runthepostponemechanism. Ifthesameedgeisencounteredmultipletimes
+ontheroute,theedgeisservicedwhenitistraversedforthelasttimebydrone.
+• Step5: Runthereversemechanism. Inthereversemechanism,if(i,j)isarequired
+edge, it is checked whether there is a path (i, j, ..., k, i) in the tour that contains a
+non-requirededge(k,i). Ifthereisapathwiththesefeatures,thereversedversionof
+thispath(i,k,...,j,i)shouldbeusedinthetour.
+• Step6: Removethedeadheadingedgesontherelevantdroneroute.
+4.3. ConstraintHandlingStrategy
+Drone capacities are allowed to be exceeded in the generating neighbor solution
+process. However, if the drone capacities are exceeded, the objective function value of
+the current solution is penalized. Therefore, the dynamic penalty function is used as a
+constraint handling strategy. The dynamic penalty function is developed to direct the
+searchtowardstheglobaloptimalsolutionusingtheinformationofinfeasiblesolutions.
+Atthesametime,thesearchprocessusestheinformationfromtherecentiterationsofthe
+algorithm. Theproposeddynamicpenaltyfunctionispresentedbelow:
+Drones2024,8,373 12of30
+f(s) =Objectivefunctionvalueofthesolution
+f′(s) =Penalizedobjectivefunctionvalueofthesolution
+p =Thelongestdistancevalueindistancematrix
+e =Excesscapacityvalue
+k =Penaltycoefficient
+
+1, Ifthedronecapacityisexceededduringthelasttwoiterations
+
+k = 0.5,Ifthedronecapacityisexceededonlythelastiteration
+ 0, Ifthedronecapacityisnotexceededonlythelastiteration
+f ′(s) = f(s)+(k×p×e) (1)
+The f(s)presentedinEquation(1)representsthetotaldistancetraveledbythedrones
+insolutions. Ontheotherhand, f′(s)representsthepenalizedobjectivefunction,whichis
+thepenalizedversionof f(s). Therefore, f′(s)iscalculatedbyaddingthepenaltyvalueto
+thetotaldistancetraveledbythedronesinsolutions. Themainideaofthepenaltyfunction
+presentedinEquation(1)istopenalizetheobjectivefunctionbyadaptivelyupdatingthe
+penaltycoefficient. Namely,ifthedronecapacityisnotexceededinthelastiteration,there
+isnopenalty,butifitisexceeded1or2times,thereisagraduallyincreasingpenalty.Hence,
+evenifexceedingdronecapacitiesisallowedduringthesearchphase,feasiblesolutions
+are eventually obtained since the solutions that exceed vehicle capacity are penalized.
+Furthermore, especially at high temperatures, diversification is provided, and quality
+solutionregionsisreachedbyusingtheinformationofinfeasiblesolutions.
+4.4. CoolingScheduleandStoppingCriteria
+Inthestructureofthealgorithm,ageometriccoolingscheduleisusedtoreducethe
+temperatureinacontrolledmanner. Thegeometriccoolingscheduleispresentedbelow:
+T : Temperaturevalueatiterationi∝: Coolingrate
+i
+T i = ∝ ×T i−1 (2)
+InthegeometriccoolingschedulepresentedinEquation(2),thecoolingrateisdeter-
+minedas∝= 0.99. Thus,thecurrenttemperatureofthealgorithmisgraduallyreduced,
+allowingfordetailedexplorationofthesearchspace. Thefinaltemperaturevalueisused
+asthestoppingcriterionofthealgorithm. Thefinaltemperaturevalueisdeterminedas
+T =0.1. Ifthecurrenttemperaturevalueofthealgorithmislessthanorequaltothefinal
+f
+temperaturevalue,thealgorithmisstopped,andthebestobtainedsolutionispresented.
+4.5. ProposedSimulatedAnnealingAlgorithm
+Intheprevioussubtitles,thecomponentsofthesimulatedannealingalgorithmde-
+signed for the DARP-DD were discussed in detail. The pseudocode of the proposed
+simulated annealing algorithm is given below, and the flowchart of this algorithm is
+presentedinFigure5.
+Theworkingmechanismofthesuggestedsimulatedannealingalgorithmispresented
+in Figure 5 to obtain high-quality solutions for the DARP-DD and MS-DARP-DD. In
+additiontothecomponentsofthealgorithmthatweredesigned,astrategywascreated
+forthenumberofdronestobeemployedtoimprovethealgorithm’sflexibilityduringthe
+searchphase. Thealgorithmallowsforoperatingwithmoredronesthanrequired. Itis
+notnecessarytouseallofthedronesprovidedasinputtothealgorithm. Somedronesare
+notusedifabettersolutionisobtainedbyusingfewerdronesthanthenumberofdrones
+providedasinputtothealgorithm. Thus,thealgorithmcanalsodeterminethenumberof
+dronestobeused.
+Drones 2024, 8, x FOR PEER REVIEW 13 of 31
+𝑇 = 0.1. If the current temperature value of the algorithm is less than or equal to the final
+(cid:3033)
+temperature value, the algorithm is stopped, and the best obtained solution is presented.
+4.5. Proposed Simulated Annealing Algorithm
+In the previous subtitles, the components of the simulated annealing algorithm de-
+signed for the DARP-DD were discussed in detail. The pseudocode of the proposed sim-
+ulated annealing algorithm is given below, and the flowchart of this algorithm is pre-
+Drones2024,8,373 13of30
+sented in Figure 5.
+Start
+Determine the value of T0,Tf, I, α.
+Update the current temperature (T:=T0)
+Run Floyd-Warshall algorithm and obtainthe shortest paths and distances
+Generate theinitial solution (s0) randomly and calculate the objective function (f(s0))
+Update solutions and objective functions
+(s:=s0, sbest:=s0, f(s):=f(s0), f(sbest):=f(s0))
+Select one of the neighbor search operators
+randomly
+Generate neighbor solution (s') by theselected operator
+Calculate the objective function (f(s'))
+Apply dynamic penalty function (f(s′):=f(s′)+(k.p.e))
+Calculate (Δ = f(s')-f(s))
+Yes No Generate random number
+Δ ≤ 0
+(u=(0,1))
+Accept the neighbor solution
+Run probability acceptance
+Update the current solution
+function
+and the objective function
+(s:=s', f(s):=f(s'))
+No
+u<e(cid:2879)(cid:2940)/(cid:2904)
+No
+f s(cid:4593) <f(s(cid:2912)(cid:2915)(cid:2929)(cid:2930))
+Yes
+Accept neighbor solution
+Yes Update the current solution
+and the objective function
+Update the best obtained (s:=s', f(s):=f(s'))
+solution and the objective
+function
+(sbest:=s', f(sbest):=f(s'))
+iteration = iteration+1
+Yes No Apply geometric cooling
+iteration ≤ I
+schedule (T:=α.T)
+Yes No
+T ≤ Tf iteration:=0
+Report the best obtained solution
+and the objective function value
+End
+Figure5.Flowchartoftheproposedalgorithm.
+Figure 5. Flowchart of the proposed algorithm.
+Drones 2024, 8, x FOR PEER REVIEW 14 of 31
+Dr ones2024,8,373 14of30
+DefiniDtiroonness: 2024, 8, x FOR PEER REVIEW 14 of 31
+Definitions:
+𝑠 : initial solution 𝑓(cid:4666)𝑠 (cid:4667): objective function value of the initial solution
+(cid:2868) s :initialsolutio(cid:2868)n f(s ):objectivefunctionvalueoftheinitialsolution
+0 0
+𝑠: current solution Drones 2024, 8, x FOR𝑓 P(cid:4666)E𝑠E(cid:4667)R: oRbEjVeIcEtWiv e function value of the current solution 14 of 31
+s:currentsolution f(s):objectivefunctionvalueofthecurrentsolution
+𝑠(cid:4593): neigDhebfionri tsioolnust:i on s′:neighbor 𝑓 s (cid:4666) o 𝑠 lu (cid:4593)(cid:4667) t : i o o n bjective functio f n ( s v′a(cid:17)lu :o e b o je f c t t h iv e e n f e u i n g c h t b io o n r v so a l l u ue tio o n f theneighborsolution
+𝑠 (cid:3029)(cid:3032)(cid:3046)(cid:3047) : t𝑠h (cid:2868) e: ibneisttia ol bstoaliunteiodn s olution s :thebes 𝑓 t (cid:4666) o 𝑠 b (cid:3029) t (cid:3032) a (cid:3046) i (cid:3047)𝑓 n (cid:4667)(cid:4666) e : 𝑠 d o (cid:2868) b(cid:4667) s j: o e o l c u bt t ij i ve o ec n t fiuven cf f ut ( ino s nct ivo ) an : l o u v b ea j e lou c f t e i t v ho e ef f tb u he n es c ti t n i o o ibt n itaa v li a ns l eo u dl e u o stoi f ol t un h t e io b n es tobtainedsolution
+𝑇 (cid:2868) : init𝑠i:a cl utermrepnte rsaotluurteio n Defin T it b i e : o st i n n s i : t ialtem 𝑝: p t e h r e a t 𝑓l u o(cid:4666) r n𝑠 e g(cid:4667):e ostb djeicsttiavnec feu p vn : ac t b h ltue i e s oet n l o i n n v g adl e iu s s t eta d on i f s c t te a h n me c ca e ut v rri a rx l e u n e t i s n o d lu is t t io an n c ematrix
+𝑇: curr𝑠e(cid:4593)n: nt D etei r gmon h epb s eo 2r0 ra2 s 4tuo , 8 lr, ue x t i F o O n𝑠R (cid:2868) P : E in ER i T t i 0R : a E c l u V s r I o E r l e W u n t t io te n𝑘 m : p p e e r n a 𝑓a tu l(cid:4666)t𝑠 r y e (cid:4593) (cid:4667)c:o oebffijecciteivnet fku:npce 𝑓tni(cid:4666)oa 𝑠nl(cid:2868)t y (cid:4667)v:a c oloub e jef e fi coc tfi i e vtnhe te f unnecigtihobno vr aslouleu toifo nth e initial solution 14 of 31
+𝑇 (cid:3033) : fina𝑠l (cid:3029) (cid:3032) t (cid:3046) e (cid:3047) m: tpheer bateustr eo btain𝑠e:d c usorTlrue f nt:itfio snnoa llutteimo𝑒np : e e r x a c tu e𝑓s r(cid:4666)s e𝑠 c (cid:3029) a (cid:3032)(cid:3046) p (cid:3047) a(cid:4667):c iotbyj evcatliuveee: efux 𝑓 cne (cid:4666)cs 𝑠tsi(cid:4667)o:c noa pbvajaeclciuttiyev voea ff lutuhneec tbioesnt voabltuaein oefd t hsoe lcuutirornen t solution
+∝: coo𝑇li (cid:2868) n: gin riattiael temperatu𝑠re (cid:4593): nei∝g:hcbooorl isnoglurat𝐼it:oe nnu m𝑝b: etrh oe fl oitnegraetsito dnissI :taantn ue𝑓came(cid:4666)c𝑠 bhv (cid:4593) e a(cid:4667)tr:le uoomebf pjiietneec rrtdaaivittsuieot ranfenus cnaect tmeioaacnth rvitxae lmuep eorfa tthuere neighbor solution
+𝑇: cu D rr e e fi n n t i t t i e o m n p s: e ratu𝑠r(cid:3029)e(cid:3032)(cid:3046) (cid:3047) : the best obtained 𝑘s:o pluetnioanlt y coefficien𝑓t (cid:4666)𝑠 (cid:3029)(cid:3032)(cid:3046)(cid:3047) (cid:4667): objective function value of the best obtained solution
+P P s s e e u u d d o 𝑇o (cid:3033)- ‐ c :c o fio d 𝑠 dn(cid:2868) e ae: o l io n f tfe i t t m h tiha e p le P e sP r r o o arlo p u tup o ti r s oo e e 𝑇sn d (cid:2868) e :d S i n i S m iitmi u a l lu a tl t e e am d tep A de n Ar n an e tun a r l e i ea n l𝑒 g in: A egx l 𝑓 g Ac o (cid:4666) el 𝑠 r sg(cid:2868) i so t (cid:4667) h cr: ia m otphb a jme c c i t t y iv v e a f𝑝l u u: n ethc tei olonn vgaelsute d oisf ttahnec ien vitailaul es oinlu dtiiostna nce matrix
+1. D∝e:t ecro 𝑠 mo : lic inu ner g rt e rha net t e vs aolluuet ioo𝑇fn: c𝑇u (cid:2868) ,r𝑇r (cid:3033) e,n𝐼t, tαe mperature 𝐼: nu 𝑓 m (cid:4666)𝑠 b (cid:4667) e : r o o b f j e i c te ti r v a e ti f o u𝑘n n:s cp a tei t on e naal c vtyh a lct u eoe me ffio p f e ct rihea ent utc r u e r rent solution
+12.. RD uent eF 𝑠rlm(cid:4593) o : yinnd ee– igtWhhea b rvo sar h lsua o lel l uoa𝑇ft (cid:3033)l i g:To ofi0 n r,n i T tahfl, mtIe,,m α opbetariantu three shorte 𝑓 s (cid:4666) t 𝑠 p (cid:4593)(cid:4667) a : t o h b s je a c n t d iv d e i f s𝑒u t:a nen cxc tci e oessn bs v eca taw lpu eae ec n oitf ya t l hvl ae pl a nui eer i s g o h f b n o o r d so es lu tion
+2 3 . . G R Pe u sne n eur 𝑠F ad(cid:3029) l t(cid:3032) o oe(cid:3046) y ‐(cid:3047) cs d: o0 t– h dr W ae en a b o r des fo hs tmta h ol el lby a∝P t l aag :r ni o o cndop rei oo tdc h lsa i ms enlco dg , ul uo Srla b at i itmt toe a en i u n 𝑓 l(cid:4666)a t 𝑠 h t(cid:2868)e e (cid:4667)d s h A o n rt n e e s𝑓t a (cid:4666) l p i 𝑠a n(cid:3029) t (cid:3032)g h (cid:3046) (cid:3047) s A (cid:4667)a: l n g od o b r jde it cis h tti m av𝐼ne: c nfeuu snm bcetb tiw eorne o evf na ila tue ll rea p ot a ifi o rtn shs oe f abt ne e osa dt c eoh sb tteaminpeder saotulurtei on
+3. U G 1p. e d n a e𝑇 t r De(cid:2868) a: e t s ei ton e s li ru0t m it rai a iol n n nt e des mo ,t h m op eb le y jv rea ac a l tt n u uiv d e ree c o a ffu l c n𝑇 u c l ,t a i𝑇 t o e n,𝐼s f ,, ( α s a0 n ) d curren 𝑝 t: ttehme ploenrgaetustr ed istance value in distance matrix
+4 4 . . (cid:4666) ( 𝑠 U 2 : s . p (cid:3404) : d = a 𝑠𝑇 R t (cid:2868)s : e , u c𝑠 , s u n(cid:3029)s o (cid:3032) r l F(cid:3046) r u (cid:3047) e l : t o n i (cid:3404) : o y= t n d t𝑠 s e – s(cid:2868) , m W , o , 𝑓 b p f a (cid:4666) ( j e𝑠 rP e s s r(cid:4667) c ) sh a: t e : i (cid:3404)t a= v u u l e ld r𝑓 e f a f o(cid:4666) u ( l 𝑠‐g s n c(cid:2868)oo(cid:4667) c(cid:2868) )r t d, i i , 𝑓 o teh (cid:3033)n f (cid:4666) o (m 𝑠 s s(cid:3029)f , (cid:3032), a t (cid:3046)oh n (cid:3047)b (cid:4667)e d ) : t : (cid:3404)Pa c = u irno𝑓 r f r p(cid:4666) t e (h 𝑠o s n (cid:2868)es t (cid:4667)𝑘 e )s , t , : d e 𝑇 h p m T o :S e(cid:3404) r p : i n t= m e e a𝑇 r s l (cid:2868)u a T t t(cid:4667) y t lp u a ) a c r t e o tehd e s ffi A a c nn ie dn n ed t a ilsitnagn cAelsg boertiwthemen all pairs of nodes
+5 5 . . R R3 e .e p p e e a𝑇 aG(cid:3033)t t 0: e fi n nb e ea r s a tl t t e e m s0 p0 r e a r n a 1d t .o u m re l Dye atne0rdm cianlceu b tlh e a s e t t ev a𝑓l(cid:4666)u𝑠e (cid:2868) (cid:4667)o0 𝑒 f : 𝑇e (cid:2868) x,c𝑇e (cid:3033) s,s𝐼 , 0c αa pacity value
+6 6 . . Re R ∝p Ue :e pp ca e o d t a o at l t i e n s g o r l a u t t e io n2s. , obRjeucnti Fvleo fyudn–cWtioanrssh, aalnl da 𝐼 lcg : u o n rr u rie m thn b mt e t, r e om o b f pt i ae t i e rna r a ttu t h i re o e n s s h o a r t t e e a s c t h p a te th m s p a e n r d at d u i r s e t ances between all pairs of nodes
+7 7 . .
+4.
+(cid:4666)S𝑠e:l(cid:3404)S e e c l𝑠t e (cid:2868) o c,n t𝑠o(cid:3029) e (cid:3032) n o (cid:3046)e(cid:3047) f: o t(cid:3404)h f3e t𝑠.h (cid:2868) n e,e𝑓n iG(cid:4666)g e𝑠i he(cid:4667)g bn:h(cid:3404)oebrr oa 𝑓s rt(cid:4666)ees𝑠a e(cid:2868) sr a(cid:4667)0 c r hr,ca𝑓h on(cid:4666)o p𝑠dp(cid:3029) eo (cid:3032)e rm (cid:3046) a r(cid:3047)a t(cid:4667)lo t:yo r(cid:3404) r sas n𝑓r r ad(cid:4666)a n𝑠 nc (cid:2868) dad(cid:4667)ol,ocm𝑇mu:lll(cid:3404)yayt e𝑇 (cid:2868) 𝑓(cid:4667) (cid:4666)𝑠 (cid:2868) (cid:4667)
+88.. 5. PRGseeepunGedeearonta‐e tcreoa dnteeeni ogefhi gbthhobero PsUrorslpooupdltuoiaottsieneo dns(cid:4666)o 𝑠S(ls (cid:4593) ui(cid:4667)′mt) iaoaunnnldads,t cceoaadbll ccjAeuucnlltaanittveeeea f𝑓fl(ui(cid:4666) snn𝑠′)g(cid:4593) c(cid:4667) tA io lngso,r aitnhdm c urrent temperature
+4.
+99.. 6. 1 A. pARpDlepyepp tdeleyayrtmdn yainnmaeim ct hipcee pvne(cid:4666)aa𝑠nll:utay(cid:3404)let yfo𝑠uf (cid:2868)fn u,𝑇𝑠cn(cid:3029)(cid:2868)tci (cid:3032) ,ot(cid:3046) 𝑇 i(cid:3047) no(cid:3033):, n(cid:3404)𝐼𝑓,f (cid:4666)𝑠α(𝑠 (cid:2868)s (cid:4593),′(cid:4667))𝑓≔(cid:4666)𝑠(cid:4667)f𝑓:((cid:4666)(cid:3404)s𝑠′)(cid:4593)𝑓(cid:4667)+(cid:4666)(cid:3397)𝑠( (cid:2868) (cid:4666)k(cid:4667)𝑘 ×,𝑓(cid:3400)(cid:4666)p𝑠𝑝× (cid:3029) (cid:3400) (cid:3032)(cid:3046)e(cid:3047) )𝑒(cid:4667)(cid:4667): (cid:3404)𝑓(cid:4666)𝑠 (cid:2868) (cid:4667),𝑇:(cid:3404)𝑇 (cid:2868) (cid:4667)
+1100.. 7. 2 ∆. (cid:3404) ∆𝑓R(cid:4666)=u𝑠Sn(cid:4593) e(cid:4667) f lF(e(cid:3398) s lco′t𝑓 (cid:17) y o(cid:4666)d−𝑠n–(cid:4667)5eW f. o(a sf )rtsRhheea pnllee aaigtlg hobroitrh smea, rocbht aoipne trhaeto srhso rratnesdto pmaltyh s and distances between all pairs of nodes
+1 1 1 1 . . 8. 3 I. f ∆ I f G (cid:3409)∆eGn0 ≤ee; nr 0 ae; trea tse06 rn. aenigd hobmoRlrye s paoenlaudtt icoanlc u(cid:4666)𝑠la(cid:4593)(cid:4667)t ea 𝑓n(cid:4666)d𝑠 (cid:2868)c(cid:4667)a lculate 𝑓(cid:4666)𝑠(cid:4593)(cid:4667)
+1 1 2 2 . . 9. 4 . UUppAdd U apa p tpte d el yt a sh t o edel yt u7c hnu.t e iaromc rn u e sin rc, r t e o ps n beo t jnle s uSac o ttell iti u lovye t ne c if o tuf 𝑠 n uon:nncs (cid:3404)etc :it = o𝑠oio(cid:4593) nf, s n 𝑓t′h𝑓, s(cid:4666),(cid:4666)e𝑠 f a𝑠 (cid:4667) (nn(cid:4593) s ≔(cid:4667)e) di≔ gc𝑓hu(cid:4666) f𝑓br𝑠 ((cid:4666)ro s (cid:4593) 𝑠e(cid:4667)′r) n(cid:4593) (cid:4667)ste (cid:3397)taer(cid:4666)mc𝑘hp(cid:3400) oerp𝑝aet(cid:3400)ruar𝑒teo(cid:4667) rs randomly
+1133.. 10 . (cid:4666)𝑠:∆I(cid:3404)f(cid:3404) 𝑠𝑓𝑓(cid:2868) (cid:4666)(cid:4666)I ,𝑠 f 𝑠𝑠 (cid:4593) (cid:3029)(cid:4593)(cid:4667) f(cid:4667)(cid:3032)((cid:3407)(cid:3046)8(cid:3398)s(cid:3047).′: )𝑓(cid:3404)𝑓(cid:4666)<(cid:4666)𝑠 𝑠𝑠 (cid:3029)(cid:2868)(cid:4667)f(cid:3032) , (cid:3046)( 𝑓 (cid:3047)s (cid:4667)(cid:4666)
+b
+;𝑠
+e s
+(cid:4667)G
+t
+: )e(cid:3404) ;n𝑓er(cid:4666)a𝑠t(cid:2868)e(cid:4667) n,𝑓e(cid:4666)ig𝑠 (cid:3029)h(cid:3032)b(cid:3046)(cid:3047)o(cid:4667)r: (cid:3404)sol𝑓u(cid:4666)t𝑠i(cid:2868)o(cid:4667)n, 𝑇(cid:4666):𝑠(cid:3404)(cid:4593)(cid:4667) 𝑇a(cid:2868)n(cid:4667) d calculate 𝑓(cid:4666)𝑠(cid:4593)(cid:4667)
+1144.. 11 . 5 . Re I p f e ∆ at U(cid:3409) p0d;a9 Ut. ep dtha ete b tehsetA boepbstptaloiynb edtadyi nnseoadmlusitocio lpunet ino 𝑠a (cid:3029)n(cid:3032) lt (cid:3046)sy (cid:3047)b : e f s (cid:3404) t u:n𝑠=c(cid:4593),ts𝑓io′(cid:4666) ,n𝑠f(cid:3029) ((cid:3032) 𝑓s(cid:3046) (cid:4666) (cid:3047)b 𝑠(cid:4667) es (cid:4593) t ≔(cid:4667))≔𝑓(cid:4666) f𝑓𝑠((cid:4666)(cid:4593) s𝑠(cid:4667)′ )(cid:4593)(cid:4667) (cid:3397)(cid:4666)𝑘(cid:3400)𝑝(cid:3400)𝑒(cid:4667)
+1155.. 12 . 6 E. lsE e l; se ; Re U p p ea d t a 1te0 .t he cu rre∆n(cid:3404)t s𝑓o(cid:4666)lu𝑠t (cid:4593)(cid:4667)io(cid:3398)n 𝑓𝑠(cid:4666):𝑠(cid:3404)(cid:4667) 𝑠(cid:4593),𝑓(cid:4666)𝑠(cid:4667)≔𝑓(cid:4666)𝑠(cid:4593)(cid:4667)
+1166.. 13 . 7 . G en G ere anSteeer I lare fat ce1n𝑓 t 1rd(cid:4666)oa.𝑠o nn(cid:4593)me(cid:4667)d oo (cid:3407)nmfu 𝑓 thmn(cid:4666)e 𝑠uIb mfne erb∆ i(cid:4667)eg 𝑢(cid:3409);rh (cid:3404)ub0o=;(cid:4666) r0 s(,10e(cid:4667),a 1r)ch operators randomly
+(cid:3029)(cid:3032)(cid:3046)(cid:3047)
+1177.. 14 . 8 . I f 𝑢 I f(cid:3407)u G𝑒<(cid:2879)e ∆ne(cid:3415)(cid:3021) e− 1T; r∆ 2a U;.t p e d n a e t i e g h th b e o r b Ue so spt l udo tab ito tea n it nh (cid:4666) ee𝑠 d (cid:4593) c (cid:4667) us o arlrn uednti to c asnol cl𝑠 uultaiote :n (cid:3404) 𝑓𝑠(cid:4666) 𝑠:𝑠(cid:4593)(cid:3404), (cid:4593)(cid:4667) 𝑓𝑠 (cid:4666) (cid:4593)𝑠,𝑓(cid:4666)𝑠(cid:4667)(cid:4667)≔≔𝑓𝑓(cid:4666)(cid:4666)𝑠𝑠(cid:4593)(cid:4593)(cid:4667)(cid:4667)
+(cid:3029)(cid:3032)(cid:3046)(cid:3047) (cid:3029)(cid:3032)(cid:3046)(cid:3047)
+1188.. 15 . 9 . EU lpsed A ; aUp tpe p dt l1h ya3te .ed c ytuh n rea r mce un irt cr s ep one ltu n st aoi l oltIuy nft ifo𝑠𝑓un:(cid:4666)n(cid:3404)𝑠cs(cid:4593)t(cid:4667):𝑠i=o(cid:4593)(cid:3407),n𝑓s 𝑓′ (cid:4666) 𝑓,(cid:4666)𝑠 (cid:4666)𝑠(cid:4667)f𝑠 (cid:3029) (≔(cid:3032) (cid:4593) s(cid:4667) (cid:3046) ) (cid:3047) ≔(cid:4667)𝑓;(cid:4666) 𝑠f𝑓(cid:4593)((cid:4666) (cid:4667)s𝑠 ′)(cid:4593)(cid:4667)(cid:3397)(cid:4666)𝑘(cid:3400)𝑝(cid:3400)𝑒(cid:4667)
+1199.. 16U. nU1 t 0ni . lt i( li t(eitr ea rtaiGtoi∆ noe (cid:3404)n n≥e ≥𝑓 r𝐼1(cid:4666) a)4𝑠I t).e (cid:4593) (cid:4667) r (cid:3398) an 𝑓 d (cid:4666) o 𝑠 m (cid:4667) nu mb er U𝑢p(cid:3404)d(cid:4666)a0te,1 t(cid:4667)h e best obtained solution 𝑠 (cid:3029)(cid:3032)(cid:3046)(cid:3047) :(cid:3404)𝑠(cid:4593),𝑓(cid:4666)𝑠 (cid:3029)(cid:3032)(cid:3046)(cid:3047) (cid:4667)≔𝑓(cid:4666)𝑠(cid:4593)(cid:4667)
+2 2 0 0 . . 17A. p A1 p 1p. l p y l y g e g o e m om Ief I t e f r t 𝑢i r c ∆i c (cid:3407)c 1(cid:3409) o c5o 𝑒o.0o(cid:2879) l ; i l∆ n i (cid:3415) n (cid:3021)g g ; s s c c h h eEe d dlusuel l e;e T 𝑇: : (cid:3404) = ∝ ∝ (cid:3400) × 𝑇 T
+2 2 2 2 1 2 2 1 . . . . R U R U 1 1e n8 9 e p n t p . . i t o i l o r 1 1l r ( t 3 2( 𝑇 t t T . . t h h (cid:3409) U ≤ e e n 𝑇 b b T (cid:3033) et e i ) s f s l ) t t ( o o i tb b et t r U a a a U i it p n n1 1 i p o e d e7 6d Id nd a . . f a t s ≥s e t 𝑓o o e t l(cid:4666) 𝐼 l u h t u) 𝑠 h t e (cid:4593) t i(cid:4667) e i o c o (cid:3407)n c u n u r a 𝑓 a r r n e r n (cid:4666)d I Ge n 𝑠 df n (cid:3029) t e o (cid:3032) t o𝑢 n s b (cid:3046) s o b(cid:3047) j e e o (cid:4667) (cid:3407) l j r e ;c u la t u c t 𝑒 t i t i v et (cid:2879) o i i v e o ∆ r n (cid:3415)e an f (cid:3021) u n 𝑠 f; u n 𝑠d: c : (cid:3404) n o t (cid:3404) c m io 𝑠 ti 𝑠 n (cid:4593) o n, (cid:4593) 𝑓 n , v u𝑓 (cid:4666) a m v (cid:4666) 𝑠 l a u 𝑠 (cid:4667)b (cid:4667) l e ≔ u e≔ s r eb 𝑓 e 𝑢 𝑠s 𝑓 (cid:4666) t (cid:3029) , (cid:4666) 𝑠 (cid:3404) (cid:3032) 𝑠 (cid:4593) (cid:3046) f (cid:4667) (cid:3047) (cid:4593) (cid:4666) ( (cid:4667) , 0 s b𝑓 ,1 e(cid:4666)s (cid:4667) t𝑠 ) (cid:3029)(cid:3032)(cid:3046)(cid:3047) (cid:4667)
+20.
+1 4.
+A pp ly g eo m1e8t .r ic c
+U
+o
+p
+o
+d
+li
+a
+n
+t
+g
+e
+s
+t h
+ch
+e
+e
+b
+Ud
+e
+up
+s
+l
+t
+de
+o
+a
+b
+t𝑇e
+t
+:
+a
+t(cid:3404)
+i
+h
+n
+∝e
+e
+(cid:3400)c
+d
+u 𝑇
+s
+r
+o
+re
+lu
+n
+t
+t
+i o
+so
+n
+l u
+𝑠
+t(cid:3029)i(cid:3032)o(cid:3046)n(cid:3047)
+: (cid:3404)
+𝑠:
+𝑠
+(cid:3404)
+(cid:4593),
+𝑠
+𝑓(cid:4593)(cid:4666)
+,
+𝑠
+𝑓(cid:3029)(cid:4666)(cid:3032)𝑠(cid:3046)(cid:3047)(cid:4667)
+(cid:4667)
+≔
+≔
+𝑓
+𝑓
+(cid:4666)
+(cid:4666)
+𝑠
+𝑠(cid:4593)(cid:4667) (cid:4593)(cid:4667)
+21. 1 U 5. n ti l (𝑇 (cid:3409) E 𝑇 ls ) e ; 1 9. 5 . C U o T m hnet p i lw u ( t io a ter t kr i a o int n igo a n l m R ≥e e c𝐼 s h) u a l n t i s sm of the suggested simulated annealing algorithm is pre-
+(cid:3033)
+22. 1 R 6 e . po rt the bes G t 2 e o0 n b. e t sr a ea i n n tet e e dA rdTa ps nhi opnde ll u o yFsm t ii iggm o eun no uru me a lm a n 5e t d b t etr eod oi r c b o a cj 𝑢b e n ot c (cid:3404)n oa ti il e v ni (cid:4666) n a e 0 hl g ,i f 1i n usg(cid:4667) c g n hhc -a eq t l idu o g ua n o ll r ei v ti a yt𝑇h l u s:mo(cid:3404)e l ∝uf 𝑠 ot(cid:3400)iro𝑇nth , se 𝑓fo(cid:4666) D 𝑠r AthRe(cid:4667) P DwARasP-uDsDed atnods MolSv-eDtAhRePC-DADR.P .The
+17. If2 1 𝑢 . (cid:3407)ICnU A𝑒an (cid:2879) dR t ∆ di (cid:3415)P l(cid:3021)i t;( w i𝑇oan(cid:3409)s to𝑇in t) th reo cdoumcepdontoentthse ofli ttheera atlugroeribthym (cid:3029) G (cid:3032) t (cid:3046) oh (cid:3047) ladte wne (cid:3029) ar (cid:3032) en (cid:3046)(cid:3047) ddeWsigonnegd[,3 a2 s]t,raantedgyit wisaks ncroewatneda sone
+(cid:3033)
+18. 22U. fpoo Rdfrae ttth p heo ee t rhnm t eu t o h mcs eT utb h rb cer ee hre s nao wt tlf o l o sde br onr tk la ogu ii n n i ntnei geosg dn m t to s y𝑠 e o b:p cl e(cid:3404) hu e at es i 𝑠 n m o o(cid:4593) i , ns fp𝑓 m a a l(cid:4666)o n 𝑠r yc(cid:4667) od e f r≔ d o o t b ut h 𝑓o jee t(cid:4666) i c i𝑠nm st (cid:4593) i g u (cid:4667) v p ge pr g or feu ov sn eb t ec lte dt h i m o e s n as im l. v gT au o l h l r ua iet et h e C d m𝑠 A (cid:3029) ’ (cid:3032)a sR (cid:3046)n (cid:3047) flP ,n e𝑓e ix a s(cid:4666)i𝑠l bd i(cid:3029) i n(cid:3032) lei g(cid:3046) fit (cid:3047) y(cid:4667)n a d l e g ud o r r ai i ns t g h o m tbht ea i s i n p in re g -
+19. Until (iteratsvieoeanhr ci≥ch s l 𝐼e e p)n hr t oa e su d et . i e n Ts h F te i h g aa u tl r g e so e 5 rr i t tv o he m o a b la t l a ll i to n hw e h s i r g fe h oq - r q u o u irp a ee l d i r t a y et i s dn o gg lu ews tio iwt n h s i t mh fo oo r ru t et h d e e rx D ocn A eee R sd P ti - hn D ag D n v r a ee n hq d ui c M ilree S dc - . D a Ip A t a R ics P it - y DD to .
+20. Apply geomnmeotitrn niicem Icc noeiz soa esld aitnd roygi t t a i tso olcn htuo et su oder u t a h clleo e l os c𝑇tf o s: t m(cid:3404)h(de p∝i o d(cid:3400)s n t T ra𝑇o eh n n n e c t e e s s w s o p) of .r rt oF kh vi ie r n i sd ag te l l g yd m , o at re h i s ct e hh in am pp n e u it r sh tf m o a tor t m wo th f a e en rt he ac e le d g e oo ssu rf i i gg tthh gn em eesd p. t ,e Sr ad oo p s m st o ri e m s a e t d eu dr gl o a a y n t l e e w g d so a ar sa ir t cn eh r ne m eaat o eli n dn g algorithm is pre-
+21. Until (𝑇(cid:3409)𝑇 (cid:3033) ) nCoAt uRsPf e o dtre i tsf h ta ep b nre uott mbelr be emso r sl o u fit sd ioar n sone n ian s elt ys o e dzb toet i a dnb in.e F eTei d gmh u beprny elo , u 5yts het i oden g oDto b fA e tiam wRin e pPr rh- o dDivg rDo eh n -taqh enu s e da t a h lliMg a ty n oS r s t i-o h tDhl e umA n ti’Ru os m nPfls-b e Dfx e oi rDbr o itlaf hi rt d eye r D o dsnoAu elrRvs in ePgd-D tbhDye and MS-DARP-DD.
+22. Report the best pu o rso bivnta igd isnte ehe d ader a csgs ho ei l nnpu pehtiru aoas t nt e te . o ad Tn thtdhee e so atab lpIlj g egnro co oa r trbi i div tlt h deeh m i mmftui . os n T a.ncl hF ltto u iioonw s tna, h s lt v elh fy a e oc,l oruta hm l eo ge pp o𝑠peo r r ien t arh etf,ni mont𝑓rgs mc(cid:4666) o a𝑠waf n nit t a hch l ee(cid:4667)s m o ao l dfog etrohe t r e eid r th mdrmoei n ns ite eghs tna h tteh e wda n necu r or m eme dq bpeu e sor ii rno geef nd ne. tdIst, oaisf s trategy was created
+(cid:3029)(cid:3032)(cid:3046)(cid:3047) (cid:3029)(cid:3032)(cid:3046)(cid:3047)
+dthroenaels ng o too tr in bte ehc mu e s s e sisa d r .p yr etos eunstee fadolr.l tohf et hneu dmrboenre os fp drorovnidees dto a bs ein epmupt ltooy tehde taol gimorpitrhomve. Sthoem ael gdorrointhems a’sr efl exibility during the
+not used Tifh ae bwettoerrk isnsoeglua rmtciohenc ph ihsa naosibsetm.a Ti nohefed ta hblegy o usrusitighngmge sf eatewlldoe wrs idsm rfouonlrae otsep tdeh raaannt intnhegea lwninuigtmh abmlegroo roreift dhdmrroo nnieess s p trhea-n required. It is
+55.. 1C.oCmopmuptuattiaotinoanla RlReseusultlst sforCARP
+provsiednetde da si nin Fpiugut troen t5oh tte on a eolcgbeotsarsiianthr hym itg.o hT u-hqsuues aa, lltilht yoe f sa tolhgleuo tdriiortohnnms ef sco arp nrth oavels iDdo eAddeR taPesr- DminDipnu eat n tthdoe tM hneuS -maDlgbAeoRrr iPothf- DmD. S. ome drones are
+TTdhhreoe snIipemnes aur tfdoload trbiemetdi oua ansnne tcndoee. t aohlnfeino tchgto eumaslmpgedooe rntiiafet hhnam etbsu e ofrttofi esrtrt hti eshco eaal lulDggtoAioorrRintih Ptihsm w mo tabhswta autia nswseedteder stebot yde seduossliuivgnsengi ent hfdgee,w adCe isArftf rdRearrPteoe.ngn Tyethls yw et hasisaz nce rtdehaet endu mber of drones
+CpAroRbPle wmassf ofirnro ttrmhoed tnuhucemeidnb steotra topnhfrce doe lvrisotieednrteesadstg u taodrse b bi nbeb pyey umGDt poteolldoA tyehrneemd aa otnlognd oi [mWr3it3poh]rnm,ogvv. ae[T3l ht2bhu]ye,s a,aB ntlhgednoe iraati vltighseo mnkrtni’steoh fltwmeanx lc .iaab[sn3i l 4oiat]nly,se oed gudlreibtneygrm thine e the number of
+oEfg tlhees 5em. [Co3so5ste]m c,ahpkracushlhlt easpntihbgoayinnsaeKgl. itRTuyhdepceshreu osia nleoltgestfso aa rtrloi.ct h [br3moe6 uu ]at,silbenlodmgw. pcsrv ofobbrlye omBpese.ur Talltheienn gsC AewtRitaPhl. im[s3 od7re]e,fi endgerodlLn aebss y otbhBtaranain nridenqãguo iraendd. It is
+v E e g h l i e c s le e r [ o 3 u 8nT] to, e hts a e nn t hesdi acmet H ss use e laf r are v tyie e d btao y l a lu nT tsh naee ne aa r gll eli q a non u gf d i tr ahe lWeg d o da e rnrd iotg g hne [mes 3s 9 w fp]o i .rt roI h ntvo hiu pde t eaD edr x tA iac cRse u e Pilnd a wpi r n ,ua g ttsh vtueoe s h lteahi d c reg l e taeo lc sg a stoo p arl a nivtc dehit mt y mh .t e o oS s Com tmAc ineoR - mPd.rp oTlnheexes are
+i p m ro iz b e l eC to mA ta sR lnf P tor o otw u mua rs sec e o idan s c it t hfr s o ai ( dn dbus ies tctta t e5a ned.n rcC c tesooeos s mlte )uh . tp te Fiwu oi l rtineat s e r ttie l risyoa uo, tn ubs tah ertlaed e Ri .bnpeyTeesd h ruG f elbo otyr lsla m d ure a gsn nien c sage tn- fds oei f zwW e thedore n pdp grr r oo[ o 3bnp 2leo e]s,m s atehn d sad ina n i l ttg t hh o iser e i knt gn hudo mmbw ,bo nven raa los, foe dngrelo, nes
+C eg A l R ,k P os t hf e ts s h t ,p eb pr mmorovoc bivds le t,e m cadhn saad si l s l iee na ngpn gluL a in lty sgtz eo t e t Tyts dh,ph .e aee T ns as h ldoige mfon t ahur, irl t etca hh tH e rmeo d D eu. fTA taeihnni R -ung4 P es p - t,a D etrlhiso D ntebg plaa ealr n mgol d gobs or. M l ireTtihm S thh -me D mf Cr Ac oafA R omnRr P a P - ttlD hhs ioee D s dDd H aeeA rtefi eeRfn re s Pmei o ds l wiv neaa e tes,s d t oi hun b bes y t wean diuhn mtiiocnb hgse orl voef the CARP. The
+atotavleohfidc1lr2eo1 rn2oeues tdteogs ebthse,a u4t s8see5CdrAvr. eeRq aPul liw rtheaeds rieendqtrguoeidrseu,dca eenddd gto7e s2t h7weni tlohitnoeu-rrate teuqxruceie rbeedyd iGnegod lvgdeeehsni cwalene dcrae Wpcahocnoitgsye [tn3o2. m]T, ihanne-d it is known as one
+imize total tour costosf (tdhies tmanocsets c).h Faillresntlgyi,n tgh ety ppeersf oorfm aarcn croe uotfi nthge p prorobpleomsesd. T ahlge oCriAthRmP iosn d efined as obtaining
+CAR5P. Cteosmt ppruotbalteiomnsva elis hR aiecnlseau lrlyotzsu etde.s Tthhaetn s, etrhvee DalAl tRhPe- rDeqDu airnedd MedSg-eDsA wRitPh-oDuDt eaxrcee seodlivnegd v beyh icle capacity to min-
+The simulaitmediz aen tnoetaalli ntogu ar lgcoosrtisth (mdi sftoarn tchees )D. FAirRsPtl yw, aths eu speedrf toor msoalnvcee t hoef tChAe RpPro. pTohsee d algorithm on
+CARP was introCdAucRePd tteos tt hper olibteleramtus ries bayn aGlyozldeden. Tahnedn W, thoen gD [A32R]P, -aDndD iat nisd k MnoSw-DnA aRs Po-nDeD are solved by
+of the most challenging types of arc routing problems. The CARP is defined as obtaining
+vehicle routes that serve all the required edges without exceeding vehicle capacity to min-
+imize total tour costs (distances). Firstly, the performance of the proposed algorithm on
+CARP test problems is analyzed. Then, the DARP-DD and MS-DARP-DD are solved by
+Drones2024,8,373 15of30
+solutionqualityofthesuggestedalgorithmispresentedasthedeviationvaluefromthe
+optimalorthebestknownsolutionintheliterature.
+f(s): Theobjectivefunctionvalueobtainedbytheproposedalgorithm
+f(s∗): Theobjectivefunctionvalueoftheoptimalorthebestknownsolution
+(cid:18) f(s)− f(s∗) (cid:19)
+Deviationvalue(Gap) = (3)
+f(s∗)
+ThedeviationvaluepresentedinEquation(3)isusedasaperformanceindicatorfor
+thesuggestedmethod. Ontheotherhand, theparametervaluesofthealgorithmwere
+(cid:16) (cid:17)
+determinedastheinitialtemperaturevalue(T ),thefinaltemperaturevalue T ,andthe
+0 f
+(cid:16) (cid:17)
+coolingrate(∝)values T , T , ∝ = (100,0.1,0.99). Thenumberofiterations(I)tobe
+0 f
+performedateachtemperaturewasdeterminedbasedontheproblemsizeandisshownin
+Table2.
+Table2.Numberofiterationsinsimulatedannealingalgorithm.
+NumberofRequiredEdges NumberofIterations
+E ≤15 50
+R
+15<E ≤45 200
+R
+45<E ≤60 500
+R
+60<E ≤75 750
+R
+75<E ≤90 1000
+R
+90<E ≤200 2000
+R
+200<E ≤500 5000
+R
+AspresentedinTable2,thenumberofiterationsisincreasedasthesizeoftheproblem
+increasedinordertosufficientlyexplorethesearchspaceforeachtemperaturevalueof
+the algorithm. The proposed algorithm for the CARP was coded using the Python 3.7
+programming language and executed on an Intel Core i5 1.6 GHz computer with 8 GB
+RAM.Thesuggestedalgorithmwasrun10timesforeachtestproblemandtheobtained
+resultsarepresentedinTable3.
+Table3.Numberofiterationsinsimulatedannealingalgorithm.
+RequiredEdges Resultsofthe Optimal/TheBest Computation
+TestProblems Vehicles Gap
+(TotalEdges) ProposedAlgorithm KnownResults Times(Seconds)
+kshs-6* 15(15) 3 10197 10197 - 4
+gdb-5 26(26) 6 377 377 - 30
+gdb-21 33(33) 6 156 156 - 34
+gdb-22 44(44) 8 200 200 - 40
+gdb-23* 55(55) 10 233 233 - 142
+val-5c 65(65) 5 474 474 - 291
+val-5d 65(65) 9 581 575 0.01 255
+bmcv-d1 79(98) 5 3235 3215 0.006 558
+bmcv-f24* 86(142) 4 3240 3210 0.009 794
+val-10c 97(97) 5 446 446 - 1104
+val-10d* 97(97) 10 530 525 0.009 987
+egl-e4c 98(98) 19 11631 11529 0.008 810
+bmcv-c18 121(133) 11 5640 5570 0.012 1102
+bmcv-d18 121(133) 6 4165 4165 - 1345
+egl-s4a 190(190) 19 12456 12216 0.019 2440
+egl-s4b 190(190) 27 16502 16201 0.018 2375
+egl-s4c* 190(190) 35 21207 20476 0.035 2345
+eglL-g2a 375(375) 22 1128386 1088040 0.037 7404
+eglL-g2e* 375(375) 42 1663216 1606079 0.035 7386
+hefei-4 485(1212) 28 767684 737730 0.040 9295
+Drones2024,8,373 16of30
+Table3summarizestheresultsof20differentlysizedtestproblemstakenfromthe
+sevensets. ThefirstcolumnofTable3containsthenamesofthetestproblems. Thenames
+ofthelargestsizedtestproblemsinthesetaredenotedwithanasterisk(kshs-6*,gdb-23*,
+bmcv-f24*,val-10d*,egl-s4c*,andeglL-g2e*). Thenumberofrequirededgesandthetotal
+numberofedgesintherelevanttestproblemsarepresentedinthesecondcolumn. The
+third column of the table shows the number of vehicles that serve the required edges.
+In the fourth column, the obtained objective function values for the test problems are
+presented. The next column contains the optimal or the best known objective function
+values. Deviationvalues(gap)aregiveninthefifthcolumn. Thelastcolumnshowsthe
+computationtimesreportedinseconds.
+The values of the optimal or best known results presented in the fifth column of
+Table 3 are based on findings from the literature. Martinez et al. [40] used a genetic
+algorithm for solving the CARP. In the structure of this algorithm, a random key was
+usedforsolutionrepresentation. Theresultofthekshs-6*problempresentedinTable3
+wasobtainedinthestudy. Zhangetal.[41]proposedtwodivide-and-conqueralgorithms
+called RCO-RDG-MAENS and RCO-SAHiD to solve a large-sized CARP. In this study,
+theunifiedhybridgeneticsearch(UHGS)algorithmproposedbyVidal[42]wasusedto
+comparethealgorithms,andthebestknownsolutionfortheHefei-4problem,aspresented
+in Table 3, was obtained by the UHGS algorithm. Chen et al. [43] proposed the hybrid
+metaheuristicapproach(HMA)foreffectivelysolvingtheCARP.Inthestructureofthe
+algorithm,inversion,singleinsertion,doubleinsertion,swap,two-opt,andmerge–split
+operatorswereusedaslocalrefinementmethods. Theresultsofallothertestproblems
+presentedinTable3(gdb-5,gdb-21,gdb-23*,val-5c,val-5d,bmcv-d1,bmcv-f24*,val-10c,
+val-10d*,egl-e4c,bmcv-c18,bmcv-d18,egl-s4a,egl-s4b,egl-s4c*,eglL-g2a,andeglL-g2e*)
+wereobtainedinthestudy. Sincethenumberofvehiclestobeusedinthetestproblemsis
+fixed,thesamenumberofvehiclesaspresentedinthethirdcolumnofTable3wasusedin
+theaforementionedstudies.
+The test problems kshs-6 and gdb-23, which are the largest-sized problems in the
+kshsandgdbsets, wereabletobesolvedoptimallyusingtheproposedalgorithm. On
+theotherhand, theoptimalsolutionscouldbeobtainedfortheval-5cproblemwith65
+requirededgesandfortheval-10cproblemwith97requirededges. Theoptimalsolutionto
+thebmcv-d18problem,whichincludes121requirededgesandatotalof133edges,was
+achievedin1345s. Thisisthelargest-sizedproblemforwhichtheoptimalsolutioncould
+beobtainedwiththeproposedalgorithm. Fromtheseresults,itisclearthattheproposed
+algorithmiscapableofreachingoptimalsolutionsevenforlarge-sizedproblems.
+Ontheotherhand,high-qualitysolutionswereobtainedforlarge-sizedtestproblems
+intheeglset. Fortheegl-s4aandegl-s4bproblemswith190requirededges,thesolution
+with a deviation of about 1% from the best known result was reached in about 2300 s.
+Theegl-s4ctestproblem,thelargest-sizedproblemintheeglset,wassolvedwitha3.5%
+deviationfromthebestknownresult. FortheeglL-g2aandegl-g2eproblemsintheEglL
+setwith375requirededges,high-qualitysolutionscouldbeobtainedinabout2hwitha
+deviationofabout3%fromthebestknownresult.
+ComparingtheproposedalgorithmwiththegeneticalgorithmproposedbyMartinez
+etal.[40]forthekshstestproblem,itisevidentthatbothalgorithmsachievedtheoptimal
+solution. On the other hand, for the problems in the gdb, val, bmcv, egl, and eglL sets
+presented in Table 3, the proposed algorithm was compared with the HMA algorithm
+proposedbyChenetal.[43]. Asaresult,itwasfoundthattheproposedalgorithmobtained
+thesameresultsastheHMAforsmall-sizedproblems,approximately0.9%awayfrom
+theHMAformedium-sizedproblems,andapproximately3%awayfromtheHMAfor
+large-sizedproblemsonaverage.Therefore,itisclearthattheproposedalgorithmperforms
+veryclosetothealgorithmsthatprovidetheoptimal/thebestknownresultsfortheCARP,
+demonstratingthatitisahighlycompetitivealgorithm.
+Inaddition,highqualitysolutionwasobtainedfortheHefei-4testproblemwitha
+totalof1212edges,485requirededges,and727non-requirededgesinabout2.5hwitha
+Drones2024,8,373 17of30
+deviationof4%fromthebestknownresultprovidedbyZhangetal.[41]. Therefore,when
+comparing the proposed solution approach with the UHGS algorithm, used by Zhang
+et al. [41] and proposed by Vidal [42], for the Hefei-4 problem, it is seen that the result
+obtainedwiththeproposedapproachisonly4%awayfromthebestknownresult. Thistest
+problemisquitelarge-sized,andproblem-specificheuristicalgorithmsareusuallyusedto
+solvesuchchallengingproblemsintheliterature. Forthisreason,thesuggestedalgorithm
+issuccessfulandhastheabilitytoreachhigh-qualitysolutions.
+Theperformancesofneighborsearchoperatorswereanalyzedusingthebmcv-d18test
+instance,whichisthelarge-sizedtestproblemforwhichtheoptimalsolutionwasobtained.
+As a result of the analysis, it is seen that the proposed algorithm improves the initial
+solutionvalue63timesintotalandreachestheoptimalsolution. Whentheperformances
+oftheneighborsearchoperatorswereexamined, k-routeshortenimprovedthecurrent
+solution20times,edgepostpone17times,andedgedirectionandsmartedgedirection
+change11times,respectively. Therefore,itisseenthatk-routeshorten,edgepostpone,edge
+direction,andsmartedgedirectionchangeoperatorshavehighperformanceandmakea
+greatcontributiontoreachinghigh-qualitysolutionstotheCARP.
+5.2. TestProblemsGeneratedforDARP
+SevendifferentlysizedtestproblemsweregeneratedfortheDARP-DD.Thesetest
+problemsareusedtotesttheperformanceoftheproposedmetaheuristicalgorithm. The
+graphsaredisconnectedandconsistofmorethanonecomponent. Theinformationabout
+thetestproblemsispresentedinTable4.
+Table4.Generatedtestproblems.
+Numberof Numberof Numberof Numberof
+TestProblems
+Components Nodes RequiredEdges Non-RequiredEdges
+DARP-1 5 19 17 171
+DARP-2 6 29 28 406
+DARP-3 10 46 44 1035
+DARP-4 11 64 64 2016
+DARP-5 19 87 84 3741
+DARP-6 17 98 100 4753
+DARP-7 34 195 200 18,915
+InTable4,thefirstcolumnpresentsthenameofthetestproblem. Sincethegraphs
+tobeusedintheDARP-DDaredisconnected,thenumberofcomponentsonthegraph
+is given in the second column. The third column contains the number of nodes on the
+graph. Thenumberofrequiredandnon-requirededgesonthegraphisshowninthelast
+twocolumns. Therequirededgesonthegraphcanbecurvedorlinear. Thenumberof
+non-requirededgesinthegraphiscalculatedbythenumberofnodes. Thedisconnected
+graph is converted to complete graph since the drone can directly traverse between all
+nodesonthegraph. Sinceallnodepairsareconnectedinacompletegraph,thisgraph
+will have (n×(n−1))/2 non-required edges with n nodes. The largest-sized problem
+generated is DARP-7, which has 34 components, 200 required edges, and 18,915 non-
+requirededges. ThereisdetailedinformationaboutthetestproblemsshowninTable4at
+https://dataandresults.wixsite.com/darp,accessedon20June2023.
+Thealgorithmcandeterminethenumberofdronesthatwillservicetherequirededges
+inthetestproblems. However,thereisaneedforthemaximumnumberofdronestobe
+used. Themaximumnumberofdronestobeusedinthetestproblemcanbecalculatedby
+theequationgivenbelow.
+Drones2024,8,373 18of30
+i,j: Nodes
+d : Energydemandvalueofrequirededges
+ij
+Q: Droneenergycapacity
+n: Thenumberofcomponents
+dmax : Themaximumenergydemandvalueofdeadheadingedges
+kmax : Maximumnumberofdrones
+  
+∑
+k max =  d ij+(n−1)×d max/Q (4)
+(i,j)∈ER
+Themaximumnumberofdronesusedinthesolutionoftheproblemiscalculatedby
+consideringthetotalenergydemandvaluesoftherequirededges,themaximumenergy
+demand value between pairs of nodes (while deadheading) on the graph, the smallest
+numberofconnectionsbetweencomponents(numberofcomponents—1),andthedrone
+energycapacity. Thevalueofk isroundedupifthenumberofdronesisnotaninteger.
+max
+5.3. ComputationalResultsforDARP-DD
+SevendifferenttestproblemsweregeneratedfortheDARP-DDandtheinformation
+aboutthesetestproblemswasdetailedintheprevioussection. Theperformanceofthe
+proposedmetaheuristicalgorithmwastestedinsolvingtheseproblems.
+The parameter values of the simulated annealing algorithm were determined as
+initialtemperaturevalue (T ), finaltemperaturevalue (T ), andcoolingcoefficient (∝)
+0 f
+value(T , T , ∝) = (100,0.1,0.99). Sincetheinitialsolutionofthealgorithmisrandomly
+0 f
+generated,theinitialtemperaturevalueisnotvariedaccordingtothesizeoftheproblem.
+Thenumberofiterations(I)tobeoperatedateachtemperaturewasdeterminedbasedon
+theproblemsizeandisshowninTable5.
+Table5.ThenumberofiterationsintheSAalgorithm.
+TestProblems NumberofRequiredEdges NumberofIterations
+DARP-1 17 200
+DARP-2 28 300
+DARP-3 44 750
+DARP-4 64 1250
+DARP-5 84 2000
+DARP-6 100 2500
+DARP-7 200 5000
+In order to sufficiently explore the search space for each temperature value of the
+algorithm,thenumberofiterationsisincreasedasthesizeoftheproblemincreases.
+TheURLheuristicalgorithmwasusedtoevaluatethequalityoftheresultsobtained
+withtheproposedsimulatedannealingalgorithmfortheDARP-DD.TheURLalgorithm
+wasproposedbyBelengueretal.[44]intheliterature. Inthisalgorithm,agianttourisfirst
+createdwithpathscanningwithrandomlink. Therefore,thefiverulesofthepathscanning
+algorithmarenotusedinthisalgorithm,anditdiffersfromthepathscanningalgorithm
+proposedbyGoldenetal.[45]. Duringthegianttourcreationphase,pathscanningwith
+randomlinkaddsthefeasibleunservededgethatisnearesttothelastnodeadded. Then,
+thecreatedgianttourisdividedintovehicleroutesusingUlusoy’ssplittingalgorithm[46].
+Moreover,theURLalgorithmshowsthat4to11executionsareenoughtoperformbetter
+thanthepathscanningalgorithm[47].
+ThesuggestedsimulatedannealingalgorithmandURLalgorithmfortheDARP-DD
+was run 10 times for each test problem and the best obtained results are presented in
+Table6.
+Drones2024,8,373 19of30
+Table6.TheobtainedresultsfortheDARP-DDtestproblems.
+ProposedSimulatedAnnealingAlgorithm URLAlgorithm
+Numberof Numberof
+Test Numberof Numberof Results Numberof Results
+Required Non-Required Computation
+Problems Components Drones (Objective Drones (Objective
+Edges Edges Times
+(Drone Function (Drone Function
+(Seconds)
+Capacity) Values) Capacity) Values)
+DARP-1 5 17 171 4(500J) 1204.46 30.4 5(500J) 1324.12
+DARP-2 6 28 406 4(1000J) 2429.58 66.1 5(1000J) 2704.21
+DARP-3 10 44 1035 6(1000J) 3287.91 190.7 6(1000J) 3661.5
+DARP-4 11 64 2016 5(1500J) 3915.78 554.3 5(1500J) 4546.78
+DARP-5 19 84 3741 7(1500J) 6238.37 810.6 8(1500J) 7296.33
+DARP-6 17 100 4753 8(1500J) 6916.44 1319.8 10(1500J) 8033.11
+DARP-7 34 200 18915 21(1500J) 20137.39 3651.3 24(1500J) 23845.77
+Table6presentstheresultsobtainedforsevendifferentDARP-DDtestproblems. The
+firstfourcolumnsofTable6containinformationaboutthetestproblem. Thenumberof
+dronesandtheenergycapacityofthedronesinthetestproblemsaregiveninthefifth
+column. TheirenergycapacitiesarepresentedinJoulesandthenumberofdronesusedin
+eachtestproblemisreported. Inthesixthcolumn,theobtainedresultsfortheDARP-DD
+aregiven,whicharethetotaltraveleddistancesbydrones. Theseventhcolumnshowsthe
+computationtimesgiveninseconds. ThelasttwocolumnsinTable6presenttheresults
+obtainedwiththeURLalgorithm.
+Table6demonstratesthattheproposedmetaheuristicalgorithmwascapableofsolving
+differentlysizedproblemswithinreasonablecomputationtimes. Forexample,theDARP-2
+problemwith6components,28requirededges,and406non-requirededgeswassolved
+inabout66susingfourdroneswithanenergycapacityof1000Joules. Thetotaltraveled
+distancebythedroneswas2429.58unitsforthisproblem. TheDARP-7problemincludes
+34 components, 200 required edges, and 18,915 non-required edges. For the DARP-7
+problem,thesolutionwasobtainedinabout1hbyusing21droneswithanenergycapacity
+of1500Joules. Thetotaldistancetraveledbythedroneswasobtainedas20,137.39units.
+Examining the results presented in Table 6, it can be seen that the proposed simu-
+latedannealingalgorithmismoresuccessfulandachievesbettersolutionsthantheURL
+algorithm. For example, for the DARP-1 problem, the total distance traveled with the
+proposedalgorithmis1204.46units,whilethetotaldistancetraveledwiththeURLalgo-
+rithmis1324.12units. Therefore,theproposedalgorithmprovideda9.9%betterresult
+forDARP-1thantheURLalgorithm. Forthelarge-sizedDARP-7problem,theproposed
+algorithm achieved an 18.4% better result than the URL algorithm. For the other test
+problemsinTable6,theproposedalgorithmobtainedanaverageof14%higherquality
+results. Meanwhile,sincetheURLalgorithmisaheuristicmethod,itisquitefast,andthe
+resultspresentedinTable6wereobtainedinlessthanthreesecondsforeachtestproblem.
+TheDARP-1andDARP-6problemsaretakenintoconsiderationtodisplaythedrone
+routesthatcorrespondtotheobtainedsolutionshowninTable6. Thedroneroutesforthe
+DARP-1problemareshowninFigure6whilethedroneroutesfortheDARP-6problemare
+presentedinAppendixA.
+AsshowninFigure6,17requirededgeswereservicedbyusingfourdroneswithan
+energycapacityof500Joules. Theedgesineachdrone’srouteareshowninadifferentcolor.
+Dashededgesindicatedeadheadingontherelevantedge. Dronerouteswereobtained
+asfollows:
+Firstdroneroute(blue-coloredroute): d(depot−10)−(10−8)−(8−7)−(7−9)−(9−10)
+−d(10−depot).
+Seconddroneroute(red-coloredroute): d(depot−16)−(16−15)−d(15−1)−(1−3)−
+d(3−6)−(6−5)−(5−4)−d(4−depot).
+Thirddroneroute(green-coloredroute): d(depot−2)−(2−1)−d(1−11)−(11−12)−
+d(12−6)−(6−4)−d(4−depot).
+Drones 2024, 8, x FOR PEER REVIEW 20 of 31
+algorithm is 1204.46 units, while the total distance traveled with the URL algorithm is
+1324.12 units. Therefore, the proposed algorithm provided a 9.9% better result for DARP-
+1 than the URL algorithm. For the large-sized DARP-7 problem, the proposed algorithm
+achieved an 18.4% better result than the URL algorithm. For the other test problems in
+Table 6, the proposed algorithm obtained an average of 14% higher quality results. Mean-
+while, since the URL algorithm is a heuristic method, it is quite fast, and the results pre-
+Drones2024,8,373 sented in Table 6 were obtained in less than three seconds for each test problem. 20of30
+The DARP-1 and DARP-6 problems are taken into consideration to display the drone
+routes that correspond to the obtained solution shown in Table 6. The drone routes for the
+DFoArRthPd-r1o nperorobuletem( paurrep lseh-coowlonre dinr oFuigteu):red (6d wephoitle− th1e6 )d−ro(n1e6 r−ou1t7e)s −fo(r1 t7h−e D18A)R−P-(61 8p−rob13le)m−
+a(r1e3 p−re1s4e)n−ted(1 i4n− Ap15p)e−nddix(1 A5.− 2)−(2−3)−d(3−depot).
+FFiigguurree 66.. DDrroonnee rroouutteess oobbttaaiinneedd ffoorr DDAARRPP--DDDD--11..
+AAsn sahlyozwinng inth Feigduroren e6,r 1o7u treesqureivreeda lesdtgheast swoemree sceormvipceodn ebnyt suosinntgh feogurra dprhonarees sweritvhi caend
+ebnyerthgye scaampaecditryo noef ,5w00h iJloeuoltehse. rTchoem epdognese nints eaarcehs edrrvoicneed’s bryoudtieff earreen sthdorwonne isn. Ian daidffdeirteionnt ,
+cboelcoaru. sDeatshheeedn eedrggyesc ainpdacicitayteo fdtehaeddhreoandeinsgis ocno ntshuem reeldevdaunrti negdgdee.a dDhreoandei nrogu,dteesa dwheeraed oinb-g
+twaiansemd aads efoaltlotwhes:e dgesthatgivetheshortestpossibleconnectionbetweenthecomponents.
+The capacity utilization rates of the drones are 75%, 99%, 96%, and 97%, respectively.
+First drone route (blue-colored route): d(depot – 10) – (10 – 8) – (8 – 7) – (7 – 9) – (9 – 10) – d(10
+Theobjectivefunctionvalue,thetotaldistancetraveledbythedrones,wasobtainedas
+– depot).
+1204.46units.
+Second drone route (red-colored route): d(depot – 16) – (16 – 15) – d(15 – 1) – (1 – 3) – d(3 – 6)
+–5 .(46. –C 5o)m –p u(5t a–t i4o)n –al dR(e4s u– ldtsefpoortM). S-DARP-DD
+Third drone route (green-colored route): d(depot – 2) – (2 – 1) – d(1 – 11) – (11 – 12) – d(12 – 6)
+Seven different test problems were generated for the DARP-DD, and the obtained
+– (6 – 4) – d(4 – depot).
+resultsfortheseproblemswerepresentedintheprevioussection. Themultipleservice
+Forth drone route (purple-colored route): d(depot – 16) – (16 – 17) – (17 – 18) – (18 – 13) – (13
+dronearcroutingproblemwithdeadheadingdemand(MS-DARP-DD),oneofthespecial
+– 14) – (14 – 15) – d(15 – 2) – (2 – 3) – d(3 – depot).
+cases of the DARP-DD that involves servicing the required edges more than once, is
+discuAsnseadlyiznintgh itshsee dctrioonne. Aromutueslt ripevleeaselsr vthicaet csoonmdei tcioonmwpoanseandtds eodn ttoheso gmraeprhe qaureir seedrveidcgeeds
+biny tthhee sDaAmReP d-rDoDnet,e wsthpilreo boltehmers c.oTmhupso,nMenSt-sD aAreR sPe-rDvDicetde sbtyp droiffbleermenst wdreorenegse.n Ienr aadteddi.tiTohn,e
+bpercoapuossee tdhem eentearhgeyu craisptaicciatylg oofr itthhem drwonaessa ips pcloinedsutmoesdol dvuertihnegs deepardohbeleamdisn.gT, dheeapdahreaamdeintegr
+wvaalsu mesaodfe tahte thaelg eodrgitehsm thwate greivteh ethsea smheoratsesfot rpothsosisbeled ceotenrnmeicntieodni bnetthweeDenA tRhPe -cDoDm.ponents.
+The cTaphaecsiutyg guetisltiezdataiolgno rraitthems owf tahser udnro1n0etsi marees 7f5o%re, a9c9h%t,e 9s6t%pr,o abnldem 97a%nd, rtehsepebcetsitvoeblyta. iTnheed
+osbojleucttiiovnes fuarnectpiorens evnatleude,i tnhTe atbolteal7 d.istance traveled by the drones, was obtained as 1204.46
+units.
+Table7.ObtainedresultsforMS-DARP-DDtestproblems.
+5.4. Computational Results for MS-DARP-DD
+DARP-DD MS-DARP-DD
+Seven different test problems were generated for the DARP-DD, and the obtained
+Test res N ul u ts m f b o e r r t o h f ese pro R b e l s e u m lts s were presented in th N e u m pr b e e v r io of us secti R o e n s . u T lt h s e muCltoipmlep usteartvioince
+Problems Required Drones (Objective Required Drones (Objective
+drone arc routing problem with deadheading demand (MS-DARP-DD), one of tThiem sepsecial
+Edges (Drone Function Edges (Drone Function
+(Seconds)
+Capacity) Values) Capacity) Values)
+DARP-1 17 4(500J) 1204.46 21 5(500J) 1417.3 32.5
+DARP-2 28 4(1000J) 2429.58 32 5(1000J) 2707.22 70.2
+DARP-3 44 6(1000J) 3287.91 51 7(1000J) 3719.41 210.3
+DARP-4 64 5(1500J) 3915.78 69 5(1500J) 4067.02 580.4
+DARP-5 84 7(1500J) 6238.37 91 8(1500J) 6649.84 834.9
+DARP-6 100 8(1500J) 6916.44 107 9(1500J) 7123.38 1350.7
+DARP-7 200 21(1500J) 20137.3 207 21(1500J) 20724.5 3750.9
+Drones2024,8,373 21of30
+Table7presentstheobtainedresultsfortheDARP-DD,whereeachrequirededgemust
+beservicedonce,andtheMS-DARP-DD,wheresomerequirededgesmustbeservicedmore
+thanonce. Forexample,intheDARP-2problemfortheDARP-DD,thereare28required
+edgesonthegraphandeachrequirededgemustbeservicedonce. Whenthisproblemwas
+solvedwiththesuggestedalgorithm,the28requirededgesonthegraphwereserviced
+byfourdroneswithanenergycapacityof1000Joulesandthetotaltraveleddistancewas
+obtainedas2429.58units. Ontheotherhand,iftheDARP-2problemisconsideredforthe
+MS-DARP-DD,thereare32requirededgesonthegraphwithamultipleservicecondition
+providingservicetwiceforedge(14−15),twiceforedge(19−20),threetimesforedge
+(2−3),andoncefortheotherrequirededgesonthegraph. Thesuggestedalgorithmwas
+alsousedtosolvethisproblem. Theobtainedresultsshowthatthe32requirededgeson
+thegraphwereservicedbyfivedroneswithanenergycapacityof1000Joulesandthetotal
+traveleddistancebythedroneswasobtainedas2707.22units. Thecomputationtimeof
+thisproblemisapproximately70s. AsshowninTable7,sincetheMS-DARP-DDhasa
+largernumberofrequirededgesthantheDARP-DD,moredronescanbeusedtoservice
+therequirededgesinmostofthetestproblems. Inaddition,thetotaltraveleddistance
+increasedintheMS-DARP-DDcomparedtotheDARP-DDduetotheincreasednumberof
+requirededgestobeservedinthegraph.
+WhentheMS-DARP-DDdroneroutesareanalyzed,itisrevealedthattherequired
+edgesthatneedtobeservicedmorethanoncecanbeservedbythesamedronesorby
+different drones. Consequently, multiple services do not have to be performed by the
+samedrone.
+TheURLalgorithm[44]wasusedtoanalyzethequalityoftheMS-DARP-DDresults
+obtainedbyapplyingtheproposedsimulatedannealingalgorithm. Table8presentsthe
+resultsachievedusingbothmethods.
+Table8.ComparisonbetweentheproposedsimulatedannealingandURLalgorithms.
+ProposedSimulatedAnnealingAlgorithm URLAlgorithm
+Numberof
+Results Results
+TestProblems Required Numberof (Objective Computation Numberof (Objective
+Edges Drones(Drone Times Drones(Drone
+Function Function
+Capacity) (Seconds) Capacity)
+Values) Values)
+DARP-1 17 5(500J) 1417.3 32.5 6(500J) 1551.81
+DARP-2 28 5(1000J) 2707.22 70.2 6(1000J) 3048.65
+DARP-3 44 7(1000J) 3719.41 210.3 8(1000J) 4264.57
+DARP-4 64 5(1500J) 4067.02 580.4 6(1500J) 4702.6
+DARP-5 84 8(1500J) 6649.84 834.9 9(1500J) 7864.6
+DARP-6 100 9(1500J) 7123.38 1350.7 10(1500J) 8307.65
+DARP-7 200 21(1500J) 20724.5 3750.9 25(1500J) 24718.4
+Table8showsthatthesuggestedsimulatedannealingalgorithmoutperformstheURL
+algorithmforallMS-DARP-DDinstances. Forexample,inDARP-7,thelargest-sizedtest
+problem, the objective function value obtained with the proposed algorithm is 20724.5,
+buttheobjectivefunctionvalueprovidedbytheURLalgorithmis24718.4. Therefore,an
+approximately20%betterresultwasachievedfortheDARP-7instancewiththeproposed
+algorithm. Moreover, an average of 14% better results were obtained for the other test
+problems. Additionally,thenumberofdronesusedwiththeURLalgorithmishigherfor
+alltestproblems. Inthistable,noinformationisprovidedonthecomputingtimeofthe
+URLalgorithm,becauseitisaheuristicmethod,andthecomputingtimeisquiteshort. For
+eachtestproblem,thecomputingtimeislessthanthreeseconds.
+The obtained drone routes for the DARP-1 problem when all required edges are
+servicedjustonceareshowninFigure6. Inthesameproblem,thedroneroutesobtained
+when (4 − 6) is serviced twice, edge (10 − 8) twice, edge (1 − 2) three times, and the
+otherrequirededgesoncearepresentedinFigure7. Furthermore, thedroneroutesfor
+Drones 2024, 8, x FOR PEER REVIEW 22 of 31
+Table 8. Comparison between the proposed simulated annealing and URL algorithms.
+Proposed Simulated Annealing Algorithm URL Algorithm
+Number of
+Test Number of Computation
+Required Results (Objective Number of Drones Results (Objective
+Problems Drones (Drone Times
+Edges Function Values) (Drone Capacity) Function Values)
+Capacity) (Seconds)
+DARP-1 17 5 (500 J) 1417.3 32.5 6 (500 J) 1551.81
+DARP-2 28 5 (1000 J) 2707.22 70.2 6 (1000 J) 3048.65
+DARP-3 44 7 (1000 J) 3719.41 210.3 8 (1000 J) 4264.57
+DARP-4 64 5 (1500 J) 4067.02 580.4 6 (1500 J) 4702.6
+DARP-5 84 8 (1500 J) 6649.84 834.9 9 (1500 J) 7864.6
+DARP-6 100 9 (1500 J) 7123.38 1350.7 10 (1500 J) 8307.65
+DARP-7 200 21 (1500 J) 20724.5 3750.9 25 (1500 J) 24718.4
+Table 8 shows that the suggested simulated annealing algorithm outperforms the
+URL algorithm for all MS-DARP-DD instances. For example, in DARP-7, the largest-sized
+test problem, the objective function value obtained with the proposed algorithm is
+20724.5, but the objective function value provided by the URL algorithm is 24718.4. There-
+fore, an approximately 20% better result was achieved for the DARP-7 instance with the
+proposed algorithm. Moreover, an average of 14% better results were obtained for the
+other test problems. Additionally, the number of drones used with the URL algorithm is
+higher for all test problems. In this table, no information is provided on the computing
+time of the URL algorithm, because it is a heuristic method, and the computing time is
+quite short. For each test problem, the computing time is less than three seconds.
+The obtained drone routes for the DARP-1 problem when all required edges are ser-
+Drones2024,8,373 viced just once are shown in Figure 6. In the same problem, the drone routes obt 2 a 2 in of e 3 d 0
+when (4 – 6) is serviced twice, edge (10 – 8) twice, edge (1 – 2) three times, and the other
+required edges once are presented in Figure 7. Furthermore, the drone routes for the
+DthAeRDPA-6R pPr-o6bpleromb,l ewmh,ewreh aelrl ereaqlluriereqdu ierdedgeesd agrees saerrevisceerdv iocnedlyo onnlcyeo, narcee ,parreesepnrteesde ninte Adpin-
+pAepnpdeinx dAi.x InA t.hIen stahmees apmroeblpermo,b tlheme d,rtohneed rroounteesr oobuttaeisneodb twaihneend ewdghee n(6e0d –g 6e1()6 i0s s−erv61ic)eids
+tswerivceic, eeddtgwe i(c7e0, e–d 7g1e)( 7fi0ve− ti7m1)efis,v eedtgime e(s9,5e –d g9e6)( 9t5hr−ee9 t6i)mtherse, eantidm tehs,e aontdhethr ereoqthueirrerde qeudigreeds
+oendcgee saroen pcereasreenpterdes ienn AtepdpiennAdpixp Ben. dixB.
+FFiigguurree 77.. TThhee oobbttaaiinneedd ddrroonnee rroouutteess ffoorr MMSS--DDAARRPP--DDDD--11..
+In Figure 7, 21 required edges were serviced by using five drones with an energy
+In Figure 7, 21 required edges were serviced by using five drones with an energy
+capacity of 500 Joules. The edges in each drone’s route are shown in a different color.
+capacity of 500 Joules. The edges in each drone’s route are shown in a different color.
+Dashededgesindicatedeadheadingontherelevantedge. Dronerouteswereobtained
+asfollows:
+Firstdroneroute(blue-coloredroute):d(depot−4)−(4−6)−(6−5)−(5−4)−d(4−depot).
+Second drone route (red-colored route): d(depot − 2) − (2 − 3) − d(3 − 11) − (11 − 12) −
+d(12−6)−(6−4)−d(4−depot).
+Thirddroneroute(green-coloredroute): d(depot−2)−(2−1)−(1−2)−(2−1)−(1−3)
+−d(3−depot).
+Forthdroneroute(purple-coloredroute): d(depot−16)−(16−15)−(15−14)−(14−13)−
+(13−18)−(18−17)−(17−16)−d(16−8)−(8−10)−d(10−depot).
+Fifthdroneroute(orange-coloredroute):d(depot−10)−(10−8)−(8−7)−(7−9)−(9−10)
+−d(10−depot).
+When the obtained drone routes are evaluated, it is revealed that Drone-3 served
+theedge(1−2)threetimesinsuccession. Theedge(4−6)wasservedbyDrone-1and
+Drone-2,whereastheedge(10−8)wasservedbyDrone-4andDrone-5. Inotherwords,
+themultipleservicedemandsoftheseedgesweremetbydifferentdrones. Examiningthe
+droneroutesrevealsthatmultipleservicetotherequirededgesneednotbeprovidedby
+thesamedrone. Multipleservicecanbecarriedoutbythesamedroneifitisadvantageous
+withregardtothetraveleddistance. Ontheotherhand,thenumberofrequirededgeson
+thegraphincreasesinthecaseofmultipleservicesandthenumberofdronesincreases
+tofive. Thecapacityutilizationratesofthesedronesare79%,97%,97%,97%,and75%,
+respectively. Theobjectivefunctionvalue,thetotaltraveleddistancebythedrones,was
+obtainedas1417.3units.
+5.5. PerformanceoftheSimulatedAnnealingAlgorithmComponents
+Theperformanceofthecomponentsofthesuggestedalgorithmwasanalyzedusing
+the DARP-6 test problem. This problem has 17 components, 100 required edges, and
+4753non-requirededges. Theparametervaluesofthesimulatedannealingalgorithmwere
+determinedastheinitialtemperaturevalue(T ),thefinaltemperaturevalue(T ),thecool-
+0 f
+ingrate(∝),andthenumberofiteration(I)values(T , T , ∝,I) = (100,0.1,0.99,2500).
+0 f
+Drones 2024, 8, x FOR PEER REVIEW 23 of 31
+Dashed edges indicate deadheading on the relevant edge. Drone routes were obtained as
+follows:
+First drone route (blue-colored route): d(depot – 4) – (4 – 6) – (6 – 5) – (5 – 4) – d(4 – depot).
+Second drone route (red-colored route): d(depot – 2) – (2 – 3) – d(3 – 11) – (11 – 12) – d(12 – 6)
+– (6 – 4) – d(4 – depot).
+Third drone route (green-colored route): d(depot – 2) – (2 – 1) – (1 – 2) – (2 – 1) – (1 – 3) – d(3
+– depot).
+Forth drone route (purple-colored route): d(depot – 16) – (16 – 15) – (15 – 14) – (14 – 13) – (13
+– 18) – (18 – 17) – (17 – 16) – d(16 – 8) – (8 – 10) – d(10 – depot).
+Fifth drone route (orange-colored route): d(depot – 10) – (10 – 8) – (8 – 7) – (7 – 9) – (9 – 10) –
+d(10 – depot).
+When the obtained drone routes are evaluated, it is revealed that Drone-3 served the
+edge (1 – 2) three times in succession. The edge (4 – 6) was served by Drone-1 and Drone-
+2, whereas the edge (10 – 8) was served by Drone-4 and Drone-5. In other words, the mul-
+tiple service demands of these edges were met by different drones. Examining the drone
+routes reveals that multiple service to the required edges need not be provided by the
+same drone. Multiple service can be carried out by the same drone if it is advantageous
+with regard to the traveled distance. On the other hand, the number of required edges on
+the graph increases in the case of multiple services and the number of drones increases to
+five. The capacity utilization rates of these drones are 79%, 97%, 97%, 97%, and 75%, re-
+spectively. The objective function value, the total traveled distance by the drones, was ob-
+tained as 1417.3 units.
+5.5. Performance of the Simulated Annealing Algorithm Components
+The performance of the components of the suggested algorithm was analyzed using
+the DARP-6 test problem. This problem has 17 components, 100 required edges, and 4753
+non-required edges. The parameter values of the simulated annealing algorithm were de-
+Drones2024,8,373 23of30
+termined as the initial temperature value (𝑇 ), the final temperature value (cid:3435)𝑇 (cid:3439), the cool-
+(cid:2868) (cid:3033)
+ing rate (∝), and the number of iteration (𝐼) values (cid:3435)𝑇 ,𝑇 ,∝,𝐼(cid:3439)=(100,0.1,0.99,2500).
+(cid:2868) (cid:3033)
+When the DARP-6 problem was solved with the suggested algorithm, eight drones with
+WhentheDARP-6problemwassolvedwiththesuggestedalgorithm,eightdroneswithan
+an energy capacity of 1500 Joules were used in the obtained solution and the total distance
+energycapacityof1500Jouleswereusedintheobtainedsolutionandthetotaldistance
+traveled by the drones was 6916.44 units. The computation time of the algorithm for this
+traveledbythedroneswas6916.44units. Thecomputationtimeofthealgorithmforthis
+problem is approximately 1319 s. The convergence graph of the suggested algorithm for
+problemisapproximately1319s. Theconvergencegraphofthesuggestedalgorithmfor
+the DARP-6 problem is presented in Figure 8.
+theDARP-6problemispresentedinFigure8.
+FFiigguurree 88.. CCoonnvveerrggeennccee ggrraapphh ooff tthhee pprrooppoosseedd aallggoorriitthhmm ffoorr tthhee DDAARRPP--66 pprroobblleemm..
+FFiigguurree 88 sshhoowwss tthhee ccoonnvveerrggeennccee ggrraapphh ooff tthhee ssuuggggeesstteedd aallggoorriitthhmm ffoorr DDAARRPP--66 bbaasseedd
+oonn tthhee oobbjjeeccttiivvee ffuunnccttiioonn vvaalluueess oobbttaaiinneedd bbeettwweeeenn tthhee iinniittiiaall aanndd tthhee fifinnaall tteemmppeerraattuurree
+values. Sincetheinitialsolutionofthealgorithmisrandomlygenerated,thesearchprocess
+is initiated with solutions having very large objective function values. The objective
+functionvalueofthefirstfeasiblesolutionobtainedattheinitialtemperaturevaluesis9017.
+However,thealgorithm’swell-designedcomponentsallowedforittoquicklyconverge
+tohigh-qualitysolutionregions, andtheobjectivefunctionvalueswereimproved. For
+example,theobtainedsolution’sobjectivefunctionvaluewas7354whenthealgorithm’s
+temperature value was 47, and 7145 when the temperature value decreased to 21. At
+the end of the algorithm, a solution with a value of 6916.44 was reached owing to the
+intensificationmechanism,whichallowedforthealgorithmtosearchmorethoroughlyfor
+qualitysolutionregionsatlowertemperaturelevels. Furthermore,thecoolingrateinthe
+geometriccoolingschedulewassetascloseto1aspossible. Thus,thealgorithmwasable
+tothoroughlysearchthesolutionspaceateachtemperaturevalue. Thisalsoenabledthe
+algorithmtoaccessthequalitysolutionregionsinthesolutionspace.
+A study was conducted on the impact of the dynamic penalty function, which is
+anothercomponentofthealgorithmandusedasaconstraint-handlingstrategy,onthe
+solutionquality.WhentheDARP-6problemwassolvedusingthedynamicpenaltyfunction
+withintheproposedalgorithm’sstructure,theobjectivefunctionvaluewasobtainedas
+6916.44. Ontheotherhand,thepenaltycoefficientvalue(k)wastakenas1inthedynamic
+penalty function, thus obtaining a generic (fixed) penalty function. Then, the DARP-6
+problemwassolvedusingthegenericpenaltyfunctionwithintheproposedalgorithm’s
+structure. Inthiscase,theobjectivefunctionvaluewasobtainedas7084.11. Therefore,it
+canbesaidthatthedynamicpenaltyfunctionimprovessolutionqualitybyapproximately
+2.4%forDARP-6. Moreover,thesamestudywasconductedforothertestproblems. On
+examiningtheresults,itwasfoundthatthedynamicpenaltyfunctionimprovesthesolution
+qualitybyapproximately0.5%forDARP-1,DARP-2,andDARP-3;byapproximately1.2%
+forDARP-4andDARP-5;andbyapproximately2%forDARP-6andDARP-7.
+Theinitialtemperaturevalueandthenumberofiterationsperformedateachtem-
+peraturewereanalyzed. TheproposedalgorithmwasrunforthesolutionoftheDARP-6
+problemwithdifferentinitialtemperaturesandthenumberofiterationstobeperformedat
+eachtemperature. TheobtainedresultsofthisexperimentarepresentedinTable9.
+Drones2024,8,373 24of30
+Table9.ParameteranalysisfortheDARP-6problem.
+Initial Numberof Computation
+MinimumGap AverageGap
+Temperature Iteration Times(Seconds)
+2000 0.012 0.025 850
+2500 0.008 0.016 1100
+50
+3000 0.007 0.016 1423
+3500 0.007 0.015 1542
+2000 0.005 0.015 1024
+2500 - 0.012 1319
+100
+3000 - 0.01 1619
+3500 - 0.009 1825
+2000 0.005 0.013 1044
+2500 - 0.011 1391
+150
+3000 - 0.01 1698
+3500 - 0.009 1918
+2000 0.004 0.011 1105
+2500 - 0.01 1458
+200
+3000 - 0.009 1805
+3500 - 0.009 2008
+DARP-6wassolvedconsideringthealgorithm’sinitialtemperaturevaluesas50,100,
+150,and200andthenumberofiterationsateachtemperatureas2000,2500,3000,and3500,
+andtheobtainedresultsoftheseexperimentsarepresentedinTable9. Thealgorithmwas
+run10timesforeachinitialtemperatureandthenumberofiterations. Table9presents
+theminimumdeviationvalue,averagedeviationvalue,andcomputationtimesofeach
+experiment. Thedeviationvalueswerecalculatedusingtheobjectivefunctionvalueof
+6916.44unitsasthebasis. Thisobjectivefunctionvalue,whichisshownintheconvergence
+graph, was obtained by setting the initial temperature value to 100 and the number of
+iterationsto2500.
+Table9showsthatthebestobtainedsolution(thesolutionhavingobjectivefunction
+valueof6916.44units)fortheDARP-6problemwasreachedwhentheinitialtemperature
+valueswere100,150,and200andthenumberofiterationsateachtemperaturewas2500,
+3000, and 3500. Consequently, the initial temperature value of 100 and the number of
+iterationsateachtemperatureof2500providetheshortestcomputationtimeamongthe
+parametervaluesenablingthebestsolutiontobeobtained. Thatiswhytheinitialtempera-
+turevaluewassetto100andthenumberofiterationsperformedateachtemperaturewas
+setto2500.
+Figure9showstheperformanceoftheneighborsearchoperatorsusedinthestructure
+ofthealgorithmwhoseconvergencegraphisdrawninFigure8. Theperformanceofthe
+neighborsearchoperatorsisevaluatedwithregardtothenumberoftimestheyimprove
+thecurrentsolution.
+RegardingFigure9,theedgepostponeoperator(F)demonstratesthehighestperfor-
+mancewithregardtothenumberofimprovementstothecurrentsolutionandcontributes
+thegreatesttoobtaininghigh-qualitysolutions. Theedgepostponeoperator(F)improved
+thecurrentsolutionvalue66times. Anotheroperatorwithhighperformanceisthek-route
+shortenoperator(E).Thek-routeshortenoperator(E)contributestoimprovingthecurrent
+solution40times. Apartfromthek-routeshorten(E)andedgepostponeoperators(F),the
+otheroperatorsthatcontributethemosttoobtainingqualitysolutionsaresmartreverse
+(C),edgedirectionandsmartedgedirectionchange(G),androute-repairingoperators(H).
+Drones 2024, 8, x FOR PEER REVIEW 25 of 31
+DARP-6 was solved considering the algorithm’s initial temperature values as 50, 100,
+150, and 200 and the number of iterations at each temperature as 2000, 2500, 3000, and
+3500, and the obtained results of these experiments are presented in Table 9. The algorithm
+was run 10 times for each initial temperature and the number of iterations. Table 9 pre-
+sents the minimum deviation value, average deviation value, and computation times of
+each experiment. The deviation values were calculated using the objective function value
+of 6916.44 units as the basis. This objective function value, which is shown in the conver-
+gence graph, was obtained by setting the initial temperature value to 100 and the number
+of iterations to 2500.
+Table 9 shows that the best obtained solution (the solution having objective function
+value of 6916.44 units) for the DARP-6 problem was reached when the initial temperature
+values were 100, 150, and 200 and the number of iterations at each temperature was 2500,
+3000, and 3500. Consequently, the initial temperature value of 100 and the number of iter-
+ations at each temperature of 2500 provide the shortest computation time among the pa-
+rameter values enabling the best solution to be obtained. That is why the initial tempera-
+ture value was set to 100 and the number of iterations performed at each temperature was
+set to 2500.
+Figure 9 shows the performance of the neighbor search operators used in the struc-
+ture of the algorithm whose convergence graph is drawn in Figure 8. The performance of
+Drones2024,8,373 the neighbor search operators is evaluated with regard to the number of times the2y5 oifm30-
+prove the current solution.
+FFiigguurree 99.. TThhee nnuummbbeerr ooff ttiimmeess tthhee nneeiigghhbboorr sseeaarrcchh ooppeerraattoorrss iimmpprroovvee tthhee ccuurrrreenntt ssoolluuttiioonn ffoorr tthhee
+DARP-6 problem. The letters A, B, C, D, E, F, G, and H represent k-reverse, n-reverse, smart reverse,
+DARP-6problem.ThelettersA,B,C,D,E,F,G,andHrepresentk-reverse,n-reverse,smartreverse,
+intra-route reverse, k-route shorten, edge postpone, edge direction and smart edge direction change,
+intra-routereverse,k-routeshorten,edgepostpone,edgedirectionandsmartedgedirectionchange,
+route-repairing operators, respectively.
+route-repairingoperators,respectively.
+Regarding Figure 9, the edge postpone operator (F) demonstrates the highest perfor-
+Thefollowingcommentscanbemadeconsideringthetemperaturevaluesatwhichthe
+mance with regard to the number of improvements to the current solution and contributes
+neighborsearchoperatorsimprovethecurrentsolution. Itisseenthattheedgepostpone
+the greatest to obtaining high-quality solutions. The edge postpone operator (F) improved
+operator(F),whichhasthehighestperformanceinimprovingthesolution,contributes
+the current solution value 66 times. Another operator with high performance is the k-route
+toreachingqualitysolutionsfromtheinitialtemperaturetothefinaltemperatureofthe
+a
+sh
+lg
+o
+o
+r
+r
+t
+i
+e
+t
+n
+h m
+op
+.
+e
+T
+r
+h
+a
+e
+tokr
+- r
+(
+o
+E
+u
+).
+t
+T
+e
+h
+sh
+e
+o
+k
+r
+-r
+te
+o
+n
+ut
+o
+e
+p
+s
+e
+h
+r
+o
+a
+r
+to
+te
+r
+n
+( E
+o
+)
+p
+,
+e
+w
+ra
+h
+t
+i
+o
+c
+r
+h
+(
+i
+E
+s
+)
+t
+c
+h
+o
+e
+n
+s
+t
+e
+r
+c
+ib
+o
+u
+n
+t
+d
+es
+h
+t
+ig
+o
+h
+im
+es
+p
+t
+r
+p
+o
+e
+v
+rf
+in
+or
+g
+m
+th
+in
+e
+g
+cu
+o
+r
+p
+r
+e
+e
+r
+n
+a
+t
+-
+tsoorl,uhtiaosni m40p trimoveesd. Athpearctu frrroemnt tshoel uk-trioountaet ssheovreteranl (tEe)m apnedr eadtugree pvoasltupeosnsei mopilearrattoortsh (eFe),d tghee
+poothsetpr oonpeeroaptoerras ttohra(tF c)o.Tnhtreibfiuntea lttheem mpoersat ttuor eobvtaaliuneinagt wquhailcihtyt hsoelku-trioountse asrheo srmteanrot preevraetroser
+((EC)),i medpgroe vdeisrethcteiocnu rarnendt ssmolaurtti oendgisea dpipreroctxiiomna ctehlayn1g0e. (TGh)e, eadngde rdoiurteec-trieopnaairnidngs moparetraetdogres
+d(Hir)e. ctionchange(G),smartreverse(C),androute-repairingoperators(H)showedhigh
+performance,especiallyattheinitialandfinaltemperaturevaluesofthealgorithm. The
+k-reverse(A)andn-reverse(B)operators,whicharethetwoworst-performingoperators,
+madeagreatcontributiontothediversificationmechanismofthealgorithmsincethey
+causedmajorchangesinthecurrentsolution. Inaddition,itmightbeconcludedthatthe
+edgepostpone(F)andk-routeshorten(E)operators,whichcontributetotheimprovement
+inthecurrentsolutionatalmosteverytemperaturevalueofthealgorithm,playacrucial
+roleforthediversificationandintensificationmechanismsofthealgorithm.
+6. ConclusionsandFutureWorks
+This study focused on the routing of surveillance drones considering their energy
+capacities,whichareconsumedduringbothservicinganddeadheading. TheDARP-DD
+anditsspecialcase,theMS-DARP-DD,werediscussed. Thesimulatedannealingalgorithm
+wasusedtosolvetheseproblems. Thecomponentsofthesimulatedannealingalgorithm,
+includingsolutionrepresentation,neighborsearchoperators,constrainthandlingstrategy,
+andparametervalues,weredesignedinaccordancewiththeproblems.
+Thesolutionrepresentationwasdevelopedasatwo-dimensionallistbasedonthe
+required edges. The k-route shorten, smart edge direction change, and smart reverse
+operatorswereintroducedtotheliteratureasneighborsearchoperatorstobeappliedin
+otherARPs. Inaddition,itisthefirsttimeanedgepostponeoperator,whichisemployed
+toimprovethetouroftheRPP,wasusedasaneighborsearchoperatorwithmergeand
+splitprocedure. Adynamicpenaltyfunctionwasdevelopedandusedinthestructureof
+thealgorithmasaconstraint-handlingstrategy.
+Drones2024,8,373 26of30
+TheproposedalgorithmwasinitiallyappliedtosolvetheCARPusing20differently
+sized test problems. The optimal solution of the bmcv-d18 instance (121 required and
+133totaledges)wasobtainedin1345s. FortheHefei-4instance(485required,727non-
+required,and1212totaledges),thealgorithmachievedahigh-qualityresultwithin2.5h,
+deviatingonly4%fromthebestknownresult. Thisdemonstratesthealgorithm’scapability
+tosolvelarge-sizedproblemsefficiently.
+Consideringtheabilityoftheproposedalgorithmtoachievehigh-qualityresultsfor
+theCARP,theproposedalgorithmwasappliedtosolvetheDARP-DDandMS-DARP-DD.
+DifferentlysizedtestproblemsweregeneratedfortheDARP-DDandMS-DARP-DDto
+testtheperformanceoftheproposedalgorithm. Thelargest-sizedtestproblem(DARP-7)
+had34components,195nodes,200requirededges,and18,915non-requirededges.
+Thecomputationalresultsshowthattheproposedmetaheuristicalgorithmwascapa-
+bleofsolvingdifferentlysizedproblemswithinreasonablecomputationtimes.Considering
+theDARP-7problemfortheDARP-DD,thesolutionwasobtainedinabout1hbyusing
+21droneswithanenergycapacityof1500Joules. Thetotaltraveleddistancebythedrones
+was obtained as 20137.3 units. Furthermore, the obtained drone routes reveal that the
+capacityutilizationratesofthedronesarequitehigh,anddeadheadingwasmadeatthe
+edgesthatgivetheshortestpossibleconnectionbetweenthecomponents. Theseresults
+demonstratethattheproposedalgorithmcansolvetheseparticularinstanceswithinrea-
+sonablecomputingtimes. However,itisimportanttonotethatthescopeoftheseresultsis
+confinedtothedefinedproblemsizesandscenarios. Thealgorithm’sperformancemay
+varywithdifferentproblemcharacteristics.
+SincetheMS-DARP-DDhasmoreedgesthantheDARP-DD,itneedsmoredronesto
+servicetherequirededgesinmosttestproblems. Furthermore,thetotaldistancetraveled
+by the drones and computation times increased in the MS-DARP-DD. When the drone
+routesfortheMS-DARP-DDareanalyzed,itisrevealedthattherequirededgesthatneed
+tobeservicedmorethanoncecanbeservedbythesamedronesorbydifferentdrones.
+Therefore,thisproblemdoesnotrequirethesamedronetoperformmultipleservices.
+Theperformanceoftheneighborsearchoperatorswasevaluatedwithregardtothe
+number of times that they improved the current solution. It was seen that the k-route
+shorten,edgepostpone,edgedirectionandsmartedgedirectionchange,andsmartreverse
+operators have high performance in the process of obtaining high-quality solutions to
+thealgorithm.
+Thisstudypresentsageneralframeworkfordroneenergyconsumption. Additionally,
+the energy per unit distance can be adjusted based on drone type, usage purpose, or
+environmentalconditions. Ontheotherhand,theamountofenergyconsumedbydrones
+whenservicingtheedgesisnotnecessarilyproportionaltothedistancetraveled.Asaresult,
+thisstudyoutlinesaflexiblestructure,andtheparametervaluescanbeeasilychanged.
+Researcherscanapplytheproposedalgorithmbyusingspecificenergyconsumptionrates
+ofthedrones.
+Asaresultofthisstudy,twonoveldronearcroutingproblemswerediscussedand
+an effective solution approach was developed to solve these problems. The developed
+solutionapproachanditscomponentsweredesignedtobeextremelyflexible. Forthis
+reason,theproposedalgorithmcanbeusedbyresearchersbothfordifferentconditionsof
+thesameproblemsandfortheotherarcroutingproblems. Infuturework,itmaybeuseful
+tostudydifferentvariantsoftheDARP-DDsuchasthemulti-depotDARP-DD.
+Author Contributions: The authors confirm their contributions to this paper as follows: study
+conceptionanddesign:I.A.andA.S.;computationalexperiments:I.A.;analysisandinterpretationof
+results:I.A.andA.S.;draftmanuscriptpreparation:I.A.andA.S.Allauthorshavereadandagreed
+tothepublishedversionofthemanuscript.
+Funding:Theauthorsdidnotreceivesupportfromanyorganizationforthesubmittedwork.
+DataAvailabilityStatement:Thedatasetsandtestproblemsusedinthisresearchcanbeaccessed
+onhttps://dataandresults.wixsite.com/darp,accessedon20June2023.
+Drones2024,8,373 27of30
+Acknowledgments:ThispaperwasproducedfromadoctoralthesiswrittenbyIslamAltinunder
+Drones 2024, 8, x FOR PEER REVIEWth esupervisionofAydinSipahioglu. 28 of 31
+ConflictsofInterest:Theauthorsdeclarenoconflictofinterest.
+Appendix A AppendixA
+Figure A1. Drone routes for FDiAguRreP-AD1D.D-6r.o neroutesforDARP-DD-6.
+Firstdroneroute(red-coloredroute): d(depot − 3) − (3 − 4) − (4 − 5) − (5 − 6) − (6 − 1)
+First drone route (red-colored route): d(depot – 3) – (3 – 4) – (4 – 5) – (5 – 6) – (6 – 1) – d(1 – 56) – (56 – 55) – (55 – 58) – d(58
+−d(1−56)−(56−55)−(55−58)−d(58−76)−(76−77)−(77−74)−(74−75)−
+– 76) – (76 – 77) – (77 – 74) – (74 – 75) – (75 – 76) – d(76 – 58) – (58 – 57) – d(57 – 63) – (63 – 61) – d(61 – depot).
+(75−76)−d(76−58)−(58−57)−d(57−63)−(63−61)−d(61−depot).
+Second drone route (green-colored route): d(depot – 2) – (2 – 1) – d(1 – 56) – (56 – 57) – (57 – 78) – (78 – 79) – (79 – 80) – (80 –
+Seconddroneroute(green-coloredroute): d(depot−2)−(2−1)−d(1−56)−(56−57)−
+78) – d(78 – 53) – (53 – 52) – (52 – 54) – (54 – 53) – d(53 – 63) – (63 – 62) – (62 – 61) – (61 – 60) – d(60 – depot).
+(57 − 78) − (78 − 79) − (79 − 80) − (80 − 78) − d(78 − 53) − (53 − 52) − (52 − 54) −
+Third drone route (orange-colored route): d(depot – 89) – (89 – 87) – d(87 – 48) – (48 – 47) – (47 – 46) – (46 – 51) – (51 – 50) –
+(54−53)−d(53−63)−(63−62)−(62−61)−(61−60)−d(60−depot).
+(50 – 49) – d(49 – 34) – (34 – 35) – (35 – 36) – (36 – 33) – (33 – 34) – (34 – 49) – (49 – 48) – d(48 – depot).
+Thirddroneroute(orange-coloredroute): d(depot−89)−(89−87)−d(87−48)−(48−47)
+Forth drone route (blue-colored route): d(depot – 71) – (71 – 70) – (70 – 65) – (65 – 66) – (66 – 67) – (67 – 68) – (68 – 69) – (69
+−(47−46)−(46−51)−(51−50)−(50−49)−d(49−34)−(34−35)−(35−36)−
+– 64) – (64 – 65) – d(65 – 21) – (21 – 20) – (20 – 19) – (19 – 22) – d(22 – depot).
+(36−33)−(33−34)−(34−49)−(49−48)−d(48−depot).
+Fifth drone route (purple-colored route): d(depot – 60) – (60 – 59) – d(59 – 81) – (81 – 86) – (86 – 85) – (85 – 84) – (84 – 83) –
+Forthdroneroute(blue-coloredroute): d(depot−71)−(71−70)−(70−65)−(65−66)−
+(83 – 82) – (82 – 81) – d(81 – 73) – (73 – 72) – (72 – 71) – d(71 – 21) – (21 – 22) – d(22 – 96) – (96 – 97) – (97 – 90) – (90 – 91)
+(66 − 67) − (67 − 68) − (68 − 69) − (69 − 64) − (64 − 65) − d(65 − 21) − (21 − 20) −
+– (91 – 96) – (96 – 95) – d(95 – ( 2 d 0 e−po 1 t) 9 . ) −(19−22)−d(22−depot).
+Sixth drone route (dark red-colo
+F
+r
+i
+e
+f
+d
+th
+r
+d
+ou
+ro
+t
+n
+e)
+e
+:
+r
+d
+o
+(
+u
+d
+t
+e
+e
+p
+(p
+o
+u
+t
+r
+–
+p
+4
+le
+3
+-
+)
+c o
+–
+l o
+(4
+re
+3
+d
+–
+r o
+4
+u
+4
+t
+)
+e
+–
+):
+d
+d
+(
+(
+4
+d
+4
+e
+–
+p o
+93
+t
+)− –
+6
+(9
+0
+3
+)
+−– 9
+(
+4
+6
+)
+0
+–− (9
+5
+4
+9
+–
+)
+−95
+d
+)
+(
+–
+5
+(
+9
+95− –
+8
+9
+1
+2
+)
+)− –
+(
+(
+8
+9
+1
+2 −– 9
+8
+3
+6
+)
+)
+–
+d(93 – 44) – (44 – 45) – d(45 –− 27
+(
+)
+8 6
+– −(27
+8 5
+–
+)
+2−6)
+(
+–
+8 5
+(2−6 –
+8 4
+2
+)
+5)− –
+(
+(
+8
+2
+4
+5 −– 2
+8
+4
+3
+)
+)
+–− (2
+(
+4
+8 3
+– −23
+8
+)
+2
+–
+)
+(−23
+( 8
+–
+2
+28−)
+8
+–
+1
+(
+)
+28− –
+d
+2
+(
+7
+8
+)
+1
+–− d
+7
+(2
+3
+7
+)
+–− 4
+(
+5
+7
+)
+3
+–− (4
+7
+5
+2
+–
+)
+−40)
+– (40 – 41) – (41 – 42) – (42 – 4 (7 3 2 ) –− d 7 (4 1 3 ) −– d d e ( p 7 o 1 t−). 21)−(21−22)−d(22−96)−(96−97)−(97−90)−(90−91)−
+Seventh drone route (light green
+(9
+-
+1
+co−lor
+9
+e
+6
+d
+)
+r−ou
+(
+t
+9
+e)
+6
+: −d(d
+9
+e
+5
+p
+)
+o−t
+d
+–
+(
+9
+9
+)
+5
+–− (9
+d
+–
+e p
+8)
+o t
+–
+) .
+d(8 – 39) – (39 – 37) – d(37 – 12) – (12 – 13) – (13 – 10)
+– (10 – 11) – (11 – 12) – d(12 –S 3ix7t)h –d (r3o7n e– r3o8u)t e– ((d3a8r –k r3e9d)- –co (l3o9re –d 8ro7u) t–e )(:8d7 (–d 8e8p)o –t −(884 –3 )8−9) (–4 3d(−894 –4 )d−epdot()4 4−93)−(93−
+Eighth drone route (dark blue-c9o4lo)r−ed( r9o4u−te)9: 5d)(−de(p9o5t −– 29)2 )– −(2( –9 23−) –9 d3()3− – d9()9 –3 (−9 –4 47))− – ((744 –− 8)4 –5 )d−(8 d–( 4158)− – 2(178) −– 1(277) –− (1276 )–
+16) – d(16 – 29) – (29 – 30) – (30 – 31) – (31 – 32) – d(32 – 14) – (14 – 15) – (15 – 16) – (16 – 18) – d(18 – depot).
+Drones2024,8,373 28of30
+−(26−25)−(25−24)−(24−23)−(23−28)−(28−27)−d(27−45)−(45−40)−
+(40−41)−(41−42)−(42−43)−d(43−depot).
+Seventhdroneroute(lightgreen-coloredroute): d(depot−9)−(9−8)−d(8−39)−(39−37)
+−d(37−12)−(12−13)−(13−10)−(10−11)−(11−12)−d(12−37)−(37−38)−
+(38−39)−(39−87)−(87−88)−(88−89)−d(89−depot)
+Eighthdroneroute(darkblue-coloredroute): d(depot−2)−(2−3)−d(3−9)−(9−7)−
+Drones 2024, 8, x FOR PEER REVIEW( 7−8)−d(8−18)−(18−17)−(17−16)−d(16−29)−(29−30)−(30−31)−29( 3o1f 3−1
+32)−d(32−14)−(14−15)−(15−16)−(16−18)−d(18−depot).
+Appendix B AppendixB
+FigureA2.DroneroutesforMS-DARP-DD-6.
+Figure A2. Drone routes for MS-DARP-DD-6.
+Firstdroneroute(red-coloredroute): d(depot−2)−(2−3)−(3−4)−(4−5)−(5−6)−
+First drone route (red-colored route): d(depot – 2) – (2 – 3) – (3 – 4) – (4 – 5) – (5 – 6) – (6 – 1) – d(1 – 56) – (56 – 55) – (55 – 58)
+(6−1)−d(1−56)−(56−55)−(55−58)−d(58−76)−(76−77)−(77−74)−(74−
+– d(58 – 76) – (76 – 77) – (77 – 7
+7
+4
+5
+)
+)
+–− (7
+(7
+4
+5
+–− 75
+7
+)
+6
+–
+)
+−(75
+d
+–
+(7
+7
+6
+6−) –
+5
+d
+8
+(
+)
+7−6 –
+(5
+5
+8
+8−) –
+5
+(
+7
+5
+)
+8− – 5
+(5
+7
+7
+) –− (5
+5
+7
+6 )
+–− 56
+d
+)
+(
+–
+5 6
+d−(56
+d
+–
+e p
+d
+o
+e
+t
+p
+).
+ot).
+Second drone route (green-colore
+S
+d
+e
+r
+c
+o
+o
+u
+n
+t
+d
+e)
+d
+:
+r
+d
+on
+(d
+e
+e
+r
+p
+ou
+o
+t
+t
+e
+–
+( g
+8
+r
+9
+e
+)
+e n
+–
+- c
+(8
+ol
+9
+o r
+–
+e d
+87
+r
+)
+o u
+–
+t
+d
+e)
+(
+:
+8
+d
+7
+(
+–
+d e
+3
+p
+9
+o
+)
+t
+–− (3
+8
+9
+9
+–
+)
+−38)
+( 8
+–
+9
+(−38
+8
+–
+7
+3
+)
+7−) –
+d (
+d
+8
+(
+7
+37− –
+3
+1
+9
+2
+)
+)− –
+(
+(
+3
+1
+9
+2 −– 1
+3
+3
+8
+)
+)
+– (13 – 10) – (10 – 11) – (11 – 12−) – ( 3 d 8 (1−2 3 – 7 3 ) 7−) – d ( ( 3 3 7 7 –− 3 1 9 2 ) ) –− (3 ( 9 1 – 2 8−7) 1 3 – ) (8−7 ( – 1 3 88−) – 1 0 (8 ) 8− – ( 8 1 9 0 )− – d 11 (8 ) 9− – ( d 11 ep−ot 1 ). 2 )−d(12−37)−
+Third drone route (orange-colore
+(
+d
+3 7
+ro−ute
+3
+)
+9
+:
+)
+d−(d
+(
+e
+3
+p
+9
+o−t –
+8
+4
+7
+3
+)
+)− –
+(
+(
+8
+4
+7
+3 −– 4
+8
+2
+8
+)
+)
+–− (4
+(
+2
+8 8
+– −41
+8
+)
+9
+–
+)
+(−41
+d
+–
+(8
+4
+9
+0)− –
+d
+(
+e
+4
+p
+0
+o
+–
+t )
+4
+.
+5) – d(45 – 27) – (27 – 26) –
+(26 – 25) – (25 – 24) – (24 – 23) T–h (i2r3d –d r2o8n)e –r o(u28te –( o2r7a)n –g ed-(c2o7lo –re 4d5r)o –u t(e4)5: d – ( 4 d 4 e ) p – o ( t 4−4 – 4 3 4 ) 3)− – ( d 4 ( 3 4−3 – 4 d 2) ep−o ( t 4 ). 2 −41)−(41−40)
+Forth drone route (blue-colored r−ou(t4e)0: d−(d4e5p)o−t –d (7415) −– (2771) –− 70(2) 7– −(702 6–) 6−5)( 2– 6(6−5 –2 56)6−) –( 2(656− – 2647)) −– ((6274 –− 682)3 –) −(68(2 –3 6−9)2 –8 )(6−9
+– 64) – (64 – 65) – d(65 – 21) – ((2218 –− 2227) )–− (2d2( –2 719−) –4 5()19− –( 4250)− – 4(240) −– 2(14)4 –− d4(231) –− dde(p4o3t−). depot).
+Fifth drone route (purple-coloredF roorutthe)d:r don(deerpouotte –( b9l3u)e –-c (o9l3or –ed 9r4o)u –t e()9:4d –( d9e5p) o– t(9−5 7–1 9)6−) –( 7(196− – 7901)) −– ((9710 –− 906)5 –) −(90(6 –5 9−7)6 –6 )(9−7
+– 96) – (96 – 95) – (95 – 96) – d((9666 –− 956)7 )– −(95(6 –7 9−2) 6–8 ()9−2 –( 6983)− – 6d9(9)3− – (d6e9p−ot)6.4 ) − (64 − 65) − d(65 − 21) − (21 − 22) −
+Sixth drone route (dark blue-colo(r2e2d −rou1t9e)):− d((d19ep−ot2 –0 )9−) –( 2(90 –− 72) 1–) (−7 –d (82)1 –− d(d8e –p 1o8t)). – (18 – 16) – d(16 – 29) – (29 – 30) – (30
+– 31) – (31 – 32) – d(32 – 14) – (14 – 15) – (15 – 16) – (16 – 17) – (17 – 18) – d(18 – 8) – (8 – 9) – d(9 – depot).
+Seventh drone route (light green-colored route): d(depot – 47) – (47 – 46) – (46 – 51) – (51 – 50) – (50 – 49) – d(49 – 34) – (34 –
+35) – (35 – 36) – (36 – 33) – (33 – 34) – (34 – 49) – (49 – 48) – (48 – 47) – d(47 – 1) – (1 – 2) – d(2 – depot).
+Eighth drone route (brown-colored route): d(depot – 60) – (60 – 61) – (61 – 62) – (62 – 63) – d(63 – 53) – (53 – 54) – (54 – 52) –
+(52 – 53) – d(53 – 78) – (78 – 79) – (79 – 80) – (80 – 78) – (78 – 57) – d(57 – 63) – (63 – 61) – (61 – 60) – d(60 – depot).
+Ninth drone route (gray-colored route): d(depot – 60) – (60 – 59) – d(59 – 81) – (81 – 82) – (82 – 83) – (83 – 84) – (84 – 85) –
+(85 – 86) – (86 – 81) – d(81 – 73) – (73 – 72) – (72 – 71) – (71 – 70) – (70 – 71) – (71 – 70) – (70 – 71) – d(71 – depot).
+References
+1. Corberán, Á.; Eglese, R.; Hasle, G.; Plana, I.; Sanchis, J.M. Arc Routing Problems: A Review of the Past, Present, and Future.
+Networks 2021, 77, 88–115. https://doi.org/10.1002/net.21965.
+Drones2024,8,373 29of30
+Fifthdroneroute(purple-coloredroute): d(depot−93)−(93−94)−(94−95)−(95−96)
+−(96−91)−(91−90)−(90−97)−(97−96)−(96−95)−(95−96)−d(96−95)−
+(95−92)−(92−93)−d(93−depot).
+Sixthdroneroute(darkblue-coloredroute): d(depot−9)−(9−7)−(7−8)−d(8−18)−
+(18−16)−d(16−29)−(29−30)−(30−31)−(31−32)−d(32−14)−(14−15)−
+(15−16)−(16−17)−(17−18)−d(18−8)−(8−9)−d(9−depot).
+Seventh drone route (light green-colored route): d(depot − 47) − (47 − 46) − (46 − 51) −
+(51 − 50) − (50 − 49) − d(49 − 34) − (34 − 35) − (35 − 36) − (36 − 33) − (33 − 34) −
+(34−49)−(49−48)−(48−47)−d(47−1)−(1−2)−d(2−depot).
+Eighthdroneroute(brown-coloredroute): d(depot−60)−(60−61)−(61−62)−(62−63)
+−d(63−53)−(53−54)−(54−52)−(52−53)−d(53−78)−(78−79)−(79−80)−
+(80−78)−(78−57)−d(57−63)−(63−61)−(61−60)−d(60−depot).
+Ninthdroneroute(gray-coloredroute): d(depot−60)−(60−59)−d(59−81)−(81−82)
+−(82−83)−(83−84)−(84−85)−(85−86)−(86−81)−d(81−73)−(73−72)−
+(72−71)−(71−70)−(70−71)−(71−70)−(70−71)−d(71−depot).
+References
+1. Corberán,Á.;Eglese,R.;Hasle,G.;Plana,I.;Sanchis,J.M.ArcRoutingProblems: AReviewofthePast,Present,andFuture.
+Networks2021,77,88–115.[CrossRef]
+2. Poikonen,S.;Campbell,J.F.FutureDirectionsinDroneRoutingResearch.Networks2021,77,116–126.[CrossRef]
+3. Macrina,G.;Pugliese,L.D.P.;Guerriero,F.;Laporte,G.Drone-AidedRouting:ALiteratureReview.Transp.Res.PartCEmerg.
+Technol.2020,120,102762.[CrossRef]
+4. Otto,A.;Agatz,N.;Campbell,J.;Golden,B.;Pesch,E.OptimizationApproachesforCivilApplicationsofUnmannedAerial
+Vehicles(UAVs)orAerialDrones:ASurvey.Networks2018,72,411–458.[CrossRef]
+5. Gohari,A.;Ahmad,A.B.;Rahim,R.B.A.;Supa’at,A.S.M.;AbdRazak,S.;Gismalla,M.S.M.InvolvementofSurveillanceDronesin
+SmartCities:ASystematicReview.IEEEAccess2022,10,56611–56628.[CrossRef]
+6. Kinaneva, D.; Hristov, G.; Raychev, J.; Zahariev, P.EarlyForestFireDetectionUsingDronesandArtificialIntelligence. In
+Proceedings of the 2019 42nd International Convention on Information and Communication Technology, Electronics and
+Microelectronics(MIPRO),Opatija,Croatia,20–24May2019;pp.1060–1065.
+7. Paucar,C.;Morales,L.;Pinto,K.;Sánchez,M.;Rodríguez,R.;Gutierrez,M.;Palacios,L.UseofDronesforSurveillanceand
+ReconnaissanceofMilitaryAreas. InDevelopmentsandAdvancesinDefenseandSecurity; Rocha, Á., Guarda, T., Eds.; Smart
+Innovation,SystemsandTechnologies;SpringerInternationalPublishing:Cham,Switzerland,2018;Volume94,pp.119–132,
+ISBN978-3-319-78604-9.
+8. Loukinas,P.DronesforBorderSurveillance:MultipurposeUse,UncertaintyandChallengesatEUBorders.Geopolitics2022,27,
+89–112.[CrossRef]
+9. Lu,F.;Jiang,R.;Bi,H.;Gao,Z.OrderDistributionandRoutingOptimizationforTakeoutDeliveryunderDrone–RiderJoint
+DeliveryMode.J.Theor.Appl.Electron.Commer.Res.2024,19,774–796.[CrossRef]
+10. Eskandaripour,H.;Boldsaikhan,E.Last-MileDroneDelivery:Past,Present,andFuture.Drones2023,7,77.[CrossRef]
+11. Coutinho,W.P.;Battarra,M.;Fliege,J.TheUnmannedAerialVehicleRoutingandTrajectoryOptimisationProblem,aTaxonomic
+Review.Comput.Ind.Eng.2018,120,116–128.[CrossRef]
+12. Toth, P.; Vigo, D. (Eds.) Vehicle Routing: Problems, Methods, and Applications, 2nd ed.; Society for Industrial and Applied
+Mathematics:Philadelphia,PA,USA,2014;pp.i–xviii,ISBN978-1-61197-358-7.
+13. Dror,M.ArcRouting:Theory,SolutionsandApplications;SpringerScience&BusinessMedia:Berlin/Heidelberg,Germany,2012.
+14. Campbell,J.F.;Corberán,Á.;Plana,I.;Sanchis,J.M.DroneArcRoutingProblems.Networks2018,72,543–559.[CrossRef]
+15. Xu,B.;Zhao,K.;Luo,Q.;Wu,G.;Pedrycz,W.AGV-DroneArcRoutingApproachforUrbanTrafficPatrolbyCoordinatinga
+GroundVehicleandMultipleDrones.SwarmEvol.Comput.2023,77,101246.[CrossRef]
+16. Kirlik,G.;Sipahioglu,A.CapacitatedArcRoutingProblemwithDeadheadingDemands.Comput.Oper.Res.2012,39,2380–2394.
+[CrossRef]
+17. Xie,A.;Miyagawa,K.;Wu,W.;Yagiura,M.ShizuokaUniversity,JapanAHeuristicAlgorithmfortheDroneRuralPostman
+Problem.J.Ind.Manag.Optim.2023,20,1951–1966.[CrossRef]
+18. Campbell,J.F.;Corberán,Á.;Plana,I.;Sanchis,J.M.;Segura,P.SolvingtheLengthConstrainedK-DronesRuralPostmanProblem.
+Eur.J.Oper.Res.2021,292,60–72.[CrossRef]
+19. Katila,C.J.;DiGianni,A.;Buratti,C.;Verdone,R.RoutingProtocolsforVideoSurveillanceDronesinIEEE802.11sWirelessMesh
+Networks.InProceedingsofthe2017EuropeanConferenceonNetworksandCommunications(EuCNC),Oulu,Finland,12–15
+June2017;pp.1–5.
+20. Cabuk,U.C.;Tosun,M.;Dagdeviren,O.;Ozturk,Y.ModelingEnergyConsumptionofSmallDronesforSwarmMissions.IEEE
+Trans.Intell.Transport.Syst.2024,1–14.[CrossRef]
+21. Luo,Y.;Chen,Y.Energy-AwareDynamic3DPlacementofMulti-DroneSensingFleet.Sensors2021,21,2622.[CrossRef]
+Drones2024,8,373 30of30
+22. Zhang,J.;Campbell,J.F.;SweeneyII,D.C.;Hupman,A.C.EnergyConsumptionModelsforDeliveryDrones:AComparisonand
+Assessment.Transp.Res.PartDTransp.Environ.2021,90,102668.[CrossRef]
+23. Kirkpatrick,S.;Gelatt,C.D.;Vecchi,M.P.OptimizationbySimulatedAnnealing.Science1983,220,671–680.[CrossRef]
+24. Cˇernỳ,V.ThermodynamicalApproachtotheTravelingSalesmanProblem:AnEfficientSimulationAlgorithm.J.Optim.Theory
+Appl.1985,45,41–51.[CrossRef]
+25. Garfinkel,R.S.;Webb,I.R.OnCrossings,theCrossingPostmanProblem,andtheRuralPostmanProblem. Networks1999,34,
+173–180.[CrossRef]
+26. Dewil,R.;Vansteenwegen,P.;Cattrysse,D.AReviewofCuttingPathAlgorithmsforLaserCutters.Int.J.Adv.Manuf.Technol.
+2016,87,1865–1884.[CrossRef]
+27. Corberán,A.;Plana,I.;Sanchis,J.M.ABranch&CutAlgorithmfortheWindyGeneralRoutingProblemandSpecialCases.
+Networks2007,49,245–257.[CrossRef]
+28. Campbell, J.; Corberán, Á.; Plana, I.; Sanchis, J.M.; Segura, P. Polyhedral Analysis and a New Algorithm for the Length
+ConstrainedK–DronesRuralPostmanProblem.Comput.Optim.Appl.2022,83,67–109.[CrossRef]
+29. Abubakar,A.I.;Ahmad,I.;Omeke,K.G.;Ozturk,M.;Ozturk,C.;Abdel-Salam,A.M.;Mollel,M.S.;Abbasi,Q.H.;Hussain,S.;
+Imran,M.A.ASurveyonEnergyOptimizationTechniquesinUAV-BasedCellularNetworks:FromConventionaltoMachine
+LearningApproaches.Drones2023,7,214.[CrossRef]
+30. Tang,K.;Mei,Y.;Yao,X.MemeticAlgorithmwithExtendedNeighborhoodSearchforCapacitatedArcRoutingProblems.IEEE
+Trans.Evol.Comput.2009,13,1151–1166.[CrossRef]
+31. Hertz,A.;Laporte,G.;Hugo,P.N.ImprovementProceduresfortheUndirectedRuralPostmanProblem.INFORMSJ.Comput.
+1999,11,53–62.[CrossRef]
+32. Golden,B.L.;Wong,R.T.CapacitatedArcRoutingProblems.Networks1981,11,305–315.[CrossRef]
+33. DeArmon,J.S.AComparisonofHeuristicsfortheCapacitatedChinesePostmanProblem.Ph.D.Thesis,UniversityofMaryland,
+CollegePark,MD,USA,1981.
+34. Benavent,E.;Campos,V.;Corberán,A.;Mota,E.TheCapacitatedChinesePostmanProblem:LowerBounds.Networks1992,22,
+669–690.[CrossRef]
+35. Eglese,R.W.RouteingWinterGrittingVehicles.Discret.Appl.Math.1994,48,231–244.[CrossRef]
+36. Kiuchi,M.;Shinano,Y.;Hirabayashi,R.;Saruwatari,Y.AnExactAlgorithmfortheCapacitatedArcRoutingProblemUsing
+ParallelBranchandBoundMethod.InSpringNationalConferenceoftheOperationalResearchSocietyofJapan;INFORMS:Catonsville,
+MD,USA,1995;pp.28–29.
+37. Beullens,P.;Muyldermans,L.;Cattrysse,D.;VanOudheusden,D.AGuidedLocalSearchHeuristicfortheCapacitatedArc
+RoutingProblem.Eur.J.Oper.Res.2003,147,629–643.[CrossRef]
+38. Brandão,J.;Eglese,R.ADeterministicTabuSearchAlgorithmfortheCapacitatedArcRoutingProblem.Comput.Oper.Res.2008,
+35,1112–1126.[CrossRef]
+39. Tang,K.;Wang,J.;Li,X.;Yao,X.AScalableApproachtoCapacitatedArcRoutingProblemsBasedonHierarchicalDecomposition.
+IEEETrans.Cybern.2016,47,3928–3940.[CrossRef][PubMed]
+40. Martinez,C.;Loiseau,I.;Resende,M.G.;Rodriguez,S.BRKGAAlgorithmfortheCapacitatedArcRoutingProblem.Electron.
+NotesTheor.Comput.Sci.2011,281,69–83.[CrossRef]
+41. Zhang,Y.;Mei,Y.;Zhang,B.;Jiang,K.Divide-and-ConquerLargeScaleCapacitatedArcRoutingProblemswithRouteCutting
+offDecomposition.Inf.Sci.2021,553,208–224.[CrossRef]
+42. Vidal,T.Node,Edge,ArcRoutingandTurnPenalties:MultipleProblems—OneNeighborhoodExtension.Oper.Res.2017,65,
+992–1010.[CrossRef]
+43. Chen,Y.;Hao,J.-K.;Glover,F.AHybridMetaheuristicApproachfortheCapacitatedArcRoutingProblem.Eur.J.Oper.Res.2016,
+253,25–39.[CrossRef]
+44. Belenguer,J.-M.;Benavent,E.;Lacomme,P.;Prins,C.LowerandUpperBoundsfortheMixedCapacitatedArcRoutingProblem.
+Comput.Oper.Res.2006,33,3363–3383.[CrossRef]
+45. Golden,B.L.;DeArmon,J.S.;Baker,E.K.ComputationalExperimentswithAlgorithmsforaClassofRoutingProblems.Comput.
+Oper.Res.1983,10,47–59.[CrossRef]
+46. Ulusoy,G.TheFleetSizeandMixProblemforCapacitatedArcRouting.Eur.J.Oper.Res.1985,22,329–337.[CrossRef]
+47. Corberán,Á.;Laporte,G.(Eds.)ArcRouting:Problems,Methods,andApplications;SocietyforIndustrialandAppliedMathematics:
+Philadelphia,PA,USA,2015;pp.i–xxii,ISBN978-1-61197-366-2.
+Disclaimer/Publisher’sNote: Thestatements, opinionsanddatacontainedinallpublicationsaresolelythoseoftheindividual
+author(s)andcontributor(s)andnotofMDPIand/ortheeditor(s).MDPIand/ortheeditor(s)disclaimresponsibilityforanyinjuryto
+peopleorpropertyresultingfromanyideas,methods,instructionsorproductsreferredtointhecontent.

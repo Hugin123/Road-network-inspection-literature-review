@@ -1,0 +1,3764 @@
+Computers&OperationsResearch136(2021)105445
+Contents lists available at ScienceDirect
+Computers and Operations Research
+journal homepage: www.elsevier.com/locate/cor
+Coordinating drones with mothership vehicles: The mothership and drone
+routing problem with graphs
+Lavinia Amorosia,*,1, Justo Puertob,1, Carlos Valverdeb,1
+aDepartment of Statistics, Sapienza, University of Rome, Rome 00185, Italy
+bDepartment of Statistics and Operations Research, University of Seville, Seville 41012, Spain
+A R T I C L E I N F O A B S T R A C T
+Keywords: This paper addresses the optimization of routing problems with drones. It analyzes the coordination of one
+Arc routing problems mothership with one drone to obtain optimal routes that have to visit some target objects modeled as general
+Networks graphs. The goal is to minimize the overall weighted distance traveled by both vehicles while satisfying the
+Drones
+requirements in terms of percentages of visits to targets. We discuss different approaches depending on the
+Conic programming
+assumption made on the route followed by the mothership: i) the mothership can move on a continuous
+framework (the Euclidean plane), ii) on a connected piecewise linear polygonal chain or iii) on a general graph.
+In all cases, we develop exact formulations resorting to mixed integer second order cone programs that are
+compared on a testbed of instances to assess their performance. The high complexity of the exact methods makes
+it difficult to find optimal solutions in short computing time. For that reason, besides the exact formulations we
+also provide a tailored matheuristic algorithm that allows one to obtain high quality solutions in reasonable time.
+Computational experiments show the usefulness of our methods in different scenarios.
+1. Introduction example for the delivery of medicines or blood bags, Wen et al. (2016).
+Other uses are also for achieving safer and faster activities of inspection
+In recent years the progress in the field of automation has led to the and monitoring, both of networks (such as electricity, gas, telecommu-
+increasingly widespread use of drone technology in many sectors (see nications, railways, roads, etc.) and areas or their portions, depending
+Otto et al. (2018) and Chung et al. (2020) for a survey in civil applica- on the application context. Indeed drones can reach quickly sections of a
+tions). Depending on the application, these devices are used to support network that have suffered damage to verify the actual conditions (for
+or replace humans in carrying out operations, and also in the cases of example road networks after a storm, electrical or telecommunication
+lack of infrastructures (see Poikonen and Campbell (2020) also for networks that have suffered a breakdown, etc.), or allow, for example, to
+future applications and research directions). We can find several ex- check the state and progress of a fire or an oil spill at sea. The use of this
+amples of this trend in the telecommunication field, where drones can be technology in all these different contexts is made advantageous by the
+used to provide connectivity in rural areas without antennas (see for fact that, compared to traditional means of transportation (trucks, ships,
+example Amorosi et al. (2019); Chiaraviglio et al. (2019b); Chiaraviglio helicopters), Unmanned Aerial Vehicles (UAVs) have a lower cost per
+et al. (2018); Jim´enez et al. (2018) and Amorosi et al. (2018)) or in areas mile, produce less CO2 emissions and can arrive in places that cannot be
+affected by natural disasters which have compromised the existing in- reached with traditional means. On the other hand, their main limitation
+frastructures (see for example Chiaraviglio et al. (2019a)). In goods is the limited flight time which does not make them usable in full
+delivery activities, especially in the last mile, drones represent a valid endurance in a number of contexts. For this reason, for some applica-
+tool to support or replace the tasks of drivers by speeding up the service tions, hybrid systems that involve the combined use of drones with other
+and relieving traffic from big cities or cities with particular configura- means of transport may represent a more efficient alternative. In this
+tions where standard vehicles cannot proceed (see for example Pugliese system configurations it is necessary to coordinate and synchronize the
+et al. (2017) and Amorosi et al. (2020)). This technology allows to operations of drones and other means of transport, taking into account
+provide a faster and safer response even in emergency contexts, for the constraints of limited endurance of the drones and the movement of
+* Corresponding author.
+E-mail addresses: lavinia.amorosi@uniroma1.it (L. Amorosi), puerto@us.es (J. Puerto), cvalverde@us.es (C. Valverde).
+1 Equally contributing authors.
+https://doi.org/10.1016/j.cor.2021.105445
+Received 12 February 2021; Received in revised form 21 June 2021; Accepted 22 June 2021
+Availableonline10July2021
+0305-0548/©2021ElsevierLtd.Allrightsreserved.
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+2. Description of the problem
+In the Mothership and Drone Routing Problem with Graphs
+(MDRPG), there is one mothership (the base vehicle) and one drone that
+must operate in coordination to visit a set of targets, represented by
+graphs, located in a continuous framework that can be modeled as the
+Euclidean 2-or-3 dimension space. The goal is the minimization of the
+total distance travelled by both vehicles. The mothership and the drone
+begin at a common starting location denoted orig and they have to co-
+ordinate their movements so that the drone visits the set G of graphs
+(target objects) whose locations are given. These assumptions allow to
+model several real situations like inspections and monitoring of roads or
+wired networks, that can be performed by the drone more easily and
+safely than standard vehicles.
+Fig. 1. Example of problem framework.
+For each graph g∈{1,…,|G|}, we require that the drone performs a
+task consisting in the following four operations: (i) it is launched from
+the other involved vehicles. The different configurations from which
+the current mothership location (to be determined), (ii) it flies to the
+these hybrid systems can be characterized have given rise in the litera-
+graph g that has to be visited, (iii) it traverses the required edges of graph
+ture to different combinatorial optimization problems. Most of the
+g and then (iv) it returns to the current position of the mothership (to be
+works in the literature have focused on approaches that involve a dis-
+determined), that most likely is different from the launching point.
+cretization of the movement space of all the vehicles involved in the
+Indeed, what makes the problem more challenging is that we assume
+system. This provides the advantage of being able to mathematically
+that the mothership can move while the drone visits the targets and thus
+model the problem more easily and obtain linear or linearizable for-
+coordination is a very important issue. Once all target graphs have been
+mulations. However, on the other hand, it does not allow to fully exploit
+visited, the mothership and the drone return to a final location (depot),
+the freedom of movement of the drone which, unlike other means of
+denoted by dest. In all its movements, the drone flies following straight
+transport which are constrained to road networks, can move from a
+lines.
+point to any other in the continuous space. This paper studies the
+Fig. 1 shows an example of the problem framework, where the black
+problem of coordinating a system composed of a mothership (the base
+square represents the origin and destination of the mothership tour. The
+vehicle) which supports the operations of one drone which have to visit
+three blue graphs represent the targets to be visited by the drone, located
+a set of targets represented by graphs, with the goal of minimizing the
+in the plane.
+total distance travelled by both vehicles. This system configuration can
+We assume wlog that the mothership and the drone do not need to
+model, for example, monitoring and inspection activities on portions of
+arrive at each rendezvous location at the same time: the fastest arriving
+networks where traditional vehicles cannot arrive, due, for example, to
+vehicle may wait for the other at the rendezvous point. In addition, we
+the presence of narrow streets, or because of a natural disaster or a
+also assume that vehicles move at constant speeds, although this hy-
+terrorist attack that caused damages on the network. In all these cases,
+pothesis could be relaxed. The mothership and the drone travel at speeds
+the inspection or monitoring of the drone consists in traversing edges of
+the network to perform a reconnaissance activity. For this reason we
+vM and vD, respectively. The mothership and the drone must travel
+together from orig to the first launching point. Similarly, after the drone
+model the targets, to be visited by the drone, as graphs. Differently from
+visits the last target graph, the mothership and the drone must meet at
+previous works in the literature, we assume that the base vehicle and the
+the final rendezvous point before traveling together back to dest. The
+drone can move freely on the continuous space and we present new
+first launching and final rendezvous points are allowed to be orig and
+Mixed Integer Non-Linear Programming (MINLP) formulations for this
+dest, respectively, but it is not mandatory. For the ease of presentation,
+problem and a heuristic algorithm derived from the formulation to deal
+in this paper we will assume that orig and dest are at the same location.
+with larger instances. In particular, we consider three variants of the
+However, all results extend easily to the case that orig and dest are at
+problem, depending on the assumptions made on the route followed by
+different locations.
+the mothership: i) the case in which it can move on a continuous
+Summarizing, the MDRPG consists in coordinating the drone with
+framework (the Euclidean plane), ii) the case in which it is constrained
+the mothership to minimize the overall distance travelled imposing that
+to move on a polygonal, and ii) the case of a general undirected network.
+the drone has to visit a set of target graphs. In order to do that, it is
+Also for these cases we propose alternative MINLP formulations that
+required to determine: (i) the tour of the mothership starting at orig,
+exploit the specific characteristics of these models.
+deciding the different launching and rendezvous points, and returning to
+The rest of the paper is structured as follows: Section 2 provides a
+dest; (ii) the order of visits of the target graphs followed by the drone,
+detailed description of the problem under consideration. Section 3 re-
+determining the corresponding launching and rendezvous points of the
+ports the state of the art on routing problems with drones, mainly
+drone on each visited graph; and (iii) the tour followed by the drone on
+focusing on hybrid systems involving different transportation means.
+each target graph g∈G. The reader should observe that, since we as-
+Section 4 presents alternative MINLP formulations proposed to model
+sume constant velocities, the minimization of the travel distances is a
+the different variants of the problem. At the end of this section, Sub-
+natural proxy for the minimization of the overall time, that is the sum of
+section 4.3 provides upper and lower bounds on the big-M constants
+traveling time of the mothership and traveling time of the drone, needed
+introduced in the proposed formulations to tighten them. Section 5
+to complete the visits to all target graphs. Indeed, differently from a
+presents the details of the matheuristic algorithm designed to handle
+scheduling problem, we are not minimizing the makespan of the system.
+large instances. In Section 6 we report the results obtained testing the
+In fact, in this context, the length travelled by the drone, and implicitly
+formulations presented in Section 5 on different classes of planar graphs
+the travelled time of the drone, has a cost that must be considered in
+and the comparison with the ones provided by the matheuristic pro-
+addition to the one associated with the mothership.
+cedure in order to evaluate its effectiveness. Finally, Section 6 concludes
+Depending on the assumptions made on the movements of the
+the paper. For the sake of presentation, we have included an Appendix at
+mothership vehicle, this problem gives rise to three different versions: a)
+the end of the paper including some details on some of the formulations
+the mothership vehicle can move freely on the continuous space (all
+and also on how to strengthen them.
+terrain ground vehicle, boat on the water or aircraft vehicle); b) the
+mothership can move on a connected piecewise linear polygonal chain;
+2
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+and c) the mothership can move on a road network (that is, it is a normal linear programming model for the management of a hybrid delivery
+truck or van). In the former case, that we will call All terrain Mothership- system consisting in one base vehicle and a fleet of drones. The problem
+Drone Routing Problem with Graphs (AMDRPG), each launching and consists in determining the tour of the base vehicle and the assignments
+rendezvous location may be chosen from a continuous space (the of the customers to the UAVs simultaneously optimizing the distance
+Euclidean 2-or-3 dimension space). In the latter case, that we will call travelled by the vehicle, the one travelled by the drones and the
+Network Mothership-Drone Routing Problem with Graphs (NMDRPG), maximum completion time. The model is solved on two realistic urban
+each launching and rendezvous locations must be chosen on a given scenarios providing a partial exploration of the Pareto frontier of the
+graph embedded in the considered space. For the sake of presentation problem by means of the weighted sum method.
+and due to the length of the paper, we will mainly focus, on the first Other examples of similar configurations in which a base vehicle
+model (AMDRPG) and second model (PMDRPG). The third model, supports the operations of one or multiple drones can be found also in
+namely NMDRPG, is addressed using similar techniques but providing other sectors. Trotta et al. (2018) studies, for example, the city-scale
+slightly less details reported in the Appendix. Moreover, we consider two video monitoring of a set of points of interest performed by a fleet of
+different ways for visiting the target graphs: (i) visiting a percentage of UAVs whose operations are supported by buses. However, in all the
+each edge of a graph, (ii) visiting a percentage of each graph. These works mentioned so far, the combined operations of vehicles and drones
+variants derive, for example, from monitoring activities in which it is examine routing for a set of locations and these configurations exploit
+sufficient a partial visit of the targets. This is the case, for example, of only part of the advantages of the use of drones. Indeed, UAVs can move
+traffic flows monitoring, where, in order to verify if the traffic pro- between any two points in the space not following the road network.
+gression is not disrupted, only inspecting a portion of edge provides a Thus, they can be used also for other kind of services in which the targets
+valuable information. are represented by edges or part of them. This leads to another class of
+In addition, for the sake of simplicity, we restrict ourselves to the models, that is arc routing problems (ARPs).
+case where there are no obstacles to prevent the drone travelling in Differently from NRPs, there are relatively few papers on ARP with
+straight line. Extensions of this problem with obstacles are very inter- drones. In Oh et al. (2011) and Oh et al. (2014) the authors study a
+esting to be further considered although they require different tech- coordinated road network search problem with multiple UAVs and they
+niques which are beyond the scope of this paper. formulate it as a Multi-choice Multi-dimensional Knapsack Problem
+minimizing the flight time. This is a modified Chinese Postman Problem
+3. State of the art taking into account the UAVs energy capacity constraints. The authors
+solve the problem by means of a greedy insertion heuristic that models
+In this section we focus mainly on the previous works in literature drone travel distance between the road components as a Dubins path.
+related to systems where UAVs are assisted by a vehicle in order to serve Dille and Singh (2013) faces the area coverage problem in sparse envi-
+a set of targets. In these configurations the vehicle represents a ronments with multiple UAVs. Also in this case the UAVs motion is
+launching and a recharging station for the UAVs and the main problem modeled using Dubins paths and it is assumed that they are equipped
+consists in coordinating the operations performed by one or multiple with a coverage sensor of a given radius. The edge covering problem is
+drones and the mothership. Most of the previous works in literature on solved by discretizing the network in orbits and then solving a TSP
+this subject focus on node routing problems (NRPs), where the vehicle among this set of orbits.
+moves on a road network and the drone is used to visit target points In Chow (2016) the authors deal with the problem of dynamically
+outside the road network. Many of them are related to applications in allocate a finite set of UAVs to links in a network that need monitoring,
+the delivery sector where the set of targets to be visited is represented by over multiple time periods. The need of drone monitoring is based on
+a set of customers. For example, Mathew et al. (2015) studies a delivery data related to traffic conditions. Another work related to multiple-
+system consisting in one drone and one truck. The UAV visits one period real-time monitoring of road traffic, adopting UAVs, is Li et al.
+customer for each trip and the truck can wait at the launching node for (2018). The authors propose a mixed integer programming model
+the drone to come back or move to a different rendezvous node. In combining a capacitated arc routing with an inventory routing problem
+Carlsson and Song (2018) the authors study a continuous approximation and design a local branching based method to deal with large instances.
+on the Horse Fly Problem, where the truck is used as a mobile depot for The ARPs with one UAV, have common characteristics with problems
+the drone. In Campbell et al. (2017) the authors evaluate the economic arising in path generation for laser cutting machines or drawing plotters.
+impact of truck-and-drone hybrid models for deliveries by means of a In particular, the authors of Campbell et al. (2018) study the Drone
+continuous approximation model, considering different model parame- Rural Postman Problem (DRPP) showing the relation with the Inter-
+ters and customer densities. The paper Mourelo Ferrandez et al. (2016) mittent Cutting Problem (ICP). They present a solution algorithm based
+focuses on a delivery system where one truck supports the operations of on the approximation of curves in the plane by polygonal chains that
+multiple drones. The authors first clusterize the customers demand by sequentially increases the number of points in the polygonal where the
+adopting a K-means algorithm to find truck stops that represent hubs for UAV can enter or leave. Thus, they solve the problem as a discrete
+drone deliveries. Then, they determine a TSP of the truck among cen- optimization problem trying to better define the line by increasing the
+troids of these clusters, by means of a genetic algorithm, assuming that number of points.
+drones are not constrained by flight range. In Moshref-Javadi and Lee As mentioned above, the number of references about ARPs with
+(2017) the authors consider a similar delivery system where at each stop drones is limited as compared with the one on Drone NRPs. Moreover, as
+site the truck waits until all drones come back before moving to the next far as we know, the number of contributions in literature on arc routing
+site. The goal is the minimization of the latency in a customer-oriented problems involving a hybrid system consisting in one vehicle and one or
+distribution system. In Poikonen and Golden (2020) the authors multiple drones is simply reduced to Tokekar et al. (2016) and Garone
+formalize the k-Multi-visit Drone Routing Problem (k-MVDRP) consid- et al. (2010).
+ering a tandem between a truck and a fleet of k drones. The authors In Tokekar et al. (2016) the authors study the path planning problem
+assumed that each drone can deliver one or more packages to customers of a system composed by a ground robot and one drone in precision
+in a single mission. Each drone may return to the truck to swap/recharge agriculture and solved it by applying orienteering algorithms. On the
+batteries, pick up a new set of packages, and depart again to customer other hand, Garone et al. (2010) studies the paths planning problem for
+locations. The article presents a mathematical formulation including a systems consisting in a carrier vehicle and a carried one to visit a set of
+drone energy drain function that takes into account each package target points and assuming that the carrier vehicle moves in the
+weight, but the problem is then solved by means of a heuristic algorithm. continuous space. Heuristic approaches have been proposed to deal with
+The paper Amorosi et al. (2020) presents a multi-objective mixed integer these problems.
+3
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 1 4.1. All terrain mothership-drone routing problem with graphs
+Nomenclature for AMDRPG.
+Problem Parameters In this problem, we assume that the mothership is allowed to move
+freely in a continuous space: R2 or R3. In addition, distances are
+orig: coordinates of the point defining the origin of the mothership path (or tour). measured by the Euclidean norm, ‖⋅‖ , although this assumption can be
+dest: coordinates of the point defining the destination of the mothership path (or tour). 2
+G: set of the target graphs.
+extended to any lp norm, 1⩽p⩽∞ (see Blanco et al. (2017)).
+Our goal is to develop an exact mathematical programming formu-
+g=(Vg ,Eg ): set of nodes and edges of each target graph g∈G.
+lation that can be used to solve instances of this problem. In the
+L(eg ): length of edge e of graph g∈G.
+following, we introduce the elements that formally describe the problem
+Beg,Ceg: coordinates of the endpoints of edge e of graph g∈G.
+and that are summarized in Table 1.
+α
+α
+e
+g
+g
+:
+:
+p
+p
+e
+e
+r
+r
+c
+c
+e
+e
+n
+n
+t
+t
+a
+a
+g
+g
+e
+e
+o
+o
+f
+f
+g
+e
+r
+d
+a
+g
+p
+e
+h
+e
+g
+o
+∈
+f
+G
+gr a
+t
+p
+h
+h
+a t
+g
+m
+∈
+u
+G
+st b
+th
+e
+a
+v
+t
+i
+m
+sit
+u
+e
+s
+d
+t
+.
+b e visited. Let g=(Vg ,Eg )be a graph in G, where Vg denotes the set of nodes
+and Eg denotes the set of edges connecting pairs of nodes. Let eg be edge e
+v M v D M : : : b d m i r g o o - n t M h e e c s r o p sh n e i e s p t d a . s n p t e . e d. o ) tr f a i z t n e h d d e w b g y r e a i i p t n s h d e i g n ∑ c d a ∈ t p e G o i i n t a s n t s l d e B n l e e g g t t = h L ( L ( B e e ( g g e ) ( g x b ) 1 e ) = , i B ts ⃦ ⃦ e g C l ( e e x n g 2 (cid:0) g ) t ) B h a e . g n ⃦ ⃦ E d . a C c M h e o g e r = d eo g ( v e C e e e r g g ( , x i w s 1 ) e p , a C d r e e a g n ( m o x2 t e e ) -
+with L(g)= eg ∈Eg L(eg )the total length of graph g.
+To the best of our knowledge none of the previous papers deals with a For each edge eg, with length L(eg ), we assign a binary variable μeg
+drone arc routing problem combined with a node routing problem for a that indicates whether or not the drone visits the segment eg and define
+hybrid system consisting of one mothership vehicle and one drone. entry and exit points Reg =(Beg,Ceg,ρeg)and Leg =(Beg,Ceg,λeg), respec-
+In this paper we present new Mixed Integer Non-Linear Program- tively, that determine the portion of the edge visited by the drone.
+ming (MINLP) formulations for the problem of coordinating a system Indeed, the coordinates of the points Reg and Leg are given, respectively
+composed by one mothership (the base vehicle) which supports the by
+operations of one drone which has to visit a set of targets represented by
+graphs, minimizing the total distance travelled by both vehicles. Indeed,
+Reg =(ρegBeg(x
+1
+)+(1(cid:0) ρeg)Ceg(x
+1
+),ρegBeg(x
+2
+)+(1(cid:0) ρeg)Ceg(x
+2
+))
+differently from the previous works in literature, we assume that the
+and
+drone can move freely on the continuous space, whereas for the moth-
+ership, we study two cases: 1) the base vehicle can move freely on the Leg =(λegBeg(x 1 )+(1(cid:0) λeg)Ceg(x 1 ),λegBeg(x 2 )+(1(cid:0) λeg)Ceg(x 2 )),
+continuous space; and 2) it is constrained to move on a road network
+where launching and rendezvous points must be chosen. The main where ρeg ∈[0,1]and λeg ∈[0,1]are variables to determine the position
+contributions of this article can be summarized as follows: of the points on the segment.
+As mentioned in Section 2, we have considered two modes of visit to
+• A formal analysis of the coordination problem of one base vehicle the target graphs g∈G that must be represented by their corresponding
+and one drone in the continuous space that combine several char- constraints:
+acteristics that have not been previously analyzed simultaneously;
+• First mathematical formalization of the problem by means of new • Visiting a percentage αeg of each edge eg which can be modeled by:
+second order cone MINLP formulations; (cid:0) )
+• Development of a new matheuristic algorithm to deal with large
+|λeg(cid:0) ρeg|μeg⩾αeg, ∀e
+g
+∈E
+g
+. α-E
+instances able to provide high quality solutions in limited computing
+time;
+• Visiting a percentage αg of the total length L(g) of the graph g
+• Extensive experimental analysis comparing the exact solution of the
+modeled by:
+formulations and the matheuristic on a set of generated instances ( ) ( ) ( )
+involving different typologies of planar graphs. ∑
+μeg|λeg(cid:0) ρeg|L e
+g
+⩾αgL g α-G
+4. Mixed integer non linear programming formulations
+eg∈Eg
+In this section we present alternative MINLP formulations for the
+MDRPG depending on the nature of the mothership that will be
+In both cases the corresponding constraints are nonlinear. In order to
+compared computationally in later sections. We start analyzing first the
+linearize them, we need to introduce a binary variable entryeg that de-
+situation where the mothership moves in a continuous space, namely the
+termines the traveling direction on the edge eg as well as the definition of
+AMDRPG.
+the parameter values νe m g in and νe mgax of the access and exit points to that
+segment. Then, for each edge eg, the absolute value constraint (α-E)can
+Fig. 2. (a) Origin and target graphs, (b) Visit of αeg% of each edge, (c) Visit of α g% of each graph.
+4
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 2 4.1.1. A first formulation for AMDRPG based on stages
+Decision Variables for AMDRPG-ST. Our first proposal to model this problem uses stages identified with
+Binary and Integer Decision Variables the order in which the different elements in the problem are visited. We
+identify each visit to one of the target graphs with a stage of the process.
+μeg∈{0,1},∀eg ∈Eg (g∈G): equal to 1 if edge e of graph g (or a portion of it) is
+Then, by using the notation below, we define the stages associated with
+visited by the drone, and 0 otherwise.
+en
+e
+tr
+x
+y
+p
+eg
+re
+∈
+ss
+{
+i
+0
+o
+,
+n
+1
+s.
+} , ∀eg ∈Eg (g∈G): auxiliary binary variable used for linearizing g
+re
+r
+n
+ap
+d
+h
+ez
+s
+v
+T
+ou
+:=
+s p
+{
+o
+1
+in
+,…
+ts
+,
+in
+|G
+cl
+|
+u
+}
+di
+a
+n
+n
+g
+d
+o
+t
+r
+h
+ig
+o
+a
+se
+n d
+a
+d
+ss
+e
+o
+st
+ci
+T
+a
+′
+te
+=
+d
+{
+w
+0
+i
+,
+t
+…
+h
+,
+t
+|
+h
+G
+e
+|
+l
++
+au
+1
+n
+}
+c
+.
+h
+F
+i
+o
+n
+r
+g
+e
+a
+a
+n
+ch
+d
+uegt∈{0,1},∀eg ∈Eg (g∈G), ∀t∈T: equal to 1 if the drone enters in graph g by eg at stage t∈T, the drone follows a path starting from the mothership,
+stage t, 0 otherwise. visiting the required edges of g and returning to the mothership. Using
+zege′ g∈{0,1}, ∀eg ,e ′ g ∈Eg (g∈G): equal to 1 if the drone goes from eg to e ′ g, the notation in Table 2 the sequence of points in the path are the
+0 otherwise. following:
+vegt∈{0,1},∀eg ∈Eg (g∈G), ∀t∈T: equal to 1 if the drone exits from graph g by eg at xt→Reg→Leg→⋯→Re′ g→Le′ g→⋯→Re′
+g
+′→xt→xt+1.
+stage t, 0 otherwise. L R L
+seg,∀eg ∈Eg (g∈G): integer non negative variable representing the order of visit of This path calls in a natural way for the definition of binary variables
+edge e of graph g.
+that choose:
+Continuous Decision Variables
+ρeg∈[0,1]and λeg∈[0,1],∀eg ∈Eg (g∈G): defining the entry and exit points on eg. • The optimal order to visit each graph g∈G. In other words, defining
+νe m g in and νe mgax∈[0,1], ∀eg ∈Eg (g∈G): auxiliary variables used for linearizing • t T h h e e se o q p u ti e m n a ce l o o f r d th er e s to ta g v e is s i . t the edges of each graph in its corre-
+expressions.
+xt L ,∀t∈T: coordinates representing the point where the mothership launches the sponding stage.
+drone at stage t.
+xt R ,∀t∈T: coordinates representing the point where the mothership retrieves the Thus, we can model ′ the route that the drone follows by using the
+drone at stage t. binary variables uegt, zegeg and vegt defined in Table 2.
+Reg,∀eg ∈Eg (g∈G): coordinates representing the entry point on edge e of graph g. ∑∑
+Leg,∀eg ∈Eg (g∈G): coordinates representing the exit point on edge e of graph g. uegt=1, ∀t∈T, (1)
+de L gt⩾0,∀eg ∈Eg (g∈G), ∀t∈T: representing the distance travelled by the drone from g∈Geg∈Eg
+t e h g. e launching point xt L on the mothership at stage t to the first visiting point Reg on ∑∑ vegt=1, ∀t∈T, (2)
+dege′ g⩾0,∀eg ,e′ g ∈Eg(g∈G): representing the distance travelled by the drone from the g∈Geg∈Eg
+launching point Leg on eg to the rendezvous point Re′ g on e′ g. ∑∑ uegt=1, ∀g∈G, (3)
+deg⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the eg∈Egt∈T
+rendezvous point Reg to the launching point Leg on eg.
+∑∑
+de R gt⩾0,∀eg ∈Eg (g∈G), ∀t∈T: representing the distance travelled by the drone from vegt=1, ∀g∈G, (4)
+the last visiting point Leg on eg to the rendezvous point xt R on the mothership at stage eg∈Egt∈T
+t.
+∑ ∑
+dt LR ⩾0,∀t∈T: representing the distance travelled by the mothership from the uegt= vegt, ∀g∈G,∀t∈T, (5)
+launching point xt L to the rendezvous point xt R at stage t. eg∈Eg eg∈Eg
+dt RL ⩾0,∀t∈T: representing the distance travelled by the mothership from the
+rendezvous point xt R at stage t to the launching point x ( L t +1) at the stage t+1. ∑ ze g ′ geg+ ∑ uegt=μeg, ∀e g ∈E g :g∈G, (6)
+e′ g∈Eg t∈T
+be represented by: ⎧ ⎪⎪⎪⎪⎪⎨ ρeg
+ν
+(cid:0)
+eg
+λeg =
+⩽ 1
+νe m
+(cid:0)
+g ax
+e
+(cid:0)
+nt
+ν
+ry
+e m g
+e
+in
+g
+,
+, (α-E)
+e ∑ ′ g∈Eg ze g ge′ g+ ∑ t∈T vegt=μeg, ∀e g ∈E g :g∈G. (7)
+μeg|ρeg(cid:0) λeg|⩾αeg⇔ ⎪⎪⎪⎪⎪⎩μeg
+(cid:0)
+νeg
+ν m e
+m
+g a
+i
++
+n
+x
+νeg
+)
+⩾
+⩽ e
+α
+n
+eg
+t
+.
+ryeg,
+and
+E
+e
+q
+x
+u
+i
+a
+t,
+t i
+r
+o
+e
+n
+s
+s
+p
+(
+e
+1
+c
+)
+t i
+a
+v
+n
+el
+d
+y )
+( 2
+o
+)
+n
+s
+l
+t
+y
+a t
+o
+e
+n
+t
+e
+h a
+g
+t
+r a
+in
+p h
+e
+.
+a c
+C
+h
+o n
+st
+s
+a
+tr
+g
+a
+e
+i n
+th
+ts
+e
+(
+d
+3
+r
+)
+o n
+a
+e
+n d
+v i
+(
+s
+4
+it
+)
+s
+a
+(e
+ss
+n
+u
+te
+re
+r
+max min that each graph is visited at some stage. Constraints (5) enforce that at
+stage t the drone enters and exits of exactly the same graph. Constraints
+The linearization of (α-G) is similar to (α-E) and only requires (6) state that if edge e of graph g is visited by the drone, one of two
+changing the last inequality in (α-E))for alternative situations must occur: either e is the first edge of graph g
+( ) ( ) ( ) ( )
+∑ visited by the drone at stage t, or edge e is visited by the drone after
+μeg νe m g ax +νe m g in L e g ⩾α g L g α-G visiting another edge e ′ of graph g. Similarly, constraints (7) state that if
+eg∈Eg edge e of graph g is visited by the drone, either e is the last edge of graph
+g visited by the drone at stage t, or the drone must move to another edge
+Fig. 2(a) shows an example of a configuration with three target
+′
+graphs, each one with four nodes and four edges. The mothership begins e of graph g after visiting edge e.
+at its starting point, denoted by the black square and it follows the black
+tour, like the ones in Figs. 2(b) and 2(c), where the red points represent 4.1.2. Elimination of subtours
+launching and rendezvous points for the drone. Figs. 2(b) and 2(c) show, To prevent the existence of subtours within each graph g∈G that
+through red segments, respectively the visit of a percentage αeg of each the drone must visit, one can include, among others, either a formulation
+edge of the target graphs and the visit of a percentage α g of each target that uses the Miller-Tucker-Zemlin constraints (MTZ) or another one
+graph. In this latter case we can observe that for each target graph one that applies the subtour elimination constraints (SEC).
+edge is not visited by the drone. For the MTZ formulation, we use the continuous variables seg,
+defined in Table 2, and establish the following constraints for each
+g∈G:
+5
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+T D a e b ci l s e i o 3 n Variables for AMDRPG-MTZ. ‖xt L (cid:0) Reg‖ ⩽de L gt, ∀e g ∈E g :g∈G,∀t∈T (DIST 1-t )
+Binary and Integer Decision Variables ‖Reg(cid:0) Leg‖ ⩽deg, ∀e g ∈E g :g∈G,∀t∈T, (DIST 2-t )
+μeg∈{0,1},∀eg ∈Eg (g∈G): equal to 1 if edge e of graph g (or a portion of it) is ‖Reg(cid:0) Le′ g‖ ⩽dege′ g, ∀e g ∕= e′ g ∈E g :g∈G, (DIST 3-t )
+visited by the drone, and 0 otherwise. ‖Leg(cid:0) xt R ‖ ⩽de R gt, ∀e g ∈E g :g∈G,∀t∈T, (DIST 4-t )
+entryeg∈{0,1},∀eg ∈Eg (g∈G): auxiliary binary variables for linearization. ‖xt
+R
+(cid:0) xt
+L
++1‖ ⩽dt
+RL
+, ∀t∈T, (DIST 5-t )
+ueg
+0
+∈
+ot
+{
+h
+0
+e
+,
+r
+1
+w
+}
+i
+,
+se
+∀
+.
+e g ∈Eg (g∈G): equal to 1 if the drone enters in graph g by eg, ‖xt
+L
+(cid:0) xt
+R
+‖ ⩽dt
+LR
+, ∀t∈T. (DIST 6-t )
+zege′ g∈{0,1}, ∀eg ,e ′ g ∈Eg (g∈G): equal to 1 if the drone goes from eg to e ′ g, To ensure that the time spent by the drone to visit graph g at stage t is less
+0 otherwise. than or equal to the time that the mothership needs to move from the
+veg∈{0,1},∀eg ∈Eg (g∈G): equal to 1 if the drone exits from graph g by eg, launching point to the rendezvous point at stage t, we need to define the
+0 otherwise. following coordination constraint for each g∈G and t∈T:
+wgg′ ∈{0,1}, ∀g,g′∈G: equal to 1 if the mothership moves from xg R to xg L ′ , ⎛
+seg e
+0
+, d ∀
+o
+g e
+t
+e
+h
+g
+e
+e ∈
+r
+o
+w
+E f
+i
+g g
+s
+(
+e
+r g
+.
+a p ∈ h G g. ) : integer non negative variables representing the order of visit of v
+1
+D
+⎝
+e
+∑
+g∈Eg
+uegtde
+L
+gt
+⎞
++
+eg
+∑
+,e′ g∈Eg
+zege
+⎛
+′ gdege′ g+
+e
+∑
+g∈Eg
+μ
+⎞
+egdeg
+Continuous Decision Variables +
+∑
+vegtdegt⎠⩽
+dt
+RL+M⎝1(cid:0)
+∑
+uegt⎠ (DCW-t)
+ρeg∈[0,1]and λeg∈[0,1],∀eg ∈Eg (g∈G): defining the entry and exit points on eg. eg∈Eg R v M eg∈Eg
+νe m g in and νe mgax∈[0,1], ∀eg ∈Eg (g∈G): auxiliary variables for linearization.
+xg L ,∀g∈G: pairs of coordinates representing the point where the mothership launches Eventually, we have to impose that the tour of the mothership, together
+the drone to visit graph g. with the drone, starts from the origin orig and ends at the destination
+xg R ,∀g∈G: pairs of coordinates representing the point where the mothership retrieves dest. To this end, we define the following constraints:
+the drone after visit graph g.
+x0 =orig, (ORIG )
+Reg,∀eg ∈Eg (g∈G): coordinates representing the entry point on edge e of graph g. L 1
+Leg,∀eg ∈Eg (g∈G): coordinates representing the exit point on edge e of graph g. x0 R =orig, (ORIG 2 )
+de L g⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the x| L G|+1 =dest, (DEST 1 )
+deg l e a ′ g u ⩾ n 0 c , h ∀ in eg g , e p ′ g o ∈ in E t g o ( n g ∈ th G e m ): o r t e h p e r r e s s h e i n p t i x n g L g t t o h t e h d e i s fi t r a s n t c v e i s t i r t a in v g e ll p e o d i n b t y R t e h g e o d n r e o d n g e e f r e o g. m x| R G|+1 =dest. (DEST 2 )
+launching point Leg on eg to the rendezvous point Re′ g on e′ g. Therefore, putting together all the constraints introduced before, the
+deg⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the following formulation minimizes the overall distance traveled by the
+rendezvous point Reg to the launching point Leg on eg. mothership and drone, coordinating their movements and ensuring the
+de R g⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the last required coverage of the targets.
+visiting point Leg on eg to the rendezvous point xg R on the mothership. ∑∑∑ ⎛ ⎞ ∑∑ ∑ ∑
+d
+d
+g L
+g R g
+R l
+r L ′
+a
+e
+⩾
+⩾
+u
+n
+0
+0
+n
+d
+,
+,
+c
+e
+h ∀
+z ∀ v
+i g
+g
+n
+o ,
+∈ g
+g u ′ s
+G p
+∈
+o
+p
+: i
+o G
+n r
+i
+e t
+n :
+p
+t
+x
+r
+r
+e
+g L
+x
+e
+p g R
+s t
+r
+e o
+e f
+n
+o s
+t t h
+e r
+i n
+n
+e
+g
+g
+t r
+r
+i a n
+e t
+p
+h n
+g h
+e d
+t
+e
+h
+d
+g
+z
+e
+i v
+t
+s
+o d
+t o a
+i
+u
+t s
+n
+h
+s
+t
+c
+a e
+p e
+n
+o
+l c
+t
+a
+i r
+e u
+n a
+n
+t
+t
+v
+r c
+x e
+a h
+l g R
+v
+l
+i
+e
+n e
+w d
+l g l
+h
+e
+b
+p
+i
+d
+y l
+o
+e
+b i
+t
+n
+t h
+y
+h
+t
+e e
+t x h
+m
+g L
+d
+e ′
+r o
+f
+o
+m
+t
+o
+h n
+r o
+e e
+t g
+r
+h
+i s
+r
+s
+e
+h
+a r p
+v i
+s
+p i
+h h
+s f i
+i g
+r t
+p
+i
+′
+o
+.
+n
+f
+m g
+r o
+g t
+m
+h . e
+t he
+g∈G
+∑
+eg∈
+⎛
+Egt∈T ⎝uegtd
+⎞
+L egt+v
+⎛
+egtde R gt⎠+ g∈Geg∈Eg
+⎞
+μegdeg+ g∈Geg,e′ g∈Eg zege′ gdege′ g
++ ⎝dt +dt ⎠ ⎝AMDRPG(cid:0) ST⎠
+RL LR
+( ) t∈T
+seg(cid:0) se′ g+|E
+g
+|zege′ g⩽|E
+g
+|(cid:0) 1, ∀e
+g
+∕= e′
+g
+∈E
+g
+, MTZ
+1
+s.t. (1)–(7)
+(cid:0) )
+0⩽seg⩽|E
+g
+|(cid:0) 1, ∀e
+g
+∈E
+g
+. MTZ
+2
+(MTZ1 )–(MTZ2 )or (SEC)
+(α(cid:0) E)or (α-G)
+Alternatively, we can also use the family of subtour elimination con-
+(DCW-t)
+straints:
+(DIST1-t )–(DIST6-t ).
+⎛ ⎞ (ORIG1 )–(DEST2 ).
+∑ ze
+g
+ge′ g⩽|S|(cid:0) 1, ∀S⊂E
+g
+:g∈G. ⎝SEC⎠
+dist
+T
+a
+h
+n
+e
+ce
+o
+s
+b
+to
+je
+g
+c
+o
+ti v
+to
+e
+a
+f
+n
+u
+d
+n c
+to
+ti o
+re
+n
+t u
+h
+r
+a
+n
+s
+fr
+f
+o
+o
+m
+ur
+th
+te
+e
+r m
+m
+s
+o
+:
+t h
+th
+er
+e
+s h
+fi
+i
+r
+p
+s t
+t o
+o
+t
+n
+h
+e
+e
+c
+ta
+o
+r
+m
+ge
+p
+t
+u
+g
+te
+ra
+s
+p
+t
+h
+h e
+g
+eg,e′ g∈S
+visited at stage t, the second one accounts for the distance traveled by
+the drone on the edges of the target graph g between two consecutive
+Since there is an exponential number of SEC constraints, when we
+jumps between edges, the third one computes the distances traveled by
+implement this formulation we need to perform a row generation pro-
+the drone while it jumps between two consecutive edges on the target
+cedure including constraints whenever they are required by a separation
+graph g and the fourth term expresses the distances made by the
+oracle. To find SEC inequalities, as usual, we search for disconnected
+mothership. Constraints (1)–(7) model the route followed by the drone,
+components in the current solution. Among them, we choose the (MTZ1)-(MTZ2) or (SEC)ensure that the displacement of the drone in
+shortest subtour found in the solution to be added as a lazy constraint to each visit to a target graph is a route, (α-E) or (α-G) define what is
+the model.
+required in each visit to a target graph. Constraints (DIST1(cid:0) t)-(DIST6(cid:0) t)
+the T to h t e a l g o d a is l t o an f c th e e t r A a M ve D le R d P b G y i s th t e o d fi r n o d n e a a fe n a d s i t b h l e e m so o lu th ti e o r n sh t i h p a . t T m o i a n c im co i u z n es t set the variables d e L gt , deg, dege ′ g, d e R gt , dt RL and dt LR , defined in Table 2, which
+for the different distances among the decision variables of the model we represent Euclidean distances needed in the model. Note that, to deal
+need to set the continuous variables d egt , deg, dege ′ g, d egt , dt and dt , with the bilinear terms of the objective function, we use McCormick’s
+L R RL LR envelopes to linearize these terms by adding variables p⩾0 that repre-
+defined in Table 2. This can be done by means of the following
+sent these products, and by introducing the following constraints:
+constraints:
+p⩾mz, (8)
+6
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+p⩽d(cid:0) M(1(cid:0) z), (9) enforce that the mothership route follows a tour on the graphs to be
+visited by the drone. Next, we have to connect the visits of the drone to
+where m and M are, respectively, the lower and upper bounds of the the graphs with the tour followed by the mothership. To this end, we
+distance variable d. These bounds will be adjusted for each bilinear term require to introduce variables defining the launching and rendezvous
+in Section 4.3. points to account for the distances traveled and to define the inner tour
+of the mothership. In a similar way, we need to set the continuous
+4.1.3. Alternative formulations for AMDRPG based on enforcing variables d eg, dege ′ g, deg, d eg, dg and dgg ′ , defined in Table 3, that account
+L R LR RL
+connectivity: MTZ-constraints and subtour elimination-constraints (SEC) for the distances among distinguished points. Thus, we introduce the
+In this family of formulations we replace the variables u⋅t, v⋅t and following constraints:
+constraints that model the tour using stages, namely (1)–(7), by con- (cid:0) )
+straints that ensure connectivity. We will distinguish two different ap- ‖xg L (cid:0) Reg‖ ⩽de L g, ∀e g ∈E g :g∈G, (cid:0) DIST 1-g)
+proaches. The first one is based on the rationale of Miller-Tucker-Zemlin ‖Reg(cid:0) Leg‖ ⩽deg, ∀e g ∈E g :g∈G, DIST 2-g
+(cid:0) )
+( S d M E efi C T W n . Z i ) e t i w o st n h a e r o t r f e p t a w r s e o t s h e f n e a t m s in e i c l g i o e t n s h d o e f o f b n o i e r n m u a u r s y e la s v t i a a o n r n i a e b b x a l t e e s s n e d d th e o a d n t f c o M h r o m T o Z u s . l e a I : t t io re n q b u a ir s e e s d t o h n e ‖ ‖ ‖ R L xg R e e g g (cid:0) (cid:0) (cid:0) x x L g L g R ′ e ‖ ′ g ‖ ‖ ⩽ ⩽ ⩽ d d d e e R g R g g g L e ′ , ′ g , , ∀ ∀ ∀ g e e g g ,g ∈ ∕= ′ ∈ E g e G ′ g : ∈ , g∈ E g G :g , ∈G, (cid:0) (cid:0) (cid:0) D D D I I I S S S T T T 3 4 5 - - - g g g ) ) )
+‖xg L (cid:0) xg R ‖ ⩽dg LR , ∀g∈G. DIST 6-g
+• The optimal order to visit the graphs g∈G in the tour of the
+mothership. In this formulation of AMDRPG the goal is again to find a feasible so-
+• The optimal order to visit the edges of each graph. lution that minimizes the total distance traveled by the drone and the
+mothership but without using stages. Instead the model ensures the
+′
+The above concepts can be modeled with the binary variables ueg, zegeg, Hamiltonian nature of the routes using the rationale of connectivity by
+′
+veg and wgg, summarized in Table 3. the MTZ or SEC family of constraints.
+By using these binary variables, we can model the route that the Again, we need to be sure that the time spent by the drone to visit the
+drone follows in each particular graph g∈G: graph g is less than or equal to the time that the mothership needs to
+∑ move from the launching point to the rendezvous point associated to this
+ueg =1, ∀g∈G, (10) graph g. Hence, by using the same argument, as the one used in (DCW-t),
+eg∈Eg we define for each g∈G:
+∑ ⎛ ⎞
+eg∈Eg veg =1, ∀g∈G, (11) v 1 ⎝ ∑ uegde L g+ ∑ zege′ gdege′ g+ ∑ μegdeg+ ∑ vegde R g⎠⩽ d v g RL, ∀g
+∑ ze′ geg+ueg =μeg, ∀e g ∈E g :g∈G, (12) D eg∈Eg ⎛ eg,e′ g∈E ⎞g eg∈Eg eg∈Eg M
+e′ g∈Eg ∈G. ⎝DCW-g⎠
+∑
+zege′ g+veg =μeg, ∀e g ∈E g :g∈G. (13)
+e′ g∈Eg Therefore, modifying the previous formulation (AMDRPG-ST), replacing
+constraints based on stages, one obtains the following alternative valid
+formulation:
+On the other hand, to model the tour followed by the mothership, we
+⎛ ⎞
+have to include the following new constraints: ∑∑ ∑∑ ∑ ∑ ∑
+∑
+g∈G
+wg0=0, (14) g∈Geg∈Eg
+⎝uegde
+L
+g+ve
+⎛
+gde
+R
+g⎠+
+g∈Geg∈Eg
+μe
+⎞
+gdeg+
+g∈Geg,e′ g∈Eg
+zege′ gdege′ g+
+g∈G
+dg
+LR
+∑
+∑ w(nG+1)g′
+=0, (15)
++ dg
+R
+g
+L
+′ wgg′ ⎝AMDRPG-MTZ⎠
+g′∈G
+g,g′∈G
+g′∈
+∑
+G⧹{g}
+wgg′
+=1, ∀g∈G, (16)
+s.t.
+( (
+(
+M M
+10
+T T
+)
+Z Z
+–
+1 3
+(1
+) ) – –
+7
+( (
+)
+M M T T Z Z 2 6 ) ) or (SEC)
+∑ wgg′ =1, ∀g′ ∈G, (17) ( ( α DC (cid:0) W E) -g o ) r (α-G)
+g∈G⧹{g′}
+(DIST1-g )–(DIST6-g ).
+s 0 g (cid:0) s g′ +|G|wgg′ ⩽ ⩽ | s G g ⩽ | | (cid:0) G| 1 (cid:0) , 1, ∀ ∀ g g∈ ∕= G g , ′ ∈G, ( ( M M T T Z Z 3 4 ) ) slig ( h O tl R y I m G1 o ) d – i ( fi O e R d I G re 2 p ) l T a h c { e in g fo c r o m n u s l t a ra } ti i o n n ts a (M bo T v Z e 3 ) ( - A (M M T D Z R 6) P G by -M TZ) can be
+s s 0 nG+1 = = 0 n G , +1. ( ( M M T T Z Z 5 6 ) )
+g,
+∑
+g′∈G
+wgg′ ⩽|S|(cid:0) 1, ∀S⫅ 1,…,|G| . (18)
+The reader may note that constraints (16), (17) and (MTZ3 )–(MTZ6 )are
+of the type MTZ for the complete graph G ̂ =(N ̂,E ̂) induced by the In doing so we obtain another formulation for AMDRPG using SEC
+rather than MTZ constraints to represent the mothership tour. We will
+graphs g∈G to be visited, where a node ̂vg ∈N ̂ if g∈G. Thus, we call this formulation (AMDRPG-SEC). Later, we will compare their
+7
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 4 Table 5
+Nomenclature for PMDRPG. Decision Variables for PMDRPG-ST.
+Problem Parameters Binary and Integer Decision Variables
+V1,…,Vp: pairs of coordinates defining the breakpoints of the polygonal chain P μeg∈{0,1}, ∀eg ∈Eg (g∈G): equal to 1 if edge e of graph g (or a portion of it) is
+representing the road system where the mothership can move. visited by the drone, 0 otherwise.
+orig: pair of coordinates defining the origin of the mothership path (or tour). entryeg∈{0,1}, ∀eg ∈Eg (g∈G): auxiliary binary variables for linearization.
+dest: pair of coordinates defining the destination of the mothership path (or tour). uegt∈{0,1},∀eg ∈Eg (g∈G),∀t∈T: equal to 1 if the drone enters in graph g by eg at
+G: set of the target graphs. stage t, 0 otherwise.
+g=(Vg ,Eg ): set of nodes and edges of each target graph g∈G. zege′ g∈{0,1}, ∀eg ∈Eg (g∈G): equal to 1 if the drone goes from eg to e′ g of graph g,
+L(eg ): length of edge e of graph g∈G. 0 otherwise.
+Beg,Ceg: endpoints of edge e of graph g∈G. vegt∈{0,1}, ∀eg ∈Eg (g∈G),∀t∈T: equal to 1 if the drone exits from graph g by eg at
+αeg: percentage of edge e of graph g∈G that must be visited. stage t, 0 otherwise.
+αg: percentage of graph g∈G that must be visited. seg,∀eg ∈Eg (g∈G): integer non negative variables representing the order of visit of
+edge e of graph g.
+vD: drone speed.
+vM: mothership speed. ze L e R ′t∈{0,1},∀e,e′∈P,∀t∈T: equal to 1 if the launching point xt L is located on e and
+M: big M. the rendezvous point xt R is located on e′at stage t.
+ze R e L ′t∈{0,1},∀e,e ′∈P,∀t∈T: equal to 1 if the rendezvous point xt R is located on e at
+stage t and the launching point x ( L t +1) is located on e ′ at stage t+1.
+performance in Section 6. μe L t∈{0,1}, ∀e∈P,∀t∈T: equal to 1 if the launching point xt L is located on e at stage
+t.
+4.1.4. Comparing the formulations μe R t∈{0,1}, ∀e∈P,∀t∈T: equal to 1 if the rendezvous point xt R is located on e at
+stage t.
+A straightforward analysis of the two types of formulations, namely
+by stages and based on connectivity, shows that (AMDRPG-MTZ) has Continuous Decision Variables
+much less variables and constraints than (AMDRPG-ST). Indeed, the ρeg∈[0,1]and λeg∈[0,1], ∀eg ∈Eg (g∈G): defining the entry and exit points on eg.
+latter requires definition of distance variables for each eg and t which is a γe R t∈[0,1]and γe L t∈[0,1], ∀e∈P,∀t∈T: defining the launching and rendezvous
+quadratic function rather than a linear one as used by the former. In points on edge e of the polygonal P at stage t.
+addition, to enforce coordination (AMDRPG-ST) needs constraints νe m g in and νe mgax∈[0,1], ∀eg ∈Eg (g∈G): auxiliary variables for linearization.
+(DCW) for each g∈G, t∈T whereas (AMDRPG-MTZ) only uses (DCW) xt L ,∀t∈T: coordinates representing the point where the mothership launches the
+constraints for g∈G. This is an important reduction in the dimension of drone at stage t.
+the problems to be solved. This observation is confirmed by its better xt R ,∀t∈T: coordinates representing the point where the mothership retrieves the
+performance as discussed in Section 6. drone at stage t.
+Reg,∀eg ∈Eg (g∈G): coordinates representing the entry point on edge e of graph g.
+4.2. Network Mothership-Drone Routing Problem on a Polygonal with
+Leg,∀eg ∈Eg (g∈G): coordinates representing the exit point on edge e of graph g.
+Graphs (PMDRPG) de L gt⩾0, ∀eg ∈Eg (g∈G), ∀t∈T: representing the distance travelled by the drone from
+the launching point xt L on the mothership at stage t to the first visiting point Reg on
+eg.
+that T , h in e t m h o e s l t a t s t i e g r n , i fi th c e a n m t o d t i h f e fe r r s e h n ip c e c a b n e n tw ot e e m n o v A e M f D re R e P ly G i n a n t d h e N f M ra D m R e P w G o r i k s dege′ g⩾0,∀eg ,e ′ g ∈Eg(g∈G): representing the distance travelled by the drone from
+space and instead it has to move on a network that models a road system launching point Leg on eg to the rendezvous point Re′ g on e′ g.
+where the base vehicle (for example a truck) is constrained to move. An deg⩾0, ∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the
+intermediate situation between moving freely and moving on a general
+rendezvous point Reg to the launching point Leg on eg.
+road network is to assume that the mothership moves on a closed de R gt⩾0, ∀eg ∈Eg (g∈G), ∀t∈T: representing the distance travelled by the drone from
+polygonal, namely a piecewise linear, chain. Modeling this situation is a the last visiting point Leg on eg to the rendezvous point xt R on the mothership at stage
+t.
+transition step to achieve the more general case of the mothership
+moving on general networks. We will present the formulations for the dL ee R ′t⩾0,∀e,e ′∈P,∀t∈T: representing the distance travelled by the mothership from
+PMDRPG following a scheme similar to that of AMDRPG. First, we the launching point xt L on e to the rendezvous point xt R on e′at stage t.
+present a model by stages and then another one based on connectivity dR ee L ′t⩾0,∀e,e ′∈P,∀t∈T: representing the distance travelled by the mothership from
+constraints. the rendezvous point xt R on e at stage t to the launching point x ( L t +1) on e ′ at the stage
+Let P denote a polygonal chain parametrized by its breakpoints V1, t+1.
+…,Vp ordered in the direction of travel. Observe that we are assuming dt LR ⩾0,∀t∈T: representing the total distance travelled by the mothership between the
+that there exists a pre-specified orientation that determines the direction launching point xt L and the rendezvous point xt R at stage t.
+of the mothership’s displacement. dt RL ⩾0,∀t∈T: representing the total distance travelled by the mothership between the
+As in the previous section, we present a summary of the notation, rendezvous point xt R at stage t and the launching point x ( L t +1) at stage t+1.
+parameters and variables of this model in Tables 4 and 5. λt L ⩾0,∀t∈T: representing the absolute position of point xt L in the polygonal P.
+We begin giving a formal description of the distance traveled by the λt R ⩾0,∀t∈T: representing the absolute position of point xt R in the polygonal P.
+mothership on the polygonal P, between two consecutive events
+induced by drone operations, either launching-retrieving or retrieving-
+launching. To this end, we use the variables γet and γet, defined in with 4 pieces.
+L R
+Table 5. Recall that γetand γetare the values of the parametrizations that Then, the distance measured on the polygonal can be obtained by the
+define the points xt L a nd xt R o n the edge e of P, respectively. Fig. 3 il- following expressions for each t∈T and for each e,e ′ ∈P:
+L R
+lustrates the meaning of the parameters γetand γeton a polygonal chain
+L R
+8
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+∑
+μe L t=1, (23)
+e∈P
+∑
+μe R t=1, (24)
+e∈P
+∑
+dt LR = ze L e R ′tde L e R ′ , (25)
+e,e′∈P
+∑
+dt RL = ze R e L ′td R ee L ′t, (26)
+e,e′∈P
+Fig. 3. An example of a parametrization of a mothership route that goes from where dee ′ and dee ′ t are defined in (dtp)and (dtp). Constraints (19) and
+LR RL LR RL
+V1 to xt L to launching the drone, then moves to xt R on the edge V1V2 to retrieve (20) parameterize the launching and rendezvous points on the polygonal
+it, then it goes to xt L on V2V3 to launching it again, and travels until xt R on V3V4 chain. Constraints (21) and (22) set the variable z by means of the binary
+to retrieve the drone and returns to the starting point at V1. variables μetand μet. Constraints (23) and (24) state that, in each stage,
+L R
+the launching and rendezvous points can be only in one segment, not
+⎧ (cid:0) )
+de L e R ′t=
+⎪⎪⎪⎪⎪⎪⎪⎪⎨
+⎪⎪⎪⎪⎪⎪⎪⎪⎩
+|
+(
+γ
+γ
+e L
+e
+R
+t
+1
+L
+t(cid:0)
+(cid:0) (
+γ
+γ
+e
+L
+e L
+e
+t
+t
+|
+)
+)
+L
+L
++
+e
+(
+∑e
+e
+,
+(cid:0)
+)
+1
++
+L
+e′
+∑
+′
+e
+( =
+′(cid:0)
+e
+e
++
+1
+′
+1
+′
+) L
++
+(
+( e′
+1
+′
+)
+(cid:0)
++
+γe R
+γ
+′
+e R
+t
+) ′tL
+L
+(
+( e
+e
+′
+)
+′
+) ,
+,
+i
+i
+i
+f
+f
+f
+e
+e
+e
+=
+<
+>
+e
+e
+e
+′
+′
+′
+,
+,
+.
+(cid:0)
+dt L p R
+)
+n
+t
+λ
+p
+t
+a
+h
+t R
+o
+e
+n
+e
+c
+l
+a
+y
+c
+I
+e
+a
+n n
+e
+g
+s
+l
+d
+s
+o
+l
+b
+a
+a
+o
+n
+λ d
+e
+r
+w
+a
+t L
+i
+t
+d
+l
+w
+l
+e
+t
+y
+i
+t
+h
+d
+t
+e
+o
+i
+t
+a o
+e
+d
+h
+e
+t
+n
+n
+i
+e
+n
+m
+r
+,
+t
+s
+e
+s
+f
+h
+u
+o
+c
+o
+a
+e
+d
+t
+r
+r
+m
+i
+e
+e
+o
+l
+e
+a
+e
+l
+t
+n
+a
+h
+.
+u
+t c h
+a
+o
+n
+C
+h
+t
+e
+f
+c
+o
+t
+h
+s
+t
+a
+n
+h
+r
+t
+i
+b
+s
+a
+a
+n
+e
+t
+s g
+v
+g
+r
+m
+o e
+a
+e
+l
+a
+l
+i
+o
+u t
+n
+n
+a
+v
+t ∈
+t
+d
+e
+n
+e
+s
+m
+d
+p T
+t
+(
+h
+o
+2
+e
+n
+w
+e
+s
+5
+n
+e
+i
+)
+e
+r
+t
+t
+v
+i
+e
+o
+e
+o
+a
+c
+n
+r
+f
+n
+n a
+d
+t
+n
+d
+c
+h
+e
+o
+o
+z
+e
+d f
+(
+m
+v
+2
+e t
+m
+o
+h
+6
+e
+fi
+u
+e
+o
+s
+)
+n
+s
+t
+b
+e p
+c
+h
+p
+o
+a
+o
+e
+c
+o
+c
+m
+i
+r
+o n
+k
+i
+s
+n
+n
+p
+t
+h
+s
+w
+t
+t
+u
+i
+i
+s
+p
+x n
+t
+h
+e
+i
+t L u
+g
+e
+n
+o
+o
+n
+a
+t h
+e
+u n
+e
+i
+a
+e
+s
+s d
+t
+c
+a
+v
+t
+t
+h
+x
+o
+l
+r
+a t R
+w
+a
+t
+s
+r
+a
+v
+t
+i i
+a
+a n
+l
+a
+e
+y
+b
+g
+r
+d
+s
+t
+s
+e
+l h
+i
+e
+e
+i
+s
+.
+n
+e
+s
+s
+-
+e′′=e′+1 the polygonal chain.
+(cid:0) )(cid:0) ) (cid:0) )
+dee′t=
+⎧ ⎪⎪⎪⎪⎪⎪⎪⎪⎨ |
+(
+γe
+L
+1
+t+
+(cid:0)
+1(cid:0)
+γe R t
+γ
+)
+e
+R
+t
+L
+|L
+(
+(cid:0) e
+e
+)
+)
+,
++ ∑e′(cid:0)1 L
+(
+e′′
+)
++γ L e′t+1L
+(
+e′
+)
+,
+i
+i
+f
+f
+e
+e
+=
+<
+e
+e
+′
+′
+,
+, (cid:0) dt R p L ) λ
+λt L
+t L
+(cid:0)
+(cid:0)
+i
+i
+⩾
+⩽
+μ
+μ
+e L
+e L
+t
+t
+(cid:0)
+(cid:0)
+(cid:0)
+(cid:0)
+p
+p
+(cid:0)
+(cid:0)
+1
+1
+)
+)
+(cid:0)
+(cid:0)
+1
+1
+(cid:0)
+(cid:0)
+μ
+μ
+e L
+e L
+t
+t
+)
+)
+,
+,
+∀
+∀
+e
+e
+=
+=
+(cid:0)
+(cid:0)
+i
+i
+,
+,
+i
+i
++
++
+1
+1
+)
+)
+∈
+∈
+P
+P
+,
+,
+(
+(
+2
+2
+7
+8
+)
+)
+RL ⎪⎪⎪⎪⎪⎪⎪⎪⎩γe
+R
+tL
+(
+e
+)
++
+e′′
+∑
+=
+e(cid:0)
+e′
+1
++1
+L
+e′′= ( e+
+e′
+1
+′
+)
++
+(
+1(cid:0) γ
+L
+e′t+1
+)
+L
+(
+e′
+)
+,ife>e′.
+λ
+λ
+t R
+t R
+(cid:0)
+(cid:0)
+i
+i
+⩾
+⩽
+μ
+μ
+e R
+e R
+t
+t
+(cid:0)
++
+(cid:0)
+p
+p
+(cid:0)
+(cid:0)
+1
+1
+)(cid:0)
+1
+1
+(cid:0)
+(cid:0)
+μ
+μ
+e R
+e R
+t
+t
+)
+,
+,
+∀
+∀
+e
+e
+=
+=
+(cid:0)
+i
+i
+,
+,
+i
+i
++
++
+1
+1
+)
+∈
+∈
+P
+P
+,
+,
+(
+(
+2
+3
+9
+0
+)
+)
+The reader should observe that, as described in Table 5, dee ′ taccounts for λt R ⩾λt L , ∀t∈T, (31)
+LR
+the distance traveled by the mothership on ′ P between consecutive λt L +1⩾λt R , ∀t∈T. (32)
+launching and rendezvous points, whereas deet does it for consecutive
+RL
+retrieving and next launching points. Inequalities (27)–(30) link μet and λt (resp. μet and λt). Finally, con-
+L L R R
+In order to actually include these expressions in a formulation one straints (31) and (32) ensure that the mothership moves in the right
+has to decide which one of the two definitions (e<e ′ or e>e ′ ) is to be direction on the polygonal. The goal of the (PMDRPG) is, once again, to
+used in the objective function. This is the goal of the binary variables zee ′ t find a feasible solution that minimizes the total distance covered by the
+LR
+′ mothership and the drone. Thus, gathering all the above constraints one
+that determines whether dee is defined by the first or the second
+LR gets the following valid formulation:
+expression in the formula: ⎛ ⎞
+∑∑∑ ∑∑ ∑ ∑
+ze L e R ′t=1if μe L t=1andμe R ′t=1, min ⎝uegtde L gt+vegtde R gt⎠+ μegdeg+ zege′ gdege′ g
+g∈G
+⎛
+eg∈Egt∈T
+⎞ ⎛ ⎞
+g∈Geg∈Eg g∈Geg,e′ g∈Eg
+where μetand μetare indicator variables that attain the value one if the
+L R ∑
+launching point (resp. rendezvous point) is placed in the segment e of P + ⎝dt +dt ⎠ ⎝PMDRPG⎠
+RL LR
+at the stage t. Similarly, we define zee ′ t: t∈T
+RL
+zee′t=1if μet=1andμe′t+1=1.
+s.t. (1)–(7)
+RL R L
+(19)–(32)
+With all this, we can model the movement of the mothership on the (MTZ1 )–(MTZ2 )or (SEC)
+polygonal. For each stage t∈T, we have (α(cid:0) E)or (α-G)
+∑ [ (cid:0) )] (DCW-t)
+xt L = μe L t Vi+γe L t Vi+1(cid:0) Vi , (19) (dtp), (dtp)
+e=(i,i+1)∈P LR RL
+∑ [ (cid:0) )]
+(DIST1-t )–(DIST6-t ).
+xt R = μe R t Vi+γe R t Vi+1(cid:0) Vi , (20) (ORIG1 )–(DEST2 ).
+e=(i,i+1)∈P
+4.2.1. Alternative formulation for PMDRPG based on MTZ-constraints
+ze L e R ′t=μe L tμe R ′t, ∀e,e′ ∈P, (21) Analogously to the case of AMDRPG one can also model PMDRPG
+without any explicit reference to stages. Here, we will follow a very
+ze R e L ′t=μe R tμe L ′t+1, ∀e,e′ ∈P, (22) s P i M m D ila R r P a G p p b r a o se a d ch o t n o M th T a Z t - i c n o S n e s c tr t a io in n t 4 s. . 1 T . a 3 b t l o e d 6 e r s e c p ri o b r e t s t h a e s f u o m rm m u a l r a y t io o n f t f h o e r
+different sets of variables used for modelling this problem variant. Let P
+9
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 6 between the rendezvous and launching points of two consecutive target
+Decision Variables for PMDRPG-MTZ. graphs in its route.
+⎧
+B
+μ
+u
+en e
+e
+i
+g
+g
+n
+v
+0
+tr i
+a
+∈
+∈
+y s
+o
+r
+e i
+t
+g
+y
+{
+{
+t
+h
+e 0
+0
+∈
+a
+e
+d ,
+,
+n
+r
+1
+1
+{
+w
+b
+d
+0 }
+}
+y
+i
+,
+,
+,
+I
+s
+1
+n
+t
+e
+∀
+∀
+h }
+t
+.
+e
+e
+e
+e , g
+g
+g
+∀ d ∈
+∈
+e
+e r
+r
+o g E
+E
+D
+n g
+g
+∈
+e
+e (
+(
+c
+, E g
+g
+i
+a g
+s
+∈
+∈
+n
+i
+(
+o
+g d G
+G
+n
+∈ 0 )
+)
+V
+:
+:
+G o
+a
+e
+e
+t
+r
+q
+q
+) h
+i
+: u
+u
+a
+e a
+b
+a
+a
+r u w
+l
+l
+l
+e
+x t
+t
+i
+s
+o
+o
+i s l e i 1
+1
+a . r i
+i
+y f
+f
+e
+t
+b
+h
+d i
+e
+n g a e
+d
+r
+r
+e y
+o
+o
+n
+v f a
+e
+r g
+e
+i r a
+n
+a b
+t
+p
+e
+l h e
+r
+s
+s
+g f
+i
+o
+n
+(o r
+g
+r l
+r
+i a
+a
+n
+p
+e p
+h
+a o r r
+g
+i t z i
+b
+a o
+y
+t n i o
+e
+o n
+g
+f
+,
+. i t) is d L ee R ′g=
+⎪⎪⎪⎪⎪⎪⎪⎪⎨
+⎪⎪⎪⎪⎪⎪⎪⎪⎩
+|
+γ
+(
+γ
+e
+e L
+g
+1
+g
+L
+(cid:0)
+(cid:0)
+(
+γ
+γ
+e L
+e R
+e
+g
+g
+)
+)
+|L
+L
++
+(e
+(
+∑e
+)
+′
+,
+e
+(cid:0)
+)
+1
++
+L
+e
+(
+′ ∑ ′ e = ′(cid:0)
+e
+e+ 1
+′′
+1
+)
+L
++
+(
+(
+e
+1
+′′ )
+(cid:0)
++
+γe′
+γ
+g
+R e
+)
+′g
+L
+L
+(
+(
+e
+e′
+′
+)
+)
+,
+,
+i
+i
+i
+f
+f
+f
+e
+e
+e
+=
+<
+>
+e
+e
+e
+′
+′
+′
+,
+,
+.
+(dg L p R )
+zege′ g∈{0,1}, ∀eg ,e ′ g ∈Eg (g∈G): equal to 1 if the drone goes from eg to e ′ g of graph g, L e′′=e+1 R
+0 otherwise.
+z
+w
+v
+se
+e L
+e
+g g
+e
+g
+R
+e
+g
+0
+g ,
+′
+′
+g
+∈
+d
+r
+∀
+o
+a
+∈
+g
+∈
+e
+t
+{
+p
+e
+h
+g
+0
+{
+h {
+e
+e
+0
+,
+∈
+0
+r
+g
+1
+,
+,
+o
+w
+,
+1
+1
+E
+}
+f
+i
+}
+,
+i
+g
+} s
+g
+s
+,
+,
+(
+e
+∀
+r
+l
+∀ g
+∀ o
+.
+a
+e
+g
+p
+g
+c e
+∈ ,
+, a
+h
+g
+∈
+e t
+G ′
+′ e
+g
+E
+∈
+d ∈
+.
+)
+g
+: G
+o P
+(
+in
+g
+n
+: t
+,
+∈
+e e
+e ∀
+q g
+a
+G
+g
+u e
+n
+r a
+∈
+)
+d
+l
+:
+n t
+G
+e
+t
+o o
+h
+q
+n
+: e
+1
+u
+e
+n
+a
+i
+r q
+f e
+e
+l
+u
+g t
+n
+t
+h
+a
+a
+o
+d
+e
+l
+t
+e
+i
+1
+t
+m v
+z o v
+e
+i
+o
+f
+1 o
+v t
+t
+u
+h
+i
+a
+h
+f s
+e r
+e
+t
+r i
+p
+a
+h
+s
+d
+o
+h b
+e
+r
+i
+i l
+o
+n l
+e p
+a
+n
+t
+s m
+u
+e
+x
+r
+n
+e
+g R
+o
+e
+c
+p
+x
+v
+h i
+r
+i
+e
+s i
+t
+e s
+n
+s
+l
+s
+o
+f
+g
+e
+f
+r
+c
+r
+n o
+p a
+o
+t m
+o t
+m
+i
+e
+n
+i n d
+x g
+g
+t
+g R
+o
+r
+t
+x
+h
+a
+t
+n
+o
+g L
+p
+e
+, e
+h
+x o
+a ′
+g L
+.
+r
+s
+g
+′ d
+s
+,
+b
+o
+0 e
+c
+y
+r o
+i
+o
+a
+e
+th
+g
+t
+f
+e
+,
+e v
+d
+r i w s
+w
+it i
+i
+s
+t
+o e
+h
+f . de R e L ′gg′ =
+⎧ ⎪⎪⎪⎪⎪⎪⎪⎪⎨
+⎪⎪⎪⎪⎪⎪⎪⎪⎩
+|
+γ
+(
+γ
+e R
+e
+L
+g
+1
+g
+L
+(cid:0)
+(cid:0)
+(
+γ
+γ
+e R
+e
+R
+g
+e
+g
+)
+′
+)
+|L
+L
++
+(
+e
+(
+e
+′ ∑ ′ e =
+)
+′
+e
+(cid:0)
+,
+e
+)
++ 1 1
++
+L
+e′
+(
+∑ ′ e = ′(cid:0) e
+e
++ 1
+′′
+1
+)
+L
++
+(
+(
+e
+1
+′′
+)
+(cid:0)
++
+γe L ′
+γ
+g
+e L
+′
+′
+)
+g′
+L
+L
+(
+(
+e
+e′
+′
+)
+)
+,
+,
+i
+i
+i
+f
+f
+f
+e
+e
+e
+=
+<
+>
+e
+e
+e
+′
+′
+′
+,
+,
+.
+(dg R p L )
+ze R e L ′gg′ ∈{0,1},∀e,e′∈P,∀g,g′∈G: equal to 1 if the rendezvous point xg R, associated
+μe L g w lo ∈ i c t a h { t 0 e g , d r 1 a o } p , n h e g ∀ ′ , e . i s ∈ lo P ca , te ∀ d g o ∈ n G e a : n e d q u th al e t l o a u 1 n i c f h t i h n e g l p a o u i n n c t h x i g L n ′ g , a p s o so in c t i a x t g L e , d a w ss i o th ci g a r te a d p h w g i ′ t , h i s w Th h i i s c h d is o t f a n t c h e e r e e x q p u r i e re ss s i o b n in s ar in y v (d ar g L p R ia ) bl a e n s d z e L ( e R d ′ g g R p L a ) nd d e z fi e R e L n ′ g e g ′ d th e L e R a ′ g t d a e n t d e r d m e R e i L ′ n gg e ′ s ,
+graph g, is located on e. respectively.
+μe R g∈{0,1}, ∀e∈P, ∀g∈G: equal to 1 if the rendezvous point xg R, associated with zee′g=1iff μeg=1andμe′g=1, zee′gg′ =1iff μeg=1andμe′g′ =1,
+graph g, is located on e. LR L R RL L R
+Continuous Decision Variables where μegand μegare indicator variables that attain the value one if the
+ρeg∈[0,1]and λeg∈[0,1],∀eg ∈Eg (g∈G): defining the entry and exit points on edge
+launchin
+L
+g point
+R
+( resp. rendezvous point) associated with the graph g is
+γe R g
+eg
+∈
+.
+[ 0,1]and γe L g∈[0,1], ∀e∈P, ∀g∈G: defining the launching and rendezvous p w l e a c c e a d n i n m t o h d e e s l e g th m e e n m t o V v i e V m i+ e 1 n o t f o th f e t h ed e g m e e ot = he ( r i s , h i i + p 1 o ) n ∈ th P e . p W o i l t y h g o al n l a t l h i a s s ,
+points, associated with graph g, on edge e.
+νe m g in and νe mgax∈[0,1], ∀eg ∈Eg (g∈G): auxiliary variables for linearization. follows: ∑ [ (cid:0) )]
+xg L , ∀g∈G: coordinates representing the point where the mothership launches the xg L = μe L g Vi+γe L g Vi+1(cid:0) Vi , ∀g∈G, (33)
+drone to visit graph g. e=(i,i+1)∈P
+xg R , ∀g∈G: coordinates representing the point where the mothership retrieves the ∑ [ (cid:0) )]
+drone to visit graph g. xg R = μe R g Vi+γe R g Vi+1(cid:0) Vi , ∀g∈G, (34)
+Reg,∀eg ∈Eg (g∈G): coordinates representing the entry point on edge e of graph g. e=(i,i+1)∈P
+Leg,∀eg ∈Eg (g∈G): coordinates representing the exit point on edge e of graph g.
+de L g fi ⩾ r 0 st , v ∀ i e s g it ∈ ing E g p ( o g in ∈ t G Re ) g : o d n is e ta g. n ce travelled by drone from launching point xg L to the ze L e R ′g=μe L gμ R e′g, ∀e,e′ ∈P, ∀g∈G, (35)
+deg
+t
+e
+o
+′ g⩾
+th
+0
+e
+, ∀
+re
+eg
+n
+,
+d
+e
+e
+′ g
+z
+∈
+vo
+E
+u
+g(
+s
+g
+p
+∈
+oi
+G
+nt
+) :
+R
+d e′
+g
+i s
+o
+ta
+n
+n
+e
+c ′
+g
+e
+.
+t ravelled by drone from launching point Leg on eg z
+∑
+e R e L ′gg′ =μe R gμe L ′g′ , ∀e,e′ ∈P, ∀g,g′ ∈G, (36)
+deg⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the μe L g=1, ∀g∈G, (37)
+rendezvous point Reg to the launching point Leg on eg. e
+de R g⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the last ∑
+visiting point Leg on graph g to the rendezvous point xg R on the mothership. μe R g=1, ∀g∈G, (38)
+de L e R ′g⩾0,∀e,e′∈P, ∀g∈G: representing the distance travelled by the mothership e
+d de R g L e R f f g L ′ r r ⩾ g r o o g a ′ 0 m m p ⩾ , h 0 t t ∀ , h h g g e ′ e ∀ . ∈ e r l , a e G e u n ′ n d : ∈ c e r h e z P p v in o , r g e u s ∀ s p e g o n p ,g i o t n i ′ i n t n ∈ g t x G g L x t h g R o : e n r o e t n o e p t e r t a e , o l s f e o d th n r is e t g t i a n r r e n a g n p c t e d h h e e t g z r , d a v t v i o o s e u t l t a s l h n e p e d c o e l i b a n t y u r t a n t x v c h g R e h e l i o l n m e n g d o e p b t ′ h o y t e i o t n r h s t v h e i x i s m g L p i ′ t o b o g t e n h r t a e w e p r ′ e s , h h e f g o i n p . r d d g L g R g R L ′ = = e e , ∑ , e ∑ e ′ ′ ∈ ∈ P P z z e L e R e R e L ′ ′ g g d g′ L e d e R ′ e R g e L , ′gg′ , ∀g ∀ ∈ g G ,g , ′ ∈G, ( ( 3 4 9 0 ) )
+the launching point xg L and the rendezvous point xg R to visit graph g.
+dg R g L ′ ⩾0,∀g,g′∈G: representing the total distance travelled by the mothership between where dee ′ g and dee ′ gg ′ are defined in (dgp)and (dgp), respectively. Con-
+the rendezvous point xg R, for graph g, and the launching point xg L ′ , for graph g′. straints ( L 3 R 3) and ( R 3 L 4 ) parameterize the l L a R unching R a L nd rendezvous points
+on the polygonal chain. Constraints (35) and (36) set the binary vari-
+′ ′ ′
+denote, as before, the polygonal chain parameterized by its endpoints ables z L ee R g and ze R e L gg by means of the binary variables μe L g and μe R g. Con-
+V1,…,Vp ordered in the direction of travel. In addition, let also γegand straints (37) and (38) state that, for each target graph, the launching and
+L
+γeg be the parameter values that define the points xg and xg on the line rendezvous points can be only in one segment, not necessarily the same.
+R L R
+segment ViVi+1 in P, respectively. Then, the distance traveled on the Constraints (39) and (40) compute the total distance between the
+launching and the rendezvous points for each pair of points. The reader
+polygonal, by the mothership, can be obtained by one of the following
+may note that the above representation is similar to that given by (19)–
+expressions. The first one refers to distances covered by the mothership
+(26) with the exception that constraints (33)–(40) are indexed in the set
+between the launching and rendezvous points of a drone operation,
+of graphs g∈G instead that on the stages. This allows a remarkable
+whereas the second one models the distance traveled by the mothership
+10
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Fig. 4. Illustrative example.
+reduction in the number of distance variables and constraints as already problem. The rationale of this algorithm rests on decomposing the
+discussed in Section 4.1.4. The goal of the PMDRPG is to find a feasible problem in simpler subproblems decoupling the decisions made on the
+solution that minimizes the total distance covered by the drone and the route followed by the mothership and the ones made on the drone. To do
+mothership, i.e.: that, first we solve a TSP for the mothership over the neighborhoods of
+⎛ ⎞ centroids of target graphs, that is an extension of the crossing postman
+∑∑ ∑∑ ∑ ∑ ∑
+min ⎝uegde
+L
+g+vegde
+R
+g⎠+ μegdeg+ zege′ gdege′ g+ dg
+LR
+problem where the Hamiltonian routes have to visit neighborhoods or
+g∈Geg∈Eg
+⎛
+g∈Geg∈
+⎞
+Eg g∈Geg,e′ g∈Eg g∈G p
+(2
+o
+0
+ly
+2
+g
+0
+o
+)
+n
+)
+a
+a
+l
+n d
+ch
+t
+a
+h
+i
+e
+n
+n
+s
+w
+ra
+e
+t h
+so
+e
+l
+r
+v e
+th
+d
+a
+r
+n
+o n
+e
+e
+d g
+o
+e
+p
+s
+e r
+(
+a
+X
+t
+P
+io
+P
+n
+N
+s
+,
+o
+s
+n
+e
+e
+e
+a
+P
+t
+u
+a
+e
+t
+r
+i
+t
+m
+o
+e
+a
+b
+n
+a
+d
+s e
+V
+d
+a
+o
+lv
+n
+e r
+th
+de
+e
+∑
++ dgg′ wgg′ ⎝PMDRPG-MTZ⎠ order previously defined for the mothership. In this way each sub-
+RL problem is much simpler and once their solutions are found one can
+g,g′∈G
+integrate them into a feasible solution of the whole problem. Specif-
+ically, the basic idea of the algorithm is to determine first the sequence
+s.t. (10)–(17)
+( ( M M T T Z Z1 3 ) ) – – ( ( M M T T Z Z 2 6 ) ) o o r r ( ( S S E E C C ) ) o gr f a v p is h i t i s n t o G t h b e y t a it r s g e c t e n g t r r a o p i h d s a i n n d G t . h T en h i s s o r l o v u in te g i a s o T b S t P a i o n v e e d r r t e h p e la n c e in ig g h e b a o c r h -
+hoods of those centroids, namely a XPPN. Then, given such an order of
+(33)–(40)
+(α(cid:0) E)or α-G visits, the launching/rendezvous points where the mothership must
+stop, are determined by solving an AMDRPG problem, but limited to one
+DCW-g
+(dgp), (dgp) single graph each time, following the sequence previously computed.
+LR RL Successively, the solution obtained is improved by providing it to the
+(DIST1-g )–(DIST6-g ).
+solver as initial partial solution and by solving, once more, another
+(ORIG1 )–(ORIG2 ). The reader may note that the above formulation
+AMDRPG problem, where now we fix the launching/rendezvous points
+actually encloses two different ones depending whether it includes
+but leave free the variables w that give the sequence of visits to the
+constraints (MTZ1)-(MTZ2) or (SEC). However, for the sake of presen-
+targets graphs, i.e., without fixing the order of visits. If this solution
+tation we have preferred to present them in this compact form to reduce
+induces a different order of visits to the graphs with respect to the
+the length of the paper.
+previous one, the procedure is repeated to generate a new feasible so-
+As mentioned at the beginning of this section, the PMDRPG is an
+lution. The stopping criterion is to find a solution that does not change
+intermediate variant of the problem, between the case in which the
+with respect to the one obtained in the previous cycle of the algorithm.
+mothership moves freely in the continuous space and the more general
+In the following, we present the pseudo-code of this algorithm:
+situation in which the mothership moves on a general network. For
+modelling details of this latter case we refer the reader to the Appendix.
+STEP 1 (Centroids of the graphs)
+- Let orig be the origin/destination of the mothership tour (orange
+4.3. Strengthening the formulations of MDRPG point with label 0 in Fig. 4 [a]). For each graph g∈G:
+- identify its centroid cg and consider its neighborhood defined as
+The different models that we have proposed include in one way or the circle ρ(cg ,2)centered at cg and with radius 2 (red points in
+another big-M constants. We have defined different big-M constants
+Fig. 4 [a]).
+along this work. In order to strengthen the formulations we provide tight
+STEP 2 (Order of visit of the graphs) Determine an order of visit for
+upper and lower bounds for those constants. The computation of these the graphs in G by solving the XPPN of the mothership over the set of
+bounds is rather technical and may distract the reader from the main
+the neighborhoods associated with the centroids of those graphs
+focus of the paper. Therefore, we have preferred to present in the Ap-
+(blue tour 0, 1, 2, 3, 4, 0 in Fig. 4 [a]).
+pendix, at the end of the paper, all the details and results that adjust the
+STEP 3 (Determining the location of launching/rendezvous points)
+different bounds for each one of the models studied in this paper. Let w gg′,∀g,g ′ ∈G be the optimal values of the variables w gg′
+generated by STEP 2.
+5. A Matheuristic for the Mothership-Drone Routing Problem
+Following this order of visit, set the launching point for the first
+with Graphs
+graph as the depot, then solve the resulting AMDRPG limited to the
+first graph.
+This section is devoted to present our matheuristic approach to
+Repeat the same procedure for the remaining graphs to be visited,
+address the solution of the MDRPG. Our motivation comes from the fact
+by solving AMDRPG on one single graph each time, by fixing as
+that the exact methods presented in the previous section are highly time
+launching point of the current graph the rendezvous point of the
+demanding. Alternatively, the matheuristic provides good quality solu-
+previous graph.
+tion in limited computing times.
+STEP 4 (Solution update) Let z be the solution obtained by STEP 3,
+First, we focus on the case in which the mothership can move freely
+consisting of the tour of the drone on each target (Fig. 4 [b]), and let
+on the continuous space, namely AMDRPG. Since dealing with the exact
+xg, xg ∀g∈G be the associated launching/rendezvous points (green
+model is a hard task for medium size instances, our strategy is to split the L R
+11
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 9
+Heuristic performances.
+# Grid Delauney
+Best Obj Obj CPU Best Obj Obj CPU
+Heuristic Time Heuristic Time
+0 1087,87 1117,83 50,99 947,01 934,46 52,49
+1 1100,38 1319,64 24,64 986,22 938,68 72,73
+2 1350,67 1126,35 46,06 888,48 865,66 1073,80
+3 1218,66 1476,36 27,18 1249,69 1154,62 1703,33
+4 1297,77 1424,37 40,91 1239,93 1184,67 81,15
+fixing the launching/rendezvous points but not the order of visit, does
+not change with respect to the one obtained at STEP 3. Thus the pro-
+cedure stops after the first iteration and provides the solution shown in
+Fig. 4 [b]. We note in passing that the exact solution of AMDRPG on
+STEP 4 can still be hard, specially on large instances. For this reason the
+stopping criterion of each call of the solver within the heuristic pro-
+cedure is set to a maximum number of feasible solutions found. The
+procedure followed for the NMDRPG problem consists in the same steps
+of the matheuristic presented above for the AMDRPG problem but, at
+Fig. 5. Example of generation of a grid graph.
+STEP 4, the partial solution, given as input to the solver, includes also
+the values of the variables modelling the routing of the mothership on
+Table 7 the graph.
+Comparison between formulations for grid instances.
+Gap % Average Min Max 6. Experimental results
+Solver Cplex Gurobi Cplex Gurobi Cplex Gurobi
+In this section we discuss the experimental results obtained testing
+Formulation the formulations presented in Section 4 and the matheuristic procedure
+Stages 87 87 85 84 88 88
+proposed in Section 5 on different sets of instances. In particular, we
+MTZ 66 62 59 58 72 65
+SEC 65 61 59 57 70 64 generate two sets of instances of the AMDRPG problem. The first one
+consists of targets, to be visited by the drone, that are represented by
+grid graphs, while the second one involves a different typology of tar-
+and blue points in Fig. 4 [b]). gets, namely, Delaunay graphs. For both typologies we generate 5 in-
+Solve the model AMDRPG with these launching/rendezvous points stances of 10 graphs each, with different cardinality of the set of nodes.
+but leaving free the w gg′ ∀g,g ′ ∈G variables and providing to the More precisely, each instance is composed of 3 graphs with 4 nodes, 3
+solver z as initial partial solution. graphs with 6 nodes, 3 graphs with 8 nodes and 1 graph with 10 nodes.
+STEP 5 Let ̂z be the updated solution obtained by STEP 4 (see Fig. 4 Moreover, we assume that the drone’s speed is twice that of the moth-
+[b] for this illustrative example) and ŵ gg′ the associated order of visit ership and that a percentage equal to 80% of each target must be visited
+of the graphs. by the drone.
+If the ŵ gg′ ∕= w gg′ repeat from STEP 3, otherwise stop.
+Table 10
+Note that in the example shown in Fig. 4 we solved the AMDRPG model Comparison between exact resolution with and without initialization.
+by imposing that at least a given percentage of each target graph must be
+Grid Delauney
+visited. For this reason the solution consists in drone’s missions which
+List % % Gap Timeh % Gap % Gap Timeh % Gap
+visit only part of each graph, as represented by the red segments in Fig. 4
+(i) (wi) (i) (wi)
+[b]. Moreover, for this example, most of the launching/rendezvous
+points coincide. More specifically, considering Fig. 4 [b], the drone 0 e 72 105.12 73 78 154.92 74
+g 55 58.92 54 62 92.64 67
+starts from the origin and visits part of the first target. The mothership
+1 e 76 241.99 76 80 314.69 79
+retrieves it at the point labelled 1. From the same point the drone starts
+g 71 182.61 70 74 353.04 75
+the second mission to visit part of the second target and then reaches the 2 e 76 367.69 76 80 447.61 80
+mothership at the point labelled 2. From that point the drone starts for g 71 326.49 72 76 429.16 76
+visiting the third target meeting the mothership at the point labelled 3. 3 e 75 481.68 74 80 514.98 76*
+g 71 492.27 70 77 582.90 77
+From this latter point the last mission of the drone starts and ends on the
+mothership at the point labelled 4. Then the mothership with the drone
+go back to the origin. In this example the solution obtained at STEP 4, by
+Table 8
+Comparison between formulations for Delauney instances.
+Gap % Average Min Max
+Solver Cplex Gurobi Cplex Gurobi Cplex Gurobi
+Formulation
+Stages 91 91 90 89 93 93
+MTZ 78 74 74 70 82 79
+SEC 77 75 73 69 82 81
+Fig. 6. Matheuristic running time.
+12
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+average gap is equal to 61% and also the minimum and the maximum
+percentage gap are smaller than the ones associated with formulations
+Stages and MTZ.
+Similarly, Table 8 summarizes the results obtained on the instances
+with Delaunay graphs. Also in this case the Gurobi performance is better
+than Cplex. However, among the three formulations, the MTZ one pro-
+vides the best results in terms of average and maximum percentage gap.
+In order to test the performance of the matheuristic proposed in
+Section 5, we code it in Python and we run it on the same sets of in-
+stances (Grid and Delaunay) on which the three exact formulations were
+Fig. 7. Matheuristic improved gap. solved. Table 9 reports for each of the five instances, numbered from 0 to
+4, distinguishing between Grid and Delauney, respectively, the best
+In order to place the 10 graphs of a single instance, we consider a objective function provided by the best formulation, the objective
+square of side 100 units. Then we divide the original square in sub- function provided by the matheuristic and the associated CPU time. As
+squares of side 5 and we randomly select among them the locations for already noticed from Table 8, for grid graph instances, SEC formulation
+the ten target graphs of the instance. The generation procedure of the has the best behaviour, with the exception of the instance number 3 for
+single graph in a selected square, depends on the graph typology. As which the MTZ provides a smaller value of the objective function. As for
+regards grid graphs, the single subsquare, like the one represented in the Delaunay graph instances, MTZ is the best formulation, but also in
+Fig. 5, is further partitioned in subsquares of side 5where n is the car- this case there is an exception on the instance number 2 for which SEC
+n
+formulation returns a smaller value of the objective function.
+dinality of the set of nodes of the graph to build. Two opposite corner
+The results show that the matheuristic returns a solution with value
+subsquares are considered (like V1 and V2 in Fig. 5) and one point inside
+of the objective function that is higher than the one provided by the SEC
+each of them is randomly selected (black points in the subsquares V1 and
+formulation on grid instances. However, these values are smaller than
+V2 in Fig. 5). Then, a rectangle whose diagonal joins these two points is
+the ones provided by the Stages and the MTZ formulations. Moreover,
+built (the black dotted one in Fig. 5). A grid of n points is identified by
+locating n equally spaced points on the two sides square (the red ones the saving in terms of solution time is very significant as the maximum
+m CPU time is less than 1 min. As regards the Delaunay instances, the
+and the two original points in black in Fig. 5), where m is randomly
+matheuristic performance is even better, as it finds a solution that is
+selected in the set of divisors of the number of points of the graph. The
+better than the best one provided by the MTZ formulation and in a so-
+links of the graphs connect each point to its adjacent ones lying on the
+lution time that is at most 28 min.
+same side and with the one located on the opposite side of the square. Let
+We perform a second set of experiments by observing that, even if
+widthx and widthy be the lengths of these edges as show in Fig. 5. In order
+there are small differences between the SEC and the MTZ formulations
+to perturb the coordinates of these points, we randomly add a value,
+depending on the type of instances, their performances are comparable.
+ranging between (cid:0) widthx and widthx to the x coordinate and between
+3 3 Thus, in the rest of the tests we focus on the MTZ formulation. We
+(cid:0) widthyand widthyto the y coordinate, always imposing that the perturbed compare its performance, with or without providing the initial solution
+3 3
+point still belongs to the square. The resulting grid graph is obtained found by the matheuristic, on a set of larger instances. More precisely,
+connecting the same pairs of points but with perturbed coordinates (blue we generate 20 instances with targets represented by grid graphs and 20
+graph in Fig. 5). instances with targets represented by Delauney graphs. The instances of
+As regards the instances related to Delaunay graphs, we select their each typology are split in 4 groups of 5 instances each, consisting
+locations following the same procedure as for the grid ones. Then, for respectively of 5, 10, 15 and 20 targets to be visited. In each instance the
+each randomly chosen subsquare, given the set of n nodes of the graph to same percentage of graphs (20%) has respectively 4, 6, 8, 10 and 12
+be generated, a Delaunay triangulation of them is computed by using the nodes. Moreover, we assume that the origin coincides with the desti-
+Python class scipy.spatial.Delaunay (see Virtanen et al. (2020) for nation in all instances and we randomly generate with uniform distri-
+further details). bution between 0 and 1, two values representing the percentage of each
+We run the three formulations proposed in Section 4 for the edge and of each graph to be visited. As regards the speeds, we set the
+AMDRPG problem (Stages, MTZ and SEC) with two different commer- speed of the drone three times the one of the mothership. We run the
+cial solvers, Cplex 12.8 and Gurobi 9.03, called by means of Python, by MTZ formulation using Gurobi and setting a time limit of 7200 s. for
+setting a time limit for each run equal to 3600 s. In Table 7 we report the each instance. On the same instances also the matheuristic is applied.
+results obtained, in terms of average, minimum and maximum per- Note that, in order to define a stopping rule for the exact solution of the
+centage gap with both solvers, on the instances consisting of grid graphs. AMDRPG model within the matheuristic procedure (STEP 3 and STEP
+First, we can observe that Gurobi has better performances with respect 4), we set a maximum number of solutions generated by the solver equal
+to Cplex for all the instances. Moreover, for this set of instances, the SEC to five. For each instance, the solution provided by the matheuristic is
+formulation is the best one among the three proposed, as the associated then used to initialize the exact application of the MTZ formulation in
+order to try to speed up the solution process. Table 10 shows the results
+of the comparison between the exact formulation with and without
+Table 11
+Comparison between formulations of NMDRPG.
+Net Struct 1 2 3
+List % Stages MTZ Stages MTZ Stages MTZ
+0 e 89 33 88 24 87 39
+g 86 29 89 18 90 42
+1 e 92 43 92 33 92 46
+g 91 36 92 23 92 39
+Fig. 8. Improved gap of MTZ formulation with and without initialization.
+13
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 12
+Comparison between exact resolution with and without initialization of NMDRPG.
+Net Struct 1 2 3
+List % % Gap (i) Th % Gap (wi) % Gap (i) Th % Gap (wi) % Gap (i) Th % Gap (wi)
+0 e 32 109.96 33 24 207 24 39 177.57 39
+g 30 1192 29 18 163.36 18 45 149.68 42
+1 e 48 1030.64 43 39 802.3 33 53 770.05 46
+g 33 479.36 36 35 639.09 23 42 689.51 39
+Fig. 9. Matheuristic improved gap for NMDRPG.
+initialization. In the first column, named List, we report the size of the of the solution provided by the exact solution of the MTZ formulation
+instances in terms of number of targets to be visited (0, 1, 2 and 3 within the time limit without the initialization, with respect to the one
+identifies instances respectively with 5, 10, 15 and 20 graphs). The found with the initialization. These observations suggest that, even if the
+second column refers to the two variants of the model, that is, a given initialization of the model by the solution provided by the matheuristic
+percentage of each edge of the targets (e) or a given percentage of each does not speed up the convergence to the optimal solution, the math-
+target (g) must be visited by the drone. The other columns report euristic provides solutions of very good quality. Indeed, it generates in
+respectively the average percentage gap of the solutions found within less than 10 min solutions that are very close to the ones provided by the
+the time limit starting from the initial solution provided by the math- model within 2 h.
+euristic (% Gap (i)), the average running time of the matheuristic (Time As regards the NMDRPG problem, we generate three sets of instances
+h) and the average percentage gap of the solutions found within the time with targets represented by grid graphs considering different structures
+limit without initialization (% Gap (wi)). This information is reported of the network where the mothership can move. In particular, we define
+for both Grid and Delauney instances. a first set of instances where the mothership network is represented by a
+From Table 10 we can notice that in most of the cases the average graph of 6 nodes with a tree structure with origin of the path of the base
+gaps associated with the solution found within the time limit, with and vehicle different from the destination. A second set of instances
+without initialization by the solution found by the matheuristic, are the involving a mothership network consisting of a complete graph of 4
+same or very close (note that in the last column the ∗indicates that only vertices with origin of the path of the base vehicle different from the
+one instance has been solved within the time limit). As regards the destination. A third set of instances characterized by star graphs of 7
+running time of the matheuristic, we can see also from the boxplots in nodes representing the mothership network, where the origin coincides
+Fig. 6, that it increases with the number of targets to be visited both for with the destination and it is located at the centre of the star. We
+Grid and Delaunay instances. Considering the model variants based on generate 10 instances for each of these three classes, 5 of them with 5
+the minimum percentage of each edge or each graph to visit, we can targets and 5 with 10 targets to be visited. Moreover, as for the
+observe that for Grid instances the average running time of the model AMDRPG, for each of these 10 instances we randomly generate two
+imposing a minimum percentage of each edge to be visited, is greater values representing the percentage of each edge and of each graph that
+than the one associated with the other variant, with the exception of the must be visited by the drone. We run on these sets of instances both
+instances of biggest size (List =3). Stages and MTZ formulations. Table 11 summarizes the results obtained
+The boxplots in Fig. 7 represent the percentage gap of the solution comparing them. The first column identifies the size of the instances,
+provided by the matheuristic with respect to the one provided by the similarly to Table 10, (0 for instances with 5 targets and 1 for instances
+exact resolution of the MTZ model within the time limit, with initiali- with 10 targets). The second column distinguishes between minimum
+zation by the solution found by the matheuristic. From them we can percentage of each edge (e) or of each graph (g) to be visited by the
+notice that the gap increases with the size both for Grid and Delaunay drone. The remaining columns refer to the three different classes of in-
+instances but it is always less than 50%. Fig. 8 shows the percentage gap stances described above (1 for the networks with a tree structure, 2 for
+14
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+complete networks and 3 for start networks). For each of these sets of solutions provided, even if used as initialization for the MTZ model does
+instances the average percentage gap of the solutions found within the not help in speeding up the convergence to the optimal solution.
+time limit of 7200 s. by the two formulations (Stages and MTZ) is
+reported. 7. Concluding remarks
+We can observe that for each class of instances and model variants,
+based on the percentage of each edge or each graph to be visited, the This papers has analyzed the coordination problem that arises be-
+MTZ formulation performs better than the Stages one. In all the cases the tween a mothership vehicle and a drone that must adjust their routes to
+percentage average gap associated with the MTZ formulation is one minimize travel distances while visiting a set of targets modeled by
+third or half of that associated with the Stages formulation. For this graphs. We have presented exact formulations for different versions of
+reason, in the following tests, related to the comparison between the the problem depending on the constraints imposed to the mothership
+exact solution of the NMDRPG model with and without the initialization movement (free on a continuous space or on a given network). Our
+by the solution found by the matheuristic, we focus only on the MTZ computational results show that the considered problem is rather hard
+formulation. and only small to medium size problems can be solved to optimality.
+Table 12 summarizes the results of this comparison distinguishing Additionally, we have proposed a matheuristic algorithm, applicable to
+again between the different network structures (columns labelled 1, 2 all the versions of the problem with minimum changes, that provides
+and 3), the different size (rows labelled 0 and 1) characterizing the in- acceptable feasible solutions in short computing time; so that it is a good
+stances and model variants (minimum percentage of each edge (e) or alternative to the exact methods.
+each graph (g) to be visited). For each combination of network structure, Further research in this topic includes the coordination of the oper-
+size and model variant we report the average percentage gap with ations of several drones with a mothership, the possibility of visiting
+initialization (% Gap (i)), the solution time of the matheuristic (T h) and more than one target per operation and combinations of both cases.
+the average percentage gap without initialization by the solution found These problems being very interesting are beyond the scope of this paper
+by the matheuristic (% Gap (wi)). and will be the focus of a follow up paper.
+We can observe that, similarly to the AMDRPG problem, the average
+gaps associated with the solution found within the time limit, with and CRediT authorship contribution statement
+without initialization by the solution found by the matheuristic, are very
+close. Considering the average running time we can notice that the Lavinia Amorosi: Conceptualization, Methodology, Formal anal-
+NMDRPG problem is more challenging to be solved than the AMDRPG. ysis, Writing - original draft, Writing - review & editing, Visualization.
+The solution time increases very fast with the size of the instances Justo Puerto: Supervision, Conceptualization, Methodology, Formal
+especially for the case in which the network where the mothership analysis, Writing - original draft, Writing - review & editing. Carlos
+moves has a tree structure. Moreover, as for the Grid instances in the Valverde: Conceptualization, Methodology, Formal analysis, Software,
+continuous case, the model variant imposing a minimum percentage of Writing - original draft, Writing - review & editing, Visualization.
+each edge to be visited takes more time to be solved.
+The boxplots showed in Fig. 9 report the percentage gap of the so- Acknowledgements
+lution provided by the matheuristic with respect to the one provided by
+the exact solution of the MTZ model within the time limit, with This research has been partially supported by Spanish Ministry of
+initialization by the solution found by the matheuristic. We can notice Education and Science/FEDER Grant No. MTM2016-74983-C02-(01-
+that, excluding the outliers, this gap ranges between 0% and 60% and its 02), Junta de Andalucia project P18-FR-1422 and projects FEDER-US-
+lowest values are observed for the instances in which the network where 1256951, CEI-3-FQM331 and NetmeetData: Ayudas Fundacio´n BBVA a
+the mothership moves has a star structure (green boxplots). From the equipos de investigacio´n ciento´ifica 2019, Ministerio de Ciencia e
+previous observations, similarly to the AMDRPG, we can conclude that Innovacio´n PID2020-114594GB-C21 and by University of Rome, Sapi-
+the behaviour of the matheuristic is very good in terms of quality of the enza Grant No.: RM11916B7F962975.
+Appendix A
+A.1. Strengthening the formulations of MDRPG
+A.1.1. Big-M constants bounding the distance from the launching/ rendezvous point on the path followed by the mothership to the rendezvous/ launching point
+on the target graph g∈G
+• AMDRPG. To linearize the first term of the objective function in AMDRPG, we define the auxiliar non-negative continuous variables p egt (resp. p egt )
+L R
+to model the product deguegt and include the constraints (8) and (9), namely:
+L
+(cid:0) )
+pe L gt⩾me L guegt,pe L gt⩽de L g(cid:0) Me L gt 1(cid:0) uegt . (41)
+The best upper bound M
+egt
+or M
+egt
+that we can consider is the full diameter of the data, that is the maximum distance between every pair of vertices
+R L
+of the graphs g∈G. every launching or rendezvous point is inside the circle whose diametrically opposite points are determined by the following
+expression.
+Megt= max ‖v(cid:0) v′‖=Megt.
+R {v∈Vg,v′∈V g′:g,g′∈G} L
+On the other hand, the minimum distance in this case can be zero. This bound is attainable whenever the launching or the rendezvous points of the
+mothership is the same that the rendezvous or launching point on the target graph g∈G.
+15
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 13
+Nomenclature for NMDRPG.
+Problem Parameters
+N =(V,E): set of nodes and edges of the network representing the road system where the mothership can move.
+e=(i,j),e′ =(i′,j′): starting edge and ending edge of the mothership tour.
+G: set of the target graphs.
+g=(Vg ,Eg ): set of nodes and edges of each target graph g∈G.
+L(eg ): length of edge e of graph g∈G.
+Beg,Ceg: endpoints of edge e of graph g∈G.
+αeg: percentage of edge e of graph g∈G that must be visited.
+αg: percentage of graph g∈G that must be visited.
+vD: drone speed.
+vM: mothership speed.
+M: big M.
+Fig. 10. An example of a parameterization of a mothership route for a stage t. In the first picture, the mothership launches the drone at the point xt on the edge V1V2,
+L
+then traverses the edge V2V3 and finally moves to xt on the edge V4V5 to retrieve it. In the second one, the mothership retrieves the drone at the point xt on the edge
+R R
+V4V5, then traverses the edge V3V6, the edge V3V4 and finally moves to xt+1on the edge V1V4 to launch the drone for the next stage.
+L
+Table 14
+Decision Variables for NMDRPG-ST.
+Binary and Integer Decision Variables
+μeg∈{0,1},∀eg ∈Eg (g∈G): equal to 1 if edge e of graph g (or a portion of it) is visited by the drone, and 0 otherwise.
+entryeg∈{0,1},∀eg ∈Eg (g∈G): auxiliary binary variables for linearization.
+uegt∈{0,1},∀eg ∈Eg (g∈G), ∀t∈T: equal to 1 if the drone enters in graph g by eg at stage t, 0 otherwise.
+zege′ g∈{0,1}, ∀eg ,e′ g ∈Eg (g∈G): equal to 1 if the drone goes from eg to e′ g, 0 otherwise.
+vegt∈{0,1},∀eg ∈Eg (g∈G), ∀t∈T: equal to 1 if the drone exits from graph g by eg at stage t, 0 otherwise.
+seg, ∀eg ∈Eg (g∈G): integer non negative variable representing the order of visit of edge e of graph g.
+μe L t∈{0,1},∀e∈E, ∀t∈T: equal to 1 if the launching point xt L is located on e at stage t.
+μe R t∈{0,1},∀e∈E, ∀t∈T: equal to 1 if the rendezvous point xt R is located on e at stage t.
+ze L e R ′t∈{0,1}, ∀e,e′∈E, ∀t∈T: equal to 1 if the launching point xt L is located on e and the rendezvous point xt R is located on e′at stage t.
+bi L t R ∈{0,1},∀i:e=(i,j)∈E, ∀t∈T: equal to 1 if the mothership exits from xt L by the vertex Vi of the edge e.
+ci L t R ∈{0,1},∀i:e=(i,j)∈E, ∀t∈T: equal to 1 if the mothership enters in xt R by the vertex Vi of the edge e.
+qe L t R ⩾0, ∀e∈E,∀t∈T: integer variable counting the number of times the mothership fully traverses edge e to move between the launching point xt L on e to the rendezvous point xt R on e ′
+at stage t.
+ze R e L ′t∈{0,1}, ∀e,e ′∈E, ∀t∈T: equal to 1 if the rendezvous point xt R is located on e at stage t and the launching point x ( L t +1) is located on e ′ at stage t+1.
+bi R t L ∈{0,1},∀i:e=(i,j)∈E, ∀t∈T: equal to 1 if the mothership exits from xt R by the vertex Vi of the edge e.
+ci R t L ∈{0,1},∀i:e=(i,j)∈E, ∀t∈T: equal to 1 if the mothership enters in xt L + 1by the vertex Vi of the edge e.
+qe R t L ⩾0, ∀e∈E,∀t∈T: integer variable counting the number of times the mothership fully traverses edge e to move between the rendezvous point xt R on e to the launch point for the
+next stage x
+(
+L
+t+1)
+.
+Continuous Decision Variables
+ρeg∈[0,1]and λeg∈[0,1],∀eg ∈Eg (g∈G): defining the entry and exit points on edge eg.
+γe L t∈[0,1]and γe R t∈[0,1],∀e∈E,∀t∈T: defining the launching and rendezvous points on edge e of the network Nat stage t.
+νe m g in and νe mgax∈[0,1], ∀eg ∈Eg (g∈G): auxiliary variables for linearization.
+xt L ,∀t∈T: coordinates representing the point where the mothership launches the drone at stage t.
+xt R ,∀t∈T: coordinates representing the point where the mothership retrieves the drone at stage t.
+Reg,∀eg ∈Eg (g∈G): coordinates representing the entry point in edge e of graph g.
+Leg,∀eg ∈Eg (g∈G): coordinates representing the exit point from edge e of graph g.
+(continued on next page)
+16
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Table 14 (continued)
+de L gt⩾0,∀eg ∈Eg (g∈G), ∀t∈T: representing the distance travelled by the drone from the launching point xt L on the mothership at stage t to the first visiting point Reg on eg.
+dege′ g⩾0,∀eg ,e ′ g ∈Eg(g∈G): representing the distance travelled by the drone from launching point Leg on eg to the rendezvous point Re′ g on e ′ g.
+deg⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the rendezvous point Reg to the launching point Leg on eg.
+de R gt⩾0,∀eg ∈Eg (g∈G), ∀t∈T: representing the distance travelled by the drone from the last visiting point Leg to the rendezvous point xt R on the mothership at stage t.
+de L e R ′t⩾0,∀e,e′∈E,∀t∈T: representing the distance travelled by the mothership from the launching point xt L on e to the rendezvous point xt R on e′at stage t.
+de R e L ′t⩾0,∀e,e ′∈E,∀t∈T: representing the distance travelled by the mothership from the rendezvous point xt R on e at stage t to the launching point x ( L t +1) on e ′ at stage t+1.
+dt LR ⩾0,∀t∈T: representing the total distance travelled by the mothership between the launching point xt L and the rendezvous point xt R at stage t.
+dt RL ⩾0,∀t∈T, representing the total distance travelled by the mothership between the rendezvous point xt R at stage t and the launching point x ( L t +1) at stage t+1.
+• NMDRPG. In this case, the best upper bounds for M egt or M egt is the maximum distance between the polygonal chain P or the graph N and any of
+R L
+the target graphs g∈G:
+Megt= max ‖v(cid:0) w‖=Migt.
+R {v∈Vg,w∈N} L
+Table 15
+Decision Variables for NMDRPG-MTZ.
+Binary and Integer Decision Variables
+μeg∈{0,1},∀eg ∈Eg (g∈G): equal to 1 if edge e of graph g (or a portion of it) is visited by the drone, and 0 otherwise.
+entryeg∈{0,1},∀eg ∈Eg (g∈G): auxiliary binary variables for linearization.
+ueg∈{0,1},∀eg ∈Eg (g∈G): equal to 1 if the drone enter in graph g by edge eg, 0 otherwise.
+zege′ g∈{0,1}, ∀eg ,e′ g ∈Eg (g∈G): equal to 1 if the drone goes from eg to e′ g, 0 otherwise.
+veg∈{0,1},∀eg ∈Eg (g∈G): equal to 1 if the drone exits from graph g by eg, 0 otherwise.
+wgg′ ∈{0,1}, ∀g,g′∈G: equal to 1 if the mothership moves from xg R to xg L ′ , 0 otherwise.
+seg,∀eg ∈Eg (g∈G): integer non negative variables representing the order of visit of edge e of graph g.
+μe L g∈{0,1},∀e∈E, ∀g∈G: equal to 1 if the launching point xg L to visit graph g is located on e.
+μe R g∈{0,1},∀e∈E, ∀g∈G: equal to 1 if the rendezvous point to visit graph g is located on e.
+ze L e R ′g∈{0,1},∀e,e′∈E,∀g∈G: equal to 1 if the launching point xg L to visit graph g is located on e and the rendezvous point xg R is located on e′.
+bi L g R ∈{0,1},∀i:e=(i,j)∈E, ∀g∈G: equal to 1 if the mothership exits from xg L by the vertex Vi of the edge e.
+ci L g R ∈{0,1},∀i:e=(i,j)∈E, ∀g∈G: equal to 1 if the mothership enters in xg R by the vertex Vi of the edge e.
+qe L g R ⩾0, ∀e∈E,∀g∈G: integer variable counting the number of times the mothership fully traverses edge e to move between the launching point xg L on e to the rendezvous point xg R on
+e′for graph g.
+ze R e L ′gg′ ∈{0,1},∀e,e′∈E,∀g,g′∈G: equal to 1 if the rendezvous point xg R, for graph g, is located on e and the launching point xg L ′ , for graph g′, is located on e′.
+bi R g L ∈{0,1},∀i:e=(i,j)∈E, ∀g∈G: equal to 1 if the mothership exits from xg R by the vertex Vi of the edge e.
+ci R g L ∈{0,1},∀i:e=(i,j)∈E, ∀g∈G: equal to 1 if the mothership enters in xg L by the vertex Vi of the edge e.
+qe R g L g′ ⩾0, ∀e∈E,∀g∈G: integer variable counting the number of times the mothership fully traverses edge e to move between the rendezvous point xg R to the launching point xg L ′ for
+graph g.
+Continuous Decision Variables
+ρeg∈[0,1]and λeg∈[0,1],∀eg ∈Eg (g∈G): defining the entry and exit points on edge eg.
+γe R g∈[0,1]and γe L g∈[0,1],∀e∈E,∀g∈G: defining the launching and rendezvous points, associated with graph g, located on edge e of the network N.
+νe m g in and νe mgax∈[0,1], ∀eg ∈Eg (g∈G): auxiliary variables for linearization.
+xg L , g∈G: coordinates representing the point where the mothership launches the drone to visit graph g.
+xg R , g∈G: coordinates representing the point where the mothership retrieves the drone to visit graph g.
+Reg,∀eg ∈Eg (g∈G): coordinates representing the entry point on edge e of graph g.
+Leg,∀eg ∈Eg (g∈G): coordinates representing the exit point on edge e of graph g.
+de L g⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the launching point xg L on the mothership to the first visiting point Reg on eg.
+dege′ g⩾0,∀eg ,e′ g ∈Eg(g∈G): representing the distance travelled by the drone from launching point Leg on eg to the rendezvous point Re′ g on e′ g.
+deg⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the rendezvous point Reg to the launching point Leg on eg.
+de R g⩾0,∀eg ∈Eg (g∈G): representing the distance travelled by the drone from the last visiting point for graph g Leg to the rendezvous point xg R on the mothership.
+de L e R ′g⩾0,∀e,e ′∈E,∀g∈G: representing the distance travelled by the mothership from the launching point xg L on e and the rendezvous point xg R on e ′ to visit graph g.
+de R e L ′gg′ ⩾0,∀e,e′∈E,∀g,g′∈G: representing the distance travelled by the mothership from the rendezvous point xg R, for graph g, on e to the launching point xg L ′ , for graph g′, on e′.
+dg LR ⩾0,∀g∈G: representing the total distance travelled by the mothership between the launching point xg L and the rendezvous point xg R to visit graph g.
+dg R g L ′ ⩾0,∀g,g ′∈G: representing the total distance travelled by the mothership between the rendezvous point xg R, for graph g, and the launching point xg L ′ , for graph g ′ .
+17
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+On the other hand, the minimum distance can be computed by taking the closest points between the graph g and the network N :
+megt= min ‖v(cid:0) w‖=megt.
+R {v∈Vg,w∈N} L
+A.1.2. Bounds on big-M constants for distances from the launching to the rendezvous points for the MTZ/SEC formulations in AMDRPG
+To linearize the product of dgg ′ wgg ′ we use the constraints:
+RL
+pgg′ ⩾mgg′ dgg′
+,
+RL RL
+pgg′ ⩽dgg′
+(cid:0)
+Mgg′
+(1(cid:0)
+wgg′
+).
+RL RL
+The upper bound on Mg R g L ′ is given by the diameter of g∪g ′ , namely Mg R g L ′ =max {v∈Vg ,v′∈V
+g
+′} ⃦ ⃦ v(cid:0) v ′ ⃦ ⃦.
+A.1.3. Bounds on big-M constants for distances from launching to rendezvous points on target graph g∈G.
+When the drone visits a graph g, it has to go from one edge eg to another edge e ′
+g
+depending on the order given by zege ′ g. This fact produces another
+product of variables linearized by the following constraints:
+pege′ g ⩾mege′ gdg R g L ′ ,
+pege′
+g
+⩽dege′
+g(cid:0)
+Mege′
+g(1(cid:0)
+zege′
+g).
+Since we are taking into account the distance between two edges e =(Beg,Ceg),e ′ =(Be ′ g,Ce ′ g)∈Eg, the maximum and minimum distances between their
+vertices give us the upper and lower bounds:
+{⃦ ⃦ ⃦ ⃦ ⃦ ⃦ ⃦ ⃦}
+Mege′ g = max ⃦Beg(cid:0) Ce′ g ⃦,⃦Beg(cid:0) Be′ g ⃦,⃦Ceg(cid:0) Be′ g ⃦,⃦Ceg(cid:0) Cjg ⃦ ,
+mege′ g = min{‖Beg(cid:0) Ce′ g‖,‖Beg(cid:0) Be′ g‖,‖Ceg(cid:0) Be′ g‖,‖Ceg(cid:0) Ce′ g‖}.
+A.1.4. Bounds on big-M constants for distances covered by the mothership on the polygonal for the PMDRPG model during one drone operation.
+In the case of PMDRPG, we can also set tighter upper bounds for the distance covered by the drone inside the polygonal during an operation that
+′
+starts in e and finishes at e (or vice versa) (see (25) and (26)). This is clearly bounded above by the total length of the line segments where the
+mothership is located.
+⎧L(e),
+( )
+if e=e′,
+⎪⎪⎪⎨ ∑
+L e′′ , if e<e′,
+Me L e R ′t=Me R e L ′t= ⎪⎪⎪⎩ e<
+∑
+e′′<e′ ( )
+L e′′ , if e>e′.
+e′<e′′<e
+A.1.5. Bounds on big-M constants for distances covered by the drone during an operation in models by stages.
+To link the drone operation with the mothership travel in the models by stages, we have defined the constraint (DCW-t)that includes the M:
+⎛ ⎞/ / ⎛ ⎞
+∑ ∑ ∑ ∑ ∑
+⎝ uegtde
+L
+gt+ zege′ gdege′ g+ μegdeg+ vegtde
+R
+gt⎠ v
+D
+⩽dt
+RL
+v
+M
++M⎝1(cid:0) uegt⎠.
+eg∈Eg eg,e′ g∈Eg eg∈Eg eg∈Eg eg∈Eg
+To obtain this upper bound M we add to the length of the graph L(g)the big-Ms. computed for uegt and vegt, that is, M egt and M egt , and the upper bounds
+L R
+on the distances traveled by the drone to move between edges on g. Thus,:
+⎛ ⎞
+∑
+M=L⎝g⎠+Me
+L
+gt+Me
+R
+gt+ Mege′ g.
+eg,e′ g∈Eg
+A.2. Network Mothership-Drone Routing Problem with Graphs (NMDRPG)
+This model is a refinement of the one presented in Section 4.2. Indeed, in this case the mothership has to move on a general undirected network
+rather than on a polygonal chain. Even though the model in Section 4.2, namely PMDRPG, can be seen as a particular case of NMDRPG, for the sake of
+presentation, we have preferred to include it first to ease the understanding of the more advanced NMDRPG model.
+18
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+As before, we start with an approach that models the problem by stages. Later, we shall extend the analysis using the rationale of connectivity, as
+already done in the previous models AMDRPG and PMDRPG. Table 13 summarizes all the parameters for this problem variant.
+Let N =(V,E)be the network that models the space of movement for the mothership. For each stage t∈T:={1,…,|G|}, the mothership can start
+from an edge e=(i,j)∈E and end in another one e ′ =(i ′,j ′)∈E, moving between each other following a route on N . Thus, it must follow a route from
+the launching to the rendezvous point and vice versa, determined by a sequence of intermediate points as shown in Fig. 10. All the decision variables of
+this formulation proposed for the NMDRPG model are reported in Table 14. As already explained before in previous sections, the distance traveled by
+the mothership, between two consecutive launching and rendezvous points in two edges, not necessarily distinct, of the graph can be represented as:
+de L e R ′t= ⎧ ⎪⎨ ⎪⎩ | [ γ b e L i t t (cid:0) γet γe R + t|L bjt (cid:0) e (cid:0) ) 1 , (cid:0) γet )] L ( e ) + ∑ qe′′tL ( e′′ ) + [ ci′tγe′t+cj′t (cid:0) 1(cid:0) γe′t )] L ( e′ ) , i i f fe e ∕= =e e ′ ′ , , ⎛ ⎜ ⎝dt L N R ⎞ ⎟ ⎠
+LR L LR L LR LR R LR R
+e′′∈N
+where bit (resp. cit ) are binary variables that determine from which of the end-points of e (respectively e ′ ) one has to account for the distance and qet
+LR LR LR
+is an integer variable that counts how many times the mothership fully traverses the edge e. Furthermore, we need to define another binary variable
+zee ′ tthat models the correct definition of the distance in (dtN). With the above definition one can account for the movement of the mothership at each
+LR LR
+stage t∈T from a launching to a rendezvous point:
+∑ [ (cid:0) )]
+xt L = μe L t Vi+γe L t Vj(cid:0) Vi , ∀t∈T, (42)
+e=(i,j)∈E
+∑ [ (cid:0) )]
+xt R = μe R t Vi+γe R t Vj(cid:0) Vi , ∀t∈T, (43)
+e=(i,j)∈E
+ze L e R ′t=μe L tμe R ′t, ∀e,e′ ∈E, ∀t∈T, (44)
+∑
+bi L t R ⩽ μe L t, ∀i∈V, ∀t∈T, (45)
+e∈δ(i)
+∑
+ci L t R ⩽ μe R t, ∀i∈V, ∀t∈T, (46)
+e∈δ(i)
+(cid:0) )
+bi L t R +bj L t R ⩾μe L t, ∀e= i,j ∈E, ∀t∈T, (47)
+(cid:0) )
+ci L t R +cj L t R ⩾μe R t, ∀e= i,j ∈E, ∀t∈T, (48)
+∑ ∑
+bi L t R + qj L it R = qi L jt R +ci L t R , ∀i∈V, ∀t∈T, (49)
+{j:(i,j)∈E} {j:(i,j)∈E}
+∑
+μe L t=1, ∀t∈T, (50)
+e∈E
+∑
+μe R t=1, ∀t∈T, (51)
+e∈E
+∑
+dt LR = ze L e R ′tde L e R ′t, ∀t∈T. (52)
+e,e′∈E
+′
+Constraints (42) and (43) parameterize the launching and rendezvous points in the network N at stage t. Constraints (44) set the binary variables zeet
+LR
+′
+by means of the binary variables μetand μet. Constraints (45) and (46) state that if the launching point (resp. rendezvous point) is not on the edge e, the
+L R
+′
+mothership cannot go (resp. exit) to the vertex that is incident to e. Constraints (47) state that if the mothership leaves the edge e to go to e, it must exit
+′
+from one of the incident vertices to e. In the same way, constraints (48) express that if the mothership leaves the edge e to go to e, it must enter to the
+edge e from one of its incident vertices. Flow conservation constraints (49) ensure that the number of incoming edges to each vertex i is equal to the
+number of outgoing edges in the route followed by the mothership. Constraints (50) and (51) state that, in each stage, the selected points can be
+located only on one edge. Finally, constraints (52) define the total distance between the launching and the rendezvous points at stage t.
+Similarly, the distance covered by the mothership along the path on the network from the rendezvous point xt to the next launching point xt+1can
+R L
+be modeled using the following definition of distance:
+⎧
+(cid:0) )
+⎪⎨|γet(cid:0) γet+1|L e , if e=e′,
+R L
+de R e L ′t= ⎪⎩ [ bit γet+bjt (cid:0) 1(cid:0) γet )] L (cid:0) e ) + ∑ qe′′tL (cid:0) e′′ ) + [ ci′tγe′t+1+cj′t (cid:0) 1(cid:0) γe′t+1 )] L (cid:0) e′ ) , if e ∕= e′. (cid:0) dtN )
+RL R RL R RL RL L RL L RL
+e′′∈N
+19
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+′
+In this case, the binary variable zeetlinks the rendezvous point at stage t with the launching point at stage t+1. Then, we can use a set of constraints
+RL
+similar to those used above and the distance from xt to xt+1can be computed by means of the following additional constraints:
+R L
+ze R e L ′t=μe R tμe L ′t+1, ∀e,e′ ∈E, ∀t∈T, (53)
+∑
+bi R t L ⩽ μe R t, ∀i∈V, ∀t∈T, (54)
+e∈δ(i)
+∑
+ci R t L ⩽ μe L t, ∀i∈V, ∀t∈T, (55)
+e∈δ(i)
+(cid:0) )
+bi R t L +bj R t L ⩾μe R t, ∀e= i,j ∈E, ∀t∈T, (56)
+(cid:0) )
+ci R t L +cj R t L ⩾μe L t+1, ∀e= i,j ∈E, ∀t∈T, (57)
+∑ ∑
+bi R t L + qj R it L = qi R jt L +ci R t L , ∀i∈V, ∀t∈T, (58)
+{j:(i,j)∈E} {j:(i,j)∈E}
+∑
+μe L t=1, ∀t∈T, (59)
+e∈E
+∑
+μe R t=1, ∀t∈T, (60)
+e∈E
+∑
+dt RL = ze R e L ′tde R e L ′t, ∀t∈T. (61)
+e,e′∈E
+Constraints (53) set the binary variables zee ′ tby means of the binary variables μetand μe ′ t+1. Constraints (54) and (55) state that if the rendezvous point
+RL R L
+(resp. launching point) is not on the edge e, the mothership cannot go (resp. exit) to the end vertices of the edge e. Constraints (56) state that if the
+mothership leaves the edge e, it must exit via one of the end vertices of e. In the same way, constraints (57) state that if the mothership goes to the edge
+e, it necessarily must enter to e from one incident vertex of e. Flow conservation constraints (58) ensure that in the route followed by the mothership
+the number of used incoming edges to each vertex i is equal to the number of used outgoing edges. Constraints (59) and (60) state that, in each stage,
+the selected points can be only on one edge. Constraints (61) express the total distance between the rendezvous and the launching points at stage t.
+Hence, once the distances inside the graph are set with the above two families of constraints, we can state the mathematical programming
+formulation of the problem as:
+⎛ ⎞ ⎛ ⎞ ⎛ ⎞
+∑∑∑ ∑∑ ∑ ∑ ∑
+min ⎝uegtd
+L
+egt+vegtde
+R
+gt⎠+ μegdeg+ zege′ gdege′ g+ ⎝dt
+RL
++dt
+LR
+⎠ ⎝NMDRPG-ST⎠
+g∈Geg∈Egt∈T g∈Geg∈Eg g∈Geg,e′ g∈Eg t∈T
+s.t. (1)–(7)
+(42)–(61)
+(MTZ1 )–(MTZ2 )or (SEC)
+(α(cid:0) E)or (α-G)
+(DCW-t)
+(dtN), (dtN)
+LR RL
+(ORIG1 )–(DEST2 )
+Again, the objective function has four terms: the first three compute the distances traveled by the drone, while the last one computes the distances
+traveled by the mothership. Constraints (1)–(7) model the tour made by the drone. Constraints (42)–(61) model the path followed by the mothership in
+the graph. The rest of the constraints are similar to those explained in the formulation (AMDRPG-ST).
+A.2.1. MTZ formulation for the Network Mothership-Drone Routing Problem with Graphs
+In order to apply this type of constraints to model connectivity of the routes we have to reformulate the expressions for the distances so that they
+are not related to stages. Table 15 summarizes the variables required to formulate this model. In this case, we observe that the distance between
+launching and rendezvous points in two edges e =(i,j),e ′ =(i ′,j ′)∈E, not necessarily distinct, of the graph can be represented as:
+⎧|γeg(cid:0) γeg|L(e), ife=e′, ⎛ ⎞
+de L e R ′g= ⎨ ⎩ [ b L igγeg R +bjg (cid:0) 1(cid:0) γeg )] L ( e ) + ∑ qe′′gL ( e′′ ) + [ ci′gγe′g+cj′g (cid:0) 1(cid:0) γe′g )] L ( e′ ) , ife ∕= e′, ⎝dg L N R ⎠
+LR L LR L LR LR R LR R
+e′′∈N
+where big (resp. cig ) are binary variables that determine from which of the end-points of e (respectively e ′ ) one has to account for the distance and qeg
+LR LR LR
+′
+is a binary variable that is equal to one when the mothership fully traverses the edge e. Furthermore, we need to define binary variables zeegthat model
+LR
+the choice of the model for right definition (first or second formulas of the distance in
+(dgN).
+All the above arguments give the necessary elements to
+LR
+account for the movement of the mothership on the network N =(V,E):
+20
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+∑ [ (cid:0) )]
+xg L = μe L g Vi+γe L g Vj(cid:0) Vi , ∀g∈G, (62)
+e=(i,j)∈E
+∑ [ (cid:0) )]
+xg R = μe R g Vi+γe R g Vj(cid:0) Vi , ∀g∈G, (63)
+e=(i,j)∈E
+ze L e R ′g=μe L gμe R ′g, ∀e,e′ ∈E, ∀g∈G, (64)
+∑
+bi L g R ⩽ μe L g, ∀i∈V, ∀g∈G, (65)
+e∈δ(i)
+∑
+ci L g R ⩽ μe R g, ∀i∈V, ∀g∈G, (66)
+e∈δ(i)
+(cid:0) )
+bi L g R +bj L g R ⩾μe L g, ∀e= i,j ∈E, ∀g∈G, (67)
+(cid:0) )
+ci L g R +cj L g R ⩾μe R g, ∀e= i,j ∈E, ∀g∈G, (68)
+∑ ∑
+bi L g R + qj L ig R = qi L jg R +ci L g R , ∀i∈V, ∀g∈G, (69)
+{j:(i,j)∈E} {j:(i,j)∈E}
+∑
+μe L g=1, ∀g∈G, (70)
+e∈E
+∑
+μe R g=1, ∀g∈G, (71)
+e∈E
+∑
+dg LR = ze L e R ′gde L e R ′g, ∀g∈G. (72)
+e,e′∈E
+Constraints (62) and (63) parameterize the launching and rendezvous points in the network N induced by the visit to the graph g∈G. Constraints
+′ ′
+(64) set the binary variables zeeg by means of the binary variables μeg and μeg. Constraints (65) and (66) state that if the launching point (resp.
+LR L R
+rendezvous point) is not on the edge e, the mothership cannot go (resp. exit) to the vertices of the edge e. Constraints (67) state that if the mothership
+′
+leaves the edge e, it must exit from one of the incident vertices to e. In the same way, constraints (68) state that if the mothership leaves the edge e, it
+necessarily must enter to e from one incident vertex of e. Flow conservation constraints (69) ensure that, in the route to be defined, the number of
+incoming edges to each vertex i is equal to the number of outgoing edges. Constraints (70) and (71) state that, for the visit to the graph g∈G,
+launching and rendezvous points can be only on one edge. Constraints (72) returns the total distance traveled by the drone on the graph g∈G.
+Similarly, the distance covered by the mothership along the path on the network N , from the rendezvous point xg ∈e, after the visit to g∈G to the
+R
+next launching point xg ′ ∈e ′ (to go to the graph g ′ ∈G), can be modeled using the following definition of distance:
+L
+de R e L ′gg′ = ⎧ ⎨ ⎩ | [ γ b e R i g g (cid:0) γeg γe L + g′ | b L jg ( (cid:0) e 1 ), (cid:0) γeg )] L ( e ) + ∑ qe′′gg′ L ( e′′ ) + [ ci′g′ γe′g′ +cj′g′(cid:0) 1(cid:0) γe′g′)] L ( e′ ) , i i f f e e = ∕= e′ e , ′. ⎛ ⎝dg R N L ⎞ ⎠
+RL R RL R RL RL L RL L
+e′′∈N
+In this case, the binary variable zee ′ gg ′ links the rendezvous point at g with the launching point at g ′ . Then, we can use a set of constraints similar to those
+RL
+′
+used above and the distance from xg to xg can be computed by means of the following additional constraints:
+R L
+ze R e L ′gg′ =μe R gμe L ′g′ , ∀e,e′ ∈E, ∀g,g′ ∈G, (73)
+∑
+bi R g L ⩽ μe R g, ∀i∈V, ∀g∈G, (74)
+e∈δ(i)
+∑
+ci R g L ⩽ μe L g, ∀i∈V, ∀g∈G, (75)
+e∈δ(i)
+(cid:0) )
+bi R g L +bj R g L ⩾μe R g, ∀e= i,j ∈E, ∀g∈G, (76)
+(cid:0) )
+ci R g L +cj R g L ⩾μe L g, ∀e= i,j ∈E, ∀g∈G, (77)
+∑ ∑
+bi R g L + qj R ig L g′ = qi R jg L g′ +ci R g L ′ , ∀i∈V, ∀g,g′ ∈G, (78)
+{j:(i,j)∈E} {j:(i,j)∈E}
+∑
+dg R g L ′ = ze R e L ′gg′ de R e L ′gg′ , ∀g,g′ ∈G. (79)
+e,e′∈E
+21
+L. Amorosi et al. C o m p u t e r s a n d O p e r a t i o n s R e s e a r c h 136(2021)105445
+Hence, once the distances inside the graph are set with the above two families of constraints, we can state the mathematical programming formulation
+of the problem as:
+⎛ ⎞ ⎛ ⎞
+∑∑ ∑∑ ∑ ∑ ∑ ∑
+⎝uegde
+L
+g+vegde
+R
+g⎠+ μegdeg+ zege′ gdege′ g+ dg
+LR
++ dg
+R
+g
+L
+′ wgg′ ⎝NMDRPG-MTZ⎠
+g∈Geg∈Eg g∈Geg∈Eg g∈Geg,e′ g∈Eg g∈G g,g′∈G
+s.t. (10)–(17)
+(62)–(79)
+(MTZ1 )–(MTZ2 )or (SEC)
+(MTZ3 )–(MTZ6 )or (SEC)
+(α(cid:0) E)or (α-G)
+(DCW-g)
+(dgN), (dgN)
+LR RL
+(DIST1(cid:0) g)–(DIST6(cid:0) g)
+(ORIG1 )–(DEST2 )
+References Jimenez, J.G., Chiaraviglio, L., Amorosi, L., Blefari-Melazzi, N., 2018. Multi-period
+mission planning of UAVs for 5G coverage in rural areas: A heuristic approach. In:
+Proceedings of the 2018 9th International Conference on the Network of the Future,
+Amorosi, L., Chiaraviglio, L., D’Andreagiovanni, F., Blefari-Melazzi, N., 2018. Energy- NOF 2018. pp. 52–59.
+efficient mission planning of UAVs for 5G coverage in rural zones. In: Proceedings of
+Li, M., Zhen, L., Wang, S., Lv, W., Qu, X., 2018. Unmanned aerial vehicle scheduling
+the IEEE International Conference on Environmental Engineering, EE 2018. problem for traffic monitoring. Comput. Ind. Eng. 122, 15–23.
+Amorosi, L., Chiaraviglio, L., Galan-Jimenez, J., 2019. Optimal energy management of
+Mathew, N., Smith, S.L., Waslander, S.L., 2015. Planning paths for package delivery in
+uav-based cellular networks powered by solar panels and batteries: Formulation and heterogeneous multirobot teams. IEEE Trans. Autom. Sci. Eng. 12 (4), 1298–1308.
+solutions. IEEE Access 7, 53698–53717.
+Moshref-Javadi, M., Lee, S., 2017. Using drones to minimize latency in distribution
+Amorosi, L., Caprari, R., Crainic, T., Dell’Olmo, P., Ricciardi, N., 2020. CIRRELT-2020-17 systems. In: IE Annual Conference Proceedings, pp. 235–240.
+An Integrated Routing-Scheduling Model for a Hybrid UAV-Based Delivery System.
+Mourelo Ferrandez, S., Harbison, T., Weber, T., Sturges, R., Rich, R., 2016. Optimization
+CIRRELT.
+Blanco, V., Ferna´ndez, E., Puerto, J., 2017. Minimum spanning trees with of a truck-drone in tandem delivery network using k-means and genetic algorithm. J.
+Ind. Eng. Manage. 9(2) (2016). doi: 10.3926/jiem.1929.
+neighborhoods: Mathematical programming formulations and solution methods.
+Oh, H., Shin, H.S., Tsourdos, A., White, B.A., Silson, P., 2011. Coordinated Road Network
+Eur. J. Oper. Res. 262 (3), 863–878. Search for Multiple UAVs using Dubins Path BT – Advances in Aerospace Guidance,
+Campbell, J.F., Sweeney, D., Zhang, J., 2017. Strategic design for delivery with trucks Navigation and Control. Berlin, Heidelberg. Springer, Berlin Heidelberg. pp. 55–65.
+and drones. Comput. Sci.
+Campbell, J.F., Corbera´n, A ´ ., Plana, I., Sanchis, J.M., 2018. Drone arc routing problems. Oh, H pl . a , n K n i i m n , g S b ., y T a s o t u ea rd m o s o , f A U ., A W Vs h . i t I e n , t . B J .A . . S , y 2 s 0 t. 1 S 4 c . i C . o 4 o 5 r d (5 in ), a t 8 e 2 d 5 r – o 8 a 4 d 0 - . n etwork search route
+Networks 72 (4), 543–559.
+Otto, A., Agatz, N., Campbell, J., Golden, B., Pesch, E., 2018. Optimization approaches
+Carlsson, J.G., Song, S., 2018. Coordinated logistics with a truck and a drone. Manage.
+for civil applications of unmanned aerial vehicles (uavs) or aerial drones: a survey.
+Sci. 64 (9), 4052–4069. Networks 72, 1–48.
+Chiaraviglio, L., Amorosi, L., Blefari-Melazzi, N., Dell’Olmo, P., Natalino, C., Monti, P.,
+Poikonen, S., Campbell, J., 2020. Future directions in drone routing research. Networks
+2018. Optimal design of 5g networks in rural zones with uavs, optical rings, solar 1–11.
+panels and batteries. In: Proceedings of the 20th International Conference on
+Poikonen, S., Golden, B., 2020. Multi-visit drone routing problem. Comput. Oper. Res.
+Transparent Optical Networks, ICTON 2018.
+113, 104802 .
+Chiaraviglio, L., Amorosi, L., Blefari-Melazzi, N., Dell’olmo, P., Lo Mastro, A.,
+Puerto, J., Valverde, C., 2020. Routing for unmanned aerial vehicles. Touring
+Natalino, C., Monti, P., 2019a. Minimum cost design of cellular networks in rural
+Dimensional Sets.
+areas with uavs, optical rings, solar panels, and batteries. IEEE Trans. Green
+Di Puglia Pugliese, L., Guerriero, F., 2017. Last-Mile Deliveries by Using Drones and
+Commun. Netw. 3 (4), 901–918. Classical Vehicles BT – Optimization and Decision Science: Methodologies and
+Chiaraviglio, L., Amorosi, L., Malandrino, F., Chiasserini, C.F., Dell’Olmo, P., Casetti, C., Applications. Cham. Springer International Publishing. pp. 557–565.
+2019. Optimal throughput management in UAV-based networks during disasters. In:
+Tokekar, P., Hook, J.V., Mulla, D., Isler, V., 2016. Sensor planning for a symbiotic UAV
+INFOCOM 2019 – IEEE Conference on Computer Communications Workshops, and UGV system for precision agriculture. IEEE Trans. Rob. 32 (6), 1498–1511.
+INFOCOM WKSHPS 2019. pp. 307–312.
+Trotta, A., Andreagiovanni, F.D., Di Felice, M., Natalizio, E., Chowdhury, K.R., 2018.
+Chow, J.Y., 2016. Dynamic UAV-based traffic monitoring under uncertainty as a
+When UAVs ride a bus: Towards energy-efficient city-scale video surveillance. In:
+stochastic arc-inventory routing policy. Int. J. Transp. Sci. Technol. 5 (3), 167–185. Proceedings – IEEE INFOCOM, 2018-April:1043–1051.
+Chung, S.H., Sah, B., Lee, J., 2020. Optimization for drone and drone-truck combined
+Virtanen, P., Gommers, R., Oliphant, T.E., et al., 2020. SciPy 1.0: fundamental
+operations: a review of the state of the art and future directions. Comput. Oper. Res. algorithms for scientific computing in Python. Nat. Methods 17 (3), 261–272.
+123, 105004 .
+Wen, T., Zhang, Z., Wong, K.K.L., 2016. Multi-objective algorithm for blood supply via
+Dille, M., Singh, S., 2013. Efficient aerial coverage search in road networks. AIAA
+unmanned aerial vehicles to the wounded in an emergency situation. PLoS ONE 11
+Guidance, Navigation, and Control (GNC) Conference.
+(5).
+Garone, E., Naldi, R., Casavola, A., Frazzoli, E., 2010. Cooperative mission planning for a
+class of carrier-vehicle systems. In: Proceedings of the IEEE Conference on Decision
+and Control, pp. 1354–1359.
+22

@@ -1,0 +1,3523 @@
+Computers&OperationsResearch159(2023)106322
+ContentslistsavailableatScienceDirect
+ComputersandOperationsResearch
+journalhomepage:www.elsevier.com/locate/cor
+Amultiple-dronearcroutingandmothershipcoordinationproblem
+LaviniaAmorosia,∗,1,JustoPuertob,1,CarlosValverdeb,1
+aDepartmentofStatisticalSciences,SapienzaUniversityofRome,Italy
+bDepartmentofStatisticalSciencesandOperationalResearch,UniversityofSeville,Spain
+A R T I C L E I N F O A B S T R A C T
+Keywords: This paper considers the optimisation problems that arise in coordinating a tandem between a mothership
+Arcroutingproblems vehicle and a fleet of drones. Each drone can be launched from the mothership to perform a task. After
+Networks completingtheirtasks,thedronesreturntothemothershiptorechargetheirbatteriesandbereadyforanew
+Drones task. Tasks consist of (partially) visiting graphs of a given length to provide some services or to carry out
+Conicprogramming
+a surveillance/inspection activity. The goal is to minimise the overall time of travelling carried out by the
+mothership(makespan)whilesatisfyingsomerequirementsintermsoffractionsofvisitstothetargetgraphs.
+Inallcases,wedevelopexactformulationsresortingtomixed-integersecond-orderconeprogrammesthatare
+comparedonatestbedofinstancestoassesstheirperformance.Wealsodevelopamatheuristicalgorithmthat
+providesreasonablesolutions.Computationalexperimentsshowtheusefulnessofourmethodologyindifferent
+scenarios.
+1. Introduction seminalpaper(MurrayandChu,2015)thatintroducestheFlyingSide-
+kickTravellingSalesmanProblem(FSTSP),inwhichatruckandadrone
+In recent years, the growth of potential business opportunities re- cooperate to make deliveries, Ulmer and Thomas (2018) considers
+latedtotheuseofdronetechnologyhasmotivatedtheappearanceof anothermodelinwhichafleetoftrucksanddronesisdispatchedwhen
+aninterestingbodyofmethodologicalliteratureonoptimisingtheuse ordersareplacedandanalysestheeffectofdifferentpoliciestodecide
+ofthistechnology.Examplesmaybefoundinmanydifferentsectors, whetheranordermustbedeliveredbyadroneorbyavehicle.Other
+such as telecommunications, where drones can be adopted in place articles,suchasCampbelletal.(2017)andCarlssonandSong(2018),
+of traditional infrastructures to provide connectivity (see, for exam- alsostudyhybridtruck-and-dronemodelstomitigatethelimiteddeliv-
+ple, Amorosi et al. (2018), Chiaraviglio et al. (2018), Jiménez et al. eryrangeofdrones.Dayarianetal.(2020)focusesonadeliverysystem
+(2018), Amorosi et al. (2019), and Chiaraviglio et al. (2019a)), or to inwhichtraditionalvehiclesareresuppliedbydrones.Dell’Amicoetal.
+temporarilydealwithdamagecausedbyadisaster(Chiaraviglioetal., (2021)presentsabranch-and-boundalgorithmandheuristicsbasedon
+2019b;Dönmezetal.,2021),deliveries(see,forexample,Mathewetal.
+ittosolvelarge-sizedinstancesoftheFSTSP.InPoikonenandGolden
+(2015),Ferrandezetal.(2016),PoikonenandGolden(2020b),Amorosi
+(2020b), the authors study the k-Multi-Visit Drone Routing Problem (k-
+et al. (2020), and Pei et al. (2021)), also in emergency (Wen et al.,
+MVDRP)inwhichatruckactsasamobiledepot.Thetruckisallowed
+2016),inspection(Trottaetal.,2018)andothercontexts.Thereader
+to stop at a predefined set of points and launches drones that can
+isreferredtotherecentsurveys(Ottoetal.,2018;Chungetal.,2020;
+deliver more than one package to their designated destination points
+Dönmez et al., 2021) for further details. In this context, depending
+(customers).Themodelalsoincludesadroneenergydrainfunctionthat
+on the specific application, we can distinguish three main different
+takesintoaccounteachpackageweight.
+systems:oneormultipledronesthat,startingfromadepot,providea
+Manyofthearticlescitedassumethatthesetofallowablelocations
+givenservice,oneormultipledronessupportedbyatraditionalvehicle
+tolaunch/retrieveadroneisfixedandknownapriori,theoperations
+thatworksonlyasamobiledepot(and/orrechargingstation),andone
+carried out by the drone consist of delivering to a single point, and
+ormultipledronesthatcooperatewithoneormoretraditionalvehicles.
+coordinationisbetweenatruckandasingledrone.Theseassumptions
+In the latter case, the vehicles are also responsible for providing the
+may be appropriate in some contexts, but in other cases it would be
+service.
+better to relax them. In Poikonen and Golden (2020a) the authors
+Intherestofthissection,wereviewtherelatedliterature,limiting
+progress on the coordination problem by introducing the Mothership
+ourselves to articles that focus on truck-and-drone systems. After the
+∗ Correspondingauthor.
+E-mailaddresses: lavinia.amorosi@uniroma1.it(L.Amorosi),puerto@us.es(J.Puerto),cvalverde@us.es(C.Valverde).
+1 Equallycontributingauthors.
+https://doi.org/10.1016/j.cor.2023.106322
+Received10August2022;Receivedinrevisedform6April2023;Accepted18June2023
+Availableonline1July2023
+0305-0548/©2023TheAuthor(s).PublishedbyElsevierLtd.ThisisanopenaccessarticleundertheCCBYlicense(http://creativecommons.org/licenses/by/4.0/).
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+and Drone Routing Problem (MDRP) in which a two-vehicle tandem disrupted, only inspecting a fraction of the edge provides valuable
+is used to design a route that visits a set of points that allow the information.
+mothership(whichmaybeashiporanaircraft)tolaunchandrecover In this article, we deal with an extension of the problem studied
+the drone in a continuous space. However, only a few articles in the in Amorosi et al. (2021), for which we propose a novel mothership-
+literature focus on drone operations that consist of traversing graphs and-multi-dronecoordinationmodel.Weconsiderasysteminwhicha
+ratherthanvisitingsinglepoints.InCampbelletal.(2018)theauthors basevehicle(mothership)travelsincontinuousspaceandmustsupport
+introducetheDroneRuralPostmanProblem(DRPP).Thepaperpresents the launch/retrieval of several drones that must visit graphs. Indeed,
+asolutionalgorithmbasedontheapproximationofcurvesintheplane dependingonthespecificapplication,thetandemsystemmayrequire
+by polygonal chains that iteratively increases the number of points the adoption of multiple drones to perform surveillance/monitoring
+in the polygonal chain where the UAV can enter or leave. Thus, the activities, for example, to accelerate data collection in emergency
+problem is solved as a discrete optimisation problem trying to better contexts. The presence of several drones opens up different possible
+definethecurvebyincreasingthenumberofpoints.Theauthorsalso working principles of the tandem system that can be more or less
+consider the case in which the drone has limited endurance and thus appropriate depending on the specific application. In particular, we
+cannotservealllines.Todealwiththelattercase,theyassumetohave focusontwodifferentversions.
+afleetofdronesandtheproblemconsistsoffindingasetofroutes,each The contributions of this article to the existing literature can be
+oflimitedlength.InCampbelletal.(2021)thisproblemisdefinedas summarisedasfollows:
+the Length Constrained K-Drones Rural Postman Problem (LC K-DRPP),
+(i) it extends the mothership-drone coordination problem to the
+a continuous optimisation problem in which a fleet of homogeneous
+morecumbersomecaseofseveraldrones;
+drones has to jointly service (traverse) a set of (curved or straight)
+(ii) it focuses on drone arc routing problems in which drone op-
+lines of a network. The authors design and implement a branch-and-
+erations consist of traversing graphs rather than visiting single
+cutalgorithmforitssolutionandamatheuristicalgorithmcapableof
+points;
+providinggoodsolutionsforlarge-scaleinstancesoftheproblem.
+(iii) itstudiestwoversionsoftheproblemthatmakethepresented
+Scanning the literature on arc routing problems involving hybrid
+mathematical programming approach flexible with respect to
+systems consisting of one vehicle and one or multiple drones, the
+differentworkingprinciplesofthetandemsystem;
+number of contributions is rather limited. In Tokekar et al. (2016)
+(iv) it presents matheuristic algorithms able to handle large-sized
+theauthorsstudythepathplanningproblemofasystemcomposedof
+instances;
+a ground robot and a drone in precision agriculture and solve it by
+(v) itincludesinthe Appendixthemodelextensionfordealingalso
+applyingorienteeringalgorithms.Furthermore,thepaperGaroneetal.
+withanon-homogeneousfleetofdrones.
+(2010)studiestheproblemofpathplanningforsystemsconsistingof
+a carrier vehicle and a carried one to visit a set of target points and The rest of the paper is structured as follows. Section 2 provides
+assumesthatthecarriervehiclemovesincontinuousspace. a detailed description of the problem under consideration. Section 3
+To the best of our knowledge, the papers Amorosi et al. (2021, develops valid Mixed-Integer Non-Linear Programming (MINLP) for-
+2022)aretheonlythatdealwiththecoordinationofamothershipwith mulations for the two versions of the problem considered. Here, we
+adronetovisittargetsrepresentedbygraphs.Inparticular,inAmorosi also show the relationship between the two models and prove that
+et al. (2021) the authors make different assumptions on the route thesecondmodelisarelaxationofthefirst.Section4providessome
+followedbythemothership:(i)itcanmoveontheEuclideanplane,(ii) valid inequalities that strengthen the formulations and derive upper
+onaconnectedpiecewiselinearpolygonalchain,or(iii)onageneral and lower bounds on the bigM constants introduced in the proposed
+graph.Inallcases,theauthorsdevelopexactformulationsusingmixed- formulations.Section5presentsdetailsofthematheuristicalgorithms
+integer second-order cone programmes and propose a matheuristic designed to handle large-sized instances. In Section 6, we report the
+algorithmcapableofobtaininghigh-qualitysolutionsinshortcomput- resultsobtainedbytestingtheformulationsandthematheuristicalgo-
+ing time. The set of target graphs to be visited permits one to model rithmondifferentclassesofplanargraphstoassesstheireffectiveness.
+real situations like monitoring or inspection activities on fractions of InSection7,wepresentanillustrativeexamplethatappliesthecoordi-
+networks(roadsorwires)wheretraditionalvehiclescannotarrive,due nationmodelsfortheCordobaCourtyardFestival.Section8concludes
+to,forexample,thepresenceofnarrowstreets,orbecauseofanatural the paper. Finally, for the sake of completeness, we include an Ap-
+disasteroraterroristattackthatcausesdamagetothenetwork.Inall pendixwithanextensionofthemodelofcompleteoverlappingwhere
+these cases, drone inspection or monitoring consists of traversing the thedronesarenotassumedtobehomogeneous.
+edges of the network to perform a reconnaissance activity. For this
+reason, the targets that the drone will visit are modelled as graphs. 2. Problemdescription
+Notethat,ingeneral,theshapeofthegraph edgesmaybeastraight
+line or a curve. In this paper, we limit the discussion to the case IntheAllTerrainMothershipandMultiple-DroneRoutingProblemwith
+of straight lines. However, as shown in Campbell et al. (2018), it is Graphs (AMMDRPG), there is one mothership (the base vehicle) and
+possible to deal with curved edges by approximating them through a fleet of homogeneous drones  that have to coordinate between
+polygonalchains. Thus,thispaperrepresentsafirst buildingblockin eachotherandwiththemothershiptoperformanumberofoperations
+thestudyofcoordinationmodelsbetweenamothershipandafleetof consistingofvisitinggivenfractionsofthelengthofasetofgraphs.
+drones that embed drone arc routing problems. The investigation on The mothership and the drones travel at constant speeds 𝑣 and 𝑣 ,
+𝑀 𝐷
+differentedgesshapeisoutofthescopeofthispaperanditisleftfor respectively.Wealsoassumethatitisnotnecessaryforthemothership
+futureresearch.Theactionofvisitingagraphcanbeoftwodifferent to be stopped to launch and retrieve the drones and that the time
+types: (i) traversing a given fraction of the length of each one of its spent by the mothership to launch and retrieve them is negligible.
+edgesor(ii)visitingafractionofthetotallengthofthenetwork.Other Furthermore, it is assumed that each drone has a limited endurance
+typesofinspectionactivities,suchas,forexample,videosurveillance 𝑁 ,sooncelaunched,itmustcompletetheoperationandreturntothe
+𝐷
+of urban areas in large cities, can also be modelled by adopting the basevehicletorechargeitsbatteriesbeforethetimelimit.Inaddition,
+formulationspresentedinthispaper.Inthiscontext,therequesttovisit thebasevehiclefreelymovesinthecontinuousspace.Thisassumption
+acertainfractionofthetargetgraphs(e.g.,bordersofaneighbourhood) canmodelthecasewherethebasevehicleisahelicopteroraboat,so
+maybeduetothenecessityof‘‘covering’’differentareasinalimited thattherearenoobstaclesorrestrictionsonitsmovement.Nowadays,
+time interval. Another example that we can mention is traffic flow thistypeofsystemconsistingofaboatandafleetofdronesisused,for
+monitoring. In this case, to verify whether traffic progression is not example,bycoastguardstocarryoutsurveillanceactivitiestoidentify
+2
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.1. Modelwithcompleteoverlapping.
+Fig.2. Modelwithpartialoverlapping.
+immigrants who need help on the sea (see AltiGator (2015)). The retrieval actions so that the visits of several drones to their target
+mothership starts at a known location, denoted 𝑜𝑟𝑖𝑔 where the entire graphs are allowed to partially overlap over time (see Fig. 2). This
+systemisreadytodepart.Oncealloperationsarecompleted,themoth- secondversionismoredifficulttomodel.Indeed,thepossibilityforthe
+ershipanddronesmustreturntogethertoafinallocationcalled𝑑𝑒𝑠𝑡. mothershiptoretrieveonedroneinadifferentphasefromthatinwhich
+Moreover,withoutlossofgenerality,weassumethattheenduranceof it has been launched implies the introduction of additional concepts
+the drone does not allow it to visit all target graphs in a single trip, and decision variables to properly formulate the problem. Moreover,
+startingfromtheoriginandendingatthedestination.Otherwise,the additionalconstraintsmustbeincludedtomodelthemothershiproute
+problembecomestrivial,andcoordinationisnotrequired. and its relationship with one of the drones. For both variants of the
+In this problem, it is assumed that each graph must be visited by problem, we present mathematical programming formulations, valid
+onedrone:oncethedroneisassignedtothisaction,itvisitsthegraph inequalitiestostrengthenthem,andadhocmatheuristicstodealwith
+and has to complete the entire action of traversing this target before medium-sizedinstancesoftheproblem.
+returning to the base. We assume that the time each drone spends
+Note that the partial overlapping variant is an extension of the
+visitingthegraphmustbelessthanorequaltothetimethemothership
+completeoverlappingcase.Infact,weallowonedronetobelaunched
+takes to move from the launching point to the retrieval point. Note
+andretrievedbeforeanotherdifferentdroneislaunchedtovisitanother
+also that each drone in the fleet cannot be launched from the same
+targetgraph.Therefore,whenapplicable,thepartialoverlappingver-
+basevehiclelocationtocarryoutalltasksduetoitslimitedendurance.
+sioncanprovidesmallervaluesofthemakespan.Thiscanbeobserved
+Additionally,thecostsinducedbythedronetripsarenegligiblecom-
+inFigs.1and2,showingtheGanttdiagramofafeasiblesolutionfor
+pared to those incurred by the base vehicle. Therefore, the goal is to
+thetwoversionsoftheproblem,involvingtwodronesandfourtarget
+minimisethemakespan,whichinthiscasecoincideswiththeoverall
+graphs.Inparticular,inFig.1,thevisitofGraph3startsat6andthe
+time travelled by the mothership. Despite that, the reader may note
+makespan is equal to 11. This fact is due to the constraint that the
+that from a theoretical point of view, the extension to include in the
+mothershipmustwaitfortheretrievalofbothdronesbeforelaunching
+objectivefunctionthetimestravelledbydronesisstraightforwardand
+Drone 1 again. In Fig. 2, the possibility to launch both drones in an
+doesnotincreasethecomplexityofthemodelsorformulations.
+asynchronous way allows us to move the visit of Graph 3 up, with a
+ThegoaloftheAMMDRPGistofindthelaunchandretrievalpoints
+ofthedronefleetthatmeetthevisitrequirementsofthegraphsin makespanequalto10.
+andminimisethemakespan(totaltimetravelledbythemothership).
+In this paper, we focus on two different versions of AMMDRPG. 3. Mixed-integernon-linearprogrammingformulations
+In the first, called AMMDRPG with complete overlapping model
+(AMMDRPG-CO),operationsconsistingofthelaunchandretrievalof Inthissection,wepresentaMINLPformulationfortheAMMDRPG
+asetofdronesarecarriedoutsequentiallysothatnotwoconsecutive that can be used to solve medium-sized instances of this problem. As
+launches are possible without the retrieval of previously launched mentionedinSection2,weassumethatthemothershipisallowedto
+drones (see Fig. 1). The second version, called AMMDRPG with par- move freely in a continuous space that, for the sake of presentation,
+tial overlapping model (AMMDRPG-PO), allows consecutive launch or we assume to be R2. Here, distances are measured by the Euclidean
+3
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Table1
+NomenclatureforAMMDRPG.
+Problemparameters
+𝑜𝑟𝑖𝑔:coordinatesofthepointdefiningtheoriginofthemothershippath(ortour).
+𝑑𝑒𝑠𝑡:coordinatesofthepointdefiningthedestinationofthemothershippath(ortour).
+:setofthetargetgraphs.
+𝑔=(𝑉𝑔,𝐸𝑔):setofnodesandedgesofeachtargetgraph𝑔∈.
+(𝑒𝑔):lengthofedge𝑒ofgraph𝑔∈.
+(𝑔)=∑
+𝑒𝑔∈𝐸𝑔
+(𝑒𝑔):totallengthofthegraph𝑔∈.
+𝐵𝑒𝑔,𝐶𝑒𝑔:coordinatesoftheendpointsofedge𝑒ofgraph𝑔∈.
+𝛼𝑒𝑔:fractionoflengthofedge𝑒ofgraph𝑔∈thatmustbevisited.Itrangesfrom0to1.
+𝛼𝑔:fractionoflengthofgraph𝑔∈thatmustbevisited.Itrangesfrom0to1.
+𝑣𝑀:mothershipspeed.
+|  |:numberofdrones.
+𝑣𝐷:dronespeed.
+𝑁𝐷:droneendurance.
+:setofdroneoperationstoperformvisitstothetargetgraphs.={1,…,|  |}.
+𝑀:big-Mconstant.
+Table2
+DecisionvariablesforAMMDRPG-CO.
+Binarydecisionvariables
+𝜇𝑒𝑔∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):equalto1ifedge𝑒ofgraph𝑔(orafractionofit)isvisitedbythedrone,0otherwise.
+entry𝑒𝑔∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):auxiliarybinaryvariableusedforlinearisingexpressions.
+𝑢𝑒𝑔𝑜∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈:equalto1ifonedroneentersgraph𝑔throughtheedge𝑒
+𝑔
+atoperation𝑜,0otherwise.
+𝑧𝑒𝑔𝑒′ 𝑔∈{0,1}, ∀𝑒 𝑔 ,𝑒′ 𝑔 ∈𝐸 𝑔 (𝑔∈):equalto1ifonedronegoesfrom𝑒 𝑔 to𝑒′ 𝑔 ,0otherwise.
+𝑣𝑒𝑔𝑜∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈:equalto1ifonedroneexitsgraph𝑔by𝑒
+𝑔
+atoperation𝑜,0otherwise.
+Continuousdecisionvariables
+𝑠𝑒𝑔∈[0,|𝐸 𝑔|−1], ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):continuousnon-negativevariablerepresentingtheorderofvisitstotheedge𝑒ofgraph𝑔.
+𝜌 𝜈 m 𝑒 𝑒 𝑔 𝑔 in ∈ a [ n 0 d ,1 𝜈 ] m 𝑒 a 𝑔 a n x d ∈ 𝜆 [ 𝑒 0 𝑔 ,1 ∈ ], [0 ∀ , 𝑒 1 𝑔 ], ∈ ∀ 𝐸 𝑒 𝑔 𝑔 ∈ (𝑔 𝐸 ∈ 𝑔  (𝑔 ): ∈ au  x ): ili d a e r f y in v in ar g ia t b h l e es en u t s r e y d a f n o d rl e i x n i e t a p ri o s i i n n t g s e o x n pr 𝑒 e 𝑔 s . sions.
+𝑥𝑜 ∈R2, ∀𝑜∈:coordinatesrepresentingthepointwherethemothershiplaunchesthedronesatoperation𝑜.
+𝐿
+𝑥𝑜 ∈R2, ∀𝑜∈:coordinatesrepresentingthepointwherethemothershipretrievesthedronesatoperation𝑜.
+𝑅
+𝑅𝑒𝑔∈R2, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):coordinatesrepresentingtheentrypointonedge𝑒
+𝑔
+ofgraph𝑔.
+𝐿𝑒𝑔∈R2, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):coordinatesrepresentingtheexitpointonedge𝑒
+𝑔
+ofgraph𝑔.
+𝑑 𝑜𝑟𝑖𝑔 ≥0:thatrepresentsdistancefromtheorigin𝑜𝑟𝑖𝑔tothefirstlaunchingpoint𝑥1 𝐿 .
+𝑑
+𝐿
+𝑒𝑔𝑜≥0, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈:representingthedistancetravelledbyonedronefromthelaunching
+𝑝𝑒 𝐿 𝑔𝑜≥0 p , oi ∀ n 𝑒 t 𝑔 𝑥 ∈ 𝑜 𝐿 𝐸 o 𝑔 n ( t 𝑔 he ∈ m ) o , th ∀ e 𝑜 rs ∈ hi  p : a a t ux o i p li e a r r a y tio v n ari 𝑜 ab to le th u e se f d ir f s o t r v m isi o ti d n e g lli p n o g in t t he 𝑅𝑒 p 𝑔 ro o d n uc 𝑒 𝑔 t . of𝑑 𝐿 𝑒𝑔𝑜 and𝑢𝑒𝑔𝑜.
+𝑑𝑒𝑔≥0, ∀𝑒 𝑔∈𝐸 𝑔 (𝑔∈):representingthedistancetravelledbythedronefromtheretrievalpoint𝑅𝑒𝑔 tothe
+launchingpoint𝐿𝑒𝑔 on𝑒 𝑔.
+𝑝𝑒𝑔∈[0,1], ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):auxiliaryvariableusedformodellingtheproductof𝜇𝑒𝑔 and|𝜆𝑒𝑔−𝜌𝑒𝑔|.
+𝑑𝑒𝑔𝑒′ 𝑔≥0, ∀𝑒 𝑔 ,𝑒′ 𝑔 ∈𝐸 𝑔 (𝑔∈):representingthedistancetravelledbythedronefromthelaunchingpoint𝐿𝑒𝑔 on𝑒 𝑔 to
+theretrievalpoint𝑅𝑒′ 𝑔 on𝑒′ 𝑔 .
+𝑑 𝑝𝑒 𝑅 𝑒 𝑔 𝑔 𝑒 𝑜 ′ 𝑔 ≥ ≥ 0 0 , , ∀ ∀ 𝑒 𝑒 𝑔 𝑔 , ∈ 𝑒′ 𝑔 𝐸 ∈ 𝑔 𝐸 (𝑔 𝑔 ∈ (𝑔 ) ∈ ,  ∀ ) 𝑜 : ∈ au  xi : li r a e r p y re v s a e r n ia ti b n l g e t u h s e ed di f s o t r an m ce od t e ra ll v in e g lle t d he by pr o o n d e uc d t ro o n f e 𝑑𝑒 f 𝑔 r 𝑒 o ′ 𝑔 m an t d he 𝑧𝑒 l 𝑔 a 𝑒 s ′ 𝑔 t . visitingpoint
+𝑝𝑒 𝑅 𝑔𝑜≥0 𝐿 , 𝑒 ∀ 𝑔 𝑒 o 𝑔 n ∈ 𝑒 𝐸 𝑔 𝑔 to (𝑔 th ∈ e  r ) e , tr ∀ i 𝑜 ev ∈ al  p : o a i u n x t il 𝑥 i 𝑜 𝑅 ary on va th ri e ab m le ot u h s e e r d sh f i o p r a m t o o d p e e l r li a n ti g on th 𝑜 e . productof𝑑 𝑅 𝑒𝑔𝑜 and𝑣𝑒𝑔𝑜.
+𝑑𝑜 ≥0, ∀𝑜∈:representingthedistancetravelledbythemothershipfromthelaunchingpoint𝑥𝑜 totheretrieval
+𝐿𝑅 𝐿
+point𝑥𝑜 atoperation𝑜.
+𝑅
+𝑑
+𝑅
+𝑜
+𝐿
+≥0, ∀𝑜∈⧵|  |:representingthedistancetravelledbythemothershipfromtheretrievalpoint𝑥𝑜
+𝑅
+atoperation𝑜tothe
+launchingpoint𝑥(𝑜+1) atoperation𝑜+1.
+𝑑
+𝑑𝑒𝑠𝑡
+≥0:thatrepresents 𝐿 distancefromthelastretrievalpoint𝑥
+𝑅
+|| tothedestination𝑑𝑒𝑠𝑡.
+𝑡𝑖𝑚𝑒𝑜 ≥0, ∀𝑜∈:maximumtimespentbyadroneduringoperation𝑜.
+𝐷
+𝑡𝑖𝑚𝑒𝑜 ≥0, ∀𝑜∈:timespentbythemothershiptogofromthelaunchingpoint𝑥𝑜 totheretrievalpoint𝑥𝑜 ofoperation𝑜.
+𝑀 𝐿 𝑅
+𝑡𝑖𝑚𝑒
+𝑀
+≥0:totaltimespentbythemothershiptogofromtheorigintothedestination(makespan).
+norm,‖⋅‖2 ,althoughthisassumptioncanbeextendedtoany𝑙
+𝑝
+norm, For each edge 𝑒
+𝑔
+an indicator binary variable 𝜇𝑒𝑔 is associated,
+1≤𝑝≤∞(seeBlancoetal.(2017)). assumingthevalueoneifthedronevisitsthesegment𝑒 .Furthermore,
+𝑔
+Table 1 summarises the parameters or input data that formally we define the entry and exit points 𝑅𝑒𝑔 = (𝐵𝑒𝑔,𝐶𝑒𝑔,𝜌𝑒𝑔) and 𝐿𝑒𝑔 =
+describetheproblem. (𝐵𝑒𝑔,𝐶𝑒𝑔,𝜆𝑒𝑔) that determine the fraction of the edge visited by the
+Inthefollowing,wedescribealltheconstraintsrequiredtoformu- drone.Thecoordinatesofthepoints𝑅𝑒𝑔 and𝐿𝑒𝑔 aregiven,respectively
+latetheAMMDRPG-COmodel.Table2summarisesthesetofdecision by
+variablesthatappearinthatformulation.
+𝑅𝑒𝑔 =𝜌𝑒𝑔𝐵𝑒𝑔+(1−𝜌𝑒𝑔)𝐶𝑒𝑔 and 𝐿𝑒𝑔 =𝜆𝑒𝑔𝐵𝑒𝑔+(1−𝜆𝑒𝑔)𝐶𝑒𝑔,
+Visitstographs
+where𝜌𝑒𝑔 ∈[0,1]and𝜆𝑒𝑔 ∈[0,1]arevariablestodeterminetheposition
+Torepresentthemovementofthedronewithinagraph𝑔∈,we ofthepointsinthesegment.
+As discussed in Section 2, we consider two modes of visit to the
+nowintroducesomenotationsrelatedto𝑔.Let𝑔=(𝑉 ,𝐸 )beagraph
+inwhosetotallengthisdenotedby(𝑔).Here,𝑉 d
+𝑔
+eno
+𝑔
+testhesetof
+targetgraphs𝑔∈:
+𝑔
+n
+𝑒
+od
+b
+e
+e
+s
+t
+a
+h
+n
+e
+d
+ed
+𝐸
+g
+𝑔
+e
+d
+𝑒
+en
+of
+ot
+g
+e
+r
+s
+ap
+th
+h
+e
+𝑔
+se
+∈
+t
+𝐺
+of
+a
+e
+n
+d
+d
+ge
+le
+s
+t
+c
+
+o
+(
+n
+𝑒
+ne
+)
+c
+b
+t
+e
+in
+i
+g
+ts
+p
+l
+a
+e
+i
+n
+rs
+gt
+o
+h
+f
+.
+n
+E
+o
+a
+d
+ch
+es
+e
+.
+d
+L
+g
+e
+e
+t (i) Visitingafraction𝛼𝑒𝑔 ofeachedge𝑒
+𝑔
+whichcanbemodelledby
+𝑔 𝑔 usingthefollowingconstraints:
+𝑒
+𝑔
+isparameterisedbyitsendpoints𝐵𝑒𝑔 =(𝐵𝑒𝑔(𝑥
+1
+),𝐵𝑒𝑔(𝑥
+2
+))and𝐶𝑒𝑔 =
+(𝐶𝑒𝑔(𝑥
+1
+),𝐶𝑒𝑔(𝑥
+2
+))andwecancomputeitslength(𝑒
+𝑔
+)=‖𝐶𝑒𝑔−𝐵𝑒𝑔‖. |𝜆𝑒𝑔−𝜌𝑒𝑔| ≥𝛼𝑒𝑔, ∀𝑒
+𝑔
+∈𝐸
+𝑔
+. (𝛼-E)
+4
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Theseinequalitiesstatethatthedifferencebetweentheparame- Alternatively, we can also use the family of subtour elimination
+terisationsoftheentryandexitpointsassociatedwitheachedge constraintsforeach𝑔∈:
+𝑒 𝑒 𝑔 𝑔 m re u q s u t ir b e e d g t r o ea b t e er tr t a h v a e n rs o e r d. equaltothefractionofthelengthof ∑ 𝑧 𝑒 𝑔 𝑔𝑒′ 𝑔 ≤ |𝑆|−1, ∀𝑆⊂𝐸 𝑔 . (SEC)
+(ii) Visitingafraction𝛼𝑔 ofthetotallengthofthegraph: 𝑒𝑔,𝑒′ 𝑔∈𝑆
+∑ 𝜇𝑒𝑔|𝜆𝑒𝑔−𝜌𝑒𝑔| (𝑒
+𝑔
+)≥𝛼𝑔(𝑔). (𝛼-G)
+we
+S
+i
+i
+m
+nc
+p
+e
+lem
+th
+e
+e
+n
+r
+t
+e
+t
+i
+h
+s
+is
+an
+for
+e
+m
+xp
+u
+o
+la
+n
+t
+e
+i
+n
+o
+t
+n
+i
+,
+al
+w
+n
+e
+um
+ne
+b
+e
+e
+d
+r
+t
+o
+o
+f
+p
+S
+e
+E
+r
+C
+for
+c
+m
+on
+a
+str
+r
+a
+o
+i
+w
+nts
+g
+,
+e
+w
+ne
+h
+r
+e
+a
+n
+-
+𝑒𝑔∈𝐸𝑔
+tion procedure including constraints whenever they are required by
+This constraint ensures that the sum of the length fractions of a separation oracle. To find SEC inequalities, as usual, we search for
+theedgeschosentobecrossedmustbegreaterthanorequalto disconnected components in the current solution. Among them, we
+thelengthfractionof𝑔requiredtobetraversed. choosetheshortestsubtourfoundinthesolutiontobeaddedasalazy
+constrainttothemodel.
+In both cases, the corresponding constraints are non-linear. To
+linearise them, we need to introduce a binary variable entry𝑒𝑔 that
+3.1. AMMDRPGwithcompleteoverlapping
+determines the direction of travel on the edge 𝑒 and the definition
+𝑔
+of the auxiliary variables 𝜈
+𝑒𝑔
+and 𝜈
+𝑒𝑔
+of the access and exit points
+min max Tomodelthisproblem,weuseoperationsidentifiedwiththeorder
+onthatsegment.Then,foreachedge𝑒 ,theabsolutevalueconstraint
+𝑔 inwhichthedifferenttargetgraphsintheproblemarevisited.Letus
+(𝛼-E)canberepresentedby:
+denote by  the set of operations that the mothership and the drone
+⎧ ⎪ 𝜌𝑒𝑔 𝜈 𝑒 − 𝑔 𝜆𝑒𝑔 = ≤ 𝜈 1 m 𝑒 − 𝑔 ax en − tr 𝜈 y m 𝑒𝑔 𝑒 i 𝑔 n , , f  le w et it h h a t v h e e t r o eq p u e i r r f e o d rm c . on T s h t e ra se in o ts p . e A ra n ti o o p n e s ra a t r i e on vi 𝑜 si ∈ ts  to is di r f e f f e e r r e r n e t d g t r o ap a h s s th in e
+⎪ max
+|𝜌𝑒𝑔−𝜆𝑒𝑔| ≥𝛼𝑒𝑔 ⟺ ⎪
+⎨
+𝜈
+m
+𝑒𝑔
+in
+≤ entry𝑒𝑔, (𝛼-E) a
+lo
+c
+c
+t
+a
+io
+ti
+n
+o
+s
+n
+i
+,
+n
+d
+w
+en
+h
+o
+i
+t
+c
+e
+h
+d
+t
+b
+h
+y
+e
+𝑥
+m
+𝑜
+o
+a
+t
+n
+h
+d
+er
+t
+s
+h
+h
+e
+ip
+nt
+la
+a
+u
+ke
+n
+s
+ch
+th
+e
+e
+s
+m
+so
+b
+m
+a
+e
+ck
+d
+t
+r
+o
+on
+a
+e
+r
+s
+et
+f
+r
+r
+i
+o
+e
+m
+va
+a
+ll
+t
+o
+a
+c
+k
+a
+e
+t
+-
+i
+o
+o
+f
+n
+f
+⎪ ⎪ 𝜈 m 𝑒𝑔 in ,𝜈 m 𝑒𝑔 ax ≥ 0, 𝑥𝑜 𝑅 . Here, it is importa 𝐿 nt to realise that both the locations 𝑥𝑜 𝐿 and 𝑥𝑜 𝑅
+⎪𝜈 𝑒𝑔 +𝜈 𝑒𝑔 ≥ 𝛼𝑒𝑔. mustbedeterminedinthecontinuousspaceinwhichthemothership
+⎩ max min is assumed to move. Note that |  | ≤ |  |, since it is assumed that, for
+The first four inequalities model the standard trick of linearisation of
+eachoperation,atleastonedronemustbelaunched.
+the absolute value. The last constraint ensures that the value of the For each operation 𝑜 ∈ , each of the drones launched from the
+linear expression of the absolute value is higher than the required
+mothership must follow a path starting from and returning to the
+fraction𝛼𝑒𝑔.
+mothership, while visiting the required edges of one of the graphs
+Similarly,(𝛼-G)canbelinearisedasfollows: 𝑔 ∈ . According to the notation introduced above, we write this
+∑ 𝜇𝑒𝑔|𝜌𝑒𝑔−𝜆𝑒𝑔| (𝑒
+𝑔
+)≥𝛼𝑔(𝑔). genericpathinthefollowingform:
+𝑒𝑔∈𝐸𝑔 𝑥𝑜 →𝑅𝑒𝑔 →𝐿𝑒𝑔 →…→𝑅𝑒′ 𝑔 →𝐿𝑒′ 𝑔 →…→𝑅𝑒′ 𝑔 ′ →𝐿𝑒′ 𝑔 ′ →𝑥𝑜.
+⎧ 𝜌𝑒𝑔−𝜆𝑒𝑔 = 𝜈 𝑒𝑔 −𝜈 𝑒𝑔 , 𝐿 𝑅
+⎪ max min Fig.3showsanexampleofthenotationinaconfigurationwithfour
+⎪ 𝜈 𝑒𝑔 ≤ 1−entry𝑒𝑔,
+max targetgraphsthathavefournodesandfouredges.Here,itisassumed
+⎪ ⎪ 𝜈 𝑒𝑔 ≤ entry𝑒𝑔, that the number of drones available is equal to two. In particular,
+⎪ ⎪ 𝜈 𝑒𝑔 m , i 𝜈 n 𝑒𝑔 ≥ 0, (𝛼-G) Fig.3(a)representsafeasiblesolutiontotheproblemforthisconfigu-
+⟺ ⎨ ⎪ ⎪ min 𝑝𝑒𝑔 max ≤ 𝜈 m 𝑒𝑔 ax +𝜈 m 𝑒𝑔 in , r it a s ti s o t n a . rt T in h g e p m o o in th t e 𝑜 r 𝑟 s 𝑖 h 𝑔 i , p w , h w i h ch os c e o p in a c th ide is s r w ep it r h es t e h n e te fi d rs i t n la b u la n c c k h , p b o eg in in t s 𝑥1 𝐿 at ,
+⎪ 𝑝𝑒𝑔 ≤ 𝜇𝑒𝑔, wheretwodronesarelaunchedtovisittwographs.There,eachdrone
+⎪ 𝑝𝑒𝑔 ≥ 𝜈 𝑒𝑔 +𝜈 𝑒𝑔 +𝜇𝑒𝑔−1, follows a route (represented by the orange and the green paths) that
+⎪ ⎪
+⎩
+∑ 𝑒𝑔∈𝐸𝑔 𝑝𝑒𝑔(𝑒 𝑔 ) ≥ 𝛼 m 𝑔 ax (𝑔), min e
+T
+n
+h
+s
+e
+ur
+s
+e
+m
+s
+a
+c
+ll
+o
+e
+v
+r
+e
+r
+r
+e
+a
+d
+ge
+do
+o
+t
+f
+s
+o
+i
+n
+n
+e-
+t
+h
+h
+a
+e
+lf
+vi
+o
+s
+f
+ite
+th
+d
+e
+g
+l
+r
+e
+a
+n
+p
+g
+h
+t
+s
+h
+a
+o
+r
+f
+e
+e
+t
+a
+h
+c
+e
+h
+in
+e
+t
+d
+e
+g
+r
+e
+m
+o
+e
+f
+di
+t
+a
+h
+t
+e
+e
+g
+p
+r
+o
+a
+i
+p
+n
+h
+ts
+.
+where 𝑝𝑒𝑔 is the auxiliary variable that represents the product of the 𝑅𝑒𝑔 and𝐿𝑒𝑔 usedbythedronesintheirvisittotheedgesofthedifferent
+binaryvariable𝜇𝑒𝑔 andthedifferenceinabsolutevalue|𝜌𝑒𝑔−𝜆𝑒𝑔|.The graphs.Afterfinishingthevisitofthefirsttwographs,thedronesreturn
+firstfourinequalitieslinearisetheexpressionoftheabsolutevalue.The to the point 𝑥1. The mothership moves from this point to the second
+𝑅
+followingthreeconstraintsmodeltheproductoftheexpressionofthe launch point 𝑥2 from where only one drone is launched to visit the
+absolutevalueandthebinaryvariable𝜇𝑒𝑔.Thelastinequalityensures 𝐿
+thirdgraph.Oncethisgraphhasbeenvisited,thedronereturnstothe
+thatthefractionofthelengthofthoseedgeschosentobecrossedmust mothershipattheretrievalpoint𝑥2.Finally,themothershipmovesto
+begreaterthanthefractionofthelengthof𝑔requiredtobetraversed. the point 𝑥3 from where a drone 𝑅 is launched for the last visit to the
+𝐿
+fourthgraph.Thedroneisthenretrievedbythemothershipatthepoint
+Eliminationofsubtours 𝑥3,andthenthemothershipendsitsrouteatthedestinationpoint𝑑𝑒𝑠𝑡.
+𝑅
+Fig.3(b)representsanoptimalsolutionforthesameinstanceofthe
+To represent the actual routes of drones on the target graph, sub-
+problem.Wecanobservethat,inthiscase,fromthefirstlaunchpoint
+toursarenotallowed.Thereadermaynotethatthesubtourelimination 𝑥1 onlyonedroneislaunched,whilefromthesecond𝑥2 twodrones
+constraintsareneededtoavoidthepresenceofdisconnectedpathson 𝐿 𝐿
+arelaunchedtovisitthesecondandthirdgraphs.Thedifferentposition
+theedgesofthegraph.Topreventtheexistenceofsubtourswithineach
+inspaceofthislastpoint,withrespecttothefeasiblesolutionreported
+graph𝑔 ∈thatthedronemustvisit,wecaninclude,amongothers,
+inFig.3(a)whosemakespanis158.36,ensuresthatthemakespanof
+the compact formulation that uses Miller-Tucker-Zemlin constraints
+theoptimalsolutionisequalto152.39,whichisshorter.
+(MTZ)orsubtoureliminationconstraints(SEC).
+To include the definition of these paths in our mathematical pro-
+For the MTZ formulation, we use the continuous variables 𝑠𝑒𝑔,
+grammingformulation,weneedtomakedecisionstochoose:
+defined in Table 2, which state the order of visit to the edge 𝑒 and
+𝑔
+setthefollowingconstraintsforeach𝑔∈: (i) The optimal assignment of drones to visit graphs in a given
+𝑠𝑒𝑔−𝑠𝑒′ 𝑔+|𝐸 𝑔|𝑧𝑒𝑔𝑒′ 𝑔 ≤ |𝐸 𝑔|−1, ∀𝑒 𝑔 ≠𝑒′ 𝑔 ∈𝐸 𝑔 , (MTZ 1 ) (ii) o T p h e e ra o t r i d o e n r 𝑜 t . o visit the edgesofeach graph inits corresponding
+0≤𝑠𝑒𝑔 ≤ |𝐸 𝑔|−1, ∀𝑒
+𝑔
+∈𝐸
+𝑔
+. (MTZ
+2
+) operation.
+5
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.3. Probleminstancewith4graphsand2dronestovisit50%ofeachtargetgraph:(a)Afeasiblesolution;and(b)anoptimalsolutionforthiscase..
+Droneconstraints the decision variables of the model, we need to set the continuous
+𝑢𝑒𝑔𝑜 W ,𝑧 e 𝑒𝑔 m 𝑒′ 𝑔 od an el d th 𝑣 e 𝑒𝑔 r 𝑜 o d u e t f e in th e a d t i t n he Ta d b ro le ne 2. followsusingthebinaryvariables v T a a r b i l a e bl 2 es (B 𝑑 𝐿 l 𝑒 a 𝑔𝑜 n , co 𝑑𝑒𝑔 e , t 𝑑 a 𝑒 l 𝑔 ., 𝑒′ 𝑔 2 , 0 𝑑 1 𝑅 𝑒 3 𝑔𝑜 ) , . 𝑑 T 𝑜 h 𝑟𝑖 i 𝑔 s , c 𝑑 a 𝑅 𝑜 n 𝐿 , be 𝑑 𝐿 𝑜 d 𝑅 on a e nd by 𝑑 𝑑𝑒 m 𝑠𝑡 ea d n e s fin o e f d th in e
+∑ ∑ 𝑢𝑒𝑔𝑜≤ |  |, ∀𝑜∈, followingconstraints:
+𝑔∈𝑒𝑔∈𝐸𝑔 ‖𝑥𝑜
+𝐿
+−𝑅𝑒𝑔‖ ≤𝑑
+𝐿
+𝑒𝑔𝑜 , ∀𝑒
+𝑔
+∈𝐸
+𝑔
+∶𝑔∈, ∀𝑜∈, (DroneDIST
+1
+-CO)
+𝑔 ∑ ∈𝑒𝑔 ∑ ∈𝐸𝑔 𝑣𝑒𝑔𝑜≤ |  |, (D ∀ ro 𝑜 n ∈ e  R , OUTE 1 -CO) ‖ ‖ 𝑅 𝑅 𝑒 𝑒 𝑔 𝑔 − − 𝐿 𝐿 𝑒 𝑒 𝑔 ′ 𝑔 ‖ ‖ ≤ ≤ 𝑑 𝑑 𝑒 𝑒 𝑔 𝑔𝑒 , ′ 𝑔, ∀𝑒 𝑔 ≠ ∀𝑒 𝑒 𝑔 ′ 𝑔 ∈ ∈ 𝐸 𝐸 𝑔 𝑔 ∶ ∶ 𝑔 𝑔 ∈ ∈   , , ( ( D D r r o o n n e e D D I I S S T T 2 3 - - C C O O ) )
+(DroneROUTE 2 -CO) ‖𝐿𝑒𝑔−𝑥𝑜 𝑅‖ ≤𝑑 𝑅 𝑒𝑜, ∀𝑒 𝑔 ∈𝐸 𝑔 ∶𝑔∈, ∀𝑜∈. (DroneDIST 4 -CO)
+∑ ∑ 𝑢𝑒𝑔𝑜=1, ∀𝑔∈, ‖𝑜𝑟𝑖𝑔−𝑥1 𝐿‖ ≤𝑑 𝑜𝑟𝑖𝑔 , (MothershipDIST 1 -CO)
+𝑒𝑔∈𝐸𝑔𝑜∈ ‖𝑥𝑜 𝐿 −𝑥𝑜 𝑅‖ ≤𝑑 𝐿 𝑜 𝑅 , ∀𝑜∈,
+(DroneROUTE -CO)
+3 (MothershipDIST -CO)
+𝑒𝑔 ∑ ∈𝐸𝑔𝑜 ∑ ∈ 𝑣𝑒𝑔𝑜=1, ∀𝑔∈, ‖𝑥𝑜 𝑅 −𝑥𝑜 𝐿 +1 ‖ ≤𝑑 𝑅 𝑜 𝐿 , ∀𝑜∈∶𝑜<|  |, 2
+(MothershipDIST -CO)
+(DroneROUTE -CO) 3
+∑ 𝑢𝑒𝑔𝑜= ∑ 𝑣𝑒𝑔𝑜, ∀𝑔∈,∀𝑜∈, 4 ‖𝑥| 𝑅  |−𝑑𝑒𝑠𝑡‖ ≤𝑑 𝑑𝑒𝑠𝑡 . (MothershipDIST 4 -CO)
+𝑒𝑔∈𝐸𝑔 𝑒𝑔∈𝐸𝑔 All variables that model the distances covered by drones, namely
+(DroneROUTE -CO) 𝑑 𝑒𝑔𝑜 ,𝑑𝑒𝑔,𝑑𝑒′ 𝑔𝑒𝑔 and𝑑 𝑒𝑔𝑜 ,aswellasthosemodellingthedistancetrav-
+5 𝐿 𝑅
+∑ 𝑢𝑒𝑔𝑜+ ∑ 𝑧 𝑔 𝑒′ 𝑔𝑒𝑔 =𝜇𝑒𝑔, ∀𝑒 𝑔 ∈𝐸 𝑔 ∶𝑔∈, e in lle T d ab b l y e t 2 h . emothership,namely𝑑 𝑜𝑟𝑖𝑔 ,𝑑 𝐿 𝑜 𝑅 ,𝑑 𝑅 𝑜 𝐿 and𝑑 𝑑𝑒𝑠𝑡 ,aredefined
+𝑜∈ 𝑒′ 𝑔∈𝐸𝑔 In order to compute the maximum time a drone spends visiting a
+(DroneROUTE -CO) graph𝑔∈associatedwiththeoperation𝑜,∀𝑜∈,weintroducethe
+6
+∑ 𝑣𝑒𝑔𝑜+ ∑ 𝑧
+𝑔
+𝑒𝑔𝑒′ 𝑔 =𝜇𝑒𝑔, ∀𝑒
+𝑔
+∈𝐸
+𝑔
+∶𝑔∈. followingconstraints:
+𝑜∈ 𝑒′ 𝑔∈𝐸𝑔 𝑡𝑖𝑚𝑒𝑜 ≥ 1 ⎛ ⎜ ∑ 𝑢𝑒𝑔𝑜𝑑 𝑒𝑔𝑜 + ∑ 𝑧𝑒𝑔𝑒′ 𝑔𝑑𝑒𝑔𝑒′ 𝑔+ ∑ 𝜇𝑒𝑔𝑑𝑒𝑔
+(DroneROUTE 7 -CO) 𝐷 𝑣 𝐷 ⎜ ⎝𝑒𝑔∈𝐸𝑔 𝐿 𝑒𝑔,𝑒′ 𝑔∈𝐸𝑔 𝑒𝑔∈𝐸𝑔
+Theinequalities(DroneROUTE -CO)and(DroneROUTE -CO)state
+1 2
+t
+a
+h
+v
+a
+a
+t
+ila
+it
+bl
+i
+e
+s n
+in
+ot
+e
+p
+a
+o
+c
+s
+h
+sib
+o
+l
+p
+e
+er
+to
+ati
+u
+o
+s
+n
+e a
+𝑜.
+n
+C
+u
+o
+m
+n
+b
+s
+e
+tr
+r
+ai
+o
+n
+f
+ts
+dr
+(
+o
+D
+n
+r
+e
+o
+s
+n
+l
+e
+ar
+R
+g
+O
+er
+UT
+th
+E
+an
+-C
+t
+O
+h
+)
+e
+a
+o
+n
+n
+d
+e + ∑ 𝑣𝑒𝑔𝑜𝑑
+𝑅
+𝑒𝑔𝑜 ⎞ ⎟−𝑁
+𝐷
+(1− ∑ 𝑢𝑒𝑔𝑜).
+(DroneROUTE -CO)ensurethateachgraphisvisitedbyad 3 roneinan 𝑒𝑔∈𝐸𝑔 ⎟ ⎠ 𝑒𝑔∈𝐸𝑔
+4
+operation𝑜.Eqs.(DroneROUTE 5 -CO)ensurethattheactionofentering (DroneTIME 𝑜 -CO)
+and exiting the graph 𝑔 occurs in the same operation 𝑜. Constraints
+Thefirstaddendinthebracketsrepresentsthetimethatthedrone
+(DroneROUTE -CO)statethatifadronevisitsanedge𝑒ofthegraph
+6 spendstransferringfromthelaunchpoint𝑥𝑜 tothefirstretrievalpoint
+𝑔,oneoftwoalternativesituationsmustoccur:𝑒isthefirstedgeofthe 𝐿
+graph𝑔visitedbythedroneduringoperation𝑜,ortheedge𝑒isvisited
+in the graph 𝑅𝑒𝑔. The second addend considers the time consumed
+by the drone after visiting another edge 𝑒′ of the graph 𝑔. Similarly, by the drone to go from edge 𝑒 𝑔 to edge 𝑒′ 𝑔 on graph 𝑔. The third
+computes the time required to traverse the required edges in 𝑔. The
+theconstraints(DroneROUTE -CO)statethatifadronevisitsanedge
+7
+𝑒ofthegraph𝑔,𝑒isthelastedgeofthegraph𝑔 visitedbythedrone fourthmeasuresthetimetakentotravelfromthelastlaunchingpoint
+duringoperation𝑜,orthedronemustmovetoanotheredge𝑒′ ofthe 𝐿𝑒′ 𝑔 ′ to the retrieval point 𝑥𝑜 𝑅 . Note that, in the special case where all
+graph𝑔aftervisitingtheedge𝑒. edges must be visited, the third sum on the right-hand side of the
+Distanceandtimeconstraints
+c
+𝜇
+o
+𝑒𝑔
+ns
+e
+t
+q
+ra
+u
+i
+a
+n
+l
+t
+t
+(
+o
+D
+o
+ro
+n
+n
+e
+e
+.
+TIME
+𝑜
+-CO)reducesto ∑
+𝑒𝑔∈𝐸𝑔
+𝑑𝑒𝑔 settingallvariables
+The goal of the AMMDRPG-CO is to find a feasible solution that The endurance term in the constraint (Drone TIME -CO) ensures
+𝑜
+minimisesthemakespan.Toaccountforthedifferentdistancesbetween thattheconstraintbecomesactiveonlywhenagraph𝑔isvisitedduring
+6
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+theoperation𝑜.Thereadermayobservethattheenduranceconstraint Constraints(DroneDIST -CO)–(DroneDIST -CO)setthevariables𝑑
+𝑒𝑔𝑜
+,
+1 4 𝐿
+(Endurance-CO) restricts the time the drone spends performing the 𝑑𝑒𝑔,𝑑𝑒𝑔𝑒′ 𝑔,𝑑 𝑒𝑔𝑜 .Themothershipdistances𝑑𝑜 and𝑑𝑜 ,aredefinedby
+𝑅 𝑅𝐿 𝐿𝑅
+operation𝑜tobelessthantheendurance𝑁 𝐷 .Therefore,theconstant means of constraints (MothershipDIST 1 -CO)–(MothershipDIST 4 -CO).
+𝑁 𝐷 canbetakenasthebigMtermintheconstraint(DroneTIME 𝑜 -CO). Constraints (Drone TIME 𝑜 -CO), (Mothership TIME 𝑜 -CO) and (Mother-
+Notethat,todealwiththebilineartermsoftheconstraint(Drone ship TIME-CO) define times travelled by the drones and the moth-
+TIME 𝑜 -CO),weuseMcCormick’senvelopetolinearisethembyadding ership. Finally, constraints (DCW-CO)–(Endurance-CO) guarantee that
+variables𝑝≥0representingtheproductsandintroducingthefollowing
+coordinationanddroneendurancearesatisfied.
+constraints:
+𝑝≤𝑀𝑧, 3.2. TheAMMDRPGwithpartialoverlapping
+𝑝≤𝑑,
+𝑝≥𝑚𝑧, In the AMMDRPG-CO version of the problem, we assume that
+every drone is launched and retrieved in the same operation. In this
+𝑝≥𝑑−𝑀(1−𝑧),
+subsection,weshowhowthisassumptioncanberelaxed.Weconsider
+where𝑚and𝑀 are,respectively,thelowerandupperboundsofthe a variant of the model presented in Section 3.1, in which we assume
+distance variable 𝑑. These bounds will be adjusted for each bilinear that the mothership can retrieve one drone in a different phase from
+terminSection4. thatinwhichithasbeenlaunched.Thatis,themothershipcanmove
+The constraint (Mothership TIME -CO) defines the time the moth- to another point to launch a new drone without having retrieved all
+𝑜
+ershipmustspendtogofromthelaunchpoint𝑥𝑜 totheretrievalpoint thedronesthatwerelaunchedpreviously.
+𝐿
+𝑥𝑜 associatedwiththeoperation𝑜: Inthefollowingformulation,weusetheconceptofstagetoreferto
+𝑅
+theactionoflaunchingorreceivingadronebythemothership.Each
+𝑑𝑜
+𝑡𝑖𝑚𝑒𝑜 = 𝐿𝑅, ∀𝑜∈. (MothershipTIME -CO) graph must be visited by a drone so that each operation gives rise to
+𝑀 𝑣 𝑜
+𝑀 two stages: one when the drone is launched and another one, once
+Thus, the overall time spent by the mothership to move from the the same drone has been retrieved by the mothership. We denote by
+origintothedestination(makespan)canbeexpressedasfollows:  the set of stages. It is clear that |  | = 2|  |. Using the concept of
+stage,wecansubstitutethesetofoperationswiththesetofstagesto
+𝑡𝑖𝑚𝑒 = 1 (𝑑 + ∑ 𝑑𝑜 + ∑ 𝑑𝑜 +𝑑 ). modelthecoordinationbetweendronesandmothershipinthepartial
+𝑀 𝑣 𝑜𝑟𝑖𝑔 𝐿𝑅 𝑅𝐿 𝑑𝑒𝑠𝑡
+𝑀 𝑜∈ 𝑜∈∶𝑜<|  | overlappingversionoftheproblem.Indeed,inthiscase,differentfrom
+(MothershipTIME-CO) thecompleteoverlappingversionoftheproblem,thelaunchofadrone
+is not necessarily followed by its retrieval but, for example, by the
+Coordinationandenduranceconstraints launch of a different drone to visit another target graph, as shown in
+The coordination between the drones and the mothership must Fig. 5. We notice that when the fleet of drones consists of only one
+ensurethatthemaximumtime𝑡𝑖𝑚𝑒𝑜 spentbyadronetovisitagraph drone, the two versions of the problem coincide. Table 3 summarises
+𝐷
+𝑔 at operation 𝑜 is less than or equal to the time that the mothership allthevariablesusedinourformulationfortheAMMDRPG-POmodel.
+needs to move from the launching point to the retrieval point during
+operation𝑜.Tothisend,weneedtodefinethefollowingcoordination Droneconstraints
+constraintforeachoperation𝑜∈:
+Similarly to the complete overlapping version of the problem, we
+𝑡𝑖𝑚𝑒𝑜 ≤𝑡𝑖𝑚𝑒𝑜 . (DCW-CO) model the route followed by the drone using the binary variables
+𝐷 𝑀 𝑢𝑒𝑔𝑡, 𝑣𝑒𝑔𝑡 and 𝑧𝑒𝑔𝑒′ 𝑔. However, in this case, the variables 𝑢𝑒𝑔𝑡 and 𝑣𝑒𝑔𝑡
+Wecanmodelthetimeenduranceconstraintforaparticularopera- are associated with the stage 𝑡 and due to the assumptions of the
+tion𝑜∈bylimitingthetimetravelledbythedroneforthisoperation problem, we need to introduce additional binary variables 𝛾𝑔𝑡. Thus,
+𝑜: thefollowingconstraintsmodeltheroutefollowedbythedronewhile
+𝑡𝑖𝑚𝑒𝑜 ≤𝑁 . (Endurance-CO)
+operatingonagraph𝑔∈:
+𝐷 𝐷
+∑ ∑ 𝑢𝑒𝑔𝑡=1, ∀𝑔∈,
+AMMDRPG-completeoverlappingformulation 𝑡∈𝑒𝑔∈𝐸𝑔
+Combining all the constraints introduced hitherto, the following (DroneROUTE )
+1
+formulation minimises the makespan, ensuring coordination with the ∑ ∑ 𝑣𝑒𝑔𝑡=1, ∀𝑔∈,
+drone fleet while guaranteeing the required coverage of the target
+𝑡∈𝑒𝑔∈𝐸𝑔
+graphs.
+(DroneROUTE )
+2
+min 𝑡𝑖𝑚𝑒
+𝑀
+(AMMDRPG-CO) ∑ ∑ 𝑢𝑒𝑔𝑡≤(𝑡), ∀𝑡∈,
+s.t. (𝛼-E)or(𝛼-G),
+𝑔∈𝑒𝑔∈𝐸𝑔
+(DroneROUTE )
+3
+(MTZ 1 )–(MTZ 2 )or(SEC), ∑ ∑ (𝑢𝑒𝑔𝑡+𝑣𝑒𝑔𝑡)≤1, ∀𝑡∈,
+(DroneROUTE 1 -CO)–(DroneROUTE 7 -CO), 𝑔∈𝑒𝑔∈𝐸𝑔
+(DroneDIST 1 -CO)–(DroneDIST 4 -CO), (DroneROUTE 4 )
+(MothershipDIST -CO)–(MothershipDIST -CO), ∑ 𝑢𝑒𝑔𝑡≤ ∑ ∑ 𝑣𝑒𝑔𝑡′, ∀𝑔∈, ∀𝑡∈,
+1 4
+(DroneTIME-CO),(MothershipTIME-CO),(MothershipTIME-CO),
+𝑒𝑔∈𝐸𝑔 𝑒𝑔∈𝐸𝑔𝑡′∈∶𝑡′>𝑡
+𝑜 𝑜 (DroneROUTE )
+5
+(DCW-CO),(Endurance-CO). ∑ 𝑢𝑒𝑔𝑡+ ∑ 𝑧𝑒′ 𝑔𝑒𝑔 =𝜇𝑒𝑔, ∀𝑒
+𝑔
+∈𝐸
+𝑔
+∶ 𝑔∈,
+The objective function accounts for the makespan. Constraints 𝑡∈ 𝑒′𝑔∈𝐸𝑔
+(DroneROUTE 1 -CO)–(DroneROUTE 7 -CO)modeltheroutefollowedby (DroneROUTE 6 )
+o th f e a dr d o r n o e n s e , ( a M ss T ig Z n 1 e ) d –(M to TZ t 2 h ) e o ta r rg ( e S t E g C r ) ap e h nsu 𝑔 re ∈ tha  t i t s he a d r i o sp u l t a e c , em (𝛼 e -E n ) t ∑ 𝑡∈ 𝑣𝑒𝑔𝑡+ 𝑒′𝑔 ∑ ∈𝐸𝑔 𝑧𝑒𝑔𝑒′ 𝑔 =𝜇𝑒𝑔, ∀𝑒 𝑔 ∈𝐸 𝑔 ∶ 𝑔∈,
+or (𝛼-G) define what is required in each visit to a target graph. (DroneROUTE )
+7
+7
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Table3
+DecisionvariablesforAMMDRPG-PO.
+Binaryandintegerdecisionvariables
+𝜇𝑒𝑔∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):equalto1ifedge𝑒ofgraph𝑔(oraportionofit)isvisitedbythedrone,0otherwise.
+entry𝑒𝑔∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):auxiliarybinaryvariableusedforlinearisingexpressions.
+𝑢𝑒𝑔𝑡∈{0,1}, ∀𝑒 𝑔∈𝐸 𝑔 (𝑔∈), ∀𝑡∈:equalto1ifthevisitofgraph𝑔startsinstage𝑡fromedge𝑒 𝑔,0otherwise.
+𝑧𝑒𝑔𝑒′ 𝑔∈{0,1}, ∀𝑒 𝑔 ,𝑒′ 𝑔 ∈𝐸 𝑔 (𝑔∈):equalto1ifthedronegoesfrom𝑒 𝑔 to𝑒′ 𝑔 ,0otherwise.
+𝛾𝑔𝑡∈{0,1}, ∀𝑔∈, ∀𝑡∈:equalto1iftheoperationofvisitinggraph𝑔continueswhenstage𝑡occurs,0otherwise.
+𝑣𝑒𝑔𝑡∈{0,1}, ∀𝑒 𝑔∈𝐸 𝑔 (𝑔∈), ∀𝑡∈:equalto1ifthevisitofgraph𝑔endsinstage𝑡onedge𝑒 𝑔,0otherwise.
+𝑦𝑡
+𝐿𝐿
+∈{0,1}, ∀𝑡∈ ∶𝑡<|  |:equalto1ifthemothershipmovesfromalaunchingpointtoalaunchingpointbetweenstage𝑡
+andstage𝑡+1,0otherwise.
+𝑦𝑡
+𝐿𝑅
+∈{0,1}, ∀𝑡∈ ∶𝑡<|  |:equalto1ifthemothershipmovesfromalaunchingpointtoaretrievalpointbetweenstage𝑡
+andstage𝑡+1,0otherwise.
+𝑦𝑡
+𝑅𝐿
+∈{0,1}, ∀𝑡∈ ∶𝑡<|  |:equalto1ifthemothershipmovesfromaretrievalpointtoalaunchingpointbetweenstage𝑡
+andstage𝑡+1,0otherwise.
+𝑦𝑡
+𝑅𝑅
+∈{0,1}, ∀𝑡∈ ∶𝑡<|  |:equalto1ifthemothershipmovesfromaretrievalpointtoaretrievalpointbetweenstage𝑡
+andstage𝑡+1,0otherwise.
+(𝑡)∈{0,1,2,…,|  |}, ∀𝑡∈:integernon-negativevariablerepresentingthenumberofavailabledronesatstage𝑡.
+Continuousdecisionvariables
+𝑠𝑒𝑔∈[0,|𝐸 𝑔|−1], ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):continuousnon-negativevariablerepresentingtheorderofvisitoftheedge𝑒ofgraph𝑔.
+𝑥𝑡 ∈R2, ∀𝑡∈:coordinatesrepresentingthelaunchingpointvisitedbythemothershipatstage𝑡.
+𝐿
+𝑥𝑡 ∈R2, ∀𝑡∈:coordinatesrepresentingtheretrievalpointvisitedbythemothershipatstage𝑡.
+𝑅
+𝑅𝑒𝑔∈R2, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):coordinatesrepresentingtheentrypointonedge𝑒
+𝑔
+ofgraph𝑔.
+𝐿𝑒𝑔∈R2, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):coordinatesrepresentingtheexitpointonedge𝑒
+𝑔
+ofgraph𝑔.
+𝑑
+𝐿
+𝑒𝑔𝑡≥0, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑡∈:representingthedistancetravelledbythedronefromthelaunching
+point𝑥𝑡
+𝐿
+onthemothershipatstage𝑡tothefirstvisitingpoint𝑅𝑒𝑔 on𝑒 𝑔.
+𝑑𝑒𝑔≥0, ∀𝑒 𝑔∈𝐸 𝑔 (𝑔∈):representingthedistancetravelledbythedronefromtheretrievalpoint𝑅𝑒𝑔 tothe
+launchingpoint𝐿𝑒𝑔 on𝑒 𝑔.
+𝑑𝑒𝑔𝑒′ 𝑔≥0, ∀𝑒 𝑔 ,𝑒′ 𝑔 ∈𝐸 𝑔 (𝑔∈):representingthedistancetravelledbythedronefromthelaunchingpoint𝐿𝑒𝑔 on𝑒 𝑔 to
+theretrievalpoint𝑅𝑒′ 𝑔 on𝑒′ 𝑔 .
+𝑑
+𝑅
+𝑒𝑔𝑡≥0, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑡∈:representingthedistancetravelledbythedronefromthelastvisitingpoint
+𝐿𝑒𝑔 on𝑒
+𝑔
+totheretrievalpoint𝑥𝑜
+𝑅
+onthemothershipatstage𝑡.
+𝑑 𝑜𝑟𝑖𝑔 ≥0:distancefromtheorigin𝑜𝑟𝑖𝑔tothefirstlaunchingpoint𝑥1 𝐿 .
+𝑑
+𝐿
+𝑡
+𝐿
+≥0, ∀𝑡∈ ∶𝑡<|  |:distancefromthelaunchingpoint𝑥𝑡
+𝐿
+tothelaunchingpoint𝑥𝑡
+𝐿
++1.
+𝑑
+𝐿
+𝑡
+𝑅
+≥0, ∀𝑡∈ ∶𝑡<|  |:distancefromthelaunchingpoint𝑥𝑡
+𝐿
+totheretrievalpoint𝑥𝑡
+𝑅
++1.
+𝑑
+𝑅
+𝑡
+𝐿
+≥0, ∀𝑡∈ ∶𝑡<|  |:distancefromtheretrievalpoint𝑥𝑡
+𝑅
+tothelaunchingpoint𝑥𝑡
+𝐿
++1.
+𝑑 𝑑 𝑅 𝑑 𝑡 𝑒 𝑅 𝑠𝑡 ≥ ≥ 0 0 , : ∀ d 𝑡 is ∈ ta  nc ∶ e 𝑡 fr < om |  | t : he di l s a ta st nc r e etr fr ie o v m al th p e oin re t tr 𝑥 i 𝑅 | e  v | a t l o p t o h i e nt d 𝑥 e 𝑡 𝑅 sti t n o at t i h o e n r 𝑑 e 𝑒 tr 𝑠 i 𝑡 e . valpoint𝑥𝑡 𝑅 +1.
+𝑑𝑔 ≥0, ∀𝑔∈:representingthedistancetravelledbythemothershipfromthelaunchingpoint𝑥𝑡 totheretrieval
+𝐿𝑅 𝐿
+point𝑥𝑡′ associatedwithgraph𝑔forsome𝑡,𝑡′∈.
+𝑅
+𝑡𝑖𝑚𝑒𝑔 ≥0, ∀𝑔∈:timespentbythemothershipwhilegraph𝑔isvisitedbyadrone.
+𝑀
+𝑡𝑖𝑚𝑒𝑔 ≥0, ∀𝑔∈:timespentbyadronetovisitgraph𝑔.
+𝐷
+𝑡𝑖𝑚𝑒
+𝑀
+≥0:totaltimespentbythemothershiptogofromtheorigintothedestination(makespan).
+𝛾𝑔𝑡≥ ∑ 𝑢𝑒𝑔𝑡, ∀𝑔∈, ∀𝑡∈, if a drone visits an edge 𝑒 of the graph 𝑔, either 𝑒 is the first edge of
+𝑒𝑔∈𝐸𝑔 thegraph𝑔visitedbythedroneatstage𝑡,orthedronevisitstheedge
+(DroneROUTE 8 ) 𝑒 after visiting another edge 𝑒′ of the graph 𝑔. Similarly, constraints
+𝛾𝑔(𝑡+1)≥𝛾𝑔𝑡− ∑ 𝑣𝑒𝑔(𝑡+1), ∀𝑔∈, ∀𝑡∈ ∶𝑡<|  |, (DroneROUTE 7 )statethatifadronevisitsanedge𝑒ofthegraph𝑔,𝑒is
+𝑒𝑔∈𝐸𝑔 thelastedgeofthegraph𝑔visitedbythedroneatstage𝑡,orthedrone
+(DroneROUTE ) must move to another edge 𝑒′ of the graph 𝑔 after visiting the edge
+9
+∑ 𝛾𝑔𝑡′≤(𝑡−1)(1− ∑ 𝑢𝑒𝑔𝑡), ∀𝑔∈, ∀𝑡∈, 𝑒. Constraints (DroneROUTE 8 ) ensure that the operation associated
+𝑡′∈∶𝑡′<𝑡 𝑒𝑔∈𝐸𝑔 with graph 𝑔 starts when the drone is launched during the stage 𝑡.
+Inequalities (DroneROUTE ) state that the drone is still operating in
+(DroneROUTE ) 9
+10
+∑ 𝛾𝑔𝑡′≤(|  |−𝑡+1)(1− ∑ 𝑣𝑒𝑔𝑡), ∀𝑔∈, ∀𝑡∈, t
+C
+h
+o
+e
+ns
+g
+t
+r
+r
+a
+a
+p
+in
+h
+ts
+𝑔
+(D
+fo
+r
+r
+on
+s
+e
+uc
+R
+c
+O
+es
+U
+si
+T
+v
+E
+e s
+)
+ta
+e
+g
+n
+e
+s
+s
+ur
+u
+e
+n
+t
+t
+h
+il
+at
+it
+d
+i
+r
+s
+on
+re
+e
+tr
+d
+i
+o
+ev
+e
+e
+s
+d
+no
+a
+t
+t
+o
+t
+p
+h
+e
+e
+ra
+s
+t
+t
+e
+ag
+i
+e
+n
+𝑡
+𝑔
+.
+𝑡′∈∶𝑡′≥𝑡 𝑒𝑔∈𝐸𝑔
+untillaunchstageoccurs.C
+1
+o
+0
+nstraints(DroneROUTE )guaranteethat
+(DroneROUTE ) 11
+11 the drone finishes operating in graph 𝑔 when retrieval stage occurs.
+(1)=|  |, (DroneROUTE 12 ) Finally,theconstraints(DroneROUTE 12 )and(DroneROUTE 13 )model
+(𝑡+1)=(𝑡)+ ∑ ∑ 𝑣𝑒𝑔𝑡− ∑ ∑ 𝑢𝑒𝑔𝑡, ∀𝑡∈ ∶𝑡<|  |. thenumberofdronesavailableatthestage𝑡.
+𝑔∈𝑒𝑔∈𝐸𝑔 𝑔∈𝑒𝑔∈𝐸𝑔
+(DroneROUTE )
+13 Mothershipconstraints
+This subsection models all possible sequences of stages in terms
+Theconstraints(DroneROUTE )and(DroneROUTE )ensurethat
+1 2 of launching and retrieval that can be followed by the mothership:
+a launch point and a retrieval point are associated with each graph
+launching-launching, launching-retrieval, retrieval-launching, and
+𝑔. The restrictions (DroneROUTE ) allow the mothership to launch
+3 retrieval-retrieval.
+a drone in stage 𝑡 only if a drone is available when stage 𝑡 occurs.
+Constraints (DroneROUTE 4 ) guarantee that a launch or a retrieval 𝑦1 𝐿𝐿 +𝑦1 𝐿𝑅 =1, (MothershipROUTE 1 )
+occursateachstage𝑡∈.Constraints(DroneROUTE )indicatethat
+theretrievalstageassociatedwiththegraph𝑔 occursa
+5
+fterthelaunch
+𝑦𝑡
+𝐿
++
+𝐿
+1+𝑦𝑡
+𝐿
++
+𝑅
+1≥𝑦𝑡
+𝑅𝐿
++𝑦𝑡
+𝐿𝐿
+, ∀𝑡∈ ∶𝑡<|  |, (MothershipROUTE
+2
+)
+stageassociatedwiththesamegraph𝑔.Eqs.(DroneROUTE
+6
+)statethat 𝑦𝑡
+𝑅
++
+𝑅
+1+𝑦𝑡
+𝑅
++
+𝐿
+1≥𝑦𝑡
+𝐿𝑅
++𝑦𝑡
+𝑅𝑅
+, ∀𝑡∈ ∶𝑡<|  |, (MothershipROUTE
+3
+)
+8
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+𝑦|  |−1+𝑦|  |−1=1. (MothershipROUTE ) wecanmodelthecoordinationconstraintsimplyasfollows:
+𝐿𝑅 𝑅𝑅 4
+The constraints (MothershipROUTE 1 ) state that at stage 1 the 𝑡𝑖𝑚𝑒𝑔 𝐷 ≤𝑡𝑖𝑚𝑒𝑔 𝑀 , ∀𝑔∈. (DCW)
+mothership must depart from the launch point 𝑥1. Constraints
+𝐿
+(MothershipROUTE )(resp.(MothershipROUTE ))ensurethatifthe In addition, the time the drone spends to operate on the graph 𝑔
+2 3
+mothership goes to the launching point (resp. retrieval) 𝑥𝑡+1 (resp. mustnotexceeditsendurance:
+𝐿
+𝑥𝑡 𝑅 +1) then in the next stage it must depart from 𝑥𝑡 𝐿 +1 (resp. 𝑥𝑡 𝑅 +1). The 𝑡𝑖𝑚𝑒𝑔 𝐷 ≤𝑁 𝐷 (Endurance)
+constraint(MothershipROUTE )guaranteesthatthepathfollowedby
+4
+
+themothershipendsattheretrievalpoint𝑥| |.
+𝑅
+Linearisationconstraints
+Distanceandtimeconstraints
+This subsection considers the second-order cone constraints that This subsection is devoted to linearising the relationship between
+modelthedistancescoveredbythedronesandthemothership: thedecisionvariablesthatmodeltherouteofthemothershipandthe
+drones. The relationship of these variables is given by the following
+‖𝑥𝑡 𝐿 −𝑅𝑒𝑔‖ ≤𝑑 𝐿 𝑒𝑔𝑡 , ∀𝑒 𝑔 ∈𝐸 𝑔 ∶𝑔∈, ∀𝑡∈, (DroneDIST 1 ) non-linearexpressions:
+‖𝑅𝑒𝑔−𝐿𝑒𝑔‖ ≤𝑑𝑒𝑔, ∀𝑒 𝑔 ∈𝐸 𝑔 ∶𝑔∈, (DroneDIST 2 ) 𝑦𝑡
+𝐿𝐿
+= ∑ ∑ 𝑢𝑒𝑔𝑡∑ ∑ 𝑢𝑒𝑔(𝑡+1), ∀𝑡∈ ∶𝑡<|  |,
+‖𝑅𝑒𝑔−𝐿𝑒′ 𝑔‖ ≤𝑑𝑒𝑔𝑒′ 𝑔, ∀𝑒
+𝑔
+≠𝑒′
+𝑔
+∈𝐸
+𝑔
+∶𝑔∈, (DroneDIST
+3
+) 𝑔∈𝑒𝑔∈𝐸𝑔 𝑔∈𝑒𝑔∈𝐸𝑔
+‖𝐿𝑒𝑔−𝑥𝑡 𝑅‖ ≤𝑑 𝑅 𝑒𝑔𝑡 , ∀𝑒 𝑔 ∈𝐸 𝑔 ∶𝑔∈, ∀𝑡∈. (DroneDIST 4 ) 𝑦𝑡 𝐿𝑅 = ∑ ∑ 𝑢𝑒𝑔𝑡∑ ∑ 𝑣𝑒𝑔(𝑡+1), ∀𝑡∈ ∶𝑡<|  |,
+‖𝑜𝑟𝑖𝑔−𝑥1 𝐿‖ ≤𝑑 𝑜𝑟𝑖𝑔 , (MothershipDIST 1 )
+𝑔∈𝑒𝑔∈𝐸𝑔 𝑔∈𝑒𝑔∈𝐸𝑔
+‖𝑥𝑡 𝐿 −𝑥𝑡 𝐿 +1 ‖ ≤𝑑 𝐿 𝑡 𝐿 , ∀𝑡∈ ∶𝑡<|  |, (MothershipDIST 2 ) 𝑦𝑡 𝑅𝐿 = 𝑔 ∑ ∈𝑒𝑔 ∑ ∈𝐸𝑔 𝑣𝑒𝑔𝑡 𝑔 ∑ ∈𝑒𝑔 ∑ ∈𝐸𝑔 𝑢𝑒𝑔(𝑡+1), ∀𝑡∈ ∶𝑡<|  |,
+‖
+‖
+𝑥
+𝑥
+𝑡 𝑅
+𝑡 𝐿 −
+−
+𝑥
+𝑥
+𝑡 𝑅
+𝑡 𝐿
++
++
+1
+1
+‖
+‖
+≤
+≤
+𝑑
+𝑑
+𝐿
+𝑅
+𝑡
+𝑡
+𝑅
+𝐿
+,
+,
+∀
+∀
+𝑡
+𝑡
+∈
+∈
+
+
+∶
+∶
+𝑡
+𝑡
+<
+<
+|
+|
+
+
+|
+|
+,
+,
+(
+(
+M
+M
+o
+o
+t
+t
+h
+h
+e
+e
+r
+r
+s
+s
+h
+h
+i
+i
+p
+p
+D
+D
+I
+I
+S
+S
+T
+T
+3
+4
+)
+)
+𝑦𝑡
+𝑅𝑅
+=
+𝑔
+∑
+∈𝑒𝑔
+∑
+∈𝐸𝑔
+𝑣𝑒𝑔𝑡
+𝑔
+∑
+∈𝑒𝑔
+∑
+∈𝐸𝑔
+𝑣𝑒𝑔(𝑡+1) ∀𝑡∈ ∶𝑡<|  |.
+‖𝑥𝑡 𝑅 −𝑥𝑡 𝑅 +1 ‖ ≤𝑑 𝑅 𝑡 𝑅 , ∀𝑡∈ ∶𝑡<|  |, (MothershipDIST 5 ) Theproductsabovecanbelinearised,respectively,bymeansofthe
+‖𝑥|
+𝑅
+|−𝑑𝑒𝑠𝑡‖ ≤𝑑
+𝑑𝑒𝑠𝑡
+. (MothershipDIST
+6
+) followingconstraints:
+𝑑
+𝐿
+𝑒𝑔𝑡
+A
+,
+l
+𝑑
+l
+𝑒
+v
+𝑔
+a
+,
+r
+𝑑
+ia
+𝑒
+b
+′ 𝑔𝑒
+l
+𝑔
+e
+,
+s
+a
+th
+n
+a
+d
+t
+𝑑
+m
+𝑅
+𝑒𝑔
+o
+𝑡
+d
+,
+e
+a
+l
+s
+th
+w
+e
+el
+d
+l
+is
+a
+t
+s
+an
+t
+c
+h
+e
+o
+s
+se
+co
+t
+v
+h
+e
+a
+r
+t
+ed
+m
+b
+o
+y
+de
+d
+l
+r
+t
+o
+h
+n
+e
+es
+d
+,
+i
+n
+st
+a
+a
+m
+nc
+e
+e
+ly
+s
+𝑦𝑡
+𝐿𝐿
+≤
+𝑔
+∑
+∈𝑒𝑔
+∑
+∈𝐸𝑔
+𝑢𝑒𝑔𝑡, ∀𝑡∈ ∶𝑡<|  |,
+travelledbythemothership,namely𝑑 𝑜𝑟𝑖𝑔 ,𝑑 𝐿 𝑡 𝐿 ,𝑑 𝐿 𝑡 𝑅 ,𝑑 𝑅 𝑡 𝐿 ,𝑑 𝑅 𝑡 𝑅 and𝑑 𝑑𝑒𝑠𝑡 , (Linearization 1 )
+are
+T
+d
+h
+e
+e
+fin
+ti
+e
+m
+d
+e
+in
+th
+T
+at
+ab
+th
+le
+e
+3
+d
+.
+ronespendsperformingtheoperationofvisiting
+𝑦𝑡
+𝐿𝐿
+≤ ∑ ∑ 𝑢𝑒𝑔(𝑡+1), ∀𝑡∈ ∶𝑡<|  |,
+thegraph𝑔isgivenby:
+𝑔∈𝑒𝑔∈𝐸𝑔
+(Linearization )
+2
+𝑡𝑖𝑚𝑒𝑔 𝐷 = 𝑣 1 𝐷 ⎛ ⎜ ⎜ ⎝𝑡 ∑ ∈𝑒𝑔 ∑ ∈𝐸𝑔 𝑢𝑒𝑔𝑡𝑑 𝐿 𝑒𝑔𝑡 + 𝑒𝑔, ∑ 𝑒′ 𝑔∈𝐸𝑔 𝑧𝑒𝑔𝑒′ 𝑔𝑑𝑒𝑔𝑒′ 𝑔+ 𝑒𝑔 ∑ ∈𝐸𝑔 𝜇𝑒𝑔𝑑𝑒𝑔 𝑦𝑡 𝐿𝐿 ≥ 𝑔 ∑ ∈𝑒𝑔 ∑ ∈𝐸𝑔 𝑢𝑒𝑔𝑡+ 𝑔 ∑ ∈𝑒𝑔 ∑ ∈𝐸𝑔 𝑢𝑒𝑔(𝑡+1)−1, ∀𝑡∈ ∶
+(L
+𝑡
+in
+<
+ea
+| 
+ri
+|
+z
+,
+ation )
+3
++ ∑ ∑ 𝑣𝑒𝑔𝑡𝑑 𝑒𝑔𝑡 ⎞ ⎟. 𝑦𝑡 𝐿𝑅 ≤ ∑ ∑ 𝑢𝑒𝑔𝑡, ∀𝑡∈ ∶𝑡<|  |,
+𝑡∈𝑒𝑔∈𝐸𝑔 𝑅 ⎟
+⎠
+𝑔∈𝑒𝑔∈𝐸𝑔
+(Linearization )
+4
+(DroneTIME 𝑔 ) 𝑦𝑡
+𝐿𝑅
+≤ ∑ ∑ 𝑣𝑒𝑔(𝑡+1), ∀𝑡∈ ∶𝑡<|  |,
+The time spent by the mothership while the drone is operating in 𝑔∈𝑒𝑔∈𝐸𝑔
+graph𝑔isgivenby: (Linearization )
+5
+𝑡𝑖𝑚𝑒𝑔
+𝑀
+=
+𝑣
+1
+𝑀
+𝑑
+𝐿
+𝑔
+𝑅
+=
+𝑣
+1
+𝑀 𝑡∈
+∑
+∶𝑡<|  |
+(‖𝑥𝑡
+𝐿
+−𝑥𝑡
+𝐿
++1 ‖𝑦𝑡
+𝐿𝐿
++‖𝑥𝑡
+𝐿
+−𝑥𝑡
+𝑅
++1 ‖𝑦𝑡
+𝐿𝑅
+𝑦𝑡 𝐿𝑅 ≥
+𝑔
+∑
+∈𝑒𝑔
+∑
+∈𝐸𝑔
+𝑢𝑒𝑔𝑡+
+𝑔
+∑
+∈𝑒𝑔
+∑
+∈𝐸𝑔
+𝑣𝑒𝑔(𝑡+1)−1, ∀𝑡∈ ∶𝑡<|  |,
+(Linearization )
++‖𝑥𝑡
+𝑅
+−𝑥𝑡
+𝐿
++1 ‖𝑦𝑡
+𝑅𝐿
++‖𝑥𝑡
+𝑅
+−𝑥𝑡
+𝑅
++1 ‖𝑦𝑡
+𝑅𝑅
+)𝛾𝑔𝑡, ∀𝑔∈
+(M
+
+o
+.
+thershipTIME 𝑔 )
+𝑦𝑡
+𝑅𝐿
+≤
+𝑔
+∑
+∈𝑒𝑔
+∑
+∈𝐸𝑔
+𝑣𝑒𝑔𝑡, ∀𝑡∈ ∶𝑡<|  |,
+6
+Finally, the overall time spent by the mothership (makespan) can (Linearization 7 )
+bedescribedasfollows: 𝑦𝑡
+𝑅𝐿
+≤ ∑ ∑ 𝑢𝑒𝑔(𝑡+1), ∀𝑡∈ ∶𝑡<|  |,
+( 𝑔∈𝑒𝑔∈𝐸𝑔
+𝑡𝑖𝑚𝑒 𝑀 = 𝑣 1 𝑑 𝑜𝑟𝑖𝑔 + ∑ ( ‖𝑥𝑡 𝐿 −𝑥𝑡 𝐿 +1 ‖𝑦𝑡 𝐿𝐿 +‖𝑥𝑡 𝐿 −𝑥𝑡 𝑅 +1 ‖𝑦𝑡 𝐿𝑅 (Linearization 8 )
+𝑀 𝑡∈∶𝑡<|  | ) 𝑦𝑡 𝑅𝐿 ≥ ∑ ∑ 𝑣𝑒𝑔𝑡+ ∑ ∑ 𝑢𝑒𝑔(𝑡+1)−1, ∀𝑡∈ ∶𝑡<|  |,
++‖𝑥𝑡
+𝑅
+−𝑥𝑡
+𝐿
++1 ‖𝑦𝑡
+𝑅𝐿
++‖𝑥𝑡
+𝑅
+−𝑥𝑡
+𝑅
++1 ‖𝑦𝑡
+𝑅𝑅
+) +𝑑
+𝑑𝑒𝑠𝑡
+. 𝑔∈𝑒𝑔∈𝐸𝑔 𝑔∈𝑒𝑔∈𝐸𝑔
+(Linearization )
+9
+(MothershipTIME) 𝑦𝑡
+𝑅𝑅
+≤ ∑ ∑ 𝑣𝑒𝑔𝑡, ∀𝑡∈ ∶𝑡<|  |,
+𝑔∈𝑒𝑔∈𝐸𝑔
+Coordinationandenduranceconstraints (Linearization 10 )
+𝑦𝑡
+𝑅𝑅
+≤ ∑ ∑ 𝑣𝑒𝑔(𝑡+1), ∀𝑡∈ ∶𝑡<|  |,
+Once having defined the time the drone spends to visit 𝑔 and the 𝑔∈𝑒𝑔∈𝐸𝑔
+timespentbythemothershipwhilethedroneisvisitingthisgraph𝑔, (Linearization )
+11
+9
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+𝑦𝑡
+𝑅𝑅
+≥ ∑ ∑ 𝑣𝑒𝑔𝑡+ ∑ ∑ 𝑣𝑒𝑔(𝑡+1)−1, ∀𝑡∈ ∶𝑡<|  |.
+𝑔∈𝑒𝑔∈𝐸𝑔 𝑔∈𝑒𝑔∈𝐸𝑔
+(Linearization )
+12
+AMMDRPG-Partialoverlappingformulation
+Hence,theformulationoftheAMMDRPGwithpartialoverlapping
+operationsisasfollows:
+min 𝑡𝑖𝑚𝑒 (AMMDRPG-PO)
+𝑀
+s.t. (𝛼-E)or(𝛼-G),
+(MTZ )–(MTZ )or(SEC),
+1 2
+(DroneROUTE )–(DroneROUTE ),
+1 13
+(MothershipROUTE )–(MothershipROUTE ),
+1 4
+(DroneDIST )–(DroneDIST ),
+1 1 Fig.4. Feasiblesolutionwithpartialoverlappingthatisnotfeasibleforthecomplete
+(MothershipDIST )–(MothershipDIST ), overlappingmodel.
+1 6
+(DroneTIME ),(MothershipTIME ),(MothershipTIME),
+𝑔 𝑔
+(DCW),(Endurance), similarlywecandefineabijectivefunction𝜑̄ ∶ (𝑜)→̄(𝑜).These
+𝑣(𝑜) 𝑣
+(Linearization 1 )–(Linearization 12 ) functions define the assignment between the graphs and stages. Note
+thatanyassignmentdefinedbythefunctions𝜑̄ and𝜑̄ isfeasible.
+𝑢(𝑜) 𝑣(𝑜)
+3.3. Relationshipbetweenproblemvariants Usingthesetwofunctions,wecansetthevaluesofthe𝑢̂𝑒𝑔𝑡and𝑣̂𝑒𝑔𝑡
+variables.Indeed,byresortingtotheGraphofthefunctions𝜑̄ and
+𝑢(𝑜)
+In this section, we present two results that link the two models 𝜑̄
+𝑣(𝑜)
+we can define, respectively, the variables 𝑢̂𝑒𝑔𝑡 and 𝑣̂𝑒𝑔𝑡 that must
+presentedabove.Notethattheonlydifferencebetweenthesolutionsof beequalto1:
+these models is that, for the partial overlapping case, the mothership
+can launch a second drone sequentially before retrieving those that 𝑢̂𝑒𝑔𝑡=1, (𝑡,𝑔)∈Graph(𝜑̄ 𝑢(𝑜) )∧(𝑢̄𝑒𝑔𝑜=1)
+werelaunchedpreviously.Fig.5showsasolutionthatisnotpossible
+f
+f
+o
+ir
+r
+st
+th
+d
+e
+ro
+m
+ne
+od
+is
+el
+la
+w
+u
+i
+n
+th
+ch
+c
+e
+o
+d
+m
+a
+p
+t
+le
+𝑥
+t
+1
+e
+t
+o
+o
+ve
+v
+r
+is
+la
+it
+p
+𝑃
+pin
+a
+g
+n
+.
+d
+In
+re
+fa
+tr
+c
+i
+t
+e
+,
+v
+w
+ed
+e
+a
+c
+t
+an
+𝑥1
+s
+.
+ee
+H
+t
+o
+h
+w
+a
+e
+t
+v
+t
+e
+h
+r
+e
+,
+𝑣̂𝑒𝑔𝑡=1, (𝑡,𝑔)∈Graph(𝜑̄
+𝑣(𝑜)
+)∧(𝑣̄𝑒𝑔𝑜=1)
+𝐿 1 𝑅
+themothershiphaslaunchedanotherdroneat𝑥2
+𝐿
+thatgoestovisit𝑃
+2
+Theremaining𝑢̂𝑒𝑔𝑡and𝑣̂𝑒𝑔𝑡variablesaresetequalto0.Toshowthat
+before retrieved the first drone. Clearly, this solution does not satisfy binaryvariables𝑢̂𝑒𝑔𝑡and𝑣̂𝑒𝑔𝑡arefeasiblefortheAMMDRPG-POmodel,
+theassumptionsofthecompleteoverlappingmodel. itcanbeeasilycheckedtheysatisfytheconstraints(DroneROUTE )–
+1
+(DroneROUTE ).
+7
+Theorem 3.1. Let 𝑋 𝐶𝑂 be the feasible set of the AMMDRPG with Moreover, it is easy to show that the mothership constraints are
+complete overlapping operations, and let 𝑋 𝑃𝑂 be the feasible set of the alsosatisfiedbythevariables𝑦̂𝑡=(𝑦̂𝑡 𝐿𝐿 ,𝑦̂𝑡 𝐿𝑅 ,𝑦̂𝑡 𝑅𝐿 ,𝑦̂𝑡 𝑅𝑅 ),inducedbythe
+AMMDRPGwithpartialoverlappingoperations,then: variables𝑢̂𝑒𝑔𝑡 and𝑣̂𝑒𝑔𝑡.
+With regard to continuous variables, they can be directly derived
+𝑋 ⊊𝑋 .
+𝐶𝑂 𝑃𝑂 from the setting of variables 𝑥̂𝑡 and 𝑥̂𝑡 which can be obtained as
+𝐿 𝑅
+follows:
+Proof. To prove the theorem, we first show that a feasible solution
+𝜔̄ ∈ 𝑋 𝐶𝑂 is also feasible for the AMMDRPG-PO. We can notice that 𝑥̂𝑡 𝐿 =𝑥̄𝑜 𝐿 , ∀𝑡∈ 𝑢 (𝑜)∶𝑜∈̄,
+all the discrete decision variables of the AMMDRPG-PO model can
+be obtained directly once the variables 𝑢̂𝑒𝑔𝑡 and 𝑣̂𝑒𝑔𝑡 are set through
+𝑥̂𝑡 =𝑥̄𝑜, ∀𝑡∈ (𝑜)∶𝑜∈̄.
+theconstraints(DroneROUTE 8 )–(DroneROUTE 13 ).Thus,wecanlimit 𝑅 𝑅 𝑣
+ourselvestoshowinghowtheirvaluescanbederivedfromthoseof𝜔̄
+We can see that the distances between two consecutive launch
+toobtainafeasiblesolution𝜔̂ ∈𝑋
+𝑃𝑂
+.Weconsider𝑢̄𝑒𝑔𝑜 and𝑣̄𝑒𝑔𝑜 equal
+points or two consecutive retrieval points are equal to 0 by the defi-
+to1.Let̄ ={𝑜∈∶𝑢̄𝑒𝑔𝑜 =1}.Let̄(𝑜)bethesetofgraphsvisited nitionofthevariables𝑥̂𝑡 and𝑥̂𝑡 .Consequently,thetime𝑡̂𝑖𝑚𝑒 𝑔 spent
+inoperation𝑜∈̄.Wecancomputeforeach𝑜∈̄ thecorresponding bythemothershipwhile 𝐿 thedro 𝑅 nevisitsthegraph𝑔∈̄(𝑜)∶ 𝑀 𝑜∈̄ is
+set (𝑜), that is, the set of stages that define the launch and retrieval equalto𝑡𝑖𝑚𝑒 𝑜 .
+actions that occur in operation 𝑜. More in detail, we can identify the 𝑀
+To complete the proof, it suffices to notice that, in contrast, there
+firstelement𝑡(𝑜)ofthissetasfollows:
+existfeasiblesolutionsoftheAMMDRPG-POcharacterisedbypartial
+𝑡(0)=1; overlaps between operations, as shown, for example, in Fig. 4, which
+arenotfeasiblefortheAMMDRPG-CO. □
+𝑡(𝑜+1)=𝑡(𝑜)+ ∑ ∑ (𝑢̄𝑒𝑔𝑜+𝑣̄𝑒𝑔𝑜).
+Topresentournextresult,wlog,werestrictourselvestothedegen-
+𝑔∈̄(𝑜)𝑒𝑔∈𝐸𝑔
+eratecasewherethegraphsarereducedtopoints.Thereadermaynote
+Givenitsfirstelement𝑡(𝑜),wecansplit(𝑜)intotwosubsetsofthe
+thatitispossibletoreducethevisitofgraphstothevisitofpointsby
+indexes 𝑢 (𝑜)and 𝑣 (𝑜)asfollows: assuming that the drone is stopped at the point which is at the same
+
+𝑢
+(𝑜)={𝑡∈ ∶𝑡(𝑜)≤𝑡≤𝑡(𝑜)+| ̄(𝑜)|−1}, timeastheonerequiredtotraversetheedgesofthegraph.Wesimplify
+the proof by considering a generic solution between two consecutive
+targetpoints.
+
+𝑣
+(𝑜)={𝑡∈ ∶𝑡(𝑜)≤𝑡−| ̄(𝑜)| ≤𝑡(𝑜)+| ̄(𝑜)|−1}.
+Since the cardinality of the set  (𝑜) is equal to the cardinality of Theorem3.2. Let𝑥1,𝑥2 (resp.𝑥1,𝑥2)bethelaunch(resp.retrieval)
+𝑢 𝐿 𝐿 𝑅 𝑅
+theset̄(𝑜),wecandefineabijectivefunction𝜑̄ ∶ (𝑜)→̄(𝑜)and pointsassociatedwiththevisittothetargetpoints𝑃 and𝑃 .Ifthereexist
+𝑢(𝑜) 𝑢 1 2
+10
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+then they were also completed before operation 𝑜+1. Therefore, the
+variables𝛽 mustsatisfythefollowingconstraints:
+𝛽𝑜≤𝛽𝑜+1, forall𝑜=1,…,|  |−1. (Monotonicity)
+Let 𝑘𝑜 denote the number of graphs visited in operation 𝑜. This
+number can be computed using variables 𝑢 since 𝑢𝑒𝑔𝑜 takes the value
+of1ifthegraph𝑔isvisitedinoperation𝑜.Thus:
+𝑘𝑜= ∑ ∑ 𝑢𝑒𝑔𝑜.
+𝑔∈𝑒𝑔∈𝐸𝑔
+Hence,if𝛽𝑜 isequaltoone,theentiresetofgraphsinmusthave
+beenvisitedbeforeoperation𝑜:
+Fig.5. Themothershiplaunchestwodronessequentially. ∑ 𝑜−1 𝑘𝑜′ ≥ |  |𝛽𝑜, ∀𝑜∈, (VI-1)
+𝑜′=1
+twopoints𝑥 and𝑥 verifying
+where|  |denotesthenumberofgraphsof.
+𝐿 𝑅
+To reduce the space of feasible solutions, we can assume without
+⎧‖𝑥 𝐿 −𝑥 𝑅‖ ≤ ‖𝑥 𝐿 −𝑃 1‖+‖𝑃 1 −𝑥 𝑅‖ , lossofgeneralitythatitisnotallowedtohaveanoperation𝑜without
+⎪ 𝑣 𝑀 𝑣 𝐷 visiting graphs if some of them are still to be visited. This can be
+⎪ ⎪ ‖𝑥 𝐿 −𝑥 𝑅‖ ≤ ‖𝑥 𝐿 −𝑃 2‖+‖𝑃 2 −𝑥 𝑅‖ , enforcedbythefollowingconstraints:
+𝑣 𝑣
+⎨ 𝑀 𝐷
+⎪‖𝑥 𝐿 −𝑥 𝑅‖ ≤ 𝑁 , 𝑘𝑜≥1−𝛽𝑜, ∀𝑜∈. (VI-2)
+⎪ 𝑣 𝐷
+𝑀
+⎪ ⎩‖𝑥 𝐿 −𝑥 𝑅‖ ≤ ‖𝑥1 𝐿 −𝑥2 𝐿‖+‖𝑥2 𝐿 −𝑥1 𝑅‖+‖𝑥1 𝑅 −𝑥2 𝑅‖, The model we propose includes bigM constants. In this work, we
+define different bigM constants. To strengthen the formulations, we
+thenthecontributionofthispartialroutetotheoptimalobjectivevaluewill
+provide tight upper and lower bounds for these constants. In this
+bethesameinbothmodels.
+section, we present some results that adjust them for each of the
+models.Thereadermaynotethatthesameboundscanbeusedforboth
+Proof. Notethat,intheconfigurationconsidered,theorderofvisitsto
+models. Therefore, wlog, we focus on the bigM constants that appear
+thepoints𝑃 and𝑃 isfixed,andthenthebinaryvariablesinthemodel
+1 2 in(AMMDRPG-CO).
+arefixedinthiscase.Thus,theonlydifferencesthatthetwomodelscan
+havearethelocationofthelaunchandretrievalpoints.Therefore,the
+Big𝑀 constantsboundingthedistancefromthelaunch/retrievalpointon
+onlyconstraintsinvolvedarethoserelatedtothesepoints.Thesearethe
+the path followed by the mothership to the retrieval/launch point on the
+conditionsinthefollowingstatement:Thefirsttwoarethe(DCW-CO)
+targetgraph𝑔∈
+inequalities. The third is the constraint (Endurance-CO) and the last
+To linearise the first addend in (DCW-CO), we define the non-
+ensuresthatthedistancetravelledbythemothershipinthecomplete
+negativecontinuousauxiliaryvariables𝑝
+𝑒𝑔𝑜
+(resp.𝑝
+𝑒𝑔𝑜
+)andwemodel
+overlappingmodelissmallerthanorequaltothedistanceassumedin 𝐿 𝑅
+theproductbyincludingthefollowingconstraints:
+thepartialoverlappingsolutiondescribedinthestatement.Therefore,
+theconclusionfollows. □ 𝑝 𝑒𝑔𝑜≤𝑀 𝑒𝑔𝑜 𝑢𝑒𝑔𝑜,
+𝐿 𝐿
+Notethatthisresultstatessufficientconditionstoobtainthesame 𝑝
+𝑒
+𝐿
+𝑔𝑜≤𝑑
+𝐿
+𝑒𝑔𝑜
+,
+solutionforthetwomodels. 𝑝 𝑒𝑔𝑜≥𝑚 𝑒𝑔𝑜 𝑢𝑒𝑔𝑜,
+𝐿 𝐿
+𝑝 𝑒𝑔𝑜≥𝑑 𝑒𝑔𝑜 −𝑀 𝑒𝑔𝑜 (1−𝑢𝑒𝑔𝑜).
+𝐿 𝐿 𝐿
+4. Strengtheningtheformulations
+Notethat,amongallgraphnodesandtheoriginanddestinationpoints,
+it is possible to identify the pair of points at the maximum distance.
+Inthissection,wepresentsomevalidinequalitiesfor(AMMDRPG-
+From this pair of points, we can build a circle whose diameter is the
+CO) that reinforce the formulation given in Section 3.1. Moreover,
+segment that joins them. Hence, because we minimise the distance
+constraints (DCW-CO) and (DCW) have products of binary and con-
+travelled by the mothership, every launch or retrieval point is inside
+tinuous variables that, when linearised, produce bigM constants that
+this circle, and the best upper bound 𝑀
+𝑒𝑔𝑜
+or 𝑀
+𝑒𝑔𝑜
+can be described
+must be tightened. This section also provides some bounds for these 𝐿 𝑅
+as:
+constantswhenitispossible.
+4.1. Validinequalitiesforthe(AMMDRPG-CO)
+𝑀
+𝑅
+𝑒𝑔𝑜 =
+{𝑣∈𝑉𝑔∪{orig,dest},𝑣′
+m
+∈𝑉
+a
+𝑔
+x
+′∪{orig,dest}∶𝑔,𝑔′∈}
+‖𝑣−𝑣′ ‖=𝑀
+𝐿
+𝑒𝑔𝑜 .
+Ontheotherhand,theminimumdistanceinthiscasecanbezero.
+Inthisproblem,weassumethatthefleethasmorethanonedrone, Thisboundisattainablewheneverthelaunchortheretrievalpointsof
+sinceotherwisetheproblemreducestotheAllTerrainMothershipand themothershiparethesameastheretrievalorlaunchingpointonthe
+DroneRoutingProblemwithGraphsthatwasalreadystudiedinAmorosi
+targetgraph𝑔∈.
+etal.(2021).Therefore,ifthereexistsanoperationinwhichmorethan
+one drone is launched, the mothership does not need to perform |  | Bounds on the big𝑀 constants for the distance from the launch to the
+differentoperations.Therefore,mostlikely,themodeldoesnotneedto
+retrievalpointsonthetargetgraph𝑔∈
+dealwiththoseoperationsthatarenumberedattheend.Byexploiting When the drone visits a graph 𝑔, it has to go from one edge 𝑒 𝑔
+this idea, it is possible to concentrate all drone activities on the first to another edge 𝑒′ depending on the order given by 𝑧𝑒𝑔𝑒′ 𝑔. This fact
+𝑔
+operations,avoidingemptyoperationsin. producesaproductofvariableslinearisedbythefollowingconstraints:
+Let𝛽𝑜 beabinaryvariablethatassumesthevalueof1ifalltarget 𝑝𝑒𝑔𝑒′
+𝑔
+≤𝑀𝑒𝑔𝑒′ 𝑔𝑧𝑒𝑔𝑒′
+𝑔,
+graphs are visited when the operation 𝑜 begins, and zero otherwise.
+Note that if all graphs have already been visited before operation 𝑜
+𝑝𝑒𝑔𝑒′
+𝑔
+≤𝑑𝑒𝑔𝑒′
+𝑔,
+11
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Algorithm1MatheuristicalgorithmforAMMDRPG-CO
+Data:,|  |,𝑁
+𝐷
+,𝑣
+𝐷
+,𝑚𝑎𝑥𝑖𝑡(maximumnumberofiterationstoperform
+the clustering procedure), 𝑚𝑎𝑥𝑠𝑒𝑒𝑑 (maximum number of the
+clusteringprocedurerepetitions)
+STEP1(Firstentryandlastexitpointsforeachtargetgraph)
+Foreachtargetgraph𝑔∈,computetheroute:
+𝐿𝑒𝑔 ←entrypointon𝑔closesttotheorigin
+𝑅𝑒′
+𝑔 ←exitpointfrom𝑔closesttotheorigin
+(𝑒 ,𝑒′)←routelength
+𝑔 𝑔
+STEP2(Clusteringprocedure)
+𝑖𝑡←1
+𝑛𝑖𝑡←1
+Foreachtargetgraph𝑔∈: 𝐾 ←𝑔 ⊳oneclusterforeachtarget
+𝑔
+graph
+while𝑛𝑖𝑡<𝑚𝑎𝑥𝑖𝑡do
+Selectrandomlytwoclusters𝐾 and𝐾 (𝑖<𝑗)
+𝑖 𝑗
+if|𝐾
+𝑖
+∪𝐾 𝑗|<|  |then
+Search for point 𝑃 satisfying the following endurance con-
+straint:
+Fig.6. Illustrativeexample.
+𝑝𝑒𝑔𝑒′ 𝑔 ≥𝑚𝑒𝑔𝑒′ 𝑔𝑑𝑒𝑔𝑒′ 𝑔, 𝑑(𝑃,𝑅𝑒𝑔)+(𝑒 𝑣 𝑔 ,𝑒′ 𝑔 )+𝑑(𝐿𝑒′ 𝑔,𝑃) ≤𝑁 𝐷 , ∀𝑅𝑒𝑔,𝐿𝑒′ 𝑔 ∈𝐾 𝑖 ,𝐾 𝑗 . (1)
+𝐷
+𝑝𝑒𝑔𝑒′
+𝑔
+≥𝑑𝑒𝑔𝑒′ 𝑔−𝑀𝑒𝑔𝑒′ 𝑔(1−𝑧𝑒𝑔𝑒′
+𝑔).
+if𝑃 ∃then
+𝐾 ←𝐾 ∪𝐾
+Since we take into account the distance between two edges 𝑒 = 𝑖 𝑖 𝑗
+𝑔
+(𝐵𝑒𝑔,𝐶𝑒𝑔),𝑒′
+𝑔
+= (𝐵𝑒′ 𝑔,𝐶𝑒′ 𝑔) ∈ 𝐸
+𝑔
+, the maximum distance between their
+end
+end
+verticesgivesustheupperbound:
+𝑛𝑖𝑡←𝑛𝑖𝑡+1
+𝑀𝑒𝑔𝑒′ 𝑔 =max{‖𝐵𝑒𝑔−𝐶𝑒′ 𝑔‖,‖𝐵𝑒𝑔−𝐵𝑒′ 𝑔‖,‖𝐶𝑒𝑔−𝐵𝑒′ 𝑔‖,‖𝐶𝑒𝑔−𝐶𝑒′ 𝑔‖}. end
+←setofclusters
+We observe that the minimum distance between edges
+𝑚𝑒𝑔𝑒′
+𝑔 can
+STEP3(ComputationofReferencePoints)
+easily be obtained by computing the minimum distance between two
+Foreachcluster𝐾 ∈ computeareferencepoint𝑃 bysolvingthe
+edges,whichresultsinasimplesecond-orderconeprogram. 𝑖 𝑖
+followingminimisationproblem:
+5. A matheuristic for the All Terrain Mothership and Multiple- min ∑ (‖𝑃
+𝑖
+−𝑜𝑟𝑖𝑔‖+‖𝑃
+𝑖
+−𝑑𝑒𝑠𝑡‖)+ ∑ (‖𝑃
+𝑖
+−𝑅𝑒𝑔‖+‖𝑃
+𝑖
+−𝐿𝑒′ 𝑔‖)
+DroneRoutingProblemwithGraphs 𝐾𝑖∈ 𝑔∈𝐾𝑖∶𝐾𝑖∈
+∑
+Thissectionisdevotedtopresentingourmatheuristicapproachto + ‖𝑃 𝑖 −𝑃 𝑗‖
+addressthesolutionoftheAMMDRPG.Ourmotivationcomesfromthe
+𝐾𝑖,𝐾𝑗∈∶𝑖≠𝑗
+factthattheexactsolutionofthemodelspresentedinSection3istime- subjectto(1).
+consuming. Alternatively, the matheuristic provides a good quality STEP4(Orderofvisitstothegraphs:routeviathereferencepointsand
+solutioninlimitedcomputingtimes. theorigin/destinationpoints)
+The basic idea of the algorithm is to determine the route that a ComputetheTSPofthemothershipamongthereferencepoints𝑃 of
+drone should take to visit each graph 𝑔 ∈ , and thus the entry theclusters 𝑖
+andexitpoints𝐿𝑒𝑔 and𝑅𝑒′ 𝑔 foreachgraph.Sequentially,aclustering
+procedure on the target graphs is applied to compute the route of (𝑇𝑆𝑃) ← TSPlength [This update is performed only if (𝑇𝑆𝑃)
+the mothership via their reference points and the origin/destination decreaseswithrespecttothepreviousiteration𝑖𝑡−1]
+points. The clustering procedure is based on a random selection of 𝑖𝑡←𝑖𝑡+1
+the initial target graphs, and, for this reason, it is repeated several if𝑖𝑡<𝑚𝑎𝑥𝑠𝑒𝑒𝑑 then
+times to consider different cluster structures. At each iteration, the gotoSTEP2
+new clusters are evaluated by computing the cost of the route that else
+visitstheirreferencepointsandtheorigin/destinationpoints.Theroute gotoSTEP5
+of minimum length, computed on the reference points of the cluster end
+generated by this iterative procedure, is used to set the values of the STEP5(SolutionoftheAMMDRPGmodelbyfixinganinitialpartial
+binary variables 𝑢𝑒𝑔𝑜 and 𝑣𝑒𝑔𝑜 which determine the order of visits to solution)
+the graphs. Finally, these variables are provided as an initial partial Settheinitialvaluesofthebinaryvariables𝑢𝑒𝑔𝑜 and𝑣𝑒𝑔𝑜 andsolve
+solutiontotheAMMDRPG-COmodeltoproduceacompletefeasible themodelAMMDRPGtoobtainafeasiblesolution.
+solution.
+Result:FeasiblesolutionforAMMDRPG-CO
+Algorithm1reportsthepseudocodeofthisalgorithm.
+Fig.6showsanillustrativeexampleconsistingoffourtargetplanar
+graphs (𝑔 , 𝑔 , 𝑔 and 𝑔 ) to be visited. We assume that their visits
+1 2 3 4
+mustbecarriedoutbyafleetoftwodronessupportedbyamothership Fig.7illustratesazoominoneachtargetgraph,showingthetours
+whosepathstartsfromtheorigin(0,0)andendsatthedestinationpoint generated by STEP 1 of the matheuristic procedure. A pair of points
+(100,0). representing the launch and retrieval points, together with an arrow
+12
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.7. STEP1fortheillustrativeexample.
+thatpointsthedirectionfollowedbythedroneaccordingtotheorder Byprovidingtheinitialpartialsolutionobtainedfromthevaluesof
+inwhichtheedgesarevisited,isdepictedoneachedge. the variables 𝑢𝑒𝑔𝑜 and 𝑣𝑒𝑔𝑜, STEP 5 solves the AMMDRPG-CO model
+andreturnsthefinalfeasiblesolutionshowninFig.9(b).Fromit,we
+ApplyingSTEP2tothisillustrativeexample,weobtainthreeclus-
+can observe that the sequence of visits of the target graphs does not
+ters, as shown in Fig. 8(a). One cluster contains graphs 𝑔 and 𝑔 (in
+1 3 change with respect to that provided by STEP 4. The two-drone fleet
+lilac), while graphs 𝑔 2 and 𝑔 4 represent distinct clusters. The compu- first visits the graphs 𝑔 and 𝑔 starting from the launch point 𝑥1.
+tation of the reference points of these clusters, according to STEP 3, Then, both drones are r 1 etrieved 3 by the mothership at point 𝑥1. Th 𝐿 e
+producesthepoints𝑃 1 ,𝑃 2 and𝑃 3 ,asshowninFig.8(b). mothership moves to the point 𝑥2 where a drone is launched t 𝑅 o visit
+𝐿
+graph 𝑔 . The mothership then reaches the point 𝑥2 to retrieve the
+STEP 4 of the matheuristic procedure generates the tour of the 2 𝑅
+drone, and from the same point it launches the other drone to visit
+mothershipalongtheoriginpoint,𝑃 ,𝑃 ,𝑃 andthedestinationpoint,
+1 2 3 graph 𝑔 . Then, the mothership retrieves this drone at the point 𝑥3
+as shown in Fig. 9(a). This tour also returns the order in which the 4 𝑅
+beforemovingtothefinaldestinationpoint.
+clusters are visited (and thus also the order of visits to the target
+graphs), and this allows us to set the values of the variables 𝑢𝑒𝑔𝑜 and Focussing on each target graph, Fig. 10 shows the zoom in on
+𝑣𝑒𝑔𝑜 oftheAMMDRPG-COmodel. the tours followed by the drones. For example, Fig. 10[a] reports the
+13
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.8. (a)STEP2,(b)STEP3fortheillustrativeexample.
+Fig.9. (a)STEP4,(b)STEP5fortheillustrativeexample.
+tourperformedbythedronethatvisitsthegraph𝑔 (thedashedpink considerinstancessuchasthoseusedinAmorosietal.(2021),where
+1
+segments)andthedronethatvisitsthegraph𝑔 (thedashedlightblue thetargetstobevisitedarerepresentedbygridgraphs.Moreprecisely,
+3
+segments).Bothdronesstartfromthemothershipatthepoint𝑥1,that wegenerateasetoffiveinstanceseachwithfivegraphshaving4,6,
+𝐿
+is, the 𝑜𝑟𝑖𝑔. One drone first visits the segment 𝑅1𝐿1 of the graph 𝑔 , 8,10,and12nodes,respectively.Similarly,wegenerateasetoffive
+1 1 1
+while the other starts the visit to graph 𝑔 by traversing the segment instanceseachwithtengraphs,equallydistributedwithrespecttothe
+3
+𝑅3𝐿3.Frompoint𝐿1 thefirstdronemovestothesecondvisitededge numberofnodes(whichalwaysrangesbetween4and12).
+1 1 1 In order to place the graphs of a single instance, we follow the
+of the graph 𝑔 traversing the segment 𝑅2𝐿2. Then, it moves to the
+1 1 1 same procedure described in Amorosi et al. (2021). This is based on
+thirdvisitededgeofthegraph𝑔 1 ,flyingoverthesegment𝑅3 1 𝐿3 1 .From thedivisionofaninitialsquareofside100unitsinsub-squaresandon
+point𝑅4 1 thedronestartsthevisittothelastedgeofthegraph𝑔 1 upto therandomselectionofthegraphlocationsamongthem.Then,inorder
+point 𝐿4. Finally, the drone leaves the graph 𝑔 at this last point and tobuildthesinglegraph,eachoftherandomlyselectedsub-squaresis
+1 1
+is retrieved by the mothership at the point 𝑥1. Similarly, the second furtherpartitionedinanumberofsub-squaresequaltothecardinality
+𝑅
+drone, which visits the graph 𝑔 , after traversing the segment 𝑅1𝐿1, 𝑛ofthesetofnodesofthegraphtobuild.Successively,twoopposite
+3 3 3 corner sub-squares are considered to randomly select two points and
+movestothesecondvisitededgeofthesamegraphandtraversesthe
+buildarectanglewhosediagonaljoinsthesetwopoints.Finally,agrid
+segment 𝑅2𝐿2. Then, it flies to the third visited edge, traversing the
+3 3 of 𝑛 points is identified by locating 𝑛 equally spaced points on the
+𝑚
+segment 𝑅3𝐿3. Finally, it moves to the last visited edge of the graph two sides square, where 𝑚 is randomly selected in the set of divisors
+3 3
+𝑔 ,flyingoverthesegment𝑅4𝐿4.Thedroneleavesthegraph𝑔 atthe of 𝑛. A perturbation on the coordinates of the points so obtained is
+p 3 oint𝐿4andreachesthemot 3 her 3 shipatthepoint𝑥1.Notethat, 3 inthis applied,imposingthattheperturbedpointsstillbelongtotheoriginal
+example 3 ,thedronesdonotvisitthefull100%ofea 𝑅 chgraphedge,but square. The resulting grid graph is obtained connecting each point to
+onlyhalfofeachofthem. its adjacent ones lying on the same side and with the one located on
+The reader may notice that the algorithm above can also be used the opposite side of the square. The reader can find and download
+to generate solutions for the partial overlapping model presented in alltheinstancesusedinthispaperfromPuertoandValverde(2021).
+Section3.2asanysolutionofthemodelAMMDRPG-COisalsofeasible Moreover,weassumethatthespeedofthedronesistwicethatofthe
+forthemodelAMMDRPG-POone,asshowninTheorem3.1. mothershipandthatthefleetofdronesmustvisitarandomfractionof
+eachtargetgraphorofeachofitsedges.Thesefractionsareuniformly
+6. Experimentalresults randomlysampledintheinterval(0,1).
+In our experiments, we consider that the number of drones varies
+Inthissection,wediscusstheexperimentalresultsobtainedtesting between 1 and 3 and that the endurance of the drone (expressed as
+theformulationspresentedinSection3andthematheuristicprocedure themaximumtimethedronecanoperatewhenfullyrecharged)ranges
+proposed in Section 5 on a testbed of instances. In particular, we between20and60.Notethatthecaseofasingledroneisalsoincluded
+14
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.10. ZoomonthetouroneachtargetgraphprovidedbySTEP5.
+Table4 bothvariantsoftheAMMDRPGmodeloninstancesdescribedabove,
+Instanceparametervalues. byadoptingGurobicommercialsolver.Weconsidertheexactsolution,
+|  | (5,10) setting a time limit of one hour, providing and not providing to the
+|  | (1,2,3) solver an initial solution computed by the matheuristic described in
+|
+𝑁
+𝑉
+𝐷
+𝑔| (
+(
+4
+2
+,
+0
+6
+,
+,
+3
+8
+0
+,1
+,4
+0
+0
+,1
+,5
+2
+0
+)
+,60) Section5.Moreprecisely,thefirstrowofTable5indicatesthevariant
+Fractiontarget(edge) Uniformlyrandomlysampledin(0,1). ofthemodel,andthesecondrowreportsthenumberoftargetgraphs
+to be visited by the drone fleet (5 or 10). From the third row, we
+split each column into three sub-columns. The first three subcolumns
+report,respectively,theenduranceofthedrones,thesizeofthefleetof
+inourexperimentstocomparetheresultsandcomplexityofusingone drones,andanindicationofthevisitofafractionofeachedge(e)ora
+or more than one drone. The interested reader is referred to Amorosi fractionofeachtargetgraph(g).Fromsubcolumn4tosubcolumn15,
+etal.(2021)toanalysethecomplexityintermsofthegapofthemodel wereport,foreachcombinationofthelistedparameterscharacterising
+with a single drone. Table 4 reports a summary of the characteristics theinstances,respectively,theaveragegapofthebestsolutionfound
+ofourinstances. by Gurobi in one hour without initialisation by the solution provided
+Wecodethematheuristicandtheexactresolutionofthemodelin bythematheuristic(wi),theaveragegapofthebestsolutionfoundby
+Python 3.8.10. The mathematical programming formulation is imple- Gurobiinonehourwithinitialisationbythesolutionobtainedbythe
+mentedinGurobi9.1.2.AlltestsarerunonanAMD®Epyc7402pwith matheuristic(i),andthesolutiontime,inseconds,ofthematheuristic
+24-coreprocessor×8.Table5reportstheresultsobtainedbysolving (TimeH).
+15
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Table5
+Comparisonbetweenpartialandcompleteoverlappingmodels.
+Model Completeoverlapping Partialoverlapping
+|  | 5 10 5 10
+𝑁 𝐷 |  | 𝛼 Gap(wi) Gap(i) TimeH Gap(wi) Gap(i) TimeH Gap(wi) Gap(i) TimeH Gap(wi) Gap(i) TimeH
+g 0.78 0.79 6.01 0.91(2) 0.86 177.69 0.65 0.63 16.53 1 1 215.59
+1
+e 0.81 0.81 15.41 0.89(2) 0.84 148.95 0.84 0.83 52.36 0.88(3) 0.87 440.93
+g 0.81 0.87 5.76 0.96(3) 0.96 139.24 0.97 0.96 13.91 1(3) 1 76.77
+20 2
+e 0.93 0.92 33.99 0.97(3) 0.97 163.41 0.86(2) 0.85 66.38 0.89(4) 0.85 578.31
+g 0.88 0.89 4.83 0.95(3) 0.94 67.76 0.97 0.97 17.87 1(2) 1 18.88
+3
+e 0.92 0.91 14.08 0.97(2) 0.97 125.89 0.81(3) 0.84 61.83 –(5) 0.82 237.33
+g 0.71 0.7 9.66 0.82(4) 0.82 87.4 0.77 0.75 15.43 1 1 39.83
+1
+e 0.79 0.8 14.16 0.8(4) 0.83 122.23 0.84 0.82 38.94 0.83(4) 0.81 289.74
+g 0.82 0.82 4.98 0.95(3) 0.92 174.64 0.97 0.96 12.94 1 1 45.37
+30 2
+e 0.84 0.84 14.73 0.96(3) 0.97 133.75 0.78 0.79 31.82 0.82 0.77 171.16
+g 0.82 0.81 4.63 0.93(3) 0.95 105.54 0.96 0.96 16.22 1 1 33.95
+3
+e 0.88 0.89 12.08 –(5) 0.97 127.78 0.83 0.82 35.38 0.79(3) 0.8 213.06
+g 0.68 0.68 5.79 0.81(2) 0.82 93.21 0.73 0.71 11.46 1 1 48.85
+1
+e 0.76 0.77 37.55 0.78(4) 0.81 160.24 0.8 0.79 57.28 0.79(1) 0.8 403.72
+g 0.72 0.66 5.14 0.91(2) 0.92 131.26 0.96 0.95 11.48 1 1 35.71
+40 2
+e 0.83 0.78 19.46 0.91(2) 0.95 141.6 0.79 0.79 35.79 0.79(1) 0.79 576.75
+g 0.61 0.62 3.91 0.91 0.91 115.48 0.95 0.95 15.13 1 1 17.98
+3
+e 0.85 0.83 15.36 0.93 0.94 85.9 0.81 0.81 40.37 0.81(1) 0.8 309.09
+g 0.65 0.64 5.52 0.82(3) 0.84 101.24 0.82 0.78 9.53 1 1 32.54
+1
+e 0.74 0.73 16.63 0.81(3) 0.83 118.67 0.78 0.77 58.95 0.82(2) 0.82 311.02
+g 0.7 0.7 6.37 0.9(1) 0.93 206.87 0.97 0.97 14.68 1 1 39.5
+50 2
+e 0.67 0.73 12.07 0.92(2) 0.93 168.57 0.77 0.77 36.46 0.8(1) 0.81 265.16
+g 0.65 0.64 4.27 0.9(1) 0.93 26.68 0.94 0.92 19.08 1 1 15.97
+3
+e 0.74 0.74 12.95 0.9 0.94 90.14 0.8 0.79 40.77 0.76(3) 0.79 195.68
+g 0.69 0.7 5.58 0.8(4) 0.81 83.02 0.78 0.76 11.18 1 1 36.78
+1
+e 0.74 0.74 16.53 0.85(2) 0.86 145.06 0.76 0.76 37.73 0.84(2) 0.83 359.68
+g 0.67 0.72 4.09 0.94(2) 0.94 81.69 0.95 0.94 13.33 1 1 17.04
+60 2
+e 0.76 0.73 15.58 0.94(2) 0.92 108.17 0.78 0.78 33.28 0.78 0.79 237.38
+g 0.58 0.53 7 0.89(2) 0.9 60.99 0.91 0.94 20.15 1 1 33.93
+3
+e 0.72 0.7 15.39 0.91(2) 0.96 96.52 0.78 0.78 49.39 0.81 0.81 259.34
+Wecanobservethatthevalueoftheaveragegaprangesbetweena solutionprovidedbythematheuristic,wecannotethatthevaluesof
+minimumof0.58andamaximumof1.Thisshowsthatthemodelis the average gap are very close to those related to the exact solution
+difficulttosolveevenwithsmall-sizedinstances.Moreover,wecansee methodwithoutinitialisation.Thus,initialisationdoesnotspeedupthe
+thatforthecompleteoverlappingversionofthemodel,inmostcases, convergenceofthesolver.However,wecanseethatthematheuristic
+theaveragegapassociatedwiththevariantofthemodelconsistingof isalwaysabletofindafeasiblesolutiontotheproblem,evenforthe
+visiting a given fraction of each edge is greater than that associated caseswherethesolverisnot.
+with the variant obligating visiting a given fraction of each target Furthermore, the average solution times of the matheuristic range
+graph.Anotherthingwecanobserveisthattheaveragegapincreases betweenaminimumof4sandamaximumof9.5min.Inparticular,we
+withthenumberoftargetgraphsforbothvariantsoftheproblem. canobservethat,inmostcases,forthecompleteoverlappingversionof
+Furthermore, the reader may note that the partial overlapping theproblem,thematheuristicrunningtimeisshorterfortheinstances
+versionoftheproblemishardertosolvethanthecompleteoverlapping whereafractionofthelengthofeachgraphisrequiredtobevisited.
+versionbylookingatthevaluesoftheaveragegap.Thisisanexpected Thesamebehaviourcanbeobservedforthepartialoverlappingversion
+behaviour due to the fact that the feasible region of the partial over- of the problem, for which the difference in terms of running time is
+lappingvariantcontainsthatassociatedwiththecompleteoverlapping evengreater.Indeed,whenagivenfractionofthelengthofeachedge
+variant,asproveninTheorem3.1.Wecanseethatforbothversionsof is required, STEP 1 of the matheuristic (computation of the TSP over
+theproblem,byincreasingthenumberoftargetgraphsfrom5to10, thegraphedges)takesmoretime.Byincreasingthenumberoftarget
+the exact method without initialisation of the solution obtained with graphs from 5 to 10, the average solution times of the matheuristic
+the matheuristic becomes even harder. Indeed, the red entries of the increase for both model variants. Summing up, the results obtained
+tablemeanthatsomeinstancescouldnotfindafeasiblesolutionwithin showthattheexactsolutionmethodgivenbysolvingtheformulationis
+the time limit (note that in the brackets we indicate the number of verychallengingevenforsmall-sizedinstances.However,byexploiting
+theseinstances).Furthermore,fortheminimumlevelofendurance,the this, the matheuristic is able to provide solutions for all instances
+exact solution of the partial overlapping model without initialisation quite quickly. Moreover, the quality of the solutions found by the
+provided by the matheuristic does not find any solution within the matheuristic algorithm in a few seconds (or minutes) is comparable
+timelimitforinstanceswith10graphs,3dronesandagivenfraction with the one of the solutions provided by Gurobi solver in one hour.
+of each edge to be visited. The same can be observed also for the Indeed, there are no significant differences between the average gaps
+exactsolutionofthecompleteoverlappingmodelwithoutinitialisation associatedwiththesolutionsobtainedwithandwithoutinitialisation.
+provided by the matheuristic, for a level of endurance equal to 30, a TheboxplotsinFig.11representthepercentagerelativegapofthe
+fleetof3drones,andagivenfractionofeachedgetobevisited.Taking solutionprovidedbythematheuristicforthecompleteoverlappingver-
+into account the comparison with the exact method starting from the sionoftheproblem,withrespecttothatprovidedbytheexactsolution
+16
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.11. RelativegapboxplotsforAMMDRPG-CO.
+Fig.12. RelativegapboxplotsforAMMDRPG-PO.
+of the mathematical programming model within the time limit, with Table6
+the initialisation of the solution found by the matheuristic. Similarly, Instanceparametervalues.
+Fig.12reportsthesameinformationforthepartialoverlappingversion |  | (1,2,3)
+oftheproblem. |𝑉 𝑔| (4,6,8)
+𝑁𝑑 (10,20,30,40,50,60)
+From Fig. 11, we can see that for the complete overlapping ver- Fractiontarget(edge) Uniformlyrandomlysampledin(0,1).
+sion of the problem, the relative gap of the solution provided by
+the matheuristic tends to be greater when a given fraction of each
+graph must be visited, independently of the size of the drone fleet.
+Additionally, its values decrease with the number of target graphs. visited edge of the graph 𝑔 . From point 𝑥5 the mothership retrieves
+2 𝑅
+A similar behaviour can also be observed for the partial overlapping thefirstdronethatislaunchedagainfrompoint𝑥6 tovisitthegraph
+𝐿
+variantoftheproblem,fromFig.12.Inthelattercase,wecannoticea 𝑔 .Fromthesamepointthemothershipalsoretrievestheseconddrone
+4
+larger difference between the relative gap values related to the case (𝑥6 =𝑥7).Then,itmovestopoint𝑥8 forlaunchingagainthesecond
+𝐿 𝑅 𝐿
+in which a given fraction of each graph must be visited, and that droneforvisitingthegraph𝑔 .Frompoint𝑥9 themothershipretrieves
+1 𝑅
+in which a given fraction of each edge must be visited. Indeed, in the first drone and, eventually, from point 𝑥10 it retrieves also the
+𝑅
+the first case, the relative gap ranges between 0 and 50, while in second drone. We can notice that the retrieving point 𝑥10 coincides
+𝑅
+the second case, between 0 and 20. Thus, we can conclude that the withtheexitingpointforthedroneattheendofitsvisitofthegraph
+matheuristicprovidesverygoodqualitysolutionsinashortcomputing 𝑔 .Themothershiptoursendsatthedestination,thatforthisexample
+3
+times, especially for the version of the problem in which a given coincideswiththeorigin.
+fractionofeachedgemustbevisited. InFig.15weshowalsothezoomonthetouroneachtargetgraph.
+For illustrative purposes, Fig. 13 shows one of the instances with Thebluepointrepresentstheenteringpointinthegraphandtheyellow
+fivegraphsandtwodronesadoptedfortheexperimentalresults.Fig.14 one represents the exiting point from the graph. The dotted arrows
+reports the solution of the partial overlapping version of the problem showsthepathfollowedbythedronestovisiteachtargetgraph.
+forthisinstanceandazoomonthemothershiptour.Wecanobserve
+that the origin (the black square) is the first launching point for the
+6.1. Comparingthesolutionsfordifferentconfigurationsoftheproblem
+firstdrone(whosepathisrepresentedwithgreendottedlines)tovisit
+the graph 𝑔 . Then, the mothership moves to point 𝑥2 for launching
+3 𝐿
+the second drone (whose path is represented with red dotted lines) Inthissubsection,wecomparetherelationshipbetweenthenumber
+thatvisitsthegraph𝑔 .Successively,themothershipmovestopoint𝑥3 ofdronesavailableandtheirenduranceandthevalueoftheobjective
+5 𝑅
+forretrievingthesamedrone.Frompoint𝑥4 themothershiplaunches function obtained with the exact algorithm of the problem. In this
+𝐿
+again the second drone to visit the graph 𝑔 . We can notice that this experiment, we have generated a single instance with three target
+2
+latterlaunchingpointcoincidesalsowiththeenteringpointinthefirst graphsforeachcombinationoftheparameterslistedinTable6.
+17
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.13. Exampleofinstancewith5graphs.
+Fig.14. SolutionfortheinstanceofFig.13andzoomonthemothershiptour.
+Fig. 16 reports the objective value that depends on these param- their houses with many flowers trying to win the award offered by
+eters. The darker the intensity of the colour, the lower the objective the Municipality. During this competition, a festival is run in parallel
+value.Asexpected,ourexperimentconfirmsthatboththelargernum- with several artistic performances along six different paths located
+ber of drones and the greater endurance reduce the makespan of the in different areas of the city, as shown in Fig. 17. In context of the
+mothershiproute. pandemic, to monitor the situation to avoid concentration of people,
+we propose applying a system consisting of a helicopter and a fleet
+7. Casestudy of two drones. This kind of system has been tested successfully and
+hasalreadybeenappliedinthemilitaryfieldbytheUSArmytoleave
+In this section, we describe a realistic application of the system the helicopter at the edge of dangerous airspace and release drones,
+studied in this paper to perform surveillance operations. Considering whichwillthenpenetrateenemyterritoryandsendbackintelligence,
+the experienced COVID-19 restrictions, we focus on the problem of surveillance,andreconnaissanceinformation(seeReim(2020)).Inour
+preventing and identifying possible concentrations of people during application,thereasonforadoptingasimilarsystemisthepossibility
+eventssuchaspopularorreligiousfestivals.Inparticular,weconsider ofsimultaneouslyinspectingdifferentpathsinreal-time,alsoreducing
+theCordobaCourtyardsFestival(https://patios.cordoba.es/es/).Thisis the risk of flying the helicopter over populated areas and the cost of
+asocialeventthattakesplaceeveryyearinthecityofCordoba,Spain, movingthehelicopterbyminimisingthetotallengthofitstour.
+duringthefirsttwoweeksofMay.Theownersofthecourtsdecorate
+18
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.15. Zoomonthetouroneachtargetgraphs.
+Fig.16. Heatmapofthevaluesoftheobjectivefunctiondependingonthethenumberofdronesanddroneendurances.Thedarkerthecolourintensity,thelowertheobjective
+value.
+WerunthemodelspresentedinSection3inthisscenariostarting visited(inspected).AswecanseeinFigs.18and19,theoriginofthe
+from the initial solution provided by the matheuristic, where the 6 mothershiptourcoincideswiththedestinationandislocatedinanarea
+coloured paths reported on the map of Fig. 17 represent the 6 target ofthecitywhereitispossibletotakeoffandlandthehelicopter.Fig.18
+graphs to be visited, in this case, inspected, by the drone fleet. In reports the tour followed by the helicopter in solving the complete
+addition, we assume that the drone speed is 43 km/h, while that of overlappingversionoftheproblem,after4hofrunningtime.Wecan
+thehelicopteris30km/hwiththeaimtominimisecosts.Furthermore, observethatthehelicopter,startingfromtheorigin,fliestothepoint𝑥1
+𝑅
+weassumethatthefleetconsistsoftwodroneswithenduranceequal whichisthefirstretrievalpoint,coincidingwiththesecondlaunching
+to 7.5 min, and we impose that each target graph must be fully point𝑥2.Thenitfliesalongtheedgeconnecting𝑥1 with𝑥2,thatis,the
+𝐿 𝑅 𝑅
+19
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.17. MapoftheCourtyardsFestivalinCordoba.
+secondretrievalpoint,whichcoincideswiththethirdlaunchingpoint helicopterfliestothepoint𝑥5 wheretheotherdroneisretrieved.From
+𝑅
+𝑥3. The helicopter then flies to 𝑥3 to retrieve the drone completing the same point 𝑥5 = 𝑥6 this latter drone is then launched to inspect
+𝐿 𝑅 𝑅 𝐿
+the third mission. From the same point, the fourth and last mission the path of ‘‘Santa Maria-San Agustin’’. Both drones are retrieved by
+starts and ends at the point 𝑥4, which is also the final destination of the helicopter at the point 𝑥7 = 𝑥8. From this latter point 𝑥8 = 𝑥9
+𝑅 𝑅 𝑅 𝑅 𝐿
+thehelicoptertour. onedroneislaunchedtovisitthepathof‘‘Regina-Realejo’’.Then,the
+Fig. 18 also shows the tour (the violet and the red dotted paths) helicopter flies to the point 𝑥1 𝐿 0 from where the other drone starts its
+followed by the two drones to inspect the six paths. In particular, last visit to the path of ‘‘San Lorenzo’’. Finally, the helicopter flies to
+one drone starts from the origin (𝑜𝑟𝑖𝑔 = 𝑥1) to visit the path of the destination 𝑑𝑒𝑠𝑡 and along its path, it retrieves the first drone at
+‘‘Alcazar Viejo’’. It is retrieved by the helicop 𝐿 ter at the point 𝑥1 𝑅 and thepoint𝑥1 𝑅 1 andthentheotheratthepoint𝑥1 𝑅 2.Inthiscase,asinthe
+from the same point both drones are launched to visit, respectively, solutionofthecompleteoverlappingversionoftheproblem,wehave
+the paths of ‘‘Juderia-San Francisco’’ and ‘‘Santa Maria-San Agustin’’. oneedgeofthegraphassociatedwiththepathof‘‘Regina-Realejo’’and
+Bothdronesendtheirmissionatthepoint𝑥2.Fromthislastpoint,they oneedgeof thegraphrepresentingthepathof‘‘SanLorenzo’’,which
+𝑅
+are launched to perform the visits to the paths of ‘‘San Lorenzo’’ and are traversed twice represented with dotted segments in Fig. 19. The
+‘‘Regina-Realejo’’.Then,bothdronesareretrievedbythehelicopterat total travel time of the helicopter is 19 min. It is slightly lower than
+thepoint𝑥3 whereonlyonedronestartsitslastmissiontovisitthepath that associated with the solution of the complete overlapping version
+𝑅
+of‘‘Santiago-SanPedro’’.Meanwhile,thehelicopter,whichcontainsthe of the problem. Therefore, even if in this scenario we cannot observe
+otherdrone,fliestothepoint𝑥4 =𝑑𝑒𝑠𝑡whereitretrievestheotherand significant changes in terms of the objective function value, we can
+𝑅
+endsitstour.Totaltimetakenbyhelicopterisapproximately21min. seehowthedifferentassumptionsassociatedwiththetwoversionsof
+Wecanobservethatinthedronetouronthegraphs‘‘SanLorenzo’’and theproblemcaninfluencethestructureofthesolution,byproducing
+‘‘Regina-Realejo’’, there are two edges whose duplicate is represented a different schedule of drone missions and a different location of the
+by a dotted segment in Fig. 18. They are associated with edges of launchandretrievalpoints.
+the graph that are visited once, but travelled twice by the drone, in Alldetailsofthiscasestudy,includingmapcoordinates,.lpmodels
+order to perform the inspection of the entire graph. Fig. 19 shows andsolutionscanbefoundinPuertoandValverde(2021).
+thesolutionofthepartialoverlappingversionoftheproblem,always
+obtained by setting a time limit of 4 h. In this case, we can observe
+8. Concludingremarks
+that the helicopter follows a different tour and that there are more
+launchandretrievalpointsduetothepossibilityoflaunchingthedrone
+beforeretrievingtheother.FromFig.19wecanalsoseethat,unlike This paper has analysed the coordination problem that arises be-
+thecompleteoverlappingversion,bothdronesstarttheirfirstmission tweenamothershipvehicleandafleetofdronesthatmustcoordinate
+fromtheorigin𝑜𝑟𝑖𝑔 =𝑥1 =𝑥2.Onedronevisitsthepathof‘‘Alcazar their routes to minimise the makespan while visiting a set of targets
+𝐿 𝐿
+Viejo’’, while the other visits the path of ‘‘Santiago-San Pedro’’. The modelledbygraphs.Wehavepresentedexactmixed-integernon-linear
+firstisretrievedbythehelicopteratthepoint𝑥3 andislaunchedagain programmingformulationsoftheproblemforitscompleteandpartial
+𝑅
+from the point 𝑥4. From this latter point, this drone starts its second overlapping versions. Furthermore, we strengthen the models with
+𝐿
+mission to visit the path of ‘‘Juderia-San Francisco’’. Meanwhile, the somevalidinequalitiesforthem.
+20
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Fig.18. Thecompleteoverlappingsolution(CO).
+Fig.19. Thepartialoverlappingsolution(PO).
+Our computational results show that problem considered is very that reason, additionally, we have proposed a matheuristic algorithm
+challenging to solve even in small and medium-sized instances. For that provides good quality feasible solutions in a short computing
+21
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+time; so that it is a good alternative to the exact method. We report Table7
+extensivecomputationalexperimentsonrandomlygeneratedinstances. NomenclatureforAMMDRPGwithanon-homogeneousfleetofdrones.
+Furthermore, we present a case study related to inspection activities Problemparameters
+in the context of COVID-19 restrictions. We show the application of 𝑜𝑟𝑖𝑔:coordinatesofthepointdefiningtheoriginofthemothershippath(ortour).
+thesystemdescribedinthisarticleintheframeworkoftheCourtyards 𝑑𝑒𝑠𝑡:coordinatesofthepointdefiningthedestinationofthemothershippath(or
+Festival in the city of Cordoba, illustrating the solution obtained by tour).
+adoptingtheformulationoftheproblem,inbothversionsofthemodel, :setofthetargetgraphs.
+anditssolutionbymeansoftheinitialisationprovidedbytheproposed 𝑔=(𝑉 𝑔 ,𝐸 𝑔):setofnodesandedgesofeachtargetgraph𝑔∈.
+mat T h h e e ur f i o s r t m ic. ulationandalgorithmsproposedinthispapercanbeseen 𝐵   ( ( 𝑒 𝑒 𝑔 𝑔, 𝑔 ) 𝐶 ) = : 𝑒𝑔 l ∑ e : n 𝑒 c g 𝑔 o ∈ t o h 𝐸 r 𝑔 d o  i f n (𝑒 a e 𝑔 d t ) e g : s e to o 𝑒 t f a o t l h f l e e g n r e a g n p t d h h p o o 𝑔 f in ∈ t t h s  e . o g f r e a d p g h e 𝑔 𝑒 ∈ of . graph𝑔∈.
+as the first building block for coordination systems composed of a 𝛼𝑒𝑔:fractionofedge𝑒ofgraph𝑔∈thatmustbevisited.
+base vehicle and several drones. Further research on this topic must 𝛼𝑔:fractionofgraph𝑔∈thatmustbevisited.
+focusonfindingfasterandmoreaccuratealgorithmscapableofsolving 𝑣 𝑀:mothershipspeed.
+:setofdrones.
+largerinstances.Otherextensionsthatmaybeconsideredcantakeinto
+accountthatthetimethemothershiptakestolaunchandretrievethe 𝑣 𝑁 𝛿 𝛿 : : d d r r o o n n e e 𝛿 𝛿 s e p n e d ed u . rance.
+dronesisnotnegligible,aswellashandlethespeedofthemothership :setofdroneoperationstoperformvisitstothetargetgraphs
+and the drones as decision variables. Eventually, it is also possible to 𝑀:big-Mconstant.
+consider different shape of the graphs edges, like curve lines instead
+of straight lines. These problems are very interesting and beyond the
+scopeofthispaperandwillbethefocusofafollow-upresearchline. Eachedge𝑒
+𝑔
+isparameterisedbyitsendpoints𝐵𝑒𝑔 =(𝐵𝑒𝑔(𝑥
+1
+),𝐵𝑒𝑔(𝑥
+2
+))
+CRediTauthorshipcontributionstatement
+a
+‖
+n
+𝐶
+d
+𝑒𝑔
+𝐶
+−
+𝑒𝑔
+𝐵𝑒
+=
+𝑔‖.
+(𝐶𝑒𝑔(𝑥
+1
+),𝐶𝑒𝑔(𝑥
+2
+)) and we can compute its length (𝑒
+𝑔
+) =
+Lavinia Amorosi: Conceptualization, Methodology, Formal analy-
+Foreachedge𝑒
+𝑔
+anindicatorbinaryvariable𝜇𝑒𝑔 isassociatedthat
+is, one if the drone visits the segment 𝑒 . Furthermore, we define the
+sis,Writing–originaldraft,Writing–review&editing,Visualization. entryandexitpoints𝑅𝑒𝑔 =(𝐵𝑒𝑔,𝐶𝑒𝑔,𝜌𝑒𝑔 𝑔 )and𝐿𝑒𝑔 =(𝐵𝑒𝑔,𝐶𝑒𝑔,𝜆𝑒𝑔)that
+Justo Puerto: Supervision, Conceptualization, Methodology, Formal
+determinethefractionoftheedgevisitedbythedrone.Thecoordinates
+analysis, Writing – original draft, Writing – review & editing. Carlos ofthepoints𝑅𝑒𝑔 and𝐿𝑒𝑔 aregiven,respectivelyby
+Valverde:Conceptualization,Methodology,Formalanalysis,Software,
+Writing–originaldraft,Writing–review&editing,Visualization. 𝑅𝑒𝑔 =𝜌𝑒𝑔𝐵𝑒𝑔+(1−𝜌𝑒𝑔)𝐶𝑒𝑔 and 𝐿𝑒𝑔 =𝜆𝑒𝑔𝐵𝑒𝑔+(1−𝜆𝑒𝑔)𝐶𝑒𝑔,
+Dataavailability
+where𝜌𝑒𝑔 ∈[0,1]and𝜆𝑒𝑔 ∈[0,1]arevariablestodeterminetheposition
+ofthepointsinthesegment.
+Datawillbemadeavailableonrequest. As discussed in Section 2, we consider two modes of visit to the
+targetgraphs𝑔∈:
+Acknowledgements (i) Visitingafraction𝛼𝑒𝑔 ofeachedge𝑒
+𝑔
+whichcanbemodelledby
+usingthefollowingconstraints:
+ThisresearchhasbeenpartiallysupportedbytheSpanishMinistry
+ofEducationandScience/FEDERgrantnumberPID2020-114594GB02, |𝜆𝑒𝑔−𝜌𝑒𝑔| ≥𝛼𝑒𝑔, ∀𝑒
+𝑔
+∈𝐸
+𝑔
+. (𝛼-E)
+projectsJuntadeAndaluciaP18-FR-1422,FEDER-US-1256951,CEI-3-
+FQM331, NetmeetData: Ayudas Fundación BBVA a equipos de inves- Theseinequalitiesstatethatthedifferencebetweentheparame-
+tigación científica 2019, University of Rome, Sapienza grant number terisationsoftheentryandexitpointsassociatedwithwitheach
+RM11916B7F962975andMinisteriodeUniversidades, grantnumber edge 𝑒 𝑔 must be greater than the fraction of the length of 𝑒 𝑔
+FPU2018-04591. requiredfortraverse.
+(ii) Visitafraction𝛼𝑔 ofthetotallengthofthegraph:
+Appendix ∑ 𝜇𝑒𝑔|𝜆𝑒𝑔−𝜌𝑒𝑔| (𝑒
+𝑔
+)≥𝛼𝑔(𝑔). (𝛼-G)
+𝑒𝑔∈𝐸𝑔
+In this section, we report an extension of the MINLP formulation
+presentedinSection3todealwiththecaseofnon-homogeneousfleets Thisconstraintensuresthatthesumofthefractionsofthelength
+of drones. We introduce the parameters or input data that formally of the edges chosen to be crossed must be greater than the
+describetheproblemandaresummarisedinTable7. fractionofthelengthof𝑔thatmustbetraversed.
+The formulation in this appendix is quite similar to the one in
+In both cases, the corresponding constraints are non-linear. To
+Section 3.1 but, due to the assumption of non-homogeneous drones, linearisethem,weneedtointroduceabinaryvariableentry𝑒𝑔 thatde-
+it needs to keep track of the drones used in each action. This implies
+terminesthedirectionoftravelattheedge𝑒 ,aswellasthedefinition
+includinganextraindex𝛿inmostvariables.Forthesakeofcomplete-
+of the auxiliary variables 𝜈
+𝑒𝑔
+and 𝜈
+𝑒𝑔
+of t
+𝑔
+he access and exit points
+ness,weincludethecompletesetofconstraintsoftheseformulations, min max
+inthatsegment.Then,foreachedge𝑒 ,theabsolutevalueconstraint
+although some of them are similar to those in Section 3.1. Table 8 𝑔
+(𝛼-E)canberepresentedby:
+summarisesallthedecisionvariablesusedinthisformulation.
+⎧ 𝜌𝑒𝑔−𝜆𝑒𝑔 = 𝜈 m 𝑒𝑔 ax −𝜈 m 𝑒𝑔 in ,
+Visitstographs ⎪ 𝜈 𝑒𝑔 ≤ 1−entry𝑒𝑔,
+⎪ max
+Regarding the case of a homogeneous fleet of drones presented in
+|𝜌𝑒𝑔−𝜆𝑒𝑔| ≥𝛼𝑒𝑔 ⟺ ⎪
+⎨
+𝜈
+m
+𝑒𝑔
+in
+≤ entry𝑒𝑔, (𝛼-E)
+Section3,torepresentthemovementofthedronewithinagraph𝑔∈, ⎪𝜈 𝑒𝑔 ,𝜈 𝑒𝑔 ≥ 0,
+⎪ min max
+a
+w
+g
+e
+r
+p
+a
+r
+p
+o
+h
+ce
+in
+ed
+
+t
+w
+o
+h
+in
+o
+t
+s
+r
+e
+o
+t
+d
+o
+u
+t
+c
+a
+e
+ll
+s
+e
+o
+n
+m
+g
+e
+th
+n
+i
+o
+s
+t
+d
+a
+e
+ti
+n
+o
+o
+n
+t
+s
+ed
+re
+b
+la
+y
+te
+
+d
+(𝑔
+to
+).
+𝑔
+H
+.
+e
+L
+r
+e
+e
+t
+,
+𝑔
+𝑉
+=
+d
+(
+e
+𝑉
+n
+𝑔
+o
+,
+t
+𝐸
+e
+𝑔
+s
+)
+th
+b
+e
+e ⎪ ⎩𝜈
+m
+𝑒𝑔
+ax
++𝜈
+m
+𝑒𝑔
+in
+≥ 𝛼𝑒𝑔.
+𝑔
+setofnodesand𝐸 denotesthesetofedgesconnectingpairsofnodes. Thefirstfourinequalitiesmodelthestandardtrickoflinearisation
+𝑔
+Let 𝑒 be the edge 𝑒 of the graph 𝑔 ∈ 𝐺 and let (𝑒 ) be its length. of the absolute value. The last constraint ensures that the value of
+𝑔 𝑔
+22
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Table8
+DecisionvariablesforAMMDRPGwithanon-homogeneousfleetofdrones.
+Binaryandintegerdecisionvariables
+𝜇𝑒𝑔∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):equalto1ifedge𝑒ofgraph𝑔(orafractionofit)isvisitedbythedrone,0otherwise.
+entry𝑒𝑔∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):auxiliarybinaryvariableusedforlinearisingexpressions.
+𝑢𝑒𝑔𝑜𝛿∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈, ∀𝛿∈:equalto1ifthedrone𝛿entersingraph𝑔bytheedge𝑒
+𝑔
+atoperation𝑜,
+0otherwise.
+𝑧𝑒𝑔𝑒′ 𝑔∈{0,1}, ∀𝑒 𝑔 ,𝑒′ 𝑔 ∈𝐸 𝑔 (𝑔∈):equalto1ifthedronegoesfrom𝑒 𝑔 to𝑒′ 𝑔 ,0otherwise.
+𝑣𝑒𝑔𝑜𝛿∈{0,1}, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈, ∀𝛿∈:equalto1ifthedrone𝛿exitsfromgraph𝑔by𝑒
+𝑔
+atoperation𝑜,
+0otherwise.
+Continuousdecisionvariables
+𝑠𝑒𝑔∈[0,|𝐸 𝑔|−1], ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):continuousnon-negativevariablerepresentingtheorderofvisittotheedge𝑒ofgraph𝑔.
+𝜌 𝜈 m 𝑒 𝑒 𝑔 𝑔 in ∈ a [ n 0 d ,1 𝜈 ] m 𝑒 a 𝑔 a n x d ∈ 𝜆 [ 𝑒 0 𝑔 ,1 ∈ ], [0 ∀ , 𝑒 1 𝑔 ], ∈ ∀ 𝐸 𝑒 𝑔 𝑔 ∈ (𝑔 𝐸 ∈ 𝑔  (𝑔 ): ∈ au  x ): ili d a e r f y in v in ar g ia t b h l e es en u t s r e y d a f n o d rl e i x n i e t a p ri o s i i n n t g s e o x n pr 𝑒 e 𝑔 s . sions.
+𝑝𝑒𝑔∈[0,1], ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):auxiliaryvariableusedformodellingtheproductof𝜇𝑒𝑔 and|𝜆𝑒𝑔−𝜌𝑒𝑔|.
+𝑥𝑜 ∈R2, ∀𝑜∈:coordinatesrepresentingthepointwherethemothershiplaunchesthedronesatoperation𝑜.
+𝐿
+𝑥𝑜 ∈R2, ∀𝑜∈:coordinatesrepresentingthepointwherethemothershipretrievesthedronesatoperation𝑜.
+𝑅
+𝑅𝑒𝑔∈R2, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):coordinatesrepresentingtheentrypointonedge𝑒
+𝑔
+ofgraph𝑔.
+𝐿𝑒𝑔∈R2, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈):coordinatesrepresentingtheexitpointonedge𝑒
+𝑔
+ofgraph𝑔.
+𝑑
+𝐿
+𝑒𝑔𝑜𝛿≥0, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈, ∀𝛿∈:representingthedistancetravelledbythedrone𝛿fromthelaunching
+point𝑥𝑜
+𝐿
+onthemothershipatoperation𝑜tothefirstvisitingpoint𝑅𝑒𝑔 on𝑒 𝑔.
+𝑝𝑒
+𝐿
+𝑔𝑜𝛿≥0, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈, ∀𝛿∈:auxiliaryvariableusedformodellingtheproductof𝑑
+𝐿
+𝑒𝑔𝑜𝛿 and𝑢𝑒𝑔𝑜𝛿.
+𝑑𝑒𝑔≥0, ∀𝑒 𝑔∈𝐸 𝑔 (𝑔∈):representingthedistancetravelledbythedronefromtheretrievalpoint𝑅𝑒𝑔 tothe
+launchingpoint𝐿𝑒𝑔 on𝑒 𝑔.
+𝑑𝑒𝑔𝑒′ 𝑔≥0, ∀𝑒 𝑔 ,𝑒′ 𝑔 ∈𝐸 𝑔 (𝑔∈):representingthedistancetravelledbythedronefromthelaunchingpoint𝐿𝑒𝑔 on𝑒 𝑔 to
+theretrievalpoint𝑅𝑒′ 𝑔 on𝑒′ 𝑔 .
+𝑝𝑒𝑔𝑒′ 𝑔≥0, ∀𝑒 𝑔 ,𝑒′ 𝑔 ∈𝐸 𝑔 (𝑔∈):auxiliaryvariableusedformodellingtheproductof𝑑𝑒𝑔𝑒′ 𝑔 and𝑧𝑒𝑔𝑒′ 𝑔.
+𝑑
+𝑅
+𝑒𝑔𝑜𝛿≥0, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈, ∀𝛿∈:representingthedistancetravelledbythedrone𝛿fromthelastvisitingpoint
+𝐿𝑒𝑔 on𝑒
+𝑔
+totheretrievalpoint𝑥𝑜
+𝑅
+onthemothershipatoperation𝑜.
+𝑝𝑒
+𝑅
+𝑔𝑜𝛿≥0, ∀𝑒 𝑔∈𝐸
+𝑔
+(𝑔∈), ∀𝑜∈, ∀𝛿∈:auxiliaryvariableusedformodellingtheproductof𝑑
+𝑅
+𝑒𝑔𝑜𝛿 and𝑣𝑒𝑔𝑜𝛿.
+𝑑 𝑜𝑟𝑖𝑔 ≥0:distancefromtheorigin𝑜𝑟𝑖𝑔tothefirstlaunchingpoint𝑥1 𝐿 .
+𝑑𝑜 ≥0, ∀𝑜∈:representingthedistancetravelledbythemothershipfromthelaunchingpoint𝑥𝑜 totheretrieval
+𝐿𝑅 𝐿
+point𝑥𝑜 atoperation𝑜.
+𝑅
+𝑑
+𝑅
+𝑜
+𝐿
+≥0, ∀𝑜∈⧵|  |:representingthedistancetravelledbythemothershipfromtheretrievalpoint𝑥𝑜
+𝑅
+atoperation𝑜tothe
+launchingpoint𝑥(𝑜+1) atoperation𝑜+1.
+𝑑
+𝑑𝑒𝑠𝑡
+≥0:distancefromth 𝐿 elastretrievalpoint𝑥|
+𝑅
+| tothedestination𝑑𝑒𝑠𝑡.
+𝑡𝑖𝑚𝑒𝑜 ≥0, ∀𝑜∈:maximumtimespentbyadroneduringoperation𝑜.
+𝐷
+𝑡𝑖𝑚𝑒𝑜 ≥0, ∀𝑜∈:timespentbythemothershiptogofromthelaunchingpoint𝑥𝑜 totheretrievalpoint𝑥𝑜 ofoperation𝑜.
+𝑀 𝐿 𝑅
+𝑡𝑖𝑚𝑒
+𝑀
+≥0:totaltimespentbythemothershiptogofromtheorigintothedestination(makespan).
+thelinearexpressionoftheabsolutevalueishigherthantherequired Eliminationofsubtours
+fraction𝛼𝑒𝑔.
+As already presented in Section 3, to prevent the existence of
+subtours within each graph 𝑔 ∈  that the drone must visit, one
+Similarly,(𝛼-G)canbelinearisedasfollows:
+can include, among others, the compact formulation that uses Miller-
+Tucker-Zemlin constraints (MTZ) or subtour elimination constraints
+𝑒𝑔
+∑
+∈𝐸𝑔
+𝜇𝑒𝑔|𝜌𝑒𝑔−𝜆𝑒𝑔| (𝑒
+𝑔
+)≥𝛼𝑔(𝑔). (SEC
+Fo
+).
+rtheMTZformulation,weusecontinuousvariables𝑠𝑒𝑔,defined
+⎧ 𝜌𝑒𝑔−𝜆𝑒𝑔 = 𝜈 m 𝑒𝑔 ax −𝜈 m 𝑒𝑔 in , i f n oll T o a w b i l n e g 8 c , on w st h r i a c i h nts st f a o t r e e t a h c e h o 𝑔 rd ∈ e  r : to visit the edge 𝑒 𝑔 and set the
+⟺ ⎪ ⎪ ⎪ ⎪ ⎪ ⎪ 𝜈 m 𝑒𝑔 i 𝜈 𝜈 n m 𝑒 m 𝑒 , 𝑔 𝑔 a i 𝜈 n x m 𝑒𝑔 ax ≤ ≥ ≤ e 0 1 n , − tr e y n 𝑒𝑔 tr , y𝑒𝑔, (𝛼-G) 𝑠𝑒𝑔−𝑠𝑒′ 𝑔+|𝐸 𝑔|𝑧𝑒𝑔𝑒 0 ′ 𝑔 ≤ ≤ 𝑠 |𝐸 𝑒𝑔 𝑔| ≤ − |𝐸 1, 𝑔|−1, ∀𝑒 𝑔 ≠ ∀ 𝑒 𝑒 ′ 𝑔 𝑔 ∈ ∈ 𝐸 𝐸 𝑔 𝑔 , . ( ( M M T T Z Z 1 2 ) )
+⎨ ⎪ ⎪ ⎪ ⎪ ⎪ 𝑝 𝑝 𝑝 𝑒 𝑒 𝑒 𝑔 𝑔 𝑔 ≥ ≤ ≤ 𝜈 𝜈 𝜇 m m 𝑒 𝑒 𝑒 𝑔 𝑔 𝑔 a a , x x + + 𝜈 𝜈 m m 𝑒 𝑒 𝑔 𝑔 i i n n , +𝜇𝑒𝑔−1, co ∑ n A st l r t a e 𝑧 i r n 𝑒 𝑔 n 𝑔 t a 𝑒 s ′ 𝑔 ti f ≤ v o e r | l 𝑆 y ea , | c − w h 1 e 𝑔 , c ∈ a ∀ n  𝑆 : a ⊂ lso 𝐸 𝑔 u . se the family of subtour elimin ( a S t E io C n )
+⎪
+⎩
+∑
+𝑒𝑔∈𝐸𝑔
+𝑝𝑒𝑔(𝑒
+𝑔
+) ≥ 𝛼𝑔(𝑔), 𝑒𝑔,𝑒′ 𝑔∈𝑆
+To find the SEC inequalities, as usual, we search for disconnected
+componentsinthecurrentsolution.Amongthem,wechoosetheshort-
+where 𝑝𝑒𝑔 is the auxiliary variable that represents the product of the estsubtourfoundinthesolutiontobeaddedasalazyconstrainttothe
+binaryvariable𝜇𝑒𝑔 andthedifferenceinabsolutevalues|𝜌𝑒𝑔−𝜆𝑒𝑔|.The model.
+firstfourinequalitiesagainlinearisetheabsolutevalueexpression.The
+followingthreeconstraintsmodeltheproductoftheexpressionofthe Droneconstraints
+absolutevalueandthebinaryvariable𝜇𝑒𝑔.Thelastinequalityensures
+thatthefractionofthelengthofthoseedgeschosentobecrossedmust To model this problem, as described in Section 3.1, we adopt the
+begreaterthanthefractionofthelengthof𝑔requiredtobetraversed. conceptofoperation.Letusdenotebythesetofoperationsthatthe
+23
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+mothershipanddronefleethavetoperform.Theseoperationsarevisits thefollowingconstraints:
+𝑜 to ∈ th  e r d e i f f e f r e s re to nt th g e ra e p v h e s n i t n in  w w h it ic h h th th e e r m eq o u t i h r e e r d sh c i o p n l s a tr u a n i c n h ts e . s A s n om op e e d r r a o t n io e n s ‖𝑥𝑜 𝐿 −𝑅𝑒𝑔‖ ≤𝑑 𝐿 𝑒𝑔𝑜𝛿 , ∀𝑒 𝑔 ∈𝐸 𝑔 ∶𝑔∈,∀𝑜∈,∀𝛿∈,
+fromatake-offlocation,denotedby𝑥𝑜 𝐿 andthentakesthembacktoa (DroneDIST𝛥 1 -CO)
+retrievallocation𝑥𝑜
+𝑅
+. ‖𝑅𝑒𝑔−𝐿𝑒𝑔‖ ≤𝑑𝑒𝑔, ∀𝑒
+𝑔
+∈𝐸
+𝑔
+∶𝑔∈,
+For each operation 𝑜 ∈ , each of the drones launched from the (DroneDIST𝛥-CO)
+2
+m
+m
+o
+o
+t
+t
+h
+h
+e
+e
+r
+r
+s
+s
+h
+h
+i
+i
+p
+p,
+m
+w
+u
+h
+s
+il
+t
+e
+f
+v
+o
+i
+l
+s
+l
+i
+o
+t
+w
+ing
+a
+th
+p
+e
+at
+r
+h
+eq
+t
+u
+h
+i
+a
+re
+t
+d
+st
+e
+a
+d
+r
+g
+ts
+es
+fr
+o
+o
+f
+m
+𝑔.
+and returns to the ‖𝑅𝑒𝑔−𝐿𝑒′ 𝑔‖ ≤𝑑𝑒𝑔𝑒′ 𝑔, ∀𝑒
+𝑔
+≠𝑒′
+𝑔
+∈𝐸
+𝑔
+∶𝑔∈,
+(DroneDIST𝛥-CO)
+To include the definition of these paths in our mathematical pro- 3
+grammingformulation,weneedtomakedecisionstochoose: ‖𝐿𝑒𝑔−𝑥𝑜 𝑅‖ ≤𝑑 𝑅 𝑒𝑔𝑜𝛿 , ∀𝑒 𝑔 ∶𝑔∈,∀𝑜∈,∀𝛿∈,
+(DroneDIST𝛥-CO)
+(i) The optimal assignment of drones to visit graphs in a given 4
+operation𝑜. ‖𝑜𝑟𝑖𝑔−𝑥1 𝐿‖ ≤𝑑 𝑜𝑟𝑖𝑔 , (MothershipDIST𝛥 1 -CO)
+(ii) The ordertovisit the edges ofeach graph inits corresponding ‖𝑥𝑜 𝐿 −𝑥𝑜 𝑅‖ ≤𝑑 𝐿 𝑜 𝑅 , ∀𝑜∈.
+operation. (MothershipDIST𝛥-CO)
+2
+𝑢𝑒𝑔𝑜 W 𝛿, e 𝑧𝑒 m 𝑔𝑒 o ′ 𝑔 d a e n l d th 𝑣 e 𝑒𝑔 r 𝑜 o 𝛿 u d te ef t i h n a e t d th in ed T r a o b n l e e f 8 o . llowsusingthebinaryvariables ‖𝑥𝑜 𝑅 −𝑥𝑜 𝐿 +1 ‖ ≤𝑑 𝑅 𝑜 𝐿 , ∀𝑜 ( ∈ M  ot ∶ h 𝑜 e < rsh |  ip |, DIST𝛥-CO)
+3
+∑ ∑ 𝑢𝑒𝑔𝑜𝛿≤1, ∀𝑜∈,∀𝛿∈. ‖𝑥|
+𝑅
+|−𝑑𝑒𝑠𝑡‖ ≤𝑑
+𝑑𝑒𝑠𝑡
+, (MothershipDIST𝛥
+4
+-CO)
+𝑔∈𝑒𝑔∈𝐸𝑔
+Thus, we can express the time that a drone 𝛿 ∈  takes to visit a
+(DroneROUTE𝛥
+1
+-CO) graph𝑔∈duringoperation𝑜∈asfollows:
+∑ ∑ 𝑣𝑒𝑔𝑜𝛿≤1, ∀𝑜∈,∀𝛿∈.
+𝑔∈𝑒𝑔∈𝐸𝑔 𝑡𝑖𝑚𝑒𝑜≥ 1 ⎛ ⎜ ∑ 𝑢𝑒𝑔𝑜𝛿𝑑 𝑒𝑔𝑜𝛿 + ∑ 𝑧𝑒𝑔𝑒′ 𝑔𝑑𝑒𝑔𝑒′ 𝑔+ ∑ 𝜇𝑒𝑔𝑑𝑒𝑔
+(DroneROUTE𝛥 2 -CO) 𝛿 𝑣 𝛿 ⎜ ⎝𝑒𝑔∈𝐸𝑔 𝐿 𝑒𝑔,𝑒′ 𝑔∈𝐸𝑔 𝑒𝑔∈𝐸𝑔
+𝑒𝑔
+∑
+∈𝐸𝑔𝑜
+∑
+∈𝛿
+∑
+∈
+𝑢𝑒𝑔𝑜𝛿=1, ∀𝑔∈,
++ ∑ 𝑣𝑒𝑔𝑜𝛿𝑑 𝑅 𝑒𝑔𝑜𝛿 ⎞ ⎟−𝑁 𝛿 (1− ∑ 𝑢𝑒𝑔𝑜𝛿) (DroneTIME𝛥 𝑜 -CO)
+(DroneROUTE𝛥-CO) 𝑒𝑔∈𝐸𝑔 ⎟ ⎠ 𝑒𝑔∈𝐸𝑔
+3
+∑ ∑∑ 𝑣𝑒𝑔𝑜𝛿=1, ∀𝑔∈, The first addend within the brackets in the RHS of the constraint
+𝑒𝑔∈𝐸𝑔𝑜∈𝛿∈ (DroneTIME𝛥 𝑜 -CO),accountsforthetimespentbythedrone𝛿todepart
+(DroneROUTE𝛥-CO)
+fromthelaunchpoint𝑥𝑜
+𝐿
+tothefirstretrievalpointonthegraph𝑅𝑒𝑔.
+∑ 𝑢𝑒𝑔𝑜𝛿= ∑ 𝑣𝑒𝑔𝑜𝛿, ∀𝑔∈,∀𝑜∈,∀𝛿∈, 4 T
+fr
+h
+o
+e
+m
+se
+th
+co
+e
+n
+e
+d
+dg
+a
+e
+dd
+𝑒
+en
+t
+d
+o
+c
+𝑒
+o
+′
+ns
+o
+i
+n
+de
+t
+r
+h
+s
+e
+th
+g
+e
+ra
+t
+p
+i
+h
+me
+𝑔.
+c
+T
+on
+h
+s
+e
+u
+t
+m
+h
+e
+ir
+d
+d
+b
+c
+y
+om
+th
+p
+e
+ut
+d
+e
+r
+s
+on
+th
+e
+e
+to
+tim
+go
+e
+𝑔 𝑔
+𝑒𝑔∈𝐸𝑔 𝑒𝑔∈𝐸𝑔 requiredtotraversetherequirededgesin𝑔.Thefourthmeasuresthe
+(DroneROUTE𝛥 5 -CO) timetakentotravelfromthelastlaunchingpoint𝐿𝑒′ 𝑔 ′ totheretrieval
+∑∑ 𝑢𝑒𝑔𝑜𝛿+ ∑ 𝑧
+𝑔
+𝑒′ 𝑔𝑒𝑔 =𝜇𝑒𝑔, ∀𝑒
+𝑔
+∈𝐸
+𝑔
+∶𝑔∈, p
+on
+oi
+l
+n
+y
+t
+w
+𝑥
+h
+𝑜 𝑅
+e
+.
+n
+Th
+a
+e
+gr
+b
+a
+ig
+p
+M
+h 𝑔
+te
+i
+r
+s
+m
+vi
+e
+s
+n
+it
+s
+e
+u
+d
+re
+d
+s
+u
+t
+r
+h
+in
+a
+g
+t t
+t
+h
+h
+e
+e
+c
+o
+o
+p
+n
+e
+s
+r
+t
+a
+r
+t
+a
+i
+i
+o
+n
+n
+t b
+𝑜
+e
+b
+c
+y
+om
+th
+e
+e
+s a
+d
+c
+r
+t
+o
+i
+n
+v
+e
+e
+𝑜∈𝛿∈ 𝑒′ 𝑔∈𝐸𝑔
+𝛿.Thereadermayobservethattheenduranceconstraint(Endurance𝛥-
+(DroneROUTE𝛥-CO)
+6 CO)restrictsthetimethedronespendsperformingtheoperation𝑜to
+𝑜 ∑ ∈𝛿 ∑ ∈ 𝑣𝑒𝑔𝑜𝛿+ 𝑒′ 𝑔 ∑ ∈𝐸𝑔 𝑧 𝑔 𝑒𝑔𝑒′ 𝑔 =𝜇𝑒𝑔, ∀𝑒 𝑔 ∈𝐸 𝑔 ∶𝑔∈. b b e igM les c s o t n h s a t n an i t ts in en (D du ro ra n n e c T e IM 𝑁 𝛿 E . 𝛥 𝑜 H -C e O n ) c . e, it is possible to take 𝑁 𝛿 as the
+Inordertocomputethemaximumtimeadronecanspendvisiting
+(DroneROUTE𝛥-CO)
+7 agraph𝑔 ∈associatedwiththeoperation𝑜 ∀𝑜∈,weintroduce
+The inequalities (DroneROUTE𝛥-CO) and (DroneROUTE𝛥-CO) thefollowingconstraints:
+1 2
+state that a drone 𝛿 visits at most one graph 𝑔 at operation 𝑜. Const- 𝑡𝑖𝑚𝑒𝑜 ≥𝑡𝑖𝑚𝑒𝑜 ∀𝛿∈ (DroneMAXTIME𝛥-CO)
+raints(DroneROUTE𝛥-CO)and(DroneROUTE𝛥-CO)ensurethateach 𝐷 𝛿 𝑜
+graph is visited at 3 some operation 𝑜 by 4 some drone 𝛿. Eqs. Constraints(MothershipTIME𝛥 𝑜 -CO)definethetimethatthemoth-
+(DroneROUTE𝛥 5 -CO)ensurethattheoperationofenteringandexiting ership takes to go from the launch point 𝑥𝑜 𝐿 to the retrieval point 𝑥𝑜 𝑅
+the graph 𝑔 occurs in the same operation 𝑜 and is performed by the associatedwiththeoperation𝑜.
+samedrone𝛿.Constraints(DroneROUTE𝛥-CO)statethatifanedge𝑒 𝑑𝑜
+6 𝑡𝑖𝑚𝑒𝑜 = 𝐿𝑅 ∀𝑜∈ (MothershipTIME𝛥-CO)
+of graph 𝑔 is visited by the drone 𝛿, one of two alternative situations 𝑀 𝑣 𝑜
+𝑀
+mustoccur:either𝑒isthefirstedgeofgraph𝑔 visitedbythedrone𝛿
+Thus, the overall time spent by the mothership to move from the
+atoperation𝑜,oredge𝑒isvisitedbythedrone𝛿aftervisitinganother
+origintothedestination(makespan)canbeexpressedasfollows:
+edge𝑒′ofgraph𝑔.Similarly,constraints(DroneROUTE𝛥-CO)statethat
+ifanedge𝑒ofgraph𝑔isvisitedbythedrone𝛿,either𝑒 7 isthelastedge 𝑡𝑖𝑚𝑒 = 1 (𝑑 + ∑ (𝑑𝑜 +𝑑𝑜 )+𝑑 ) (MothershipTIME𝛥-CO)
+𝑀 𝑣 𝑜𝑟𝑖𝑔 𝐿𝑅 𝑅𝐿 𝑑𝑒𝑠𝑡
+ofgraph𝑔visitedbythedroneatoperation𝑜,orthedrone𝛿mustmove 𝑀 𝑜∈
+toanotheredge𝑒′ ofgraph𝑔aftervisitingedge𝑒.
+Coordinationandenduranceconstraints
+The coordination between the drones and the mothership must
+ensurethatthemaximumtime𝑡𝑖𝑚𝑒𝑜 spentbyadronetovisitagraph
+Distanceandtimeconstraints 𝐷
+𝑔 at operation 𝑜 is less than or equal to the time that the mothership
+ThegoaloftheAMMDRPGistofindafeasiblesolutionthatmin-
+needs to move from the launching point to the retrieval point during
+imisesthetotaltimetakenbythemothership(makespan).Toaccount
+operation𝑜.Tothisend,weneedtodefinethefollowingcoordination
+forthedifferentdistancesbetweenthedecisionvariablesofthemodel,
+we need to set the continuous variables 𝑑
+𝐿
+𝑒𝑔𝑜𝛿 , 𝑑𝑒𝑔, 𝑑𝑒𝑔𝑒′ 𝑔, 𝑑
+𝑅
+𝑒𝑔𝑜𝛿 , 𝑑
+𝑜𝑟𝑖𝑔
+,
+constraintforeachoperation𝑜∈:
+𝑑𝑜 , 𝑑𝑜 and 𝑑 defined in Table 8. This can be done by means of 𝑡𝑖𝑚𝑒𝑜 ≤𝑡𝑖𝑚𝑒𝑜 . (DCW𝛥-CO)
+𝑅𝐿 𝐿𝑅 𝑑𝑒𝑠𝑡 𝐷 𝑀
+24
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Wecanmodelthetimeenduranceconstraintforaparticularoper- distance travelled by the mothership, every launch or retrieval point
+ation𝑜∈andthedrone𝛿∈bylimitingthetimetravelledbythe is inside this circle, and the best upper bound 𝑀 𝑒𝑔𝑜𝛿 or 𝑀 𝑒𝑔𝑜𝛿 can be
+𝐿 𝑅
+drone𝛿forthisoperation𝑜: describedas:
+𝑡𝑖𝑚𝑒𝑜 𝛿 ≤𝑁 𝛿 . (Endurance𝛥-CO) 𝑀 𝑅 𝑒𝑔𝑜𝛿 = {𝑣∈𝑉𝑔∪{orig,dest},𝑣′ m ∈𝑉 a 𝑔 x ′∪{orig,dest}∶𝑔,𝑔′∈} ‖𝑣−𝑣′ ‖=𝑀 𝐿 𝑒𝑔𝑜𝛿 .
+AMMDRPG-completeoverlappingformulation(withnon-homogeneousfleet Ontheotherhand,theminimumdistanceinthiscasecanbezero.
+ofdrones) Thisboundisattainablewheneverthelaunchorretrievalpointsofthe
+Putting together all the constraints introduced before, the follow- mothershiparethesameastheretrievalorlaunchpointonthetarget
+ing formulation minimises the total time travelled by the mother- graph𝑔∈.
+ship (makespan), ensuring coordination with the drone fleet while
+guaranteeingtherequiredcoverageofthetargetgraphs. Bounds on the big𝑀 constants for the distance from the launch to the
+retrievalpointsonthetargetgraph𝑔∈
+min 𝑡𝑖𝑚𝑒
+𝑀 When the drone visits a graph 𝑔, it has to go from one edge 𝑒
+𝑔
+(AMMDRPG-COwithanon-homogeneousfleetofdrones) to another edge 𝑒′ depending on the order given by 𝑧𝑒𝑔𝑒′ 𝑔. This fact
+𝑔
+s.t. (𝛼-E)or(𝛼-G), producesaproductofvariableslinearisedbythefollowingconstraints:
+(MTZ 1 )–(MTZ 2 )or(SEC), 𝑝𝑒𝑔𝑒′ 𝑔 ≤𝑀𝑒𝑔𝑒′ 𝑔𝑧𝑒𝑔𝑒′ 𝑔,
+(DroneROUTE𝛥 1 -CO)–(DroneROUTE𝛥 7 -CO), 𝑝𝑒𝑔𝑒′ 𝑔 ≤𝑑𝑒𝑔𝑒′ 𝑔,
+(DroneDIST𝛥
+1
+-CO)–(DroneDIST𝛥
+4
+-CO), 𝑝𝑒𝑔𝑒′
+𝑔
+≥𝑚𝑒𝑔𝑒′ 𝑔𝑑𝑒𝑔𝑒′
+𝑔,
+(MothershipDIST𝛥 1 -CO)–(MothershipDIST𝛥 4 -CO), 𝑝𝑒𝑔𝑒′ 𝑔 ≥𝑑𝑒𝑔𝑒′ 𝑔−𝑀𝑒𝑔𝑒′ 𝑔(1−𝑧𝑒𝑔𝑒′ 𝑔).
+(DroneTIME𝛥-CO),(DroneMAXTIME𝛥-CO),
+𝑜 𝑜
+(MothershipTIME𝛥-CO),(MothershipTIME𝛥-CO), Since we take into account the distance between two edges 𝑒 𝑔 =
+(DCW𝛥-CO),(Endu
+𝑜
+rance𝛥-CO)
+(𝐵𝑒𝑔,𝐶𝑒𝑔),𝑒
+𝑔
+′ =(𝐵𝑒′ 𝑔,𝐶𝑒′ 𝑔)∈𝐸
+𝑔
+,themaximumdistancebetweentheir
+verticesgivesustheupperbound:
+𝑀𝑒𝑔𝑒′
+𝑔
+=max{‖𝐵𝑒𝑔−𝐶𝑒′ 𝑔‖,‖𝐵𝑒𝑔−𝐵𝑒′ 𝑔‖,‖𝐶𝑒𝑔−𝐵𝑒′ 𝑔‖,‖𝐶𝑒𝑔−𝐶𝑒′
+𝑔‖}.
+The objective function accounts for the time travelled by
+the mothership (makespan). Constraints (DroneROUTE𝛥-CO)– Weobservethattheminimumdistancebetweenedges𝑚𝑒𝑔𝑒′ 𝑔 caneasily
+1
+(DroneROUTE𝛥-CO) model the route followed by the drone 𝛿 ∈ , beobtainedbycomputingtheminimumdistancebetweentwoedges,
+7
+(MTZ )–(MTZ ) or (SEC) ensure that the displacement of the drone whichresultsinasimplesecond-orderconeprogram.
+1 2
+𝛿 ∈  assigned to the target graph 𝑔 ∈  is a route, (𝛼-E) or (𝛼-
+G) define what is required in each visit to a target graph. Finally, Experimentalresults
+constraints(DroneDIST𝛥-CO)–(MothershipDIST𝛥-CO)setthevariables
+1 4
+𝑑
+𝐿
+𝑒𝑔𝑜𝛿 , 𝑑𝑒𝑔, 𝑑𝑒𝑔𝑒′ 𝑔, 𝑑
+𝑅
+𝑒𝑔𝑜𝛿 , 𝑑
+𝑜𝑟𝑖𝑔
+, 𝑑
+𝑅
+𝑜
+𝐿
+, 𝑑
+𝐿
+𝑜
+𝑅
+and 𝑑
+𝑑𝑒𝑠𝑡
+, defined in Table 8, In this section, we discuss the results obtained by testing the for-
+whichrepresenttheEuclideandistancesneededinthemodel. mulation of AMMDRPG with a non-homogeneous fleet of drones,
+presented in Appendix, on the same set of instances described in
+Strengtheningtheformulations Section6.
+Table 5 reports the results obtained by adopting the Gurobi com-
+In this section, we present some results that adjust the bigM con- mercialsolver.Weconsidertheexactsolutionthatprovidesanddoes
+stantsforeachofthemodels.Theseconstantsappearwhenwelinearise notprovideaninitialsolutioncomputedbythematheuristicdescribed
+the bilinear terms of (DroneTIME𝛥-CO). We use the McCormick’s inSection5.Moreprecisely,thefirstcolumnofTable9indicatesthe
+𝑜
+envelopes by adding variables 𝑝 ≥ 0 representing the products. To number of target graphs to be visited by the drone fleet, the second
+strengthentheformulations,weprovidetightupperandlowerbounds column reports the endurance of the drones, and the third column
+for these constants. The reader may note that the same bounds can distinguishes between the visit of a fraction of each edge (e) and a
+be used for both models. Therefore, wlog, we focus on the bigM fractionofeachtargetgraph(g).Thefourthcolumnreportsthesizeof
+constantsthatappearin(AMMDRPG-COwithanon-homogeneousfleet thedronefleet.Thislastcolumncontainsthreesubcolumnsreporting,
+ofdrones).
+foreachcardinalityoftheset,respectively,theaveragegapwithout
+initialisation (wi), the average gap with initialisation of the solution
+Big𝑀 constantsboundingthedistancefromthelaunch/retrievalpointon provided by the matheuristic (i) and the solution time, in seconds, of
+the path followed by the mothership to the retrieval/launch point on the thematheuristic(TimeH)foreachcombinationofthelistedparameters.
+targetgraph𝑔∈ Thetimelimitfortheseexperimentsissetequalto2h.
+Tolinearisethefirstaddendin(DCW-CO),wedefinetheauxiliary Wecanobservethatthevalueoftheaveragegaprangesbetweena
+non-negativecontinuousvariables𝑝
+𝑒𝑔𝑜𝛿
+(resp.𝑝
+𝑒𝑔𝑜𝛿
+)andwemodelthe
+minimumof0.67andamaximumof0.97.Thisshowsthatthemodel
+𝐿 𝑅 ishardtosolveevenwithsmall-sizedinstances.Furthermore,wecan
+productbyincludingthefollowingconstraints:
+seethat,inmostcases,theaveragegapassociatedwiththevariantof
+𝑝 𝑒𝑔𝑜𝛿≤𝑀 𝑒𝑔𝑜𝛿 𝑢𝑒𝑔𝑜𝛿, themodelconsistingofvisitingagivenfractionofeachedgeisgreater
+𝐿 𝐿
+𝑝
+𝑒𝑔𝑜𝛿≤𝑑 𝑒𝑔𝑜𝛿
+,
+thantheoneassociatedwiththevariantthatimposesvisitingagiven
+𝐿 𝐿 fractionofeachtargetgraph.Anotherthingwecanobserveisthatthe
+𝑝 𝑒𝑔𝑜𝛿≥𝑚 𝑒𝑔𝑜𝛿 𝑢𝑒𝑔𝑜𝛿, average gap increases with the number of drones and decreases with
+𝐿 𝐿
+𝑝 𝑒𝑔𝑜𝛿≥𝑑 𝑒𝑔𝑜𝛿 −𝑀 𝑒𝑔𝑜𝛿 (1−𝑢𝑒𝑔𝑜𝛿). thedroneendurance.
+𝐿 𝐿 𝐿 Regardingthenumberoftargetgraphs,wecanseethat,increasing
+Notethat,amongallgraphnodesandtheoriginanddestinationpoints, itfrom5to10,theexactmethodwithoutinitialisationofthesolution
+it is possible to identify the pair of points at the maximum distance. obtainedwiththematheuristicisevenharder.Indeed,theredentries
+From this pair of points, we can build a circle whose diameter is ofthetablemeanthatsomeinstancescouldnotfindafeasiblesolution
+the segment that joins them. Hence, because we are minimising the withinthetimelimit(notethatinthebracketsweindicatethenumber
+25
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+Table9
+Comparisonbetweenanexactsolutionwithandwithoutinitialisationbythematheuristicsolution.
+|  | 𝑁 𝐷 v.t. |  |
+1 2 3
+Gap(wi) Gap(i) TimeH Gap(wi) Gap(i) TimeH Gap(wi) Gap(i) TimeH
+e 0.82 0.83 61.56 0.9 0.92 63.80 0.91 0.93 60.87
+20
+g 0.80 0.79 44.97 0.92 0.89 37.32 0.96 0.94 39.05
+e 0.80 0.83 65.21 0.82 0.85 64.41 0.90 0.92 63.34
+30
+g 0.71 0.76 55.77 0.88 0.84 44.36 0.91 0.91 44.59
+e 0.78 0.81 68.81 0.82 0.83 64.80 0.86 0.91 63.19
+5 40
+g 0.73 0.74 43.92 0.84 0.81 38.27 0.90 0.85 37.51
+e 0.74 0.77 66.67 0.80 0.81 63.86 0.86 0.85 63.51
+50
+g 0.67 0.71 43.42 0.89 0.81 43.98 0.83 0.80 44.35
+e 0.72 0.76 67.68 0.80 0.82 66.08 0.82 0.84 64.40
+60
+g 0.73 0.78 44.69 0.86 0.79 40.63 0.85 0.82 50.01
+e 0.85 0.83 137.93 – 0.92 128.53 – 0.95 124.44
+20
+g 0.85(2) 0.81 119.20 0.97(2) 0.90 83.50 0.97(3) 0.97 70.00
+e 0.81 0.81 159.00 0.88(3) 0.87 132.15 0.93(2) 0.95 127.35
+30
+g 0.83(1) 0.80 132.67 0.86(3) 0.86 80.29 0.9(1) 0.91 76.72
+e 0.78 0.79 191.37 0.84 0.85 131.26 0.89(1) 0.92 132.10
+10 40
+g 0.80 0.80 115.00 0.85(3) 0.87 68.39 0.92(1) 0.96 69.40
+e 0.78 0.81 188.32 0.85(1) 0.88 134.01 0.91(3) 0.93 132.82
+50
+g 0.80 0.80 87.23 0.84(3) 0.83 66.14 0.92(2) 0.92 64.94
+e 0.82 0.84 155.27 0.83(2) 0.86 131.94 0.87(3) 0.92 130.11
+60
+g 0.78 0.77 97.89 0.88(2) 0.87 76.53 0.92(3) 0.94 69.53
+Fig.20. Relativegapboxplots.
+oftheseinstances).Thenumberofinstancesnotsolvedincreaseswith Summing up, the results obtained show that the exact solution
+the number of drones. Furthermore, for the minimum level of en- methodgivenbysolvingtheformulationisverychallengingevenfor
+durance,theexactsolutionofthemodelwithoutinitialisationprovided small-sizedinstances.However,byexploitingthis,thematheuristicis
+bythematheuristicdoesnotprovideanysolutionwithinthetimelimit abletoprovidesolutionsforallinstancesquitequickly.
+forinstanceswith10graphsand2or3drones.
+The boxplots in Fig. 20 represent the relative gap of the solution
+Considering the comparison with the exact method starting from provided by the matheuristic concerning that provided by the exact
+thesolutionprovidedbythematheuristic,wecannotethatthevalues solutionofthemathematicalprogrammingmodelwithinthetimelimit,
+oftheaveragegapareveryclosetothoserelatedtotheexactsolution withtheinitialisationofthesolutionfoundbythematheuristic.Wecan
+methodwithoutinitialisation.Thus,initialisationdoesnotspeedupthe observethatthemaximumvalueoftherelativegapisequalto40,but
+convergenceofthesolver.However,wecanseethatthematheuristic itdecreaseswhenthenumberoftargetgraphsincreasesfrom5to10
+isalwaysabletofindafeasiblesolutiontotheproblem,evenforthe and it tends to be smaller when a given fraction of each edge must
+cases inwhich thesolver isnot (instanceswith 10graphsand 2or 3 bevisitedconcerningtheothercase,thatis,whenagivenfractionof
+dronesandminimumvalueofendurance). each graph to be visited is imposed. In particular, for instances with
+10 target graphs, the relative gap is not greater than 25, except an
+Moreover, the average solution times of the matheuristic range outlier in the case with 1 drone and a given fraction of each graph
+between a minimum of 37 s to a maximum of 3 min. They increase tobevisited.Whenthenumberofdronesisequalto2,thismaximum
+with the drone endurance for the variant of the model in which a valuedecreasesfurther,andisreducedto10whenthefleetconsistsof3
+given fraction of each edge must be visited, while they decrease by drones.Furthermore,whenagivenfractionofeachedgetobevisitedis
+increasingthenumberofdronesforthevariantofthemodelinwhich imposed,therelativegapisevensmaller,aroundzero,inmostofcases.
+agivenfractionofeachtargetgraphmustbevisited.Byincreasingthe Thus,wecanconcludethatthematheuristic,eventhoughitdoesnot
+numberoftargetgraphsfrom5to10,theaveragesolutiontimesofthe speeduptheconvergencetotheoptimum,itprovidessolutionsofgood
+matheuristicbecomemorethandoubleforbothmodelvariants. quality, especially for instances of large size, both in terms of target
+26
+L.Amorosietal. ComputersandOperationsResearch159(2023)106322
+graphsanddrones,andforthemostchallengingvariantoftheproblem Chung,S.H.,Sah,B.,Lee,J.,2020.Optimizationfordroneanddrone-truckcombined
+inwhichagivenfractionofeachedgemustbevisited. operations:Areviewofthestateoftheartandfuturedirections.Comput.Oper.
+Res.123,105004.http://dx.doi.org/10.1016/j.cor.2020.105004.
+Dayarian, I., Savelsbergh, M., Clarke, J.-P., 2020. Same-day delivery with drone
+References
+resupply.Transp.Sci.54(1),229–249.http://dx.doi.org/10.1287/trsc.2019.0944.
+Dell’Amico,M.,Montemanni,R.,Novellani,S.,2021.Algorithmsbasedonbranchand
+AltiGator,2015.Adronetorescueimmigrants.URL:https://altigator.com/en/rescue- bound for the flying sidekick traveling salesman problem. Omega 104, 102493.
+immigrants-with-a-drone/. http://dx.doi.org/10.1016/j.omega.2021.102493.
+Amorosi, L., Caprari, R., Crainic, T., Dell’Olmo, P., Ricciardi, N., 2020. CIRRELT- Dönmez,Z.,Kara,B.Y.,Karsu,Ö.,Saldanha-daGama,F.,2021.Humanitarianfacility
+2020-17AnIntegratedRouting-SchedulingModelforaHybridUAV-BasedDelivery location under uncertainty: Critical review and future prospects. Omega 102,
+System.CIRRELT. 102393.http://dx.doi.org/10.1016/j.omega.2021.102393.
+Amorosi,L.,Chiaraviglio,L.,D’Andreagiovanni,F.,Blefari-Melazzi,N.,2018.Energy- Ferrandez,S.M.,Harbison,T.,Weber,T.,Sturges,R.,Rich,R.,2016.Optimizationof
+efficient mission planning of UAVs for 5G coverage in rural zones. In: 2018 atruck-droneintandemdeliverynetworkusingk-meansandgeneticalgorithm.J.
+IEEE International Conference on Environmental Engineering. EE, pp. 1–9. http: Ind.Eng.Manage.9(2),374–388.http://dx.doi.org/10.3926/jiem.1929.
+//dx.doi.org/10.1109/EE1.2018.8385250. Garone, E., Naldi, R., Casavola, A., Frazzoli, E., 2010. Cooperative mission planning
+Amorosi,L.,Chiaraviglio,L.,Galan-Jimenez,J.,2019.Optimalenergymanagementof for a class of carrier-vehicle systems. In: 49th IEEE Conference on Decision and
+uav-basedcellularnetworkspoweredbysolarpanelsandbatteries:Formulationand Control.CDC,pp.1354–1359.http://dx.doi.org/10.1109/CDC.2010.5717171.
+solutions. IEEE Access 7, 53698–53717. http://dx.doi.org/10.1109/ACCESS.2019. Jiménez, J.G., Chiaraviglio, L., Amorosi, L., Blefari-Melazzi, N., 2018. Multi-period
+2913448. mission planning of UAVs for 5G coverage in rural areas: a heuristic approach.
+Amorosi, L., Puerto, J., Valverde, C., 2021. Coordinating drones with mothership In: 2018 9th International Conference on the Network of the Future. NOF, pp.
+vehicles:Themothershipanddroneroutingproblemwithgraphs.Comput.Oper. 52–59.http://dx.doi.org/10.1109/NOF.2018.8598123.
+Res.136,105445.http://dx.doi.org/10.1016/j.cor.2021.105445. Mathew,N.,Smith,S.L.,Waslander,S.L.,2015.Planningpathsforpackagedeliveryin
+Amorosi,L.,Puerto,J.,Valverde,C.,2022.Anextendedmodelofcoordinationofan heterogeneousmultirobotteams.IEEETrans.Autom.Sci.Eng.12(4),1298–1308.
+all-terrainvehicleandamultivisitdrone.Int.Trans.Oper.Res.http://dx.doi.org/ http://dx.doi.org/10.1109/TASE.2015.2461213.
+10.1111/itor.13179. Murray, C.C., Chu, A.G., 2015. The flying sidekick traveling salesman problem:
+Blanco, V., Fernández, E., Puerto, J., 2017. Minimum spanning trees with neighbor- Optimization of drone-assisted parcel delivery. Transp. Res. C 54, 86–109. http:
+hoods: Mathematical programming formulations and solution methods. European //dx.doi.org/10.1016/j.trc.2015.03.005.
+J.Oper.Res.262(3),863–878.http://dx.doi.org/10.1016/j.ejor.2017.04.023. Otto,A.,Agatz,N.,Campbell,J.,Golden,B.,Pesch,E.,2018.Optimizationapproaches
+Blanco,V.,Puerto,J.,Ben-Ali,S.E.-H.,2013.Revisitingseveralproblemsandalgorithms forcivilapplicationsofunmannedaerialvehicles(uavs)oraerialdrones:Asurvey.
+incontinuouslocationwith𝓁_𝜏 norms.Comput.Optim.Appl.58,563–595. Networks72,1–48.http://dx.doi.org/10.1002/net.21818.
+Campbell,J.F.,Corberán,Á.,Plana,I.,Sanchis,J.M.,2018.Dronearcroutingproblems. Pei, Z., Dai, X., Yuan, Y., Du, R., Liu, C., 2021. Managing price and fleet size for
+Networks72(4),543–559.http://dx.doi.org/10.1002/net.21858. courier service with shared drones. Omega 104, 102482. http://dx.doi.org/10.
+Campbell, J.F., Corberán, Á., Plana, I., Sanchis, J.M., Segura, P., 2021. Solving the 1016/j.omega.2021.102482.
+length constrained K-drones rural postman problem. European J. Oper. Res. 292 Poikonen,S.,Golden,B.,2020a.Themothershipanddroneroutingproblem.INFORMS
+(1),60–72.http://dx.doi.org/10.1016/j.ejor.2020.10.035. J.Comput.32(2),249–262.http://dx.doi.org/10.1287/ijoc.2018.0879.
+Campbell,J.F.,Sweeney,D.,Zhang,J.,2017.Strategicdesignfordeliverywithtrucks Poikonen,S.,Golden,B.,2020b.Multi-visitdroneroutingproblem.Comput.Oper.Res.
+anddrones.Comput.Sci.. 113,104802.http://dx.doi.org/10.1016/j.cor.2019.104802.
+Carlsson,J.G.,Song,S.,2018.Coordinatedlogisticswithatruckandadrone.Manage. Puerto,J.,Valverde,C.,2021.Project:Instancesforthecasestudyoftheallterrain
+Sci.64(9),4052–4069.http://dx.doi.org/10.1287/mnsc.2017.2824. mothershipmultipledroneroutingproblemwithgraphs(AMMDRPG).URL:https:
+Chiaraviglio, L., Amorosi, L., Blefari-Melazzi, N., Dell’olmo, P., Lo Mastro, A., Natal- //github.com/z72vamac/case_study_AMMDRPGST.
+ino,C.,Monti,P.,2019a.Minimumcostdesignofcellularnetworksinruralareas Reim, G., 2020. US army catches ‘air-launched effect’ drones in mid-air using an-
+withUAVs,opticalrings,solarpanels,andbatteries.IEEETrans.GreenCommun. otherUAV.URL:https://www.flightglobal.com/military-uavs/us-army-catches-air-
+Netw.3(4),901–918.http://dx.doi.org/10.1109/TGCN.2019.2936012. launched-effect-drones-in-mid-air-using-another-uav/140498.article.
+Chiaraviglio,L.,Amorosi,L.,Blefari-Melazzi,N.,Dell’Olmo,P.,Natalino,C.,Monti,P., Tokekar,P.,Hook,J.V.,Mulla,D.,Isler,V.,2016.SensorplanningforasymbioticUAV
+2018.Optimaldesignof5GnetworksinruralzoneswithUAVs,opticalrings,solar andUGVsystemforprecisionagriculture.IEEETrans.Robot.32(6),1498–1511.
+panelsandbatteries.In:201820thInternationalConferenceonTransparentOptical http://dx.doi.org/10.1109/TRO.2016.2603528.
+Networks.ICTON,pp.1–4.http://dx.doi.org/10.1109/ICTON.2018.8473712. Trotta,A.,Andreagiovanni,F.D.,DiFelice,M.,Natalizio,E.,Chowdhury,K.R.,2018.
+Chiaraviglio,L.,Amorosi,L.,Malandrino,F.,Chiasserini,C.F.,Dell’Olmo,P.,Casetti,C., When UAVs ride a bus: Towards energy-efficient city-scale video surveillance.
+2019b.OptimalthroughputmanagementinUAV-basednetworksduringdisasters. In: IEEE INFOCOM 2018 - IEEE Conference on Computer Communications. pp.
+In:IEEEINFOCOM2019-IEEEConferenceonComputerCommunicationsWork- 1043–1051.http://dx.doi.org/10.1109/INFOCOM.2018.8485863.
+shops (INFOCOM WKSHPS). pp. 307–312. http://dx.doi.org/10.1109/INFCOMW. Ulmer, M.W., Thomas, B.W., 2018. Same-day delivery with heterogeneous fleets of
+2019.8845190. drones and vehicles. Networks 72 (4), 475–505. http://dx.doi.org/10.1002/net.
+21855.
+Wen,T.,Zhang,Z.,Wong,K.K.L.,2016.Multi-objectivealgorithmforbloodsupplyvia
+unmannedaerialvehiclestothewoundedinanemergencysituation.PLoSOne11
+(5),http://dx.doi.org/10.1371/journal.pone.0155176.
+27

@@ -1,0 +1,1372 @@
+Computational Optimization and Applications (2022) 83:67–109
+https://doi.org/10.1007/s10589-022-00383-x
+Polyhedral analysis and a new algorithm for the length
+constrained K–drones rural postman problem
+James Campbell1 · Ángel Corberán2 · Isaac Plana2 · José M. Sanchis3 ·
+Paula Segura3
+Received: 28 September 2021 / Accepted: 25 May 2022 / Published online: 21 June 2022
+© The Author(s), under exclusive licence to Springer Science+Business Media, LLC, part of Springer Nature
+2022
+Abstract
+The Length Constrained K–Drones Rural Postman Problem (LC K–DRPP) is a con-
+tinuous optimization problem where a set of curved or straight lines of a network
+have to be traversed, in order to be serviced, by a fleet of homogeneous drones, with
+total minimum cost. Since the range and endurance of drones is limited, we consider
+here that the length of each route is constrained to a given limit L. Drones are not
+restricted to travel on the network, and they can enter and exit a line through any
+of its points, servicing only a portion of that line. Therefore, shorter solutions are
+obtained with “aerial” drones than with “ground” vehicles that are restricted to the
+network. If a LC K–DRPP instance is digitized by approximating each line with a
+polygonal chain, and it is assumed that drones can only enter and exit a line through
+the points of the chain, an instance of the Length Constrained K–vehicles Rural
+Postman Problem (LC K–RPP) is obtained. This is a discrete arc routing problem,
+and therefore can be solved with combinatorial optimization techniques. However,
+when the number of points in each polygonal chain is very large, the LC K–RPP
+instance can be so large that it is very difficult to solve, even for heuristic algorithms.
+Therefore, it is necessary to implement a procedure that generates smaller LC K–
+RPP instances by approximating each line by a few but “significant” points and
+segments. In this paper, we present a new formulation for the LC K–RPP with two
+binary variables for each edge and each drone representing the first and second tra-
+versals of the edge, respectively. We make a polyhedral study of the set of solutions
+of a relaxed formulation and prove that several families of inequalities induce facets
+of the polyhedron. We design and implement a branch–and–cut algorithm for the LC
+K–RPP that incorporates the separation of these inequalities. This B &C is the main
+routine of an iterative algorithm that, by solving a LC K–RPP instance at each step,
+finds good solutions for the original LC K–DRPP. The computational results show
+that the proposed method is effective in finding good solutions for LC K–DRPP,
+and that the branch–and–cut algorithm for the LC K–RPP outperforms the only pub-
+lished exact method for this problem.
+Extended author information available on the last page of the article
+Vol.:(012134 536789)
+68 J. Campbell et al.
+Keywords Drones · Rural postman problem · Length constraints · Facets · Branch
+and cut
+1 Introduction
+Given a graph representing a network, Arc Routing Problems (ARPs) consist of
+designing tours traversing (servicing) a set of “required” links (arc or edges) and
+satisfying some conditions, with total minimum cost (see [7, 8, 30]). The Chinese
+postman problem (CPP), the rural postman problem (RPP), and the capacitated arc
+routing problem (CARP) are among the best known ARPs. In these “classic” ARPs,
+the lines (streets, roads, pipelines etc.) that need to be serviced (cleaned, inspected,
+snow cleared, etc.) are represented by links of a network regardless of the shape of
+the real lines, because ground vehicles have to traverse a link from one endpoint
+to the other and cannot travel off the network. In [5] these problems were named
+Postman ARPs to distinguish them from Drone ARPs, in which the vehicles used
+are “aerial” drones. As pointed out in [4], the use of drones to perform the service
+involves important changes in the way of modeling and solving the ARPs. Drones
+can travel off the network, going directly between any two points, not necessarily
+endpoints of the links of the graph. This makes the problem a continuous optimi-
+zation problem with an infinite and non-countable number of feasible solutions, in
+which it is necessary to take into account the shape of the lines to service. In order
+to address this problem, each line is digitized as a polygonal chain consisting of
+many points defined by their coordinates. If we assume that drones can only enter
+and exit a line through these points, the Drone ARP transforms into a Postman ARP
+where the segments of the polygonal chain are the required edges (see [4, 5]).
+Drones (or UAVs) are increasingly being used for inspection and monitoring of
+infrastructure and facilities that can be modeled as networks or collections of lines.
+Two of the main application areas are in energy and transportation. Jordan et al. [22]
+provides examples of applications of drone inspection in a wide variety of areas
+including for power lines, railways, sewers, geographical features, bridges, buildings
+and structures (e.g., wind turbines). In some areas, such as power line inspection,
+drones are now regularly used (Rauhakallio [35]), as they provide cost effective,
+faster and safer inspections, and a new industry has developed to provide commer-
+cial power line inspection services. There has been limited academic research on
+power line inspection by drones, such as Liu et al. [27] which models the inspection
+of straight line segments representing power lines by drones that are launched from
+ground vehicles at a set of nodes on the road network. Constructive and improve-
+ment heuristics are presented to route the drones and the ground vehicles. Another
+energy-related drone inspection topic receiving attention is wind turbine inspection,
+especially for offshore wind farms, which are expensive and difficult to access [16,
+37]. Mansouri et al. [29] provides a model for drones inspecting 3D objects (with
+an example of a wind turbine) based on a spiral pattern of drone flights to trace a
+sequence of parallel slices of the 3D structure. This could be viewed as an arc rout-
+ing problem where the 3D slices define circular trajectories around the outside of an
+object. Another interesting application for drone arc routing is the inspection and
+1 3
+Polyhedral analysis and a new algorithm for the length… 69
+monitoring of offshore oil and gas facilities (platforms) and pipelines [21, 24]. For
+example, Jones et al. [21] discuss the use of sea drones that can be autonomous vehi-
+cles that travel underwater, on the surface, or crawling on the seabed, to assist in the
+decommissioning of offshore oil and gas installations. (This is an important problem
+as there are, for example, 475 offshore oil and gas facilities being decommissioned
+in the UK, along with an associated >45,000 km of pipeline in the North Sea.)
+In transportation systems, drone arc routing examples arise in areas such as road
+traffic monitoring, railroad and transit (light rail) track inspections, roadway surface
+inspection, monitoring railroad right-of-ways, bridge inspection and managing veg-
+etation. Monitoring road traffic [23, 26, 28], roadways [31] and rail lines [39, 33, 38,
+40] provide important applications for drone arc routing along infrastructure natu-
+rally modeled with curved line features. Drone fleets are becoming common among
+major railroads (e.g., [19]), and even for some regulatory agencies [6]. Bridges and
+buildings associated with transportation systems also provide opportunities for
+drone arc routing to ensure efficient inspections [31, 33, 38].
+With the growing regulatory approvals of BVLOS (beyond visual line of sight)
+drone operations, inspection and monitoring of large scale transportation and energy
+transmission systems that stretch over hundreds of km becomes feasible using long
+range drones. On a smaller scale, representing structures such as bridges, buildings,
+oil platforms or wind turbines as 3D networks of linear features creates 3D arc rout-
+ing problems for drones as well (whether in the air or underwater).
+One recent paper that includes drone arc routing as a special case is Puerto and
+Valverde [34], in which a drone route is designed to visit parts or all of a set of
+dimensional facilities, including polygonal chains. This is a generalization of the
+crossing postman problem [17], but if the problem includes only polygonal chains
+where 100% of the length of each must be visited, then it can be viewed as a single
+drone RPP. Amorosi et al. [1] extends this model to include a ground vehicle that
+serves as a moving base for the drone with limited range.
+The two papers most directly related to this work are [4] and [5]. In [4], the differ-
+ences between postman ARPs and Drone ARPs are highlighted, and the Drone RPP
+is introduced. For this problem, a sequential algorithm is proposed that solves a
+larger RPP instance at each step. It begins with the RPP instance where each line is
+represented by a single segment. At each iteration, each segment is divided in two
+by adding an intermediate point taken from the original line. Also in [4] the Length
+Constrained K-drones Rural Postman Problem (LC K–DRPP) is defined and briefly
+discussed, and it is studied further in [5]. There, a “directed” formulation for the
+Length Constrained K-vehicles Rural Postman Problem (LC K–RPP), with two vari-
+ables xk and xk for each edge (i, j) and each drone k, is proposed. Based on this for-
+ij ji
+mulation, a branch–and–cut procedure is presented, but it is tested only in LC
+K–RPP instances with a single segment representing each line. The computational
+results show the difficulty of the problem, as only the smallest instances are solved
+optimally and the final lower bounds are far from the upper bounds. A matheuristic
+algorithm is also proposed for the solution of the LC K–DRPP, which iteratively
+finds good solutions for some instances of LC K–RPP with an increasing number of
+intermediate points, but in a more clever way than the one proposed in [4]. Instead
+1 3
+70 J. Campbell et al.
+of adding an intermediate point for all the segments, the procedure only does it for
+the most “promising” ones. Also, the procedure removes some points added in pre-
+vious iterations that have been proven useless.
+The contribution of this work is multiple. We propose a formulation for the LC
+K–RPP based on the idea, exposed in [10] for the maximum benefit CPP (MBCPP),
+of using two binary variables for each edge that indicate the first and second travers-
+als of the edge, respectively, for each drone. We carry out a polyhedral study of
+the set of solutions of a relaxed formulation, and we present some families of valid
+inequalities and the conditions for them to induce facets of the polyhedron. Based on
+this formulation, we design and implement a branch–and–cut algorithm, with sepa-
+ration procedures for the new inequalities. We integrate this B &C into a solution
+procedure for LC K–DRPP with a sequential scheme that iteratively solves instances
+of LC K–RPP generated by adding and removing some intermediate points in a way
+that is a refinement of the one presented in [5]. The computational results confirm
+the benefits of our approach, clearly improving the results reported in [5].
+The rest of the paper is structured as follows. In Sect. 2 we present the LC
+K–DRPP and the LC K–RPP, and propose a new formulation for the last problem.
+The polyhedral study of the set of solutions of a relaxed formulation of the LC
+K–RPP is done in Sect. 3, where several families of inequalities are proved to be
+facet inducing for the defined polyhedron. In Sect. 4 we present a branch–and–cut
+algorithm for the LC K–RPP that incorporates new separation procedures for the
+proposed inequalities. A global algorithm that produces good solutions for the LC
+K–DRPP is described in Sect. 5. At each iteration, the algorithm solves a differ-
+ent LC K–RPP instance using the branch–and–cut algorithm described before. The
+computational results in Sect. 6 show that the global algorithm is effective in finding
+good solutions for the LC K–DRPP, and that the branch and cut for the LC K–RPP
+outperforms the only published exact method for this problem. Finally, some con-
+clusions are presented in Sect. 7.
+2 The length constrained K–Drones RPP and K–RPP
+The LC K–DRPP, presented in [4] and studied in [5], is defined as follows: “Given
+a set of lines, each one with an associated service cost, and a point called the depot,
+assuming that the cost of deadheading between any two points is the Euclidean dis-
+tance, and given a constant L, find a set of drone routes starting and ending at the
+depot and with lengths no greater than L such that they jointly traverse all the given
+lines completely with minimum total cost”.
+Given that drones can travel off the network and go directly between any two
+points, not necessarily the endpoints of the required lines, the LC K–DRPP is a
+continuous optimization problem in which the shape of the lines to service must
+be taken into account. To deal with this problem, the LC K–DRPP instances are
+digitized, that is, each line to be served is described as a polygonal chain, with a
+sequence of points given by their coordinates. If we assume that drones can only
+enter and exit a line through these points, we have an instance of the LC K–RPP, a
+postman ARP, defined on an undirected graph G=(V,E)=(V,E R ∪E NR ) . The set
+1 3
+Polyhedral analysis and a new algorithm for the length… 71
+of vertices V contains the points of the polygonal chains plus the depot, denoted
+by 1. The set of required edges E R contains the segments of the polygonal chains,
+while the set of non-required edges E NR contains an edge between each pair of
+vertices in V, i.e., (V,E NR ) is a complete graph. Note that all the vertices in V,
+except maybe the depot, are incident to, at least, one required edge.
+Each e∈E R (a segment) has a service cost cs e ≥0 that is proportional to the
+service cost of the line, so that the sum of the costs of the segments that approxi-
+mate a line is equal to the service cost of the line. Each non-required edge e∈E NR
+has a deadheading cost c e ≥0 equal to the cost of traveling directly between
+its endpoints (e.g., the Euclidean distance computed from their coordinates).
+Note that each e∈E R has a parallel non-required edge, which we denote as e′ ,
+and we assume that the cost of traveling while servicing the required segment
+e=(i,j) is greater than or equal to the cost of flying directly from i to j ( cs e ≥c e′ ).
+E′
+represents the set of non-required edges parallel to a required one, while
+NR
+E N �� R =E NR ⧵E N � R . The goal of the LC K-RPP is to find K tours (closed walks start-
+ing and ending at the depot) with length no greater than L, that jointly traverse
+(and service) all the required edges, with minimum total cost.
+We want to point out that in the LC K–RPP instances the non-required edges
+form a complete graph, whereas in postman ARPs the graph often corresponds
+to a sparse network. To make a more general study, in the following sections we
+do not assume that the edges in E NR form a complete graph, although we keep the
+assumption that in E there is an edge e′ parallel to each e∈E R.
+The LC K–RPP can be formulated using a binary variable xk for each edge
+e
+e∈E R and for each drone k∈{1,…,K} , and two binary variables x e k and yk e for
+each edge e∈E NR and for each drone k∈{1,…,K} . Variable x e k for each edge
+e∈E R takes the value 1 if e is traversed (and serviced) by drone k and 0 other-
+wise. Variables x e k and yk e for each edge e∈E NR take the value 1 if e is traversed
+once or twice, respectively, by drone k and 0 otherwise. In other words, variables
+xk and yk represent the first and second traversal by drone k of the non-required
+e e
+edge e. The use of these variables is inspired by the work in [10] for the MBCPP.
+Note that, for each drone, there are three variables to represent the traversals
+between the two endpoints i,j of a required edge e. The reason is that we need to
+distinguish among traversing e while serving it (with a cost cs ) and deadheading
+e
+e′ once or twice (with a cost c e′ ≤cs e ). Although in all the optimal solutions the
+three variables will never be non-zero simultaneously (see Theorem 1), we need
+the three variables to state the objective function of the problem formulation.
+Theorem 1 For each e∈E R and its parallel edge e� ∈E N � R , and for each
+k∈{1,…,K} , the inequality xk+yk ≤1 is satisfied by any optimal solution of the
+e e�
+LC K–RPP (if c e′ >0 ).
+Proof If a solution satisfies xk+yk =2 , necessarily xk =1 (because xk ≥yk holds)
+e e� e� e′ e′
+and the drone travels three times between i and j, so we can remove two copies and
+◻
+get a better feasible solution.
+1 3
+72 J. Campbell et al.
+In this paper we use the following notation. Given two subsets of vertices
+S,S′ ⊆V , (S∶S�) denotes the edge set with one endpoint in S and the other one in
+S′ . Given a subset S⊆V , let us denote 𝛿(S)=(S∶V⧵S) and E(S)=(S∶S) . For
+simplicity, when S={i}, i∈V , we write 𝛿(i) instead of 𝛿({i}) . For any subset
+F ⊆E =E R ∪E NR , we denote F R =F∩E R and F NR =F∩E NR , and, for simplic-
+ity, we write 𝛿 R (S) instead of 𝛿(S) R . Moreover, given a vector x indexed on the
+edges set E and a subset of edges F ⊂E , xF) denotes e∈F x e , while (x+y)(F)
+and (x−y)(F) represent x(F)+y(F) and x(F)−y(F) , respectively.
+∑
+The LC K–RPP can be formulated as follows:
+K
+Minimize csxk+ c xk+yk
+e e e e e
+k=1(e∈E e∈E )
+∑ ∑R ∑NR ( )
+s.t.
+xk+ (xk+yk)≡0(mod2),∀i∈V, ∀k=1,…,K
+e e e (1)
+e∈𝛿 (i) e∈𝛿 (i)
+∑R ∑NR
+xk+ xk+yk ≥2xk,∀S⊆V⧵{1}, ∀f∈E(S),∀k=1,…,K
+e e e f (2)
+e∈𝛿 (S) e∈𝛿 (S)
+∑R ∑NR
+( )
+csxk+ c xk+yk ≤L,∀k=1,…,K
+e e e e e (3)
+e∈E e∈E
+∑R ∑NR
+( )
+K
+xk ≥1,∀e∈E
+e R (4)
+k=1
+∑
+xk ≥yk,∀e∈E , ∀k=1,…,K
+e e NR (5)
+xk ∈{0,1},∀e∈E , ∀k=1,…,K
+e R (6)
+xk,yk ∈{0,1},∀e∈E , ∀k=1,…,K
+e e NR (7)
+Constraints (1) force each drone to visit each vertex an even number of times, pos-
+sibly zero. Conditions (2) ensure each single route is connected and connected to the
+depot, while constraints (3) guarantee that the length of each route does not exceed
+L. The traversal of all the required edges is ensured by constraints (4). Constraints
+(5) guarantee that a second traversal of a non required edge by a drone can only
+occur when it has been traversed previously by this drone. Constraints (6) and (7)
+are the binary conditions for the variables.
+Note that constraints (1) are not linear, although they could be linearized by
+introducing additional general integer variables,
+zk
+, as follows
+i
+1 3
+Polyhedral analysis and a new algorithm for the length… 73
+xk+ xk+yk =2zk.
+e e e i
+e∈𝛿 (i) e∈𝛿 (i)
+∑R ∑NR
+( )
+Instead, as we will see in Sect. 3.2, we will introduce some linear inequalities on the
+variables
+xk,yk
+(parity and KC inequalities). Note also that the previous formula-
+e e
+tion allows “not feasible” solutions with isolated subtours of non-required edges,
+although these solutions are not optimal.
+3 P olyhedral study of the K–RPP
+In this section we study a polyhedron of solutions associated with the proposed for-
+mulation for the LC K–RPP. Since this formulation is based on the one presented in
+[10] for the MBCPP, some of the inequalities proposed in that article for the MBCPP
+can be transformed into valid inequalities for the K–RPP (see Theorem 2). However,
+to prove that these new inequalities, and the inequalities in the K–RPP formulation,
+are facet inducing, we must first discuss the polyhedron associated with the K–RPP
+in the special case when K=1.
+As with other routing problems with several vehicles, determining the dimension
+of the polyhedron defined as the convex hull of the LC K–RPP solutions is a very
+difficult task, because it depends also on the edge costs c e and cs e , the number of
+vehicles K, and the length limit L. Even in some cases, the polyhedron could be
+empty. However, if we remove the constraints (3) that limit the length of each route,
+the problem becomes the K vehicles Rural Postman Problem (K–RPP), whose poly-
+hedron can indeed be studied. This is interesting because some of its facets could
+also be facets of the original LC K–RPP polyhedron, and it is a way of guaranteeing
+the strength of the constraints in the formulation and of the valid inequalities we can
+find.
+Let a K--RPP solution denote any set of K tours on graph G starting and ending
+at the depot and jointly servicing (traversing) all the required edges. Associated with
+each K–RPP solution we can consider:
+(a) K incidence vectors (xk,yk)∈ℤ2E NR +E R , one for each tour, where variables xk
+e
+take the value 1 if edge e is traversed once, variables yk take the value 1 if edge
+| | | | e
+e is traversed twice, and
+(b) K support graphs (V,E(xk,yk)) , one for each tour, where E(xk,yk) contains one copy
+of edge e∈E for each variable xk =1 or yk =1 .
+e e
+Note that the support graphs are even and connected. Conversely, any even and con-
+nected subgraph of G corresponds to a tour on G. In fact, an incidence vector or a
+subgraph may correspond to several different closed walks, but all of them have the
+same cost and they can be easily computed (with the Hierholzer algorithm [20], for
+example). Hence, and for the sake of simplicity, we will let “tour on G” denote the
+closed walk, its incidence vector, and its corresponding support graph.
+In what follows, we study the K–RPP polyhedron defined as the convex
+hull of the vectors
+(x1,y1,x2,y2,…,xK,yK)∈ℤK(2E
+NR
++E
+R
+)
+corresponding to
+| | | |
+1 3
+74 J. Campbell et al.
+K–RPP solutions on G, that is, (a) each (xk,yk) , k=1,…,K , is a tour on G start-
+ing and ending at the depot, and (b) all the required edges are traversed by, at
+least, one drone. Let K–RPP(G) denote this polyhedron. Note that we do not
+consider inequalities
+xk+yk ≤1
+from Theorem 1, and we use inequalities (4)
+e e�
+instead of K k=1 x e k =1 . Although the feasible solutions that satisfy x e k+yk e� =2 or
+K k=1 x e k >1 cannot be optimal solutions (if 0<c e′ <cs e ), we will use these solu-
+∑
+tions in the proofs of the results presented in Sect. 3.2. To make this polyhedral
+∑
+study, we need some results presented in [10] for the MBCPP. Given an undi-
+rected connected graph
+G=(V,E)
+, where
+1∈V
+represents the depot, with two
+benefits for each edge e∈E associated with the first and the second traversals
+of e, respectively, the MBCPP consists of finding a tour starting from the depot,
+traversing some of the edges in E at most twice and returning to the depot, with
+maximum total benefit. The MBCPP is formulated with two binary variables x e
+and y e for each edge e∈E representing the first and second traversal of e, respec-
+tively. It is shown that the convex hull of all the MBCPP tours, i.e., the vectors
+(x, y) satisfying
+x +y ≡0(mod2),∀i∈V
+e e (8)
+e∈𝛿(i)
+∑ ( )
+x +y ≥2x ,∀S⊂V ⧵{1}, ∀f ∈E(S)
+e e f (9)
+e∈𝛿(S)
+∑ ( )
+x ≥y ,∀e∈E
+e e (10)
+x ,y ∈{0,1},∀e∈E,
+e e (11)
+is a full dimensional polytope and several families of valid and facet-inducing ine-
+qualities are described.
+In this paper we study the K–RPP formulated with only one variable associated
+with each required edge, while, if we consider the MBCPP on the same graph, we
+have two variables for each edge, including the required ones. Nevertheless, given
+a K–RPP solution (x1,y1,x2,y2,…,xK,yK)∈ℤK(2E NR +E R ) , each single route
+(xk,yk)
+is a closed walk starting and ending at the depot, and it can be completed
+| | | |
+with variables y e =0 for each e∈E R to obtain a MBCPP tour. Hence we have the
+following theorem:
+Theorem 2 Let f(x,y)≥𝛼 a valid inequality for the MBCPP on graph G. By remov-
+ing all the variables y e , e∈E R , the resulting inequality f(xk,yk)≥𝛼 is valid for the
+K–RPP, for each drone k∈{1,…,K}.
+For example, from inequalities (9) we obtain inequalities (2). Furthermore,
+from several families of valid inequalities for the MBCPP, namely parity, p-con-
+nectivity and K-C inequalities, we will obtain valid inequalities for the K–RPP
+(see Sects. 3.2.1, 3.2.2, and 3.2.3).
+1 3
+Polyhedral analysis and a new algorithm for the length… 75
+Besides some results from the MBCPP, we need some polyhedral results from the
+1–RPP for the proofs for the general case K ≥2 . These results are detailed in [12]
+and summarized in the next section.
+3.1 The 1–RPP polyhedron
+The K–RPP for K =1 , or 1–RPP, is the well known RPP [9, 14, 15, 18, 13, 36] but
+with some special features. First, it is defined on a graph that has a non-required
+edge parallel to each required one. Second, the problem is formulated with three var-
+iables associated with the traversal of a required edge e and its parallel non-required
+one e′ . Note that for the 1–RPP, x e =1 holds for each e∈E R and, from Theorem 1,
+we obtain that y e� =0 for each e� ∈E N � R in all optimal 1–RPP tours. Hence, these
+variables could be removed from the formulation. However, since this is not true for
+K >1 , we will keep these variables because they are necessary in the proofs of the
+polyhedral study of the K–RPP(G) for K >1 . Hence, we will accept feasible (but not
+optimal) solutions with some variables y e� =1 .
+In the same way, although it is natural in problems with drones to assume that
+all the vertices (except, maybe the depot) are incident with required edges, we
+will not consider here this assumption to make a more general study. Therefore,
+in this section we consider an undirected and connected graph
+G=(V,E)
+, with a
+set E R ⊂E of required edges, and where the set V R formed with the vertices inci-
+dent with some edge in E R plus the depot, is not necessarily equal to V. We assume
+E =E R ∪E N � R ∪E N �� R , where E N ′ R is the set of non-required edges parallel to an edge
+in E R.
+Let a 1–RPP tour denote to a closed walk on graph G starting and ending at the
+depot and servicing all the required edges. As before, we will use 1–RPP tour also to
+denote its incidence vector
+(x,y)∈ℤ2E
+NR
++E
+R and its support graph. The polyhedron
+1–RPP(G) is defined as the convex hull of all the 1–RPP tours in G. Note that the set
+| | | |
+of constraints of the K–RPP formulation, adapted to the case K =1 , is:
+x + x +y ≡0(mod2),∀i∈V
+e e e
+(12)
+e∈𝛿 (i) e∈𝛿 (i)
+∑R ∑NR
+( )
+x + x +y ≥2x ,∀S⊆V⧵{1}, ∀f∈E(S),
+e e e f
+(13)
+e∈𝛿 (S) e∈𝛿 (S)
+∑R ∑NR
+( )
+x =1,∀e∈E
+e R (14)
+x ≥y ,∀e∈E
+e e NR (15)
+x ,y ∈{0,1},∀e∈E .
+e e NR (16)
+In [12], it is proved the following theorem about the dimension of polytope
+1–RPP(G).
+1 3
+76 J. Campbell et al.
+Theorem 3 If (V,E NR ) is a 3-connected graph, then, dim(1–RPP(G))=2 E NR.
+Moreover, in [12], conditions under which some of the constraints in| the| formu-
+lation and other valid inequalities define facets of 1–RPP(G) are studied. Here we
+summarize these results, where we assume that graph (V,E NR ) is 3-connected:
+Theorem 4 The following are facet-inducing inequalities for 1–RPP(G):
+1. Inequality y e ≥0 , ∀e∈E NR,
+2. inequality x e ≤1 , ∀e∈E NR , and
+3. inequality x e ≥y e , ∀e∈E NR , if graph (V,E NR ⧵{e}) is 3-edge connected.
+Regarding the connectivity inequalities (13), note that, given that x e =1 for all
+e∈E R , if 𝛿 R (S)≠� they are obviously satisfied.
+Theorem 5 Let S⊆V ⧵{1} such that E R (S)=𝛿 R (S)=� . Let f ∈E(S) ( f ∈E N �� R ).
+The connectivity inequality (13), which now takes the form
+(x+y)(𝛿(S))≥2x ,
+f (17)
+is facet-inducing for 1–RPP(G) if subgraph (S,E
+NR
+(S)) is 3-edge connected and
+either V⧵S={1} or subgraph (V⧵S,E
+NR
+(V⧵S)) is 3-edge connected.
+If, in addition,
+𝛿
+R
+(S)≠�
+holds, then inequalities (13) are dominated by
+(x+y)(𝛿(S))≥2,
+which are also facet-inducing for 1–RPP(G).
+In the remainder of this section, we describe several families of valid inequalities
+for the 1–RPP proposed in [12]: parity, p-connectivity and K-C inequalities.
+3.1.1 Parity inequalities
+In [10], the following constraints, which generalize the well known co-circuit ine-
+qualities ( [2]), were proposed for the MBCPP:
+(x−y)(𝛿(S)⧵F)≥(x−y)(F)− F +1, ∀S⊂V, ∀F⊆𝛿(S) with F odd.
+(18)
+If 𝛿 R (S)⊆F , after removing all the | va | riables y e , e∈E R , and replacin | g | all the vari-
+ables x e , e∈E R , by one, inequalities (18) can be writen as:
+(x−y)(𝛿(S)⧵F)≥(x−y)(F )− F +1, ∀S⊂V, ∀F⊆𝛿(S) with F odd,
+NR NR
+(19)
+which are valid for the 1–RPP from| The|orem 2. These inequalities cut| o|ff (infea-
+sible) solutions in which there is a cut-set with an odd number of edges traversed
+exactly once (these edges define the set F) and the other edges are traversed twice or
+none.
+1 3
+Polyhedral analysis and a new algorithm for the length… 77
+Theorem 6 Parity inequalities (19), for all S⊂V , F⊆𝛿(S) with |F| odd and
+𝛿 R (S)⊆F , are facet-inducing for 1–RPP(G) if subgraph (S,E NR (S)) is 3-edge con-
+nected and either V⧵S={1} or subgraph (V⧵S,E
+NR
+(V⧵S)) is 3-edge connected.
+3.1.2 p–connectivity inequalities
+These constraints were introduced in [10] to cut off some fractional solutions in
+which several edges forming a cycle have variables x e =y e =0.5 . They are defined
+as follows.
+Let {S 0 ,…,S p } be a partition of V such that 𝛿(S i )∩E R =� for all i (see Fig. 1(a),
+where a triangle represents the depot and a required edge is represented within some
+sets E(S i ) ). Assume we divide the set {0,1,…,p}=R∪N (from ‘Required’ and
+‘Non-required’) in such a way that
+• i∈R if either 1∈S i or E R (S i )≠� (note that 1≤ R ≤p+1 ), and
+• i∈N if 1∉S i and E R (S i )=� (note that 0≤ N ≤p , and R + N =p+1 ),
+| |
+and select one edge e i ∈E(S i ) for every i∈N .| No|te that e i| ∈E |N �� R .| G|iven that the
+p–connectivity inequality
+(x+y)(𝛿(S ))+2 x(s ∶S)≥2 x
+0 r t e i (20)
+1≤r<t≤p
+∑ ∑
+is valid for the MBCPP ( [10]), after replacing all the variables x e , e∈E R by one, we
+obtain the following p–connectivity inequality valid for the 1–RPP:
+(x+y)(𝛿(S ))+2 x(S ∶S)≥2 x +2( R −1)
+0 r t e i (21)
+1≤r<t≤p i∈N
+∑ ∑
+This inequality with
+p=2
+and
+N =1
+is represented in Fig
+|
+. 1
+|
+(b) and (c), where
+for each pair (a, b) associated with an edge e, a and b represent the coefficients of x e
+and y e , respectively. | |
+(a) (b) (c)
+Fig. 1 p–connectivity inequalities
+1 3
+78 J. Campbell et al.
+Theorem 7 p–connectivity inequalities (21) are facet-inducing for 1–RPP(G) if sub-
+graphs (S i ,E NR (S i )) , i=0,…,p , are 3-edge connected, (S 0 ∶S i ) ≥2 , ∀i=1,…,p ,
+and the graph induced by V⧵S
+0
+is connected.
+| |
+3.1.3 K–C inequalities
+K–C inequalities are a well–known family of inequalities for ARPs, which jointly
+address the parity and connectivity conditions of the solutions.
+Let {S 0 ,…,S K } , with K ≥3 , be a partition of V such that 𝛿(S i )∩E R =� for
+all
+i=1,2,…,K−1
+. Assume we divide the set
+{1,…,K−1}=R ∪N
+(from
+‘Required’ and ‘Non-required’) in such a way that
+• i∈R if either 1∈S i or E R (S i )≠� (note that 0≤ R ≤K−1 ), and
+• i∈N if 1∉S i and E R (S i )=� (note that 0≤ N ≤K−1 , and R + N =K−1 ),
+| |
+and select one edge e i ∈E(S i ) for every i∈N . |No|te that e i ∈E N �� |R . L|et F | ⊆ | (S 0 ∶S K )
+be a set of edges, with F ≥2 and even, and (S 0 ∶S K ) R ⊆F . The K–C inequalities
+are as follows:
+| |
+(K−2)(x−y) (S ∶S )⧵F −(K−2)(x−y)(F )
+0 K NR
+( )
++ (j−i)x(S ∶S)+(2−j+i)y(S ∶S) −2 x ≥2 R −(K−2) F
+i j i j e NR
+i
+(i, 0 j ≤ )∑≠ i< ( j 0 ≤(, K K) ) ∑ i∈N
+| | | |
+(22)
+The coefficients and structure of the K–C inequalities are shown in Fig. 2, where we
+assume R={1,…, R } and N={ R +1,…,K−1} . Edges in F (required and
+non-required, if any) are represented by thick lines. For each pair (a, b) associated
+with an edge e, a an|d b | represent th|e c|oefficients of x e and y e , respectively. From
+Theorem 2, K–C inequalities (22) are valid for 1–RPP(G) because they are obtained
+Fig. 2 Coefficients of the K–C
+inequality
+1 3
+Polyhedral analysis and a new algorithm for the length… 79
+from the corresponding K–C inequalities for the MBCPP after replacing each x e by
+one and by removing the y e variables for all the required edges e.
+Theorem 8 K-C inequalities (22) are facet-inducing for 1–RPP(G) if subgraphs
+(S i ,E NR (S i )) , i=0,…,K , are 3-edge connected, (S i ∶S i+1 ) ≥2 for i=0,…,K−1 ,
+and F R ≥2 .
+| |
+| |
+3.2 The K–RPP polyhedron ( K≥2)
+In this section we study the K–RPP with K ≥2 on graph
+G=(V,E)=(V R ,E R ∪E N � R ∪E N �� R ) . Recall that K–RPP(G) denotes the polytope
+defined as the convex hull of the vectors
+(x1,y1,x2,y2,…,xK,yK)∈ℤ(2E
+NR
++E
+R
+)K
+corresponding to K–RPP solutions.
+| | | |
+Theorem 9 If (V,E
+NR
+) is a 3-connected graph, then K–RPP(G) is a full-dimensional
+polyhedron, i.e., dim(K–RPP(G))=K(2 E
+NR
++ E
+R
+).
+Proof See the Appendix. | | | | ◻
+In the following, we will assume that (V,E NR ) is a 3-connected graph and thus
+K–RPP(G) is full-dimensional. Therefore every facet of the polyhedron is induced
+by a unique inequality (except scalar multiples).
+The proofs of the following theorems can be found in the Appendix.
+Theorem 10 Inequality yk e ≥0 , for each edge e∈E NR , and for each drone
+k∈{1,2,…,K} , is facet-inducing of K–RPP(G).
+Theorem 11 Inequality x e k ≤1 , for each edge e∈E NR , and for each drone
+k∈{1,2,…,K} , is facet-inducing of K–RPP(G).
+Theorem 12 Inequality (5) x e k ≥yk e , for each edge e∈E NR , and for each drone k, is
+facet-inducing of K–RPP(G) if graph (V,E
+NR
+⧵{e}) is 3-edge connected.
+Theorem 13 Inequality x e k ≤1 , for each edge e∈E R , and for each drone k, is facet-
+inducing of K–RPP(G).
+Theorem 14 Inequality x e k ≥0 , for each edge e∈E R , and for each drone k, is facet-
+inducing of K–RPP(G).
+K
+Theorem 15 Inequalities (4), x e k ≥1 , for each edge e∈E R , are facet-inducing of
+k=1
+K–RPP(G). ∑
+1 3
+80 J. Campbell et al.
+Theorem 16 Connectivity inequalities (2), xk 𝛿 R (S) +(xk+yk) 𝛿 NR (S) ≥2x f k,
+∀S⊆V⧵{1}, ∀f∈E(S), and ∀k=1,…,K , are facet-inducing of K–RPP(G) if sub-
+( ) ( )
+graph (S,E
+NR
+(S)) is 3-edge connected and either V⧵S =1 or subgraph
+(V⧵S,E
+NR
+(V⧵S)) is 3-edge connected.
+| |
+3.2.1 Parity inequalities
+Since parity inequalities (18) are valid for the MBCPP on G, from Theorem 2 we
+have that the following parity inequalities
+xk(𝛿 (S)⧵F)+(xk−yk)(𝛿 (S)⧵F)≥xk(F )+(xk−yk)(F )− F +1,
+R NR R NR (23)
+for each drone k, any S⊂V , and F⊆𝛿(S) with |F| odd, are valid for the K–RPP on G.
+| |
+Theorem 17 Parity inequalities (23) are facet-inducing of K–RPP(G) if subgraph
+(S,E NR (S)) is 3-edge connected and either V⧵S={1} , or subgraph (V⧵S,E NR (V⧵S))
+is 3-edge connected.
+Proof See the Appendix. ◻
+3.2.2 p–connectivity inequalities
+Let {S 0 ,…,S p } be a partition of V. Assume that 1∈S d , d ∈{0,…,p} and consider
+one edge e j ∈E(S j ) for every j∈{0,…,p}⧵{d} . Since the p–connectivity inequal-
+ity (20) is valid for the MBCPP on G, from Theorem 2, the following inequality for
+each drone k
+p
+xk(𝛿 (S ))+(xk+yk)(𝛿 (S ))+2 xk(S ∶S)≥2 xk,
+R 0 NR 0 r t e (24)
+i
+1≤r<t≤p i=0,i≠d
+∑ ∑
+is valid for the K–RPP and will be referred to as p–connectivity inequality.
+Theorem 18 p-connectivity inequalities (24) are facet-inducing for K–RPP(G)
+if subgraphs (S i ,E NR (S i )) , i=0,…,p , are 3-edge connected, (S 0 ∶S i ) ≥2 ,
+∀i=1,…,p , and the graph induced by V⧵S 0 is connected, and all the edges
+e
+j
+∈E(S
+j
+) are required edges.
+| |
+Proof See the Appendix. ◻
+3.2.3 K–C inequalities
+Let {S 0 ,…,S K } , with K ≥3 , be a partition of V. We assume that the depot
+1∈(S 0 ∪S K ) and E(S i )≠� , for all i=1,2,…,K−1 . We select one edge e i ∈E(S i )
+for all i. Let F ⊆(S 0 ∶S K ) be a set of edges, with F ≥2 and even. For each drone
+k, the following inequalities
+| |
+1 3
+Polyhedral analysis and a new algorithm for the length… 81
+(K−2)xk (S ∶S ) ⧵F −(K−2)xk(F )
+0 K R R
+( )
++ (K−2)(xk−yk) (S ∶S ) ⧵F −(K−2)(xk−yk)(F )
+0 K NR NR
+( )
++ (j−i)xk(S ∶S) + (j−i)xk(S ∶S) +(2−j+i)yk(S ∶S)
+i j R i j NR i j NR
+(i, 0 j ≤ )∑≠ i< ( j 0 ≤ , K K) (i, 0 j ≤ )∑≠ i< ( j 0 ≤(, K K) )
+K−1
+≥2 xk −(K−2) F .
+e
+i
+i=1
+∑
+(25)
+| |
+will be referred to as K–C inequalities. If the depot 1∈S d , d ∈{1,…,K−1} , the
+RHS of the K–C inequalities is:
+K−1
+≥2 xk +2−(K−2) F .
+e i (26)
+i=1
+∑i≠d
+| |
+From Theorem 2, K–C inequalities (25) and (26) are valid for the K–RPP because
+they are obtained from the corresponding K-C inequalities for the MBCPP (see [10])
+after removing the y e variables for all the required edges e.
+Theorem 19 K-C inequalities (25) and (26) are facet-inducing for K–RPP(G) if
+subgraphs (S i ,E NR (S i )) , i=0,…,K , are 3-edge connected, (S i ∶S i+1 ) ≥2 for
+i=0,…,K−1 , and F R ≥2 and e i ∈E R (S i ) for all i.
+| |
+Proof See the Appen|dix.| ◻
+3.3 Other valid inequalities for the LC K–RPP
+Although we have removed the constraints (3), which limit the length of each route,
+for the polyhedral study, they have to be taken into account when solving the prob-
+lem. Based on these constraints, we present some sets of valid inequalities for the
+LC K–RPP, called max–length inequalities.
+Let F ⊆E R be a subset of required edges. Consider the General Routing Problem,
+GRP, defined on graph G, with required edges F and required vertex 1 (the depot), if
+it is not incident with an edge in F. This problem consists of finding a minimum cost
+tour traversing the edges of F at least once and visiting the depot. Let grp(F) be its
+optimal value (or a lower bound of it). If grp(F) >L , then we have that the following
+inequalities are valid for the LC K–RPP:
+xk(F)≤ F −1, ∀k∈{1,2,…,K},
+(27)
+which indicate that a single vehicle cannot service all the arcs in F.
+| |
+Let S be the set of vertices incident with the edges in F, and suppose that 1∉S .
+Then, at least two vehicles must enter in S, and we have
+1 3
+82 J. Campbell et al.
+K
+xk(𝛿 (S))+(xk+yk)(𝛿 (S)) ≥4
+R NR (28)
+k=1
+∑( )
+Moreover, to force two different vehicles to enter S, instead of a single vehicle enter-
+ing S twice, we have the following inequalities
+xk(𝛿 (S))+(xk+yk)(𝛿 (S)) ≥2, ∀k� ∈{1,2,…,K}.
+R NR (29)
+k≠k�
+∑( )
+The above inequalities, can be easily generalized to any value p= grp(F) >1 if
+L
+grp(F) >(p−1)L.
+⌈ ⌉
+4 B ranch–and–cut algorithm for the LC K–RPP
+Based on the polyhedral study described in the previous section, we have designed
+and implemented a branch–and–cut algorithm for the LC K–RPP. This method is
+based on a cutting-plane algorithm that incorporates separation procedures for the
+inequalities presented in this article. These procedures are similar to some already
+proposed for other arc routing problems.
+The initial LP relaxation contains inequalities (3), (4), and (5), the bounds on
+the variables, and a parity inequality (23) with F =𝛿(v) for each odd-degree ver-
+tex v. Moreover, in order to avoid equivalent solutions produced by the symmetry
+among the vehicles, the following symmetry-breaking inequalities are also added.
+Assume the required edges are ordered in descending order according to the dis-
+tances between them and the depot as e 1 ,e 2 ,…,e E . Then, we add:
+R
+• x e 1 =1 . | |
+• x e k1 ≤ j i− = 1 1 x e k−1 , k=2,..., K , i≥2 .
+i j
+• x e k i =0 ∑ , k=i+1,..., K , i=1,..., E R −1.
+| |
+In addition, to prune the s|ea|rch tree, we u|se a| bound obtained by the heuristic algo-
+rithm proposed in [5].
+4.1 Separation algorithms
+Given a solution of the current LP in an iteration of the cutting-plane algorithm,
+we describe here the separation algorithms that have been used to identify violated
+inequalities of the following classes: connectivity, parity, p–connectivity, and K–C
+inequalities.
+Given a fractional solution for a vehicle k, (x̄k,ȳk) , and a parameter 𝜀>0 , we will
+use two support graphs,
+Gk(𝜀)
+and
+Gk(𝜀)
+, which are the graphs induced by the edges
++ −
+1 3
+Polyhedral analysis and a new algorithm for the length… 83
+e∈E such that x̄k(e)+ȳk(e)>𝜀 and x̄k(e)−ȳk(e)>𝜀 , respectively, plus the depot,
+if necessary.
+4.1.1 Connectivity inequalities
+For each vehicle k, connectivity inequalities (2) can be exactly separated in poly-
+nomial time with the following well-known algorithm. For each edge f such that
+x̄k(f)>0 , compute the minimum cut in graph Gk separating edge f from the depot.
++
+If the weight of this cut is less than
+2x̄k(f)
+, then the corresponding inequality (2) is
+violated.
+This algorithm is very time consuming and can produce many violated inequali-
+ties that are very similar to each other. Therefore, we avoid studying the edges close
+to an edge f for which a violated connectivity inequality has already been found.
+Thus, the number of calculated minimum cuts and inequalities added to the LP are
+reduced.
+We also use two heuristic algorithms. The first one computes the connected com-
+ponents of graph Gk(𝜀) . For each connected component and for the edge f in it with
++
+maximum
+x̄k(f)
+, the corresponding inequality (2) is checked for violation.
+The second is based on reducing the size of the graph on which the minimum
+cuts are calculated, by shrinking the connected components of the graph induced by
+edges with
+x̄k(e)≥1−𝜀�
+into a single vertex each, where
+𝜀′
+is a parameter. Then,
+we calculate all the minimum cuts between the vertex corresponding to the compo-
+nent containing the depot and the remaining ones. The corresponding connectivity
+inequalities are checked for violation.
+4.1.2 Parity inequalities
+If we replace x−y by x in the parity inequalities (23) for a vehicle k, we obtain
+xk(𝛿(S)⧵F)≥xk(F)− F +1, ∀S⊂V, ∀F⊂𝛿(S) with F odd,
+which are the well-known cocircuit inequalities presented in [18]. They can be
+| | | |
+exactly separated in polynomial time with an algorithm (see [3], for example) based
+on the computation of odd minimum cuts, which can be computed with the classical
+Padberg-Rao procedure [32] or with the improved one by Letchford et al. [25].
+For the special case where S={v} , there is an exact and simple procedure to
+define the set F ⊆𝛿(v) that corresponds to the most violated parity inequality (see
+[18]).
+We also use a heuristic algorithm based on the computation of the connected
+components of
+Gk(𝜀)
+. For each cut-set corresponding to a connected component, the
+−
+set F is found by applying the same procedure as for S={v}.
+1 3
+84 J. Campbell et al.
+4.1.3 p–connectivity inequalities
+For each vehicle k, we use a heuristic algorithm similar to the one proposed in [10]
+for the MBCPP. The algorithm starts by searching for a cut-set (S,S ̄ ) corresponding
+to a tight connectivity inequality (2) among those obtained with the connectivity
+separation procedures. Let us suppose that 1∈S ̄ and S 0 =S ̄ . Then we compute the
+connected components in the subgraph induced in G(S) by the edges e∈E(S) with
+x̄k(e)≥1−𝜀 , where 𝜀 is a given parameter. For each pair C i ,C j of such components,
+we compute
+s =2x̄k(V,V)−2min{x̄k(e),x̄k(e)},
+ij i j i j
+where V r is the set of vertices in component C r and e r is the edge in C r with the high-
+est value of x̄k(e) . The value s ij represents the savings in the left-hand side of the
+inequality obtained after shrinking components C i and C j . We iteratively shrink the
+components that maximize s ij while s ij >0 . This procedure defines sets S 1 ,…,S p .
+The p-connectivity inequality associated with this partition is checked for violation.
+4.1.4 K–C inequalities
+For each vehicle k, we have implemented a heuristic algorithm that is an adapta-
+tion of the one proposed in [9] for the General Routing Problem. In that problem,
+the required edges determine the way in which set V is partitioned in S 0 ,…,S K .
+Here, we partition V in the same way but considering as required edges those with
+x̄k(e)≥1−𝜀 . Then, the set F is defined by the required edges with ȳk(e)≤𝜀� , where
+𝜀,𝜀′
+are two given parameters.
+4.1.5 Max–length inequalities
+Two heuristic algorithms are used to separate max–length inequalities.
+The first heuristic looks for violated inequalities (27). It tries to cut fractional
+solutions in which, for a vehicle k, several x e k variables, for e∈E R , take values close
+to 1 and another one takes a value close to 0.5. Let {e 1 ,e 2 ,…,e m } be a set of
+required edges such that x e k ≥x e k ≥…≥x e k ≥0.5 . We define F ={e 1 ,e 2 ,…,e f } ,
+1 2 m
+where f is the maximal number such that xk(F)> F −1+𝜀 (initially we set
+𝜀=0.5 ), and we call “potential edges” the remaining {e f+1 ,…,e m } . We check if
+grp(F) is greater than L and, therefore, the correspondin|g |inequality (27) is violated.
+Otherwise, for each potential edge e , we iteratively consider the set F =F∪{e} and
+check if grp(F ) is greater than L. Finally, if no violated inequality has been found for
+any set F , we set 𝜀=0 and repeat the process. For each subset F (or F ) whose cor-
+responding inequality (27) is violated, we look for the cutset of minimum weight
+between the depot and the edges in F and the corresponding max-length inequalities
+(28) and (29) are checked for violation.
+The second heuristic looks for inequalities (28). We first construct the aggre-
+gate solution x e = K k=1 x e k and y e = K k=1 yk e . The procedure starts by selecting
+∑ ∑
+1 3
+Polyhedral analysis and a new algorithm for the length… 85
+the vertex i≠1 farthest from the depot such that the maximum flow from 1 to i
+is less than 2K. Then a sequence of vertices is iteratively added in such a way that
+K k=1 xk(𝛿 R (S))+ K k=1 (xk+yk)(𝛿 NR (S)) is minimum for the resulting subset S. For
+each subset S generated, we compute the minimum number of vehicles needed to
+∑ service all the edg ∑ es in E R (S) by solving the associated GRP, and the corresponding
+inequality (28) is checked for violation. If a violated constraint (28) is found, at least
+one of the inequalities (29) is also violated and it is added. Furthermore, the corre-
+sponding inequality (27) is also checked for violation.
+Given a set of edges F, the value of grp(F) is computed by solving the corre-
+sponding GRP with the branch–and–cut algorithm described in [11]. To minimize
+the number of GRPs solved, two lists containing the already studied sets F of edges
+are managed.
+4.2 The cutting–plane algorithm and branching strategies
+The cutting-plane algorithm applies, at each iteration, the separation procedures in
+this specific order:
+1. The first heuristic algorithm for connectivity inequalities with
+𝜀=0,0.25,0.5
+. The
+𝜀
+value of is increased only if the previous one results in no violated inequalities
+found.
+2. If no violated inequalities are found so far, the second connectivity heuristic
+is executed for all the values
+𝜀� =0,0.1,0.2,0.3,0.4
+. For each tight cut–set
+obtained, the p–connectivity heuristic separation algorithm is invoked with
+𝜀∈{0,0.15,0.3}.
+3. The exact parity separation procedure for single vertices is applied.
+4. The heuristic procedure for parity inequalities with
+𝜀=0,0.25,0.5
+. The different
+𝜀
+values of are used only if no violated inequalities are obtained with the previous
+ones.
+5. If no violated connectivity nor parity inequalities have been found for a given
+vehicle k, the separation algorithm for K–C inequalities for this vehicle is applied
+with parameters
+(𝜀,𝜀�)=(0,0)
+. If it fails, values
+(0,0.2),(0.2,0),(0.2,0.2)}
+are
+tried.
+6. Only at the root node and nodes whose depth in the search tree is a multiple of 3,
+we apply the max–length separation algorithms.
+7. Only at the root node and if no violated connectivity, parity nor K–C inequalities
+have been found, we apply the exact procedure for parity inequalities.
+8. Finally, only at the root node and if no violated connectivity, parity nor K–C
+inequalities have been found, we apply the exact procedure for connectivity
+inequalities. Again, for each tight cut–set obtained, the p–connectivity heuristic
+separation algorithm is invoked with
+𝜀∈{0,0.15,0.3}.
+1 3
+86 J. Campbell et al.
+5 G lobal algorithm for the LC K–DRPP
+Given a LC K–DRPP instance, if the number of intermediate points to which each
+line is approximated is large, the size of the LC K-RPP instance is huge and, there-
+fore, very hard to solve. Hence, it is necessary to implement a procedure that itera-
+tively generates LC K–RPP instances by approximating each line by a polygonal
+chain with few but “significant” points and segments. These smaller LC K–RPP
+instances are solved with the branch–and–cut procedure described in Sect. 4.
+The global procedure begins by applying the heuristic algorithm described in
+[5] and solving with the branch–and–cut algorithm the LC K–RPP instance, called
+LC K–RPP(0), in which each original line is approximated by only one (required)
+edge without intermediate points. We will call V o the set of endpoints of the original
+lines. The set of non-required edges defines a complete graph and their costs are the
+Euclidean distances.
+From the two solutions obtained with the heuristic and the branch and cut, we
+generate a new LC K–RPP instance in the following way. Let W 0 be the set of verti-
+ces incident with non-required edges in any of these two solutions. Note that all the
+vertices in W 0 obtained from the solution of the LC K–RPP(0) instance are vertices
+of V o , while some vertices in W 0 obtained from the heuristic solution can be interme-
+diate points. From W 0 we define another set W 1 of intermediate points to generate the
+next LC K–RPP instance as follows.
+For each line incident with an endpoint in W 0 , we add to W 1 the intermediate ver-
+tex that splits the line in two segments of the same length. Furthermore, all the ver-
+tices in W 0 ⧵V o are added to W 1 to guarantee that the solution from the heuristic is a
+feasible solution of the new instance.
+The instance with vertex set V o ∪W 1 , LC K–RPP(1), is generated with the seg-
+ments joining vertices in V o ∪W 1 as required edges and it is solved with the
+branch–and–cut algorithm.
+(a) (b)
+Fig. 3 Illustration of the procedure that adds intermediate vertices
+1 3
+Polyhedral analysis and a new algorithm for the length… 87
+Given the solution of instance LC K–RPP(i), i≥1 , with vertex set V o ∪W i , we
+generate the instance LC K–RPP(i+1) with vertex set V o ∪W i+1 , where W i+1 is
+defined as follows. We initialize W i+1 with the vertices of W i incident with a non-
+required edge used by the solution. Then, for each required edge of LC K–RPP(i)
+having at least one endpoint incident with a non-required edge used by the solution,
+we add to W i+1 the intermediate point that splits this edge into two parts of equal
+length. Note that the vertices of W i that are not used in the solution are not included
+in the new instance. Figure 3b illustrates the LC
+K–RPP(i+1
+) instance with vertex
+set V 0 ∪W i+1 obtained from the LC K–RPP(i) optimal solution depicted in Fig. 3a
+with 2 drones and vertex set V 0 ∪W i . In both figures, the square node represents the
+depot, white nodes represent set V 0 , and black nodes are the vertices in W i and W i+1 .
+Solid lines correspond to required edges, while dotted lines represent non-required
+ones. This procedure is iteratively applied up to
+i=4
+and while the computing time
+does not exceed two hours.
+Although with this procedure the size of the vertex sets of the instances does not
+increase much, the number of non-required edges is still huge, since they induce a
+complete graph. In order to reduce the number of non–required edges, we apply the
+following preprocessing procedure to each instance LC K–RPP(i), i≥0 .
+First, all the non-required edges (i, j) such that there is a vertex k with
+c ij ≥0.99(c ik +c kj ) are removed. Moreover, if c max is the length of the longest non-
+required edge, we remove those edges (i, j) such that c ij >c max ∕3 and there is a ver-
+tex k with c ij ≥0.95(c ik +c kj ) . However, for i≥1 , if a non-required edge is used in
+the solution of LC K–RPP(i-1), it is not removed in order to guarantee that the solu-
+tion of the new instance is not worse than the previous one.
+Since we have removed some non-required edges in the previous preprocessing, it
+is possible that the solution of an instance contains two adjacent non-required edges
+(i, k), (k, j). If this happens, we replace them with the non-required edge (i, j) if the
+resulting solution is not disconnected.
+6 Computational experiments
+Here we present the computational experiments carried out to assess the perfor-
+mance of our algorithm. First we describe the LC-DRPP instances used, which were
+introduced in [5]. Then we show the results obtained by the proposed procedure.
+Finally, a comparison of the branch–and–cut for the LC-RPP with the one used in
+[5] is presented.
+The algorithms have been implemented in C+ + and all the tests have been run
+on an Intel Core i7 at 3.4 GHz with 32 GB RAM. The B &C uses CPLEX 12.6
+MIP Solver with a single thread. CPLEX heuristic algorithms were turned off, and
+CPLEX’s own cuts were activated in automatic mode. The optimality gap tolerance
+was set to zero and best bound strategy was selected.
+1 3
+88 J. Campbell et al.
+Table 1 Characteristics of the
+Instance Original Original
+instances
+name vertices lines
+DroneRPP56 22.3 21.3
+DroneRPP66 27.0 23.3
+DroneRPP58 34.0 29.6
+DroneRPP68 36.6 35.0
+DroneRPP77 38.6 41.6
+DroneRPP510 41.6 42.0
+DroneRPP610 50.0 46.6
+DroneRPP79 50.3 53.6
+DroneRPP88 56.3 51.0
+DroneRPP710 58.3 56.6
+DroneRPP89 60.3 56.3
+DroneRPP99 66.3 65.3
+DroneRPP810 68.6 67.0
+DroneRPP910 78.6 74.6
+DroneRPP1010 82.0 81.0
+6.1 Instances
+The procedure has been tested on two sets of instances presented in [5], which were
+based on the ones from [4] for the Drone RPP. The first set consists of 30 random
+instances, while the second one, called even, contains 15 instances obtained by mod-
+ifying the set of required edges of some of the random instances to reduce the num-
+ber of odd-degree vertices. The goal in [4] to generate even instances was to obtain
+instances such that: their solutions were significantly different from those obtained
+for instances of classical ARPs; they were more difficult for the branch–and–cut
+algorithms; and the graphs of these instances resemble the shapes that appear in
+cutting path problems. These instances have between 18 and 92 lines and between
+22 and 83 nodes (see Table 1). Each row of Table 1 corresponds to three instances
+(two random and one even) sharing the same grid, and shows the average number of
+vertices and lines.
+In [5], five different values for the length limit L were generated for each
+instance in such a way that the number of drones for each one ranges from 2 to
+6. Hence, there are 5 LC K–DRPP instances for each one of the 45 Drone RPP
+instances above, resulting in a total of 225 instances. These instances are avail-
+able at http://w ww.u v.e s/c orber an/i nstan cias.h tm.
+6.2 Computational results of the global algorithm
+In this section we present the results obtained with the global algorithm on the
+225 LC K–DRPP instances presented before with a time limit of two hours.
+Table 2 summarizes these results organized by set of instances and number of
+vehicles. Columns 4, 5, 6, and 7 report the average values obtained for all the
+1 3
+Polyhedral analysis and a new algorithm for the length… 89
+Table 2 Improvement of the global algorithm over the heuristic
+All instances Improved instances
+Type #veh #inst Imp(%) TimeH Time #iter #impr Imp(%) TimeH Time #iter #itb
+R 2 30 0.41 46.2 3815.2 4.2 13 0.87 40.4 2842.1 4.4 3.6
+3 30 2.12 37.4 5253.2 3.2 22 2.65 37.2 5182.3 3.4 2.3
+4 30 3.38 36.5 6310.1 2.5 19 5.33 32.2 5773.5 3.2 2.5
+5 30 1.89 35.6 6959.2 1.9 14 3.77 27.0 6673.4 2.3 1.5
+6 30 0.66 36.9 7130.6 1.8 8 2.47 30.2 6819.1 3.1 2.0
+E 2 15 1.05 75.5 2583.2 4.3 13 1.21 42.5 1872.9 4.8 4.1
+3 15 1.44 51.6 5922.3 3.1 10 2.16 26.5 4003.3 4.1 3.4
+4 15 2.07 58.3 6587.9 2.5 9 3.46 22.7 5070.5 3.6 2.8
+5 15 0.62 58.0 5423.2 2.0 5 1.87 19.1 3990.1 3.6 3.4
+6 15 0.38 58.5 6364.0 1.9 5 1.13 12.6 5363.6 3.6 3.4
+Total 225 1.50 118 2.77
+instances of each group. The “Imp(%)” column shows the percentage improve-
+ment of the deadheading cost of the best solution found by the algorithm with
+respect to the solution provided by the heuristic proposed in [5], and column
+“TimeH” reports the average computing time in seconds used by the heuristic.
+Columns “Time” and “#iter” present the average computing time in seconds and
+the average number of iterations done by the global algorithm, respectively. Col-
+umn 8 gives the number of instances in which the global algorithm was able to
+find a better solution than the one given by the heuristic procedure. The next four
+columns report the same figures as columns 4 to 7, but only for those instances
+for which a better solution was found. Last column “#itb” gives the average num-
+ber of iterations of the global algorithm needed to reach the best solution.
+As we can see in Table 2, the algorithm has improved the results provided
+by the heuristic in 118 out 225 instances and the average improvement obtained
+ranges from 0.87% to 5.33%. In the case of the random instances, when the num-
+ber of vehicles is 2, our algorithm improves only 13 out of 30 instances, despite
+being able to complete the 5 iterations in most of them. This is probably due to
+the high quality of the solutions provided by the heuristic algorithm for these
+instances. Note that with 3, 4, and 5 vehicles, the number of improved solutions
+increases, as well as the average improvement. The results with 6 vehicles present
+lower improvements, but in this case this may be due to the global algorithm not
+being able to complete more than 2 iterations on average. Regarding the even
+instances, except those with 2 vehicles, both the number of instances in which
+the global algorithm improves the heuristic, as well as the percentage of improve-
+ment, are smaller. This may be due to the fact that, as pointed out before, even
+instances are more difficult for branch–and–cut algorithms. The improvements
+obtained by the global algorithm require a considerable running time, but note
+that the number of iterations needed to reach the best solution is lower than the
+total number of iterations.
+1 3
+90 J. Campbell et al.
+Table 3 Detailed results on random instance DroneRPP77_1
+Iteration number
+#veh Heur 1 2 3 4 5 Time
+2 1889.37 1889.37 1889.37 1889.37 1889.37 1889.37 294.0
+3 2154.41 2060.28 1989.41 1946.42 1924.66 1913.69 526.2
+4 2709.32 2634.49 2459.05 2413.75 2388.51 2377.05 6888.3
+∗
+5 3369.75 3348.92 3348.91 3348.91 7200
+∗
+6 4588.93 4626.03 4399.8 7200
+In order to describe with more detail the behavior of the proposed procedure, we
+present in Table 3 the results for a specific instance with 2 to 6 vehicles. Column
+“Heur” reports the deadheading cost of the solution provided by the heuristic. Col-
+umns labeled 1 to 5 show the deadheading costs of the solutions obtained in the cor-
+responding iteration of the global algorithm. All these costs correspond to optimal
+solutions of the branch–and–cut for the LC K-RPP instances except those marked
+with an “asterisk”, which are associated with the best feasible solution known when
+the time limit was reached. The total computing time in seconds is reported in the
+last column. In the instance with 2 vehicles, the algorithm is capable of doing 5 iter-
+ations in only 5 minutes, but no improvement is obtained. However, in the instances
+with 3 and 4 vehicles a better solution is found in each of the 5 iterations. When 5
+and 6 vehicles are considered, the two hour time limit is reached without the algo-
+rithm being able to complete all 5 iterations, although the last feasible solutions
+found improve those of the heuristic.
+6.3 Testing the branch–and–cut algorithm for the LC K‑RPP
+Although the main goal of this paper is to find good solutions for the LC K-DRPP, to
+do so we have studied the LC K-RPP, for which we have presented a new formulation,
+studied its associated polyhedron, and based on this, we have designed and implemented
+a sophisticated branch–and–cut algorithm. Since the LC K-RPP and its solution have
+an interest by themselves, in this section we test the performance of the proposed B &C
+(BC2 in what follows). In order to do so, we compare it with that presented in [5] (BC1).
+In that paper, the branch and cut was run only on the LC K–RPP instances in which each
+original line is approximated by only one (required) edge, without intermediate points,
+denoted LC K–RPP(0). Therefore, we compare both branch–and–cut algorithms only
+on these instances, with a time limit of two hours. The results are reported in Table 4,
+where columns 4 and 7 show the percentage average gaps of the lower bounds obtained
+with both procedures with respect to the cost of the best solution known, while columns
+labeled “#opt” and “#ub” report, for both algorithms, the number of instances for which
+an optimal solution or a feasible solution has been found, respectively.
+Overall, the performance of BC2 is very good and clearly superior to that of BC1. In
+particular, it finds the optimal solution in 137 instances and obtains a feasible solution
+in 211 out of 225, while the BC1 obtains 74 optimal solutions and 162 feasible ones.
+1 3
+Polyhedral analysis and a new algorithm for the length… 91
+Table 4 Comparison of branch–and–cut procedures on the LC K–RPP(0) instances
+BC1 BC2
+Type #veh #inst Gap (%) #opt #ub Gap (%) #opt #ub
+R 2 30 0.02 28 30 0.01 29 30
+3 30 0.95 16 30 0.23 24 30
+4 30 3.21 3 24 1.48 19 30
+5 30 5.85 3 16 2.98 11 27
+6 30 8.51 3 8 5.09 10 25
+E 2 15 0.09 13 15 0.09 13 15
+3 15 1.67 5 15 0.45 11 15
+4 15 4.02 1 13 1.94 9 15
+5 15 6.59 1 6 3.71 6 12
+6 15 8.11 1 5 4.94 5 12
+Total 225 74 162 137 211
+Table 5 Impact of the proposed % % # #
+Gap0 ( ) Gap ( ) Time opt ub
+valid inequalities in the
+performance of the B &C BC2 5.48 2.03 91.5 137 211
+Basic B &C 10.27 9.14 799.7 45 97
+Regarding the gaps, in most of the cases the gap obtained by BC2 is about half the gap
+by BC1. Moreover, in the 53 random instances that are optimally solved by both meth-
+ods, BC2 uses 367.2 seconds on average, while BC1 needs 726.0 seconds. The average
+times corresponding to the 21 even instances solved by both methods are 165.1 and
+1391.0 seconds, respectively.
+To assess the contribution of the valid inequalities used in the proposed B &C
+(BC2), we have compared in Table 5 the results obtained by this procedure with a B
+&C using only connectivity inequalities as lazy cuts when the LP solutions are integer
+and CPLEX default cuts (Basic B &C) on the total 225 instances. Column 1 reports the
+average percentage gap between the lower bound obtained at the end of the root node
+and the best solution known, while column 2 reports the gap calculated with the final
+lower bound. Column “Time” shows the average time in seconds used by each algo-
+rithm in those instances solved to optimality by both of them, while columns 4 and 5
+report the number of optimal solutions obtained and the number of instances in which
+at least one feasible solution has been found, respectively. As can be seen, the proce-
+dure using all the inequalities clearly outperforms the basic B & C in all the reported
+measures, which shows the impact of using these inequalities for solving the problem.
+7 Conclusions
+In this paper we have presented an iterative procedure to solve the Length Constrained
+K–Drones Rural Postman Problem. This is a continuous optimization problem that we
+discretize by approximating each required line by a polygonal chain, thus obtaining an
+1 3
+92 J. Campbell et al.
+instance of the Length Constrained K–Rural Postman Problem. In order to avoid the
+size of the instances growing too much, we have included only a reduced number of
+intermediate points to each polygonal chain. Furthermore, at each iteration these inter-
+mediate points are dynamically changed depending on the solution obtained in the pre-
+vious iteration.
+To solve the LC K–RPP instance at each iteration, we have designed and imple-
+mented a branch–and–cut algorithm based on a new formulation and its correspond-
+ing polyhedral study. This procedure has shown to be very effective in the solution of
+LC K–RPP instances from the literature and the obtained results improve those previ-
+ously published. This algorithm has allowed us to obtain very good solutions for the
+LC K–DRPP.
+One line of research we are currently working on is the study of a more gen-
+eral problem that combines the visit of vertices to deliver goods and the traversal
+of certain lines to inspect areas, for example. Future research includes exploring the
+dependence of energy consumption on the speed and altitude of drones.
+A Appendix: Proofs of Theorems 9 to 19
+Theorem 9 If (V,E
+NR
+) is a 3-connected graph, then K–RPP(G) is a full-dimensional
+polyhedron, i.e., dim(K–RPP(G))=K(2 E
+NR
++ E
+R
+).
+Proof Consider the 1–RPP defined on| G a|nd |its |associated polytope 1–RPP(G).
+From Theorem 3, and since (V,E NR ) is 3-edge connected, we know that dim(1–
+RPP(G))=2 E NR =m . Since 0∉ aff(1–RPP(G)), because all its points satisfy
+equations (14), there exist
+m+1
+affinely and linearly independent 1–RPP tours
+z 1 ,z 2 ,…,z m+|1 on| G, each z i =(x i ,y i ) satisfying x i (e)=1 for all the edges in E R . We
+can assume that one of them, say z 1 =(x 1 ,y 1 ) is formed with two copies of each
+edge in E NR and then replacing one copy of each e∈E N � R by the required edge par-
+allel to e. Hence, it satisfies x 1 (e)=1 for all e∈E R , x 1 (e)=1 , y 1 (e)=0 for all
+e∈E N � R , and x 1 (e)=y 1 (e)=1 for all e∈E N �� R . We can build (m+1)K K–RPP solu-
+tions in the following way. One drone performs any 1–RPP tour z j above, while the
+other drones perform z 1 . These (m+1)K solutions are depicted as the rows of the
+three first block rows in the matrix shown in Fig. 4, where, for the sake of simplicity,
+we have supposed we have K =3 drones.
+Furthermore, we can build K E R more K–RPP solutions in the following way.
+Consider the 1–RPP solution z 1 above. For each required edge e∈E R , we define the
+vector t (e) =(x (e) ,y (e) ) equal to z 1 e|xce|pt for the entries x (e) (e)=x (e) (e�)=0 , where e′
+denotes the non-required edge parallel to e. This vector represents a tour on graph G
+because its support graph is even and connected. For any required edge e, one drone
+performs t (e) while the other drones perform z 1 . These K E R solutions are depicted
+as the rows of the three last block rows in the matrix shown in Fig. 4, where the
+required edges are {e 1 ,e 2 ,…,e E }. | |
+R
+If we subtract the first row from all the other rows and then we remove the null
+rows, we obtain the matrix in |Fi|g. 5, where all the non-depicted values are zero,
+1 3
+Polyhedral analysis and a new algorithm for the length… 93
+Fig. 4 K–RPP solutions to prove dimension
+Fig. 5 K–RPP solutions to prove dimension
+1 3
+94 J. Campbell et al.
+and a big zero in a block means that all the entries of this block are zero. Its
+K(2 E NR + E R ) rows are linearly independent because the first -1 entry in each pair
+−1,−1 in the rows of the three last block rows is associated with each edge e∈E R ,
+and |sinc|e z i| −z |1 takes value zero in all the required edges, it is the only non-zero
+entry in the column corresponding to e. Hence, we have K(2 E NR + E R )+1 aff-
+inely independent K–RPP solutions and we are done. ◻
+| | | |
+As in Theorem 10 above, in the proofs of the following theorems we will rep-
+resent the K–RPP solutions that we define only for K=3 drones, although they
+can be extended to any value of K.
+Note 1 The vectors z 1 ,z 2 ,…,z m+1 , from the dimension of 1–RPP(G), and t (e) , for
+each e∈E R , defined in the proof of Theorem 9 will be used also in the proofs
+of the following theorems. In particular, z 1 =(x 1 ,y 1 ) satisfies x 1 (e)=1 for all
+e∈E R , x 1 (e)=1 , y 1 (e)=0 for all e∈E N � R , and x 1 (e)=y 1 (e)=1 for all e∈E N �� R .
+For each e∈E R , we define t (e) =(x (e) ,y (e) ) equal to z 1 except for the entries
+x (e) (e)=x (e) (e�)=0 , where e� ∈E N � R denotes the non-required edge parallel to
+e∈E R.
+Fig. 6 K–RPP solutions to prove Theorem 10 (case e∈E N � R)
+1 3
+Polyhedral analysis and a new algorithm for the length… 95
+Theorem 10 Inequality yk e ≥0 , for each edge e∈E NR , and for each drone
+k∈{1,2,…,K} , is facet-inducing of K–RPP(G).
+Proof Let us suppose first that e∈E� . Consider the 1–RPP defined on G and its
+NR
+associated polytope 1–RPP(G). Given that y e ≥0 is facet-inducing of 1–RPP(G)
+(Theorem 4), there exist m=2 E NR affinely independent 1–RPP tours w 1 ,w 2 ,…,w m
+on G, each w i =(x i ,y i ) , satisfying x i (a)=1 for all a∈E R , and y i (e)=0 . Consider
+also the tours z 1 ,z 2 ,…,z m+1 fro|m N|ote 1 and assume that z 1 =w 1 , since z 1 =(x̄ 1 ,ȳ 1 )
+satisfies also
+ȳ
+1
+(e)=0
+.
+We can build K–RPP solutions in the following way. Drone k performs any
+1–RPP tour w j above, while the other drones perform z 1 . These m solutions are
+depicted as the rows of the first block row in the matrix shown in Fig. 6, where we
+assume that drone k is the first one. Now, a drone different from k performs any tour
+z j above, while the other drones do z 1 . These (m+1)(K−1) solutions are depicted
+as the rows of the second and third block rows in the matrix shown in Fig. 6.
+Furthermore, we can build K E R more K–RPP solutions as in the proof of Theo-
+rem 9 with the same vectors t (e) for each required edge in E R ={e 1 ,e 2 ,…,e E } .
+j R
+Note that the corresponding vec|tors| t (e) also satisfy y (e) (e)=0 . These solutions are
+j j | |
+depicted in the three last block rows in the matrix in Fig. 6. As in Theorem 9, if we
+subtract the first row from all the other rows and then we remove the null rows, we
+obtain a matrix similar to that in Fig. 5 but with K(2 E NR + E R )−1 rows LI.
+Hence, we have K(2 E NR + E R ) solutions affinely independent satisfying yk e =0
+and we are done. | | | |
+Let us suppose n|ow t|hat | e∈ | E N �� R . Given that y e ≥0 is facet-inducing of 1–
+RPP(G) (Theorem 4), there exist m=2 E NR affinely independent 1–RPP tours
+w 1 ,w 2 ,…,w m on G, each w i =(x i ,y i ) , satisfying x i (a)=1 for all a∈E R , and
+y i (e)=0 . Since dim(1–RPP(G))=2 E NR| =m | , there exist m+1 1–RPP tours
+z 1 ,z 2 ,…,z m+1 , each z i =(x̄ i ,ȳ i ) satisfying x̄ i (e)=1 for all e∈E R . We can assume
+here that one of them, say z 1 , satisfies| x̄ 1 (a | )=1 for all a∈E R , x̄ 1 (a)=1 , ȳ 1 (a)=0
+for all a∈E N � R , x̄ 1 (a)=ȳ 1 (a)=1 for all a∈E N �� R , a≠e , and x̄ 1 (e)=ȳ 1 (e)=0 .
+Thereby, we can assume that z 1 =w 1 . Furthermore, for each required edge a∈E R ,
+the corresponding vector t (a) is equal to z 1 except for the entries x (a) (a)=x (a) (a�)=0 ,
+and also satisfies y (a) (e)=0 . Hence, we can build the K–RPP solutions as in the
+◻
+matrix in Fig. 6 and the remainder of the proof is similar to the previous case.
+Theorem 11 Inequality x e k ≤1 , for each edge e∈E NR , and for each drone
+k∈{1,2,…,K} , is facet-inducing of K–RPP(G).
+Proof The proof is similar to that of Theorem 10 and is omitted here for the sake of
+◻
+brevity.
+Theorem 12 Inequality (5) x e k ≥yk e , for each edge e∈E NR , and for each drone k, is
+facet-inducing of K–RPP(G) if graph (V,E
+NR
+⧵{e}) is 3-edge connected.
+Proof The proof is omitted for the sake of brevity. ◻
+1 3
+96 J. Campbell et al.
+Theorem 13 Inequality x e k ≤1 , for each edge e∈E R , and for each drone k, is facet-
+inducing of K–RPP(G).
+Proof All the K–RPP solutions shown in Fig. 4, except the first one of the fourth
+row block (the one with drone k performing t (e) ), are affinely independent K–RPP
+solutions satisfying
+xk =1
+.
+1 ◻
+e
+Theorem 14 Inequality x e k ≥0 , for each edge e∈E R , and for each drone k, is facet-
+inducing of K–RPP(G).
+Proof The proof is omitted for the sake of brevity. ◻
+K
+Theorem 15 Inequalities (4), x e k ≥1 , for each edge e∈E R , are facet-inducing of
+k=1
+K–RPP(G). ∑
+Proof Consider the 1–RPP tours z 1 ,z 2 ,…,z m+1 and t (a) , a∈E R , from Note 1. Let w 1
+the tour on G obtained by replacing in z 1 the traversal of edge e by a second traversal
+of the corresponding parallel edge
+e′
+.
+We can build (m+1)K K–RPP solutions in the following way. A drone performs
+any tour z j above, while the other drones perform w 1 . These (m+1)K solutions are
+depicted as the rows of the three block rows in the matrix shown in Fig. 7a. Now, for
+any required edge a≠e , a drone performs t (a) while the other drones perform w 1 (see
+Fig. 7a, where the required edges different from e are {e 2 ,…,e E } ). All the rows
+in the matrix depicted in Fig. 7a represent K–RPP solutions satisfyi R ng K k=1 x e k =1 .
+If we subtract the first row from all the other rows we obtain th|e m|atrix in Fig. 7b.
+∑
+This matrix is shown in more detail in Fig. 7c, where the three leftmost entries in each
+block k correspond to the variables x e k,x e k ′ ,yk e′ , and vectors v i represent the remaining
+vectors z i −z 1 (and of vectors z i −w 1 ), i=2,…,m+1 . Block (1,1) has full rank.
+If, in blocks (2,2) and (3,3) we subtract the first row from the remaining rows, we
+would obtain two blocks where rows 2 to
+m+1
+are identical to those in block (1,1).
+Hence, the rows in the first three block rows are linearly independent. Furthermore,
+regarding the last three block rows of the matrix, the value -1 corresponding to each
+required edge
+a≠e
+is the only non-zero value in its column. Hence, any of these
+rows can be obtained as a linear combination of the other rows. Therefore the matrix
+in Fig. 7c has all its m+(K−1)(m+1)+K( E R −1)=K (2 E NR + E R )−1 rows
+linearly independent. Hence, we have K(2 E NR + E R ) K–RPP solutions affinely
+independent satisfying K k=1 x e k =1 and the pro|of |is complete. | | | | ◻
+| | | |
+∑
+Theorem 16 Connectivity inequalities (2), xk 𝛿 R (S) +(xk+yk) 𝛿 NR (S) ≥2x f k,
+∀S⊆V⧵{1}, ∀f∈E(S), and ∀k=1,…,K , are facet-inducing of K–RPP(G) if sub-
+( ) ( )
+graph (S,E
+NR
+(S)) is 3-edge connected and either V⧵S =1 or subgraph
+(V⧵S,E
+NR
+(V⧵S)) is 3-edge connected.
+| |
+1 3

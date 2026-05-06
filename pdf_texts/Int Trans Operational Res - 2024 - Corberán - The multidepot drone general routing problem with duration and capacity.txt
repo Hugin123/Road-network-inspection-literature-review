@@ -1,0 +1,1932 @@
+INTERNATIONAL
+TRANSACTIONS
+INOPERATIONAL
+Intl.Trans.inOp.Res.32(2025)3756–3779 RESEARCH
+DOI:10.1111/itor.13457
+The multidepot drone general routing problem with duration
+and capacity constraints
+Teresa Corberána , Isaac Planab,∗ , José M. Sanchisc and Paula Segurac
+aDepartamentd’EstadísticaiInvestigacióOperativa,UniversitatdeValència,Avda.Dr.Moliner50,Burjassot46100,Spain
+bDepartamentodeMatemáticasparalaEconomíaylaEmpresa,UniversitatdeValència,Avda.Tarongerss/n,València
+46022,Spain
+cDepartamentodeMatemáticaAplicada,UniversitatPolitècnicadeValència,CaminodeVeras/n,València46022,Spain
+E-mail:tecorfa@alumni.uv.es[Corberán];isaac.plana@uv.es[Plana];jmsanchis@mat.upv.es[Sanchis];
+psegmar@upvnet.upv.es[Segura]
+Received24May2023;receivedinrevisedform18January2024;accepted13March2024
+Abstract
+This paper studies the multidepot drone general routing problem with duration and capacity constraints
+(MDdGRP),anextensionoftheclassicalgeneralroutingproblemwithseveraldepots.Afleetofdroneswith
+limited flight time and payload, each one located in a different depot, must jointly perform the service. In
+this continuous optimizationproblem, a set of lines of a network has to beserviced and a set of nodes has
+tobevisitedtodeliveragivencommodity.Theaimistofindasetofdroneroutesperformingthecomplete
+servicewiththeshortesttotalduration.Aerialdronescanenteralineatanypoint,serviceaportionofthat
+line,andexitthroughanotherpoint,withoutfollowingthelinesofthenetwork.Whilethisflexibilityallows
+forpotentiallybettersolutions,italsoaddscomplexitytotheproblem.Todealwiththis,wedigitizetheMD-
+dGRPinstancesbyapproximatingeachlinewithapolygonalchaincontainingafinitenumberofpointsthat
+can be used to enter and exit each line. Thus, an instance of a discrete multidepot general routing problem
+(MDGRP)isobtained.ThispaperproposesanintegerformulationfortheMDGRP,somefamiliesofvalid
+inequalities,andabranch-and-cutalgorithmbasedonthestrengthenedformulation.Twomatheuristicalgo-
+rithmsarepresented,focusedonsequentiallyselecting(andadding)somepromisingintermediatepointsto
+enterandexitaline.Instancesinvolvinguptosixdepots,22deliverypoints,and88originallineshavebeen
+generatedtotesttheperformanceofthemethodsproposed.
+Keywords:drones;generalroutingproblem;multi-depot;lengthconstraints;capacityconstraints;matheuristic;branch-
+and-cut
+1. Introduction
+Routingproblemshavebeenusuallycategorizedintotwofamilies:noderoutingproblems,inwhich
+a service (e.g., delivering a package) has to be performed at certain points of a network, and arc
+∗Correspondingauthor.
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+ThisisanopenaccessarticleunderthetermsoftheCreativeCommonsAttribution-NonCommercial-NoDerivsLicense,which
+permitsuseanddistributioninanymedium, providedtheoriginalworkisproperlycited, theuseisnon-commercialandno
+modificationsoradaptationsaremade.
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3757
+routingproblems,wheretheservice(e.g.,streetcleaning)iscarriedoutbytraversingsomelinksof
+the network. The routing problem in which the services must be performed both at some arcs and
+vertices of the network is called the general routing problem (GRP), introduced by Orloff (1974).
+Givenanundirectedgraph,theGRPconsistsoffindingtheminimum-costroute(closedwalk)that
+visits a subset of vertices, called required vertices, and traverses a subset of edges, called required
+edges. The GRP was proved to be NP-hard in Lenstra and Rinnooy Kan (1976) and, therefore,
+exactalgorithmsareonlyusefulforGRPinstancesofmoderatesize.Sincethen,theGRPhasbeen
+studiedinundirected,directed,mixed,andwindygraphs(see,e.g.,Corberánetal.,2015).Perhaps
+the best exact algorithm for the GRP is the one proposed in Corberán et al. (2007), a branch-
+and-cut algorithm incorporating several families of valid inequalities that is capable of solving to
+optimality GRP instances with up to 1000 vertices and more than 3000 edges. A lower bound for
+theGRPisproposedinBachetal.(2013).
+A natural extension of the GRP appears when we consider a limitation on the amount of the
+serviceasinglevehiclecanperform,thusobtainingthecapacitatedGRP(CGRP),whichisamul-
+tivehicle routing problem (Pandi and Muralidharan, 1995; Prins and Bouchenoua, 2005; Bosco
+et al., 2013). Archetti et al. (2017) introduce the profitable CGRP, in which there is a profit as-
+sociated with the service of both some edges and nodes. In Ahabchane et al. (2020), the mixed
+CGRP with time-dependent demands is considered, while Salazar-Aguilar et al. (2013) present a
+“road-marking” application, where both nodes and arcs require service and can be modeled as a
+synchronized GRP. Hasle (2014) argues that the mixed CGRP is an adequate model for routing
+applicationswhere,althoughdemandisfundamentallypointbased,groupsofverticescanberep-
+resentedasrequiredarcsoredgesbyaggregatingtheirdemands.OrucandKara(2018)proposean
+extensionoftheGRPappliedtotheearlyassessmentofdamageinpopulatedareasafteradisaster
+byteamsequippedwithdronesandmotorcycles.
+In problems with several vehicles, it may make sense to consider several depots from which the
+vehicles start their routes. Node routing problems with several depots have been extensively stud-
+ied in the literature (see, e.g., the survey of Montoya-Torres et al., 2015). Regarding arc routing
+problemswithseveraldepots,however,theliteratureisscarce,and,asfarasweknow,thereareno
+previousworksontheGRPwithmultipledepots.
+Most of the works mentioned above consider traditional ground vehicles. However, the use of
+dronesfordeliveryorinspectiontasksisbecomingmorecommoneachday,sincetheyofferanum-
+berofadvantagescomparedtotraditionalmeansoftransportation,beingabletoreachplacesthat
+are difficult to access or dangerous for people or conventional vehicles. Routing problems with
+drones have some characteristics that set them apart from those with ground vehicles. Drones can
+travelinastraightlinebetweenanytwopoints,withoutfollowingthelinksofthenetworkashap-
+pens in classical routing problems. If the service to be performed consists of traversing some lines,
+the drones can enter one of these lines at any point (even in the middle of it), traverse and service
+part of it, leave the line at another point, and then travel directly to another location to perform
+another service. This may allow shorter routes than those obtained with traditional vehicles but
+turnstheroutingproblemintoacontinuousoptimizationonethatismoredifficulttosolve.Recent
+advances in drone technology have led to the appearance of models capable of performing several
+tasks,suchasmakingdeliveriesandmappingsurfaces,inthesameflight.Thesetypesofproblems
+canbemodeledasGRPs.
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3758 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+Fig.1. MDdGRPinstanceandafeasiblesolution.
+The problem studied in this paper is the multidepot drone general routing problem with dura-
+tion and capacity constraints (MDdGRP). In the MDdGRP, there is a set of lines that have to be
+traversed,eachonewithanassociatedtraversaltime,andasetoflocationswhereagivendemand
+mustbedelivered,alsowithagivendeliverytime.Toperformthesetasks,thereisafleetofidentical
+drones.Eachdronestartsandendsitsrouteatagivenpoint,adepot,thatcanbedifferentforeach
+drone.ThedroneshavebothamaximumpayloadQthattheycancarryandamaximumflighttime
+L. The objective of the MDdGRP is to find a route for each drone, each one of them starting and
+endingatitsdepot,insuchawaythattheyjointlyperformallthetaskswithminimumtotaldura-
+tion(orcost).ThedurationofeachroutemustnotexceedL,andthecapacityQofthedronesmust
+not be exceeded. In this work, we will assume that the maximum flight time L and the capacity Q
+areenoughtotraverseallthelinesanddeliverallthedemand.Ifthiswasnotthecaseinareal-life
+application, we could consider the possibility of allowing the drones to come back to the depot,
+change their battery or recharge them, load more items to be delivered, and continue flying. This
+canbemodeledinourproblembyaddingmorecopiesofthedepotandonenewdroneforeachof
+thesecopies.Thesenewdroneswouldrepresentconsecutiveflightsofthesamedrone,thusallowing
+ustoobtainsolutionsforsuchinstances,althoughattheexpenseofincreasingtheirdifficulty.
+Toillustratetheproblemweaddresshere,Fig.1ashowsanMDdGRPinstancewiththreedepots,
+d ,d , and d (represented by red squares), a set of three required locations that have to be visited
+1 2 3
+(represented by circles), and a set of lines requiring a service (e.g., inspection or surveillance). Let
+ussupposethateachdeliveryhasdemand1andeachdronehascapacityQ = 1,thatis,eachdrone
+canperformonedelivery.AfeasiblesolutionforthisMDdGRPinstanceisgiveninFig.1b,where
+eachrouteisdepictedinadifferentcolor.Eachdroneroutestartsandendsatthesamedepotand
+satisfies the duration and capacity constraints. In this example, the service of some of the lines is
+sharedbytwodifferentroutes.
+There is a large number of scientific articles in the literature regarding routing problems with
+drones. Regarding node routing problems, Murray and Chu (2015) introduced the flying sidekick
+traveling salesman problem, which considers the cooperation of one truck and several drones
+to provide service to a set of customers, and several generalizations of this problem have been
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3759
+addressed since then. Wang and Sheu (2019) presented the vehicle routing problem with drones,
+where there is a fleet of trucks equipped with drones that can be dispatched from and picked up
+at any node of the network, and Di Puglia Pugliese and Guerriero (2017) extended it to consider
+time windows for each customer. Kim and Moon (2024) introduced a new problem where the
+dronesstartatdifferentdepotsandthelocationofthesedepotshastobedetermined.Thesurveys
+of Macrina et al. (2020) and Rojas Viloria et al. (2021) provided an extensive overview of recent
+worksonnoderoutingproblemswithdrones.
+Drone arc routing problems were studied for the first time in Campbell et al. (2018), where
+for each line a finite number of points is selected so that drones can enter and leave the line only
+at these points. In other words, each original line is now divided into small edges that a drone
+must traverse completely or not. This same approach has been used in Campbell et al. (2021,
+2022) to solve the length-constrained K-drones rural postman problem, in which a fleet of drones
+with limited autonomy must traverse a set of lines. Other works have dealt with drones in arc
+routingproblems.Chow(2016)studiesastochasticarc-inventoryroutingproblemappliedtotraffic
+monitoring.Heproposesanapproximatedynamicprogrammingalgorithmbasedonleastsquares
+Monte Carlo simulation to derive its stochastic dynamic policy. In Li et al. (2018), the authors
+proposeamixedintegerprogrammingformulationcombiningthecapacitatedarcroutingproblem
+with the inventory routing problem for solving a drone scheduling problem in traffic monitoring.
+The combination of other types of vehicles with drones in the context of arc routing problems
+has also been studied in the literature. Luo et al. (2019) model the problem as a double-layer arc
+routing problem, present a mixed integer linear programming formulation, and propose heuristic
+algorithmsforitssolution.Amorosietal.(2021,2024)describeproblemsinwhichthedroneiscar-
+riedbyamothershipthatcanmovefreelyinatwo-dimensionalspace,aconnectedpiecewiselinear
+polygonal chain, or a general graph. They propose mixed integer second-order cone nonlinear
+programmingformulationsforallthesesituationsanddevelopamatheuristicalgorithm.
+Few works have dealt with drones that have to perform services at arcs and vertices of the
+network in the same flight. Campbell et al. (2023) detailed a real-life application, motivated by a
+UNICEF project in Malawi, in which this type of drone, called “multipurpose,” would be used to
+transportpackages(e.g.,medicalaid)and,atthesametime,takeimagesofareasthathavesuffered
+some kind of natural catastrophe, such as floods or earthquakes. As in our work, that problem is
+modeledasaGRP,butdronesarerestricted to startingandendingatasingledepot. Theauthors
+presentaformulationfortheproblemandproposebranch-and-cutandmatheuristicalgorithms.
+As some of the drone routing problems mentioned above, the MDdGRP is a continuous opti-
+mization problem, since drones can enter and leave each line at any of its points. However, if the
+linesthathavetobetraversedareapproximatedbypolygonalchainsandweallowdronestoenter
+and exit each line only at the vertices of these polygonal chains, we obtain a discrete problem, the
+multidepotgeneralroutingproblem(MDGRP).Ifthenumberofpointsofthepolygonalchainsis
+largeenough,theoptimalsolutionoftheMDGRPwillbeverysimilartotheoptimalsolutionofthe
+MDdGRP.Therefore,wewillstudytheMDGRPasameanstoobtainsolutionsfortheMDdGRP.
+The main contributions of this paper are the following. We introduce a new problem, the
+MDdGRP, based on the GRP with drones and considering capacity constraints and multiple
+depots. Since this is a continuous optimization problem, we formulate a discrete relaxation of the
+MDdGRP,theMDGRP,andproposeseveralfamiliesofvalidinequalitiesthatstrengthenthisfor-
+mulation. Using these inequalities, we develop a branch-and-cut algorithm to solve the MDGRP.
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3760 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+WealsoproposetwomatheuristicalgorithmstoobtainqualitysolutionsfortheMDdGRP.Anew
+set of benchmark instances for the MDdGRP has been generated, and extensive computational
+experimentshavebeenconductedtoassesstheperformanceoftheproposedmethods.
+The remainder of this paper is structured as follows. In Section 2, we propose a formulation
+for MDGRP and present several valid inequalities, while a branch-and-cut algorithm for its exact
+solution is described in Section 3. Section 4 is devoted to the description of two matheuristic
+algorithmsfortheMDdGRP.ThecomputationalexperimentsarereportedinSection5,andsome
+conclusionsandfutureresearchlinesarediscussedinSection6.
+2. Themultidepotgeneralroutingproblem
+The MDGRP is defined on an undirected graph G = (V,E), with vertex setV and edge set E =
+E ∪E . The set of required edges E corresponds to those that have to be traversed, and the
+R NR R
+remaining edges in E, the set of nonrequired edges E , are used for deadheading. The set V
+NR
+contains the vertices incident with the edges in E , denotedV , the set of depots D, and a set of
+R I
+requiredverticeswithpositivedemandV thatmustbevisited.Therefore,G = (D∪V ∪V ,E ∪
+R R I R
+E ). We assume that the required vertices cannot be depots or incident with required edges, that
+NR
+is, V ∩(D∪V ) = ∅, although it is possible that set V contains some depot d ∈ D. There is a R I I
+traversal (and service) cost cs ≥ 0 associated with each required edge e ∈ E , and a deadheading
+e R
+cost c ≥ 0 associated with each nonrequired edge e ∈ E . Each node i ∈V has an associated e NR R
+positiveintegerdemandd > 0andaservicecostc ≥ 0.Thecost(duration)ofarouteisthesumof
+i i
+thecostsoftheedgestraversedandtheverticesservicedintheroute.Weconsiderafleetofvehicles,
+eachoneassociatedwithadifferentdepot,withalimitLonthedurationoftheirroutesandanother
+limitQonthemaximumloadthattheycancarry.AnMDGRPsolutionisasetofD = |D|routes,
+eachonestartingandendingatthecorrespondingdepot,thatjointlytraversesalltherequirededges
+and visits all the required vertices, satisfying the capacity and duration limitations. The goal is to
+findanMDGRPsolutionwithminimumtotalcost.
+SincetheMDGRPinstanceswewanttosolveinthisworkhaveoriginatedfromthediscretization
+of MDdGRP instances, here the set of required edges E contains the segments of the polygonal
+R
+chains into which the original lines have been transformed. The cost of each line is distributed
+among the segments proportionally with respect to the length of each segment. Moreover, since
+drones can fly directly between any pair of points, the set of nonrequired edges forms a com-
+pletegraph.
+TheformulationweproposefortheMDGRPconsidersabinaryvariablexd foreachedgee ∈ E
+e
+and each depot d ∈ D, and a binary variable yd for each nonrequired edge e ∈ E and for each
+e NR
+depot d ∈ D. Variable xd takes the value 1 if the required edge e is traversed (and serviced) in the
+e
+route of depot d and 0 otherwise, while variables xd and yd take the value 1 if the nonrequired
+e e
+edge e is traversed once or twice, respectively, in the route starting and ending at depot d, and 0
+otherwise. Note that variables xd and yd represent the first and second traversals of nonrequired
+e e
+edge e in route d. Additionally, a binary variable zd is introduced for each vertex i ∈V and each
+i R
+depotd ∈ D,takingthevalue1ifthevertexiisservicedintherouteofdepotd and0otherwise.
+We will use the following notation. Given two subsets of vertices S,S(cid:8) ⊆V, (S : S(cid:8) ) denotes the
+edgesetwithoneendpointinSandtheotherinS(cid:8) .GivenasubsetS ⊆V,letusdenoteδ(S) = (S :
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3761
+V\S) and let E(S) = {e = (i, j) ∈ E : i, j ∈ S} be the set of edges with both endpoints in S. For
+any subset F ⊆ E, we denote F = F ∩E , F = F ∩E , although we will use δ (S) (δ (S))
+R R NR NR R NR
+insteadofδ(S)
+R
+(δ(S)
+NR
+)forthereq(cid:2)uired(nonrequired)edgesin(cid:2)setδ(S).Givenavectorxd indexed
+on the set E of edges, let xd(F) = xd and (xd+yd)(F) = (xd +yd). The MDGRP can
+e∈F e e∈F e e
+beformulatedasfollows:
+⎛ ⎞
+(cid:3) (cid:3) (cid:6) (cid:7) (cid:3) (cid:3)
+Minimize ⎝ c xd +yd + csxd + czd⎠, (1)
+e e e e e i i
+d∈D e∈ENR e∈ER i∈VR
+xd(δ (i))+(xd+yd)(δ (i)) ≡ 0 (mod2), ∀i∈V\V , ∀d ∈ D, (2)
+R NR R
+(xd+yd)(δ(i)) = 2zd, ∀i ∈V , ∀d ∈ D, (3)
+i R
+xd(δ (S))+(xd+yd)(δ (S)) ≥ 2xd, ∀d ∈ D, ∀S⊆V\{d}, ∀f ∈E(S), (4)
+(cid:3) R NR f
+xd = 1, ∀e ∈ E , (5)
+e R
+(cid:3)d∈D
+zd = 1, ∀i ∈V , (6)
+i R
+d(cid:3) ∈D (cid:3) (cid:6) (cid:7) (cid:3)
+csxd + c xd+yd + czd ≤ L, ∀d ∈ D, (7)
+e e e e e i i
+e
+(cid:3)
+∈ER e∈ENR i∈VR
+dzd ≤ Q, ∀d ∈ D, (8)
+i i
+i∈VR
+xd ≥ yd, ∀e∈E , ∀d ∈ D, (9)
+e e NR
+zd ∈ {0,1}, ∀i∈V , ∀d ∈ D, (10)
+i R
+xd ∈ {0,1}, ∀e∈E , ∀d ∈ D, (11)
+e R
+xd,yd ∈ {0,1}, ∀e∈E , ∀d ∈ D. (12)
+e e NR
+Theobjectivefunction(1)minimizesthetotalcostoftheDroutes.Thefirsttermrepresentsthe
+“deadheadingcost.”Thesecondandthirdtermsrepresentthecostofservicingtherequirededges
+andthecostofvisitingtherequirednodes,respectively,andduetoconstraints(5)and(6)bothare
+constant and could be removed from (1). Constraints (2) and (3) force allvertices in each route to
+haveevendegree.Thefirstonesimplythattheedgesincidentwithavertexi ∈V \V ,thatis,those
+R
+in δ (i)∪δ (i), are traversed an even number of times (maybe zero) by route d, while equalities
+R NR
+(3)ensurethatrouted traversesexactlytwiceallthe(nonrequired)edgesincidentwithavertexi if
+itisservicedbythisroute(zd = 1)orzerotimesifitisnotserviced(zd = 0).
+i i
+Inequalities(4)avoidsubtoursandensuretheconnectivityofeachdroneroutewithitsdepot.Ifa
+routed traversesanedge f inE(S)(xd = 1),theseinequalitiesforcetheroutetotraversethecut-set
+f
+δ(S)atleasttwotimesinordertoconnectittodepotd.Otherwise(xd = 0),theseinequalitiesare
+f
+triviallysatisfied.Equations(5)forceeachrequirededgetobeservicedexactlyonce,andthevisitof
+alltherequiredverticesinexactlyonerouteisensuredbyconstraints(6).Constraints(7)guarantee
+that the cost of each route does not exceed L, while constraints (8) ensure that the total demand
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3762 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+servicedoneachrouteisnotgreaterthanthedronecapacityQ.Constraints(9)forcethatasecond
+traversal of a nonrequired edge in a route can only occur when it has been traversed previously in
+theroute.Constraints(10)–(12)arethebinaryconditionsforthevariables.
+2.1. Validinequalities
+Inwhatfollows,wewillpresentsomefamiliesofvalidinequalitiesthatwillcontributetostrengthen
+thelinearprogramming(LP)relaxationoftheformulation(2)–(12)fortheMDGRP.
+2.1.1. Connectivityinequalitiesforrequiredvertices
+Givenadepotd ∈ D andavertexsubsetS ⊆V \{d}suchthatV ∩S (cid:13)= ∅,thefollowingconnec-
+R
+tivityinequalitiesarealsovalid:
+xd(δ (S))+(xd+yd)(δ (S)) ≥ 2zd, ∀i ∈V ∩S. (13) R NR i R
+2.1.2. Parityinequalities
+Constraints (2) are not linear, but they can be replaced by the following parity inequalities, which
+have been adapted from those presented in Corberán et al. (2013) for the maximum benefit Chi-
+nese postman problem, that were based on the cocircuit inequalities introduced in Barahona and
+Grotschel(1986):
+xd(δ (S)\F)+(xd −yd)(δ (S)\F) ≥ xd(F )+(xd −yd)(F )−|F|+1, (14)
+R NR R NR
+foreachdepotd ∈ D,forallS ⊂V,andforallF ⊆ δ(S)with|F|odd.
+Theseinequalitiesarebasedonthefactthatanyroutetraversesanycut-setδ(S), withS ⊂V,an
+even(orzero)numberoftimes.Notethatifanonrequirededgeeistraversedtwiceornottraversed
+in the route of depot d, xd −yd = 0 holds, and therefore the right-hand side of (14) is positive if
+e e
+andonlyifalltheedgesinF aretraversedexactlyonce.Since|F|isodd,atleastonemoreedgein
+δ(S)\F hastobetraversedexactlyonceandthenxd(δ (S)\F)+(xd −yd)(δ (S)\F) ≥ 1holds.
+R NR
+2.1.3. p-Connectivityinequalities
+For each depot d ∈ D, let {S ,...,S } be a partition ofV and assume that d ∈ S , r ∈ {0,...,p}. 0 p r
+Foreach j ∈ {0,...,p}\{r},weselecteitheranedgee ∈ E(S )oravertexv ∈ S ∩V .LetI and
+j j j j R 1
+I be the sets of indices in {0,...,p}\{r} in which an edge or a required vertex has been selected,
+2
+respectively.Then,thefollowinginequalityisvalid(aproofcanbefoundinCampbelletal.(2023)):
+(cid:3) (cid:3) (cid:3)
+xd(δ (S ))+(xd +yd)(δ (S ))+2 xd(S : S ) ≥ 2 xd +2 zd . (15)
+R 0 NR 0 q t ej vj
+1≤q<t≤p j∈I1 j∈I2
+These p-connectivity inequalities are a generalization to the problem with several vehicles (and
+depots)ofthosepresentedinCorberánetal.(2013).
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on [29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3763
+2.1.4. Capacityinequalities
+GivenasubsetofverticesS ⊂V,letK bealowerboundonthenumberofdronesneededtoservice
+theverticesinS∩V .LetusdenoteD(cid:8) = D∩S.IfK > |D(cid:8)|thentheverticesinS∩V cannotbe
+R R
+servicedfromthedepotsinD(cid:8) andatleastK −|D(cid:8)|dronesfromdepotsoutsideofSmustenterinS,
+thuscrossingthecut-setδ(S).Therefore,thefollowingcapacityinequalityisvalidfortheMDGRP:
+(cid:3) (cid:3) (cid:6) (cid:7)
+xd(δ (S))+ (xd+yd)(δ (S)) ≥ 2 K −|D(cid:8)| , (16)
+R NR
+d∈D\D(cid:8) d∈D\D(cid:8)
+AneasyboundK onthenumberofdronesneededtoservicetherequiredverticesinasetS is
+(cid:10) (cid:3) (cid:11)
+K = d/Q .
+i
+i∈VR ∩S
+If, for example, K −|D(cid:8)| = 2, then at least two different drones must cross the cut-set δ(S) and
+thefollowingcapacityinequalitiesarealsovalidfortheMDGRP:
+(cid:3) (cid:3) (cid:6) (cid:7)
+xd (δ (S))+ (xd +yd)(δ (S)) ≥ 2 K −|D(cid:8)|−1 ∀b∈ D\D(cid:8). R NR
+d∈D\(D(cid:8)∪{b}) d∈D\(D(cid:8)∪{b})
+3. Abranch-and-cutalgorithmforthemultidepotgeneralroutingproblem
+In this section, we describe the branch-and-cut algorithm we have implemented for the MDGRP
+based on the formulation presented in Section 2. The initial LP is defined by equalities (3), (5),
+and (6), inequalities (7)–(9), and the bounds on the variables. Connectivity inequalities (4) and
+(13) are exponential in number and are separated at each iteration of the cutting-plane algorithm
+and added to the LP. Moreover, the previous parity, p-connectivity, and capacity inequalities are
+separatedwiththealgorithmsdescribedinthebelowsection.
+3.1. Separationalgorithms
+Ateachiterationofthecutting-planeprocedure,weusesomeseparationalgorithmstoidentifyvalid
+inequalitiesthatmaybeviolatedbythecurrentLPsolution.Let(x¯,y¯,z¯)denotethissolution,pos-
+sibly fractional. In the following, we describe the separation procedures used for each family of
+validinequalities,inwhichεwillcorrespondtoagivenparameterthatisusedinsomeofthesepro-
+cedures.
+3.1.1. Connectivityinequalities(4)and(13)
+Connectivity inequalities (4) and (13) for each depot d can be exactly separated in polynomial
+time. Given the support graph induced by the edges e ∈ E such that x¯d > 0, we calculate a max-
+e
+flow from d to each edge f or required vertex i such that x¯d > 0 or z¯d > 0. We use this algorithm
+f i
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3764 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+only for identifying violated inequalities of type (13) because the number of required vertices in
+our instances is not large. However, in what refers to inequalities (4), the exact procedure is time
+consuming and usually produces many violated inequalities that are very similar to each other.
+Therefore,wehavedecidedinthiscasetouseheuristicalgorithmsforseparatingthem.
+The first heuristic is well known and consists of the computation of the connected components
+of the graph induced by the edges e ∈ E such that x¯d +y¯d > ε, plus the depot d, if necessary. The
+e e
+inequalities (4) and (13) associated with each connected component and with the edge f with the
+maximumx¯k ortherequiredvertexiwiththemaximumz¯d arecheckedforviolation.
+f i
+Thesecondheuristicworksinasmallergraphinwhichtheconnectedcomponentsofthegraph
+inducedbyedgeswithx¯d ≥ 1−ε areshrunkintoasinglevertexeach.Then,allminimumcutsbe-
+e
+tween the vertex corresponding to the component containing the depot d and the remaining ones
+arecalculated,andtheircorrespondingconnectivityinequalities(4)and(13)arecheckedforviola-
+tion.
+3.1.2. Parityinequalities(14)
+Given a subset S ⊂V, Ghiani and Laporte (2000) described a procedure for choosing the subset
+ofedgesF ⊆ δ(S)thatproducesthemostviolatedco-circuitinequality,ifany,associatedwiththis
+cut-set. Given depot d ∈ D, since parity inequalities (14) are derived from co-circuit inequalities,
+wecanadaptthismethodasfollows.
+Eachedgee ∈ δ (S)withx¯d −y¯d > 0.5andeache ∈ δ (S)withx¯d > 0.5areincludedinF.If
+NR e e R e
+|F| is odd, we already have the optimal set F, and we proceed to check the corresponding parity
+inequality for violation. If |F| is even, we need to add one more edge to F or remove one from it.
+WelookfortheedgeinF withthelowestvalueofx¯d −y¯d (orx¯d)andtheedgeinδ(S)\F withthe
+e e e
+highestvalueofx¯d −y¯d (orx¯d),andchoosethebestoptionbetweenremovingthefirstonefromF
+e e e
+andaddingthesecondonetoit.Thenwechecktheparityconstraintforviolation.
+We apply this procedure for all the depots d ∈ D and all the subsets S formed by one single
+requiredvertexaswellasforgeneralsubsetsS obtainedbycomputingtheconnectedcomponents
+ofthegraphinducedbytheedgese ∈ E withx¯d −y¯d > ε andthoseine ∈ E withx¯d > ε,plus
+NR e e R e
+thedepotd,ifnecessary.
+3.1.3. p-Connectivityinequalities(15)
+Toseparatetheseinequalities,weconsidertheconnectivityinequalities(4)foundbytheconnectiv-
+ityseparationproceduresthataresatisfiedwithequality.LetSbethesetofverticesassociatedwith
+one of these tight inequalities and assume that d ∈ S =V\S. Now we compute the connected
+0
+components of the subgraph induced in G(S) by those edges e ∈ E(S) such that x¯d(e) ≥ 1−ε.
+For each connected componentC , we define w = max{x¯d : e ∈ E(V ), z¯d : i ∈V ∩V }, and for
+j j e j i j R
+each pairC,C , s = 2x¯d(V :V )−2min{w,w }, whereV denotes the set of vertices inC. The
+i j ij i j i j t t
+componentsthatmaximizes areiterativelyshrunkwhiles ispositive.Inthisway,weobtainsets
+ij ij
+S ,...,S andthecorrespondinginequality(15)ischeckedforviolation.
+1 p
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3765
+3.1.4. Capacityinequalities(16)
+Capacity inequalities (16) can be separated heuristically by using the following simple procedure.
+First, we build th(cid:2)e support graph G = (V,E
+R
+∪E
+NR
+), where E
+NR
+is defined by those nonrequired
+edges with c = (x¯d +y¯d) > 0. Required edges have unit capacity, and edges in E have
+e d∈D e e NR
+capacity c . For each depot d ∈ D and each required vertex i ∈V , we compute the maximum
+e R
+flow in G from d(cid:10)to i. Let (S :(cid:11)V\S) be the associated minimum cut, with i ∈ S. We define D(cid:8) =
+(cid:2)
+D∩S andK = d /Q .Ifthemaximumflowislessthan2(K −|D(cid:8)|),thiscut-setdefines
+j∈VR ∩S j
+aviolatedcapacityinequality(16).
+3.2. Thecutting-planealgorithm
+Ateachiteration,thecutting-planealgorithmapplies,foreachdepotd ∈ D,thefirstheuristicalgo-
+rithmforconnectivityinequalitieswithε = 0,0.25,0.5,wherethevalueofε isincreasedonlyifno
+violatedinequalitiesarefoundwiththepreviousvalue.Moreover,thesecondconnectivityheuristic
+is applied with ε = 0,0.1,0.2,0.3,0.4. All the tight cut-sets obtained with the connectivity sepa-
+ration procedures are stored and used by the p-connectivity heuristic with ε = 0,0.15,0.3. If the
+aboveconnectivityseparationheuristicsfailinfindingviolatedcutsfortherouteassociatedwitha
+givendepotd,thealgorithmbasedontheexactseparationprocedureforconnectivityinequalities
+(13)isappliedforthisdepot.
+Moreover, at each iteration, we apply the exact parity separation procedure for single vertices
+and the heuristic procedure for parity inequalities with ε = 0,0.25,0.5. The heuristic for identi-
+fying violated capacity inequalities is applied only for depots for which no violated connectivity
+inequalitieshavebeenfoundandonlyatnodesofthesearchtreewhosedepthislessthanorequal
+tofour.
+This cutting-plane algorithm is applied at each node of the search tree whose depth is less than
+9 while new violated inequalities are found and the value of the objective function has increased
+at least ε % in the last 20 iterations, where ε = 0.02 in the root node and ε = 0.05 in the
+off off off
+remainingones.Sincewehaveobservedthatthenumberofcutsfounddecreaseswiththedepthof
+thenodeinthetree,wehavedecidednottousethecutting-planealgorithmfornodesofdepth9or
+greaterandjustbranch.
+4. MatheuristicalgorithmsfortheMDdGRP
+Inthissection,wepresenttwomatheuristicalgorithmsforsolvingtheMDdGRP.EachMDdGRP
+instance contains a set of required lines, a set of required locations, and a set of depots. Each line
+ofanMDdGRPinstanceisgivenbyapolygonalchainwithalargenumberofpointsandsegments
+that can be considered a very good approximation to the original line. If we assume that drones
+can only enter and exit each line through the points of the polygonal chain, we have an instance
+oftheMDGRP,adiscreteoptimizationproblem.Asthepolygonalchainscontainalargenumber
+ofpoints,thesolutionsofthisMDGRPinstancecanbeconsideredaverygoodapproximationto
+the solutions of the original MDdGRP instance. However, this large number of points makes the
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3766 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+MDGRP instance usually too difficult to solve. The main idea of the procedures we propose here
+istoworkwithsmallerMDGRPinstancesbyusingonlyafewintermediatepointsofeachlinethat
+weconsiderthemostpromisingones.Thus,eachMDGRPinstancecontains,foreachline,itstwo
+endpointsandafewintermediatepoints,perhapsnone.Thesegmentsjoiningthesepointsdefinethe
+requirededgesoftheMDGRPinstance,withacostforeachsegmentproportionaltoitslength,so
+thatthesumofthesecostsistheservicecostoftheoriginalline.Notethattheadditionorremoval
+ofintermediatepointsinagivenMDGRPinstancegeneratesadifferentMDGRPinstance.
+The two algorithms we present combine a construction phase based on an order–first split–
+second procedure, which is described in Section 4.1, four local search procedures embedded in a
+variable neighborhood descent (VND) algorithm for improving the solutions, described in Sec-
+tion 4.2, and a set of rules to choose the intermediate points that will be added to the MDGRP
+instance,detailedinSection4.3.TheoverallalgorithmsproposedaredescribedinSection4.4.
+4.1. Constructionphase
+LetusconsideranMDGRPinstancedefinedonanundirectedgraphG = (V,E).Thefirststepin
+order to find a set of initial MDGRP solutions is to compute a giant tour T on G traversing all G
+therequirededgesandvisitingalltherequiredvertices.ThisisdonebydefiningaGRPinstanceon
+G with the same sets of required edges and required vertices as the MDGRP instance and solving
+it optimally with the branch-and-cut algorithm proposed by Corberán et al. (2007). This solution
+of the GRP instance provided by this exact algorithm is an Eulerian graph, from which a giant
+(directed)tourT isobtainedbyapplyingthealgorithmproposedbyHierholzer(1873).Thegiant
+G
+tour T determines an ordered sequence of the tasks (required vertices and edges) but does not
+G
+satisfythelimitationsofcapacityanddurationoftheroutes.Therefore,weconsiderseveralwaysof
+splittingitintoDroutes,eachofthemstartingandendingatadifferentdepotofD,byfollowingthe
+proceduredescribedbelow.Figure2aillustratesa(directed) touronaninstancewiththreedepots
+(represented by red squares), two required vertices, and six required edges. Note that one depot is
+incidentwitharequirededgewhiletheothertwoareisolated.
+Let {t 1 ,t 2 ,...,t|ER |+|VR | } be the sequence of tasks (required vertices and edges) in the order de-
+terminedbythegianttourT .First,weselectadepotd ∈ D (Fig.2a).ThefirstrouteR startsat
+G 1 1
+d anddeadheadstotheclosestvertex.Fromthere,R followsthegianttourT whiletheduration
+1 1 G
+(takingintoaccountthetimeofthewaybacktothedepot)andcapacitylimitsaresatisfied.Lett
+i
+bethelasttaskofT performedbyR .Then,anewrouteR startsatthedepotofD\{d }closest
+G 1 2 1
+to taskt i+1 . It continues following T G until adding one more task would make R 2 infeasible. This
+procedureisrepeateduntilD−1routeshavebeengenerated.ThelastrouteR ,whichisrootedat D
+the last nonused depot, includes all the tasks not serviced in any previous route in the same order
+asT (seeFig.2b).Notethatthissolution(setofDroutes)maynotbefeasibleduetothelastroute G
+violatingthecapacityordurationconstraints.Ifthishappens,weapplythelocalsearchprocedures
+described in Section 4.2 to this solution in order to try to make it feasible. If, after applying these
+methods,thesolutionisstillnotfeasible,wediscardit.
+Nowconsiderdepotd ,andthesetoftasksperformedinrouteR .Weselectataskt inR and
+1 1 1
+generateanewsolutionbystartingthefirstrouteatd ,goingdirectlytotaskt,followingthegiant
+1
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3767
+Fig.2. ConstructionofDroutesfromT .
+G
+tour T in the opposite direction, and splitting T into routes as described above (see Fig. 2c). By
+G G
+choosingadifferenttaskt ofR eachtime,wegenerateseveraldifferentsolutions.
+1
+WerepeattheconstructionphaseexplainedabovebyselectingeachdepotinD asstartingdepot
+d .LetuscallS¯ tothesetoffeasibleMDGRPsolutionsgeneratedbythisconstructionphase.
+1
+4.2. Localsearchprocedures
+To improve a given MDGRP solution, or trying to transform an infeasible solution into an MD-
+GRP solution, we have implemented the following local search procedures that iteratively explore
+differentwaysofexchangingtaskswithinarouteandbetweenroutes:
+(i) Intraroutemove.ThisfirstprocedureisappliedtoeachrouteRinordertotrytoreduceitscost.
+Iteratively, each task in R is moved to the position of that route that minimizes its total cost
+untilnoimprovementscanbefound.
+(ii) Destroy and repair move. This second method randomly selects n tasks among all the routes,
+where n is a random number between 2 and 8, and removes them from their routes. Then, for
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3768 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+each removed task, we evaluate the cost of inserting this task in all the possible routes and
+positions and insert it in the route and position that minimizes this cost. If the new solution
+obtainedisnotbetterthanthestartingone,orifitisnotpossibletoinsertataskinanyroute
+without exceeding Q or L, the changes are discarded and a new iteration is executed. This
+procedurestopswhenit consecutiveiterationsthatdonotimprovethecurrentsolutionare
+max
+performed,whereit isagivenparameter.
+max
+Givenaparameter(cid:4) ,thefollowingtwomethodsuseafirstimprovementstrategybyswapping
+max
+chainsofatmost(cid:4) consecutivetasksbetweentwodifferentroutes.
+max
+(iii) 0 to (cid:4) exchange. Starting with (cid:4) = 1, this procedure explores the removal of all the possible
+chains of (cid:4) consecutive tasks from a route and its insertion into another route and position
+that minimizes the total cost (and does not lead to infeasible routes). (cid:4) is incremented by 1 if
+no improved solution is found and reset to 1 each time the current solution is improved. If (cid:4)
+reaches(cid:4) andnomoveimprovesthecurrentsolution,theprocedurestops.
+max
+(iv) (cid:4) to (cid:4) exchange. Similarly to the previous one, this procedure explores the exchange of a
+1 2
+chain of (cid:4) consecutive tasks of a route with another of l consecutive tasks from another
+1 2
+route. We start with (cid:4) = (cid:4) = 1 and then increase (cid:4) by one unit at a time. When (cid:4) reaches
+1 2 2 2
+(cid:4) (without improvement), we increase (cid:4) by one and reset (cid:4) to 1. We proceed in this way max 1 2
+untilanimprovementisachieved(andthenbothparametersareresetto1)or(cid:4) = (cid:4) = (cid:4) .
+1 2 max
+GiventhesetofsolutionsobtainedintheconstructionphaseofSection4.1,weapplythesefour
+localsearchprocedurestothosesolutionsthatdidnotsatisfythecapacity ordurationconstraints
+to try to transform them into feasible solutions. When evaluating each possible move of the local
+searchprocedures,wefirstcheckifitturnsaninfeasibleroutetoafeasibleone.Ifthishappens,we
+applythismovementevenifthetotalcostworsens.
+In order to improve the MDGRP solutions in S¯, we have embedded the above improvement
+proceduresintoaVNDalgorithm(seeHansenandMladenovic´,2001).
+Once the VND procedure has been performed, an optimization procedure is applied to each
+routeofthesolutionsinS¯.ForeachrouteR,wedefineaGRPinstanceonthegraphinducedinG
+by the required edges and vertices serviced by R plus its depot, if necessary. This GRP instance is
+solvedtooptimalitywiththebranch-and-cutalgorithmproposedinCorberánetal.(2007).
+4.3. Selectionofintermediatevertices
+Let us denote by C the set of polygonal chains of the “original” MDGRP instance and let VC =
+V ∪V bethesetofverticesincidentwiththesegmentsofC,whereV arethoseverticesthatare
+E P E
+endpointsoftheoriginallinesandV
+P
+aretheintermediatepoints.GivenasubsetU ⊆VC,wedefine
+VC(U)astheunionoftheverticesofallthepolygonalchainsthathavesomevertexinU.Inorder
+to create a smaller MDGRP instance, we will select only a subset of intermediate vertices, which
+willbecalledI,afterapplyingthefollowingrules:
+R1 For each depot d ∈ D, we first select the vertex v
+1
+∈VC \VC({d}) closest to d and the vertex
+v
+2
+∈VC \VC({d,v
+1
+}) closest to d, and they are added to I if they belong to V
+P
+. If v
+1
+or v
+2
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3769
+belongtoV
+E
+,wetrywith athirdvertexv
+3
+∈VC \VC({d,v
+1
+,v
+2
+})closesttod andisaddedtoI
+ifitbelongstoV .
+P
+R2 Foreachrequiredvertexi ∈V
+R
+,weproceedasinR1,withv
+1
+∈VC,v
+2
+∈VC \VC({v
+1
+})andv
+3
+∈
+VC \VC({v
+1
+,v
+2
+}).
+R3 Foreachvertexv ∈V ,westudycandidatepointsv ,v ,andv asinR1,butnowonlythefirst
+E 1 2 3
+vertexbelongingtoV isaddedtoI.
+P
+The previous rules generate an MDGRP instance, which we will denote MDGRP(I), in which
+the set of vertices isV =V ∪V ∪I. In subsequent steps of the matheuristic algorithms, once a
+R E
+setofsolutionshasbeenobtained,furtherintermediateverticescanbeaddedasfollows:
+R4 GivenasetofsolutionsofMDGRP(I),foreachu ∈ I incidentwithanonrequirededgeused
+inanyofthesolutions,weproceedasinR3,thusgeneratinganewsetI(cid:8) ⊇ I.
+4.4. Overallalgorithms
+WedescribeherethealgorithmswehavedevelopedforsolvingtheMDdGRPthatcombineallthe
+proceduresdetailedinSections4.1–4.3.
+4.4.1. AlgorithmMat1
+The first matheuristic (Mat1) applies first the rules R1–R3 described in Section 4.3 for generat-
+ingtheMDGRP(I)instance,containingalreadysomeintermediatepoints,andthenperformsthe
+construction phase of Section 4.1 in order to obtain a set of initial solutions. These solutions are
+improvedwiththeVNDandtherouteoptimizationmethodsdescribedinSection4.2.Theresulting
+solutionsformasetS¯ .
+0
+Let S¯ be the set of the 10 best solutions in S¯ . With this set, the algorithm computes now a
+1 0
+new MDGRP(I(cid:8) ) instance by following rule R4 described in Section 4.3. Each solution s(cid:8) ∈ S¯ is
+1
+transformed into an MDGRP(I(cid:8) ) solution s(cid:8)(cid:8) as follows. Each required edge (i, j) of s(cid:8) is replaced
+by p +1 required edges (i,i ),(i ,i ),...,(i , j), where p denotes the number of intermediate
+poin
+i
+t
+j
+s of the original line join
+1
+ing
+1
+i a
+2
+nd j that
+pij
+are included
+i
+i
+j
+n MDGRP(I(cid:8) ). The VND and route
+optimization procedures of Section 4.2 are applied again to the adapted solutions, and the best
+MDGRP(I(cid:8)
+)solutionobtainedisselectedastheoutputofMat1.
+4.4.2. AlgorithmMat2
+The second matheuristic (Mat2) starts by performing the construction phase of Section 4.3 to
+the MDGRP(0) instance (the MDGRP instance in which each original line is represented by a
+single required edge with no intermediate points) to obtain an initial set of solutions. Then each
+MDGRP(0) solution is improved with the VND algorithm and the route optimization procedure.
+TheresultingMDGRP(0)solutionsformasetS¯ . 0
+Next, the MDGRP(I) instance is generated by following the rules R1–R3. This instance in-
+corporates some new intermediate points. The best 10 solutions in S¯ are transformed into an
+0
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3770 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+MDGRP(I) solution as explained in Mat1. All the transformed solutions are improved with the
+VNDandtherouteoptimizationproceduresanddefineanewsetS¯ .
+1
+Rule R4 is applied using the set S¯ to obtain a new MDGRP(I(cid:8) ) instance. Each solution in
+1
+S¯ is transformed into an MDGRP(I(cid:8) ) solution as explained above, and the VND and route
+1
+optimization procedures are applied again. The best
+MDGRP(I(cid:8)
+) solution obtained is selected as
+thefinalsolutionofMat2.
+Notethat,althoughthesamenameisused,theMDGRP(I(cid:8)
+)instancesgeneratedbyalgorithms
+Mat1andMat2arenotnecessarilythesame.
+5. Computationalexperiments
+Inthissection,wedescribethecomputationalexperimentswehaveruntoanalyzetheperformance
+oftheproposedbranch-and-cutandmatheuristicalgorithms.
+SincetherewerenoavailableMDdGRPbenchmarkinstances,wehavecreatedasetofinstances
+withasetofdepots,asetofrequiredvertices,andasetofrequiredlines.Thealgorithmshavebeen
+codedinC++,andallthetestshavebeenrunonanIntelCorei7at3.4GHzwith32GBRAM.
+For the implementation of the branch-and-cut algorithm, we have used IBM Ilog Cplex 12.10
+with Concert Technology. Cplex heuristic algorithms were turned off, and Cplex’s own cuts were
+activatedinautomaticmode.Theoptimalitygaptolerancewassettozero,thebestboundstrategy
+was used for the tree exploration, and the strong branching strategy was used for choosing the
+variableforbranching.
+5.1. Instances
+In order to test the solution methods proposed, we have randomly generated some multidepot
+drone GRP instances (networks with families of polygonal chains, required vertices, and several
+depots)onagridasfollows.
+First, we generate a GRP instance on a grid with m×n points whose coordinates are multiples
+of100.Thegraphinitiallycontainsalltheverticalandhorizontaledgesofthegridaswellassome
+random diagonals. We randomly select the location of ndep depots among the nodes of the grid.
+Each edge is considered required with probability p. The vertices, except for the depots, that are
+notincidentwithrequirededgesarenowremoved.FollowingtheproceduredescribedinCampbell
+et al. (2018) for the drone rural postman problem, the coordinates of all the vertices are slightly
+perturbed, the shape ofthe required linesisaltered according toparametercurvature,andaseries
+ofverticesareaddedsplittingeachrequiredlineintosegmentsofsimilarlength.Wenowgeneratea
+setofnvreqrequiredverticeswithrandomcoordinates.IftheEuclideandistancebetweenarequired
+vertex and the closest vertex is less than a certain value, the required vertex is removed and a new
+one is generated. Each required vertex i is assigned a demand d chosen at random in {1,2}. The
+i
+deadheadingcostc betweenanytwoverticesi, j isequaltotheEuclideandistancebetweenthem. ij
+The cost of each segment of a line is computed as the Euclidean distance between its endpoints
+multipliedby1.5,andthecostofthelineisequaltothesumofthecostsofitssegments.
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3771
+A total of 15 different grid sizes have been considered, ranging from 5×6 to 10×10. Parameter
+ndephasbeenchosenin{2,3,4}forgridswithlessthan50nodes,{3,4,5}forthosewithbetween
+50 and 70 nodes, and {4,5,6} for grids with more than 70 nodes. For each grid size and value
+of ndep, two instances have been generated. The first one is with p= 0.3, curvature = 0.4, and
+nvreq a random number in [3×ndep,4×ndep] (version 1), and the second one is with p= 0.4,
+curvature = 0.3andnvreqin[2×ndep,3×ndep](version2).Wehaveatotalof90instances,which
+wehavegroupedintothreegroups:small,withlessthan50nodes,mediumwithbetween50and70
+nodes,andlarge,withmorethan70nodes.
+Foreachinstance,themaximumdurationLandtheloadlimitQofthedronesarecalculatedas
+follows:
+• L = cost(TG) +max{c : i, j ∈V}roundeduptoamultipleof100.
+(cid:10)(cid:2)D (cid:11) ij
+• Q = i∈VR di +2.
+D
+If an instance is infeasible with these values of L and Q, they are slightly increased until it be-
+comesfeasible.
+Table 1 summarizes the characteristics of the MDdGRP instances. Each row corresponds to
+a set of three different instances, each one with a different number of depots. The digits at the
+end of the name on the first column indicate the values of parameters m and n and whether the
+instanceshavebeengeneratedasversion1or2.Thus,forexample,theinstancesgroupedas“MD-
+dGRP5_10_2” were generated with m = 5, n = 10, and version 2 (p= 0.4, curvature = 0.3, and
+nvreqin[2×ndep,3×ndep]).Column“Depots”showsthenumberofdepotsusedfortheinstances
+of each group. Columns 3 and 4 report the average number of required vertices and lines, respec-
+tively,ofthethreeinstances,whilecolumn5showstheaveragenumberofverticesnotconsidering
+the ones generated to split the required lines. These 90 instances, as well as the results obtained in
+theexperimentsexplainedinwhatfollows,canbefoundathttp://www.uv.es/plani/instancias.htm.
+5.2. Computationalresults
+Wehaveusedarepresentativesubsetof10MDdGRPinstanceswithdifferentsizesandnumberof
+depotsinordertochoosethevaluesfortheparameterit (themaximumnumberofconsecutive
+max
+iterationswithoutimprovementinthedestroyandrepairprocedure)and(cid:4) (themaximumnum-
+max
+ber of tasks that can be considered in an exchange move). We have tried all the combinations of
+values for it in {10,20,30,40} and for (cid:4) in {5,10,20,30,L}, where the value L is computed
+max max
+for each instance as L = (cid:16)(|E |+|V |)/D(cid:17). The computational results obtained with each com-
+R R
+bination of these values on the subset of instances are reported in Table 2. In this table, column
+3 shows the average computing time, in seconds, used to solve the instances with the parameters
+indicated in columns 1 and 2, while column 4 shows the total cost on average. The “Gap” col-
+umnprovidestheaveragepercentagegapbetweenthesolutionobtainedwiththeparametersofits
+corresponding row and the best solution found among all the considered combinations. Since the
+averagecomputingtimeisnotmuchlargerandtheyprovidethebestdeadheadingcostandgap,we
+havechosenit = 30and(cid:4) = 20asthevaluesthatwillbeusedinthematheuristicalgorithms
+max max
+inthefollowingcomputationalexperiments.
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3772 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+Table1
+CharacteristicsofthemultidepotdroneGRPinstances
+Instancename Depots Requiredvertices Requiredlines Vertices
+MDdGRP5_6_1 9.0 17.0 32.0
+MDdGRP5_6_2 10.3 22.3 36.7
+MDdGRP6_6_1 9.0 21.0 36.0
+MDdGRP6_6_2 10.0 29.7 43.0
+MDdGRP5_8_1 2,3,4 9.0 25.0 42.0
+MDdGRP5_8_2 9.7 36.3 44.7
+MDdGRP6_8_1 9.0 29.0 47.0
+MDdGRP6_8_2 10.0 48.3 54.0
+MDdGRP7_7_1 9.0 30.0 48.0
+MDdGRP7_7_2 11.0 47.7 54.3
+MDdGRP5_10_1 12.0 30.0 50.0
+MDdGRP5_10_2 13.7 49.7 60.3
+MDdGRP6_10_1 12.0 40.0 65.0
+MDdGRP6_10_2 13.3 56.0 67.3
+MDdGRP7_9_1 3,4,5 12.0 45.0 68.7
+MDdGRP7_9_2 13.3 58.7 67.3
+MDdGRP8_8_1 12.0 45.0 64.0
+MDdGRP8_8_2 13.7 60.7 72.0
+MDdGRP7_10_1 12.0 51.0 71.3
+MDdGRP7_10_2 13.0 64.0 71.0
+MDdGRP8_9_1 15.0 53.0 77.0
+MDdGRP8_9_2 15.7 63.3 78.0
+MDdGRP9_9_1 15.0 55.0 79.0
+MDdGRP9_9_2 17.0 69.3 85.3
+MDdGRP8_10_1 4,5,6 15.0 60.0 89.0
+MDdGRP8_10_2 16.0 73.0 92.0
+MDdGRP9_10_1 15.0 55.0 82.3
+MDdGRP9_10_2 17.7 69.7 87.0
+MDdGRP10_10_1 15.0 67.0 100.7
+MDdGRP10_10_2 15.7 86.3 99.0
+Table 3 reports the computational results obtained with algorithms Mat1 and Mat2 described
+inSection4.4.Theinstanceshavebeengroupedintothreeblockslabeled“Small,”“Medium,”and
+“Large” according to their size, with 30 instances in each group. Each row presents the average
+resultsobtainedforthe10instanceswiththesamenumberofdepots,whichisgiveninthesecond
+column.Columns4–7containtheresultsobtainedbyMat1,andcolumns8–11arethoseobtained
+byMat2.Bothblocksshowtheaveragetotalcostforthe10instanceswiththesamecharacteristics,
+theaveragepercentagegapbetweenthebestcostknown(consideringbothalgorithms)andthecost
+obtained with the corresponding algorithm, the number of times ((cid:5) best) that the algorithm has
+found the best solution, and the average computing time (in seconds). The last row provides the
+averageofthecolumnsexceptforthenumberofbestsolutionsfound,thatisthesumofthem.
+ItcanbeseenthatalgorithmMat2outperformsMat1,obtainingthebestsolutionin64ofthe
+90 instances, while the average computing time is very similar for both methods. The difference
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3773
+Table2
+Sensitivityofthematheuristicstotheparametersit and(cid:4)
+max max
+it (cid:2) Time Cost Gap
+max max
+5 25.85 13,781.32 1.54
+10 25.59 13,663.46 0.84
+10 20 32.91 13,583.08 0.34
+30 31.43 13,596.81 0.45
+L 30.66 13,605.37 0.50
+5 17.82 13,785.75 1.61
+10 23.48 13,687.60 0.99
+20 20 29.67 13,578.20 0.33
+30 29.85 13,583.80 0.36
+L 26.84 13,652.38 0.74
+5 16.58 13,816.64 1.73
+10 22.98 13,668.09 0.85
+30 20 30.02 13,577.11 0.31
+30 31.06 13,595.96 0.42
+L 27.83 13,611.80 0.51
+5 18.37 13,824.73 1.93
+10 24.10 13,709.49 1.13
+40 20 31.68 13,617.25 0.54
+30 30.61 13,581.67 0.33
+L 27.52 13,616.88 0.57
+Table3
+ResultsobtainedwithalgorithmsMat1andMat2
+Mat1 Mat2
+Size D (cid:3)inst Cost Gap (cid:3)best Time Cost Gap (cid:3)best Time
+Small 2 10 7,925.91 0.02 8 35.13 7,930.24 0.09 8 17.58
+3 10 8,720.39 0.18 7 16.67 8,726.37 0.22 5 13.12
+4 10 9,515.99 0.68 4 13.89 9,453.31 0.10 8 15.83
+Medium 3 10 12,351.82 0.03 7 61.61 12,363.74 0.11 6 41.16
+4 10 13,148.02 0.46 5 44.16 13,119.80 0.15 8 35.97
+5 10 14,015.02 0.96 4 38.54 13,936.70 0.34 6 33.62
+Large 4 10 17,044.32 0.84 5 49.48 16,918.60 0.19 5 73.10
+5 10 17,391.29 0.96 1 56.59 17,230.81 0.00 9 83.59
+6 10 18,331.65 0.76 1 118.75 18,216.29 0.11 9 93.27
+Total 13,160.49 0.54 42 48.31 13,099.54 0.15 64 45.25
+betweenthesetwoproceduresisparticularlyevidentinthelargerinstancesandthosewithalarger
+numberofvehicles.
+From these results, it seems that it is a better strategy to start by applying the matheuristic to a
+smaller instance with few or no intermediate nodes and then incorporate new intermediate points
+wisely(Mat2),ratherthanaddingmanyintermediatepointsfromthestart(Mat1).
+Rule R4 of the matheuristic algorithms adds new intermediate points to the instance based
+on the intermediate points used by the previously constructed solutions. One could think about
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3774 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+Table4
+EffectofruleR4
+BeforeR4 AfterR4
+Cost Time Cost Time Imp(%) (cid:5)imp
+MAT1 13,209.73 37.03 13,160.49 48.31 0.32 46/90
+MAT2 13,104.33 32.50 13,099.54 45.25 0.03 11/90
+Table5
+ResultswiththeB&ContheMDGRP(0)instances
+Size D (cid:3)inst (cid:3)opt Gap0 Gap (cid:3)impUB Time
+Small 2 10 9 3.34 0.19 1 9.95
+3 10 7 4.52 0.51 4 147.67
+4 10 7 4.57 1.19 4 542.04
+Medium 3 10 3 4.06 1.62 3 113.49
+4 10 3 4.64 2.55 3 1383.53
+5 10 0 5.50 3.94 0 −
+Large 4 10 0 5.07 4.06 0 −
+5 10 0 5.54 4.55 0 −
+6 10 0 5.13 4.52 0 −
+applying this rule again to the new solutions obtained in this way in order to try to find new
+intermediate vertices that could improve the solutions even further. To study if adding one more
+round of intermediate vertices would help, we have studied the effect of rule R4 on the quality of
+thesolutions.Table4showstheaveragecostofthesolutionsobtainedforallthe90instanceswith
+and without applying rule R4 as well as the average computing time. The last two columns report
+theaverageimprovementafterapplyingR4,andthenumberofinstancesinwhichanimprovement
+was observed. As can be seen, the improvement in the case of matheuristic Mat2 is very small, so
+we do not think that adding more intermediate vertices applying this rule again will be worth the
+computational effort. The improvement observed in Mat1 is a bit larger, but the average value of
+thesolutionsisstillbehindMat2evenwithoutR4.
+Figure3aandbillustratesanexampleofasolutionobtainedwithMat2beforeandafteradding
+the promising intermediate points. Figure 3a shows the solution without intermediate points, and
+the deadheading cost is 2265.83. Figure 3b depicts the solution with intermediate points obtained
+afterapplyingrulesR2–R4,anditsdeadheadingcostis2221.02.Addingintermediatepointsallows
+us to reduce the deadheading cost by 1.98%. In the new solution, there are three lines in which
+drones enter at an intermediate point. Moreover, the service of one of these lines is shared by
+twodrones.
+In order to assess the performance of the branch-and-cut algorithm presented in this paper,
+we have tested it on the instances described above without using intermediate points, that is,
+MDGRP(0). The exact algorithm uses as the initial upper bound the one obtained in the first
+phaseoftheheuristicalgorithmMat2withoutusingintermediatepoints.Thetimelimithasbeen
+set to 1 hour. The results obtained are reported in Table 5. As above, the instances have been
+grouped by size. Column “(cid:5) opt” reports the number of instances for which the optimal solution
+hasbeenfoundwithinthetimelimit.“Gap0”and“Gap”columnsprovidetheaveragepercentage
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3775
+Fig.3. Asolutionbeforeandafteraddingthepromisingintermediatepoints.
+gap between the best upper bound found by the procedure and the lower bound obtained at the
+endoftherootnodeandthefinallowerbound,respectively.Thenumberofinstancesforwhichthe
+branch-and-cut algorithm (B&C) has been able to improve on the initial upper bound is given in
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3776 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+Table6
+Mat2performancecomparedwithMDGRP(0)bounds
+MDGRP(0) MDdGRP
+Size D GapLB(%) (cid:3)opt DHRed.(%)
+Small 2 0.26 8 −1.07
+3 1.13 2 0.84
+4 1.42 3 −0.20
+Medium 3 1.65 3 −0.97
+4 2.64 0 −0.82
+5 3.94 0 −2.21
+Large 4 4.06 0 −1.53
+5 4.55 0 −2.94
+6 4.52 0 −1.20
+Total 2.69 16/90 −1.11
+column labeled “(cid:5) imp UB,” while the last column shows the average computing time, in seconds,
+forthoseinstancesthathavebeensolvedoptimally.
+Itcanbeobservedthatthebranch-and-cutalgorithmiscapableofsolvingmostofthesmall-size
+instances (23 out of 30), but it struggles to solve the medium-size ones (only 6 out of 30) and
+cannot solve any of the large ones. The final gap, which is in general small, also presents a similar
+behavior, increasing from 0.19% in the smallest instances to 4.55% in the largest ones. Regarding
+the gap at the root node, although a small increase can also be observed, this increase is smaller,
+onlyfrom3.34%to5.54%.Thisseemstoindicatethatthelowerboundsobtainedattherootnode
+arequitegood,speciallyconsideringthat,forthelargestinstances,thebranch-and-cutalgorithmis
+notabletoobtainanynewupperbounds,sothecomparisonismadeagainstthesolutionprovided
+bytheheuristic,whichmaystillbefarfromtheoptimalone.
+Table 6 compares the results obtained with the best matheuristic, Mat2, with the lower and
+upperboundsobtainedbythebranchandcutforMDGRP(0).Theresultsaregroupedaccording
+to the size of the instances and the number of depots asin previous tables. Column “Gap LB(%)”
+showstheaveragegapbetween thesolutionfortheMDGRP(0) instancewithrespecttothelower
+bound obtained by the branch and cut, while column “(cid:5) opt” reports the number of instances for
+whichthesolutionofMat2isoptimal.Wecanobservethattheperformanceofthematheuristicis
+verygood,beingcapableofobtaining solutionsthatareguaranteed tobeoptimalin16instances,
+whileforthosethatarenotproventobeoptimal,thegapsaresmall.
+ThelastcolumnofTable6,labeled“DHRed.(%),”presentstheaveragepercentagereductionof
+thedeadheadingcostobtainedbythefinalsolutionofMat2comparedtothedeadheadingcostof
+the best solution found by the branch and cut for the MDGRP(0) instance (negative values mean
+that there is an improvement). With these values, we want to assess the improvement obtained by
+using intermediate points in the edges versus just solving the instances without them. Note that,
+sincetheseareheuristicsolutions,someofthemcanbeworsethantheoptimalsolutionsobtained
+for the MDGRP(0) instances. This behavior can be observed in the second row, where we get a
+positiveaveragevalue.Ascanbeseen,theaverageimprovementis1.11%,althoughinsomesetsof
+instancesthisvaluecomescloseto3%.Therefore,wecanconcludethatwecanusethismatheuristic
+algorithmtoobtainbettersolutionsthattakeprofitofthepossibilityofusingintermediatepoints
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3777
+whileusingsmallcomputationtimes.Eveninmanyoftheinstanceswheretheoptimalsolutionof
+MDGRP(0) is known, such as the small instances with two depots, the matheuristic is capable of
+obtainingbettersolutions.
+6. Conclusions
+In this paper, we have addressed the MDdGRP with duration and capacity constraints, a con-
+tinuous optimization problem which is an extension of the classical GRP incorporating multiple
+depotsandadronelocatedineachoneofthem.Theobjectiveistocollectivelyperformallservices,
+visiting the required nodes and traversing the network lines, while minimizing the total flight
+durationconsideringdronecapacityandrange.
+We have presented an integer formulation for the MDGRP, a discrete version of the problem,
+along with some families of valid inequalities that strengthen this formulation. We have imple-
+mentedabranch-and-cutprocedurethatincorporatesseparationalgorithmsfortheseinequalities.
+Furthermore, we have proposed two matheuristic algorithms for the MDdGRP focused on trying
+to find better solutions by sequentially adding some promising intermediate points for drones to
+enterandexitthelines.
+Theresultsobtainedfrombothmatheuristicalgorithmsdemonstratethesuperiorityofthealgo-
+rithmthatstartsbygeneratingsolutionswithoutintermediatepointsandsubsequentlyaddssome
+promising ones to the best solutions found. This approach outperforms the algorithm that first
+addssomeintermediatepointstotheinstanceandthenfindsasetofinitialsolutions.
+Thebranch-and-cutalgorithmiscapableofsolvingalmostalltheMDGRP(0)instancesofsmall
+sizebutitstrugglestosolvethemediumonesandcannotsolveanyofthelargeones.Bycomparing
+the results of the branch-and-cut algorithm with those obtained with the first step of the best
+matheuristic(beforeincludingintermediatevertices),wehaveshownthatthematheuristiciscapa-
+bleofobtainingoptimalsolutionsinsomeinstances.Forthoseinstancesinwhichoptimalityisnot
+proven, the gaps are significantly small. The inclusion of intermediate points, as evidenced by the
+solutionsobtainedbythematheuristicalgorithm,allowsustoobtain,withinshortcomputational
+times,bettersolutionsthanwithoutthem,evenwhenusingexactprocedures.
+Asfuturelinesofresearch,wewanttoconsideranextensionoftheprobleminwhichthenumber
+of depots is greater than the number of available drones and we have to choose which depots to
+use. This allows for considering a wide range of potential depots and selecting the optimal ones
+for launching the drones. Furthermore, we intend to study the situation in which each drone can
+performanindefinitenumberofflightsfromitsdepotaswellasconsideringdifferentobjectives.
+Acknowledgments
+This work was supported by grant PID2021-122344NB-I00 funded by MCIN/AEI/10.13039/
+501100011033and“ERDFAwayofmakingEurope.”
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+3778 T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779
+References
+Ahabchane, C., Langevin, A., M., T.,2020. The mixed capacitated general routing problem with time–dependent de-
+mands.Networks76,467–484.
+Amorosi,L.,Puerto,J.,Valverde,C.,2021.Coordinatingdroneswithmothershipvehicles:themothershipanddrone
+routingproblemwithgraphs.Computers&OperationsResearch136,105445.
+Amorosi,L.,Puerto,J.,Valverde,C.,2024.Anextendedmodelofcoordinationofanall-terrainvehicleandamultivisit
+drone.InternationalTransactionsinOperationalResearch.31,2,780–806.
+Archetti, C., Bertazzi, L., Laganà, D., Vocaturo, F., 2017. The undirected capacitated general routing problem with
+profits.EuropeanJournalofOperationalResearch257,3,822–833.
+Bach,L.,Hasle,G.,Wøhlk,S.,2013.Alowerboundforthenode,edge,andarcroutingproblem.Computers&Operations
+Research40,4,943–952.
+Barahona,F.,Grotschel,M.,1986.Onthecyclepolytopeofabinarymatroid.JournalofCombinatorialTheoryB40,1,
+40–62.
+Bosco,A.,Laganà,D.,Musmanno,R.,Vocaturo,F.,2013.Modelingandsolvingthemixedcapacitatedgeneralrouting
+problem.OptimizationLetters7,1451–2469.
+Campbell, J.F., Corberán, Á., Plana, I., Sanchis, J.M., Segura, P., 2023. The multi-purpose k-drones general routing
+problem.Networks82,4,437–458.
+Campbell,J.F.,Corberán,Á.,Plana,I.,Sanchis,J.M.,2018.Dronearcroutingproblems.Networks72,4,543–559.
+Campbell,J.F.,Corberán,Á.,Plana,I.,Sanchis,J.M.,Segura,P.,2021.Solvingthelengthconstrainedk-dronesrural
+postmanproblem.EuropeanJournalofOperationalResearch292,1,60–72.
+Campbell,J.F.,Corberán,Á.,Plana,I.,Sanchis,J.M.,Segura,P.,2022.Polyhedralanalysisandanewalgorithmforthe
+lengthconstrainedk-dronesruralpostmanproblem.ComputationalOptimizationandApplications83,67–109.
+Chow,J.Y.J.,2016.DynamicUAV-basedtrafficmonitoringunderuncertaintyasastochasticarc-inventoryroutingpolicy.
+InternationalJournalofTransportationScienceandTechnology5,3,167–185.
+Corberán, Á., Plana, I., Rodríguez-Chía, A.M., Sanchis, J.M., 2013. A branch-and-cut algorithm for the maximum
+benefitChinesepostmanproblem.MathematicalProgramming141,21–48.
+Corberán,Á.,Plana,I.,Sanchis,J.M.,2007.Abranch&cutalgorithmforthewindygeneralroutingproblemandspecial
+cases.Networks49,4,245–257.
+Corberán,Á.,Plana,I.,Sanchis,J.M.,2015.Thewindygeneralroutingpolyhedron:aglobalviewofmanyknownarc
+routingpolyhedra.SIAMJournalonDiscreteMathematics22,2,606–628.
+DiPugliaPugliese,L.,Guerriero,F.,2017.Last-miledeliveriesbyusingdronesandclassicalvehicles.InSforza,A.,Sterle,
+C. (eds), Optimization and Decision Science: Methodologies and Applications, Springer International Publishing,
+Cham,pp.557–565.
+Ghiani, G., Laporte, G., 2000. A branch-and-cut algorithm for the undirected rural postman problem. Mathematical
+Programming87,467–481.
+Hansen,P.,Mladenovic´,N.,2001.Variableneighborhoodsearch:principlesandapplications.EuropeanJournalofOper-
+ationalResearch130,3,449–467.
+Hasle,G.,2014.Arcroutingapplicationsinthenewspaperindustry.InCorberán,Á.,Laporte,G.(eds),ArcRouting:
+Problems,Methods,andApplications.MOS–SIAM,Philadelphia,pp.371–396.
+Hierholzer,C.,1873.UberdieMöglichkeit,einenLinienzugohneWiederholungundohneUnterbrechungzuumfahren.
+MathematischeAnnalen6,30–32.
+Kim,D.,Moon,I.,2024.Scheduling-locationproblemwithdrones.InternationalTransactionsinOperationalResearch
+31,5,2850–2874.
+Lenstra,J.,RinnooyKan,A.,1976.Ongeneralroutingproblems.Networks6,273–280.
+Li,M.,Zhen,L.,Wang,S.,Lv,W.,Qu,X.,2018.Unmannedaerialvehicleschedulingproblemfortrafficmonitoring.
+Computers&IndustrialEngineering122,15–23.
+Luo,H.,Zhang,P.,Wang,J.,Wang,G.,Meng,F.,2019.Trafficpatrollingroutingproblemwithdronesinanurbanroad
+system.Sensors19,23,5164.
+Macrina,G.,DiPugliaPugliese,L.,Guerriero,F.,Laporte,G.,2020.Drone-aidedrouting:aliteraturereview.Trans-
+portationResearchPartC:EmergingTechnologies120,102762.
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+T.Corberánetal./Intl.Trans.inOp.Res.32(2025)3756–3779 3779
+Montoya-Torres,J.,LópezFranco,J.,NietoIsaza,S.,FelizzolaJiménez,H.,Herazo-Padilla,N.,2015.Aliteraturereview
+onthevehicleroutingproblemwithmultipledepots.Computers&IndustrialEngineering79,115–129.
+Murray,C.C.,Chu,A.G.,2015.Theflyingsidekicktravelingsalesmanproblem:optimizationofdrone-assistedparcel
+delivery.TransportationResearchPartC:EmergingTechnologies54,86–109.
+Orloff,C.S.,1974.Afundamentalprobleminvehiclerouting.Networks4,1,35–64.
+Oruc,B.,Kara,B.,2018.Post-disasterassessmentroutingproblem.TransportationResearchPartB:Methodology116,
+76–102.
+Pandi,R.,Muralidharan,B.,1995.Acapacitatedgeneralroutingproblemonmixednetworks.Computers&Operations
+Research22,5,465–478.
+Prins, C., Bouchenoua, S., 2005. A memetic algorithm solving the VRP, the carp and general routing problems with
+nodes, edges and arcs. In Hart, W.E., Smith, J.E., Krasnogor, N. (eds), Recent Advances in Memetic Algorithms,
+StudiesinFuzzinessandSoftComputing,Vol.166.Springer,Berlin„pp.65–85.
+Rojas Viloria, D., Solano-Charris, E.L., Muñoz Villamizar, A., Montoya-Torres, J.R., 2021. Unmanned aerial vehi-
+cles/dronesinvehicleroutingproblems:aliteraturereview.InternationalTransactionsinOperationalResearch28,4,
+1626–1657.
+Salazar-Aguilar,M.,Langevin,A.,Laporte,G.,2013.Thesynchronizedarcandnoderoutingproblem:applicationto
+roadmarking.Computers&OperationsResearch40,1708–1715.
+Wang,Z.,Sheu,J.B.,2019.Vehicleroutingproblemwithdrones.TransportationResearchPartB:Methodological122,
+350–364.
+©2024TheAuthors.
+InternationalTransactionsinOperationalResearchpublishedbyJohnWiley&SonsLtdonbehalfofInternationalFederation
+ofOperationalResearchSocieties.
+14753995,
+2025,
+6,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1111/itor.13457,
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License

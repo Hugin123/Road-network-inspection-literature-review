@@ -1,0 +1,461 @@
+[
+  {
+    "filename": "1-s2.0-S0191261522001709-main.pdf",
+    "title": "Rich arc routing problem in city logistics: Models and solution algorithms using a fluid queue-based time-dependent travel time representation",
+    "authors": [
+      "Jiawei Lu"
+    ],
+    "year": "2022",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "GA, Heuristic, Metaheuristic",
+    "algorithm_principle": "Equally important, the congestion impact of service vehicles to other road Branch and price solution method users should also be considered",
+    "apa_citation": "Lu, J. (2022). Rich arc routing problem in city logistics: Models and solution algorithms using a fluid queue-based time-dependent travel time representation. Transportation Research Part B, 166.",
+    "text_preview": "TransportationResearchPartB166(2022)143–182\nContents lists available at ScienceDirect\nTransportation Research Part B\njournal homepage: www.elsevier.com/locate/trb\nRich arc routing problem in city logistics: Models and solution\nalgorithms using a fluid queue-based time-dependent travel\ntime representation\nJiawei Lua, Qinghui Nieb, Monirehalsadat Mahmoudic, Jishun Oub,*,\nChongnan Lid, Xuesong Simon Zhoua,*\naSchool of Sustainable Engineering and the Built Environment, Arizona State University, Tempe, AZ, 85281, USA\nbCollege of Architectural Science and Engineering, Yangzhou University, Yangzhou, 225127, China\ncSchool of Packaging, College of Agriculture and Natural Resources, Michigan State University, East Lansing, Michigan, 48824, USA\ndSchool of Traffic and Transportation, Beijing Jiaotong University, Beijing, 100044, China\nA R T I C L E I N F O A B S T R A C T\nKeywords: City logistics, as an essential component of the city operation system, aims at managing the\nCity logistics complex f",
+    "metadata": {
+      "title": "Rich arc routing problem in city logistics: Models and solution algorithms using a fluid queue-based time-dependent travel time representation",
+      "author": "Jiawei Lu",
+      "subject": "Transportation Research Part B, 166 (2022) 143-182. doi:10.1016/j.trb.2022.10.011",
+      "keywords": "City logistics,Rich arc routing problem (RARP),Time-dependent travel time,Societal impact,Lagrangian relaxation,Branch and price solution method",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 8.1.0 (Windows)",
+      "creation_date": "D:20221203091037Z",
+      "mod_date": "D:20221203092818Z"
+    }
+  },
+  {
+    "filename": "1-s2.0-S0305054821001994-main.pdf",
+    "title": "Coordinating drones with mothership vehicles: The mothership and drone routing problem with graphs",
+    "authors": [
+      "Lavinia Amorosi"
+    ],
+    "year": "2021",
+    "problem_variant": "Arc Routing Problem, ARP, Rural Postman Problem",
+    "core_algorithm": "Genetic Algorithm, GA, GP",
+    "algorithm_principle": "We discuss different approaches depending on the Conic programming assumption made on the route followed by the mothership: i) the mothership can move on a continuous framework (the Euclidean plane), ii) on a connected piecewise linear polygonal chain or iii) on a general graph In all cases, we develop exact formulations resorting to mixed integer second order cone programs that are compared on a testbed of instances to assess their performance",
+    "apa_citation": "Amorosi, L. (2021). Coordinating drones with mothership vehicles: The mothership and drone routing problem with graphs. Computers and Operations Research, 136.",
+    "text_preview": "Computers&OperationsResearch136(2021)105445\nContents lists available at ScienceDirect\nComputers and Operations Research\njournal homepage: www.elsevier.com/locate/cor\nCoordinating drones with mothership vehicles: The mothership and drone\nrouting problem with graphs\nLavinia Amorosia,*,1, Justo Puertob,1, Carlos Valverdeb,1\naDepartment of Statistics, Sapienza, University of Rome, Rome 00185, Italy\nbDepartment of Statistics and Operations Research, University of Seville, Seville 41012, Spain\nA R T I C L E I N F O A B S T R A C T\nKeywords: This paper addresses the optimization of routing problems with drones. It analyzes the coordination of one\nArc routing problems mothership with one drone to obtain optimal routes that have to visit some target objects modeled as general\nNetworks graphs. The goal is to minimize the overall weighted distance traveled by both vehicles while satisfying the\nDrones\nrequirements in terms of percentages of visits to targets. We discuss different approaches depend",
+    "metadata": {
+      "title": "Coordinating drones with mothership vehicles: The mothership and drone routing problem with graphs",
+      "author": "Lavinia Amorosi",
+      "subject": "Computers and Operations Research, 136 (2021) 105445. doi:10.1016/j.cor.2021.105445",
+      "keywords": "Arc routing problems,Networks,Drones,Conic programming",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 8.1.0 (Windows)",
+      "creation_date": "D:20210826092552Z",
+      "mod_date": "D:20210826173333Z"
+    }
+  },
+  {
+    "filename": "1-s2.0-S0305054822000910-main.pdf",
+    "title": "A Greedy Randomized Adaptive Search Procedure (GRASP) for the multi-vehicle prize collecting arc routing for connectivity problem",
+    "authors": [
+      "Luana Souza Almeida"
+    ],
+    "year": "2022",
+    "problem_variant": "Arc Routing Problem, ARP, Stochastic",
+    "core_algorithm": "Genetic Algorithm, GA, Heuristic",
+    "algorithm_principle": "A math- Emergency response euristic to solve the KPC-ARCP was proposed in previous research, which tested instances with fewer than 400 vertices and 700 ed",
+    "apa_citation": "Almeida, L.S. (2022). A Greedy Randomized Adaptive Search Procedure (GRASP) for the multi-vehicle prize collecting arc routing for connectivity problem. Computers and Operations Research, 143.",
+    "text_preview": "Computers&OperationsResearch143(2022)105804\nContents lists available at ScienceDirect\nComputers and Operations Research\njournal homepage: www.elsevier.com/locate/cor\nA Greedy Randomized Adaptive Search Procedure (GRASP) for the\nmulti-vehicle prize collecting arc routing for connectivity problem\nLuana Souza Almeidaa,*, Floris Goerlandta, Ronald Pelota, Kenneth So ¨ rensenb\naDalhousie University, Department of Industrial Engineering, Maritime Risk and Safety (MARS) Group, 5269 Morris Street, Halifax, Nova Scotia, B3H 4R2, Canada\nbUniversity of Antwerp, Department of Engineering Management, ANT/OR – Operations Research Group, Prinsstraat 13, 2000 Antwerp, Belgium\nA R T I C L E I N F O A B S T R A C T\nKeywords: Natural disasters such as earthquakes can severely impact road networks. Depending on the disaster intensity and\nMetaheuristics the size of the affected area, the network may be divided into multiple disconnected parts. In a disaster response\nNatural hazard context, decision-makers ",
+    "metadata": {
+      "title": "A Greedy Randomized Adaptive Search Procedure (GRASP) for the multi-vehicle prize collecting arc routing for connectivity problem",
+      "author": "Luana Souza Almeida",
+      "subject": "Computers and Operations Research, 143 (2022) 105804. doi:10.1016/j.cor.2022.105804",
+      "keywords": "Metaheuristics,Natural hazard,Network connectivity,Humanitarian logistics,Emergency response",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 8.1.0 (Windows)",
+      "creation_date": "D:20220406192630Z",
+      "mod_date": "D:20220406194105Z"
+    }
+  },
+  {
+    "filename": "1-s2.0-S0305054823001867-main.pdf",
+    "title": "A multiple-drone arc routing and mothership coordination problem",
+    "authors": [
+      "Lavinia Amorosi"
+    ],
+    "year": "2023",
+    "problem_variant": "Arc Routing Problem, ARP, Rural Postman Problem",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "Inallcases,wedevelopexactformulationsresortingtomixed-integersecond-orderconeprogrammesthatare comparedonatestbedofinstancestoassesstheirperformance Wealsodevelopamatheuristicalgorithmthat providesreasonablesolutions",
+    "apa_citation": "Amorosi, L. (2023). A multiple-drone arc routing and mothership coordination problem. Computers and Operations Research, 159.",
+    "text_preview": "Computers&OperationsResearch159(2023)106322\nContentslistsavailableatScienceDirect\nComputersandOperationsResearch\njournalhomepage:www.elsevier.com/locate/cor\nAmultiple-dronearcroutingandmothershipcoordinationproblem\nLaviniaAmorosia,∗,1,JustoPuertob,1,CarlosValverdeb,1\naDepartmentofStatisticalSciences,SapienzaUniversityofRome,Italy\nbDepartmentofStatisticalSciencesandOperationalResearch,UniversityofSeville,Spain\nA R T I C L E I N F O A B S T R A C T\nKeywords: This paper considers the optimisation problems that arise in coordinating a tandem between a mothership\nArcroutingproblems vehicle and a fleet of drones. Each drone can be launched from the mothership to perform a task. After\nNetworks completingtheirtasks,thedronesreturntothemothershiptorechargetheirbatteriesandbereadyforanew\nDrones task. Tasks consist of (partially) visiting graphs of a given length to provide some services or to carry out\nConicprogramming\na surveillance/inspection activity. The goal is to minimise the overall time ",
+    "metadata": {
+      "title": "A multiple-drone arc routing and mothership coordination problem",
+      "author": "Lavinia Amorosi",
+      "subject": "Computers and Operations Research, 159 (2023) 106322. doi:10.1016/j.cor.2023.106322",
+      "keywords": "Arc routing problems,Networks,Drones,Conic programming",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 8.1.0 (Windows)",
+      "creation_date": "D:20230816174449Z",
+      "mod_date": "D:20230817051933Z"
+    }
+  },
+  {
+    "filename": "1-s2.0-S0305054824003666-main.pdf",
+    "title": "The min max multi-trip drone location arc routing problem",
+    "authors": [
+      "Teresa Corberán"
+    ],
+    "year": "2024",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "Genetic Algorithm, GA, GP",
+    "algorithm_principle": "Here, an integer formulation for the MM-MT-LARP is proposed, some familiesofvalidinequalitiesareprovedtobefacet-inducingofarelaxedpolyhedron,andabranch-and-cut algorithmbasedonthestrengthenedformulationisdeveloped",
+    "apa_citation": "Corberán, T. (2024). The min max multi-trip drone location arc routing problem. Computers and Operations Research, 174.",
+    "text_preview": "Computers & Operations Research 174 (2025) 106894\nContentslistsavailableatScienceDirect\nComputersandOperationsResearch\njournalhomepage:www.elsevier.com/locate/cor\nTheminmaxmulti-tripdronelocationarcroutingproblem\nTeresaCorberána,IsaacPlanab,JoséMaríaSanchisc,∗\naDepartamentd’EstadísticaiInvestigacióOperativa,UniversitatdeValència,Spain\nbDepartamentdeMatemàtiquesperal’Economiail’Empresa,UniversitatdeValència,Spain\ncInstitutUniversitarideMatemàticaPuraiAplicada,UniversitatPolitècnicadeValència,Spain\nA R T I C L E I N F O A B S T R A C T\nKeywords: This paper studies the Min Max Multi-Trip drone Location Arc Routing Problem (MM-MT-dLARP), an arc\nDrones routing problem that combines trucks and drones. We have a set of lines (usually curved) that have to be\nLocationarcroutingproblem flownoverbydronestoperformaservice(inspection,forexample).Thereisadepotfromwhichthetrucks\nMulti-trip leave, each one carrying a drone, and a set of potential launching points where the truck can launch and\nLengthc",
+    "metadata": {
+      "title": "The min max multi-trip drone location arc routing problem",
+      "author": "Teresa Corberán",
+      "subject": "Computers and Operations Research, 174 (2025) 106894. doi:10.1016/j.cor.2024.106894",
+      "keywords": "Drones,Location arc routing problem,Multi-trip,Length constraints,Matheuristic,Branch-and-cut,Polyhedral study",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 8.1.0 (Windows)",
+      "creation_date": "D:20241224183953Z",
+      "mod_date": "D:20241228093624Z"
+    }
+  },
+  {
+    "filename": "1-s2.0-S0377221720309115-main.pdf",
+    "title": "Solving the length constrained -drones rural postman problem",
+    "authors": [
+      "James F. Campbell"
+    ],
+    "year": "2021",
+    "problem_variant": "CARP, Vehicle Routing Problem, Arc Routing Problem",
+    "core_algorithm": "GA, Heuristic, Local Search",
+    "algorithm_principle": "Even heuristic algorithms can fail in providing feasible solutions in reasonable computing times",
+    "apa_citation": "Campbell, J.F. (2021). Solving the length constrained -drones rural postman problem. European Journal of Operational Research, 292.",
+    "text_preview": "European Journal of Operational Research 292 (2021) 60–72\nContents lists available at ScienceDirect\nEuropean Journal of Operational Research\njournal homepage: www.elsevier.com/locate/ejor\nDiscrete Optimization\nSolving the length constrained K-drones rural postman problem\nJames F. Campbell a, Ángel Corberán b, Isaac Plana c , ∗, José M. Sanchis d, Paula Segura d\na Supply Chain and Analytics Department, University of Missouri-St. Louis, St. Louis, MO 63121-4499, USA\nb Department d’Estadística i InvestigacióOperativa, Universitat de València, Avda. Dr. Moliner 50, Burjassot, Valencia 46100, Spain\nc Department de Matemáticas Para la Economía y la Empresa, Universitat de València, Avda. Tarongers s/n, Valencia 46022, Spain\nd Department de Matemática Aplicada, Universidad Politécnica de Valencia, Camino de Vera s/n, Valencia 46022, Spain\na r t i c l e i n f o a b s t r a c t\nArticle history: In this paper we address the Length Constrained K-Drones Rural Postman Problem (LC K-DRPP). This is a",
+    "metadata": {
+      "title": "Solving the length constrained -drones rural postman problem",
+      "author": "James F. Campbell",
+      "subject": "European Journal of Operational Research, 292 (2021) 60-72. doi:10.1016/j.ejor.2020.10.035",
+      "keywords": "\"Logistics\"; \"Drones\"; \"Arc routing\"; \"Length constraints\"; \"Matheuristic\"",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 10.1.10 (Windows)",
+      "creation_date": "D:20210216195229+05'30'",
+      "mod_date": "D:20210216195300+05'30'"
+    }
+  },
+  {
+    "filename": "1-s2.0-S2210650221000250-main.pdf",
+    "title": "A memetic algorithm based on two_Arch2 for multi-depot heterogeneous-vehicle capacitated arc routing problem",
+    "authors": [
+      "Bin Cao"
+    ],
+    "year": "2021",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "Genetic Algorithm, GA, Heuristic",
+    "algorithm_principle": "Furthermore, based on the ideas of two-archive and information entropy, we propose a memetic algorithm based on Two_Arch2 (MATA) to tackle the constructed model",
+    "apa_citation": "Cao, B. (2021). A memetic algorithm based on two_Arch2 for multi-depot heterogeneous-vehicle capacitated arc routing problem. Swarm and Evolutionary Computation, 63.",
+    "text_preview": "Swarm and Evolutionary Computation 63 (2021) 100864\nContents lists available at ScienceDirect\nSwarm and Evolutionary Computation\njournal homepage: www.elsevier.com/locate/swevo\nA memetic algorithm based on two_Arch2 for multi-depot\nheterogeneous-vehicle capacitated arc routing problem\nBin Cao a, b ,∗ , Weizheng Zhang a, b , Xuesong Wang a, b , Jianwei Zhao a, b , Yu Gu c, d , e , Yan Zhang a, b , ∗\na State Key Laboratory of Reliability and Intelligence of Electrical Equipment, Hebei University of Technology, Tianjin 300130, China\nb School of Artificial Intelligence, Hebei University of Technology, Tianjin 300401, China\nc School of AutoMation, Guangdong University of Petrochemical Technology, Maoming 525000, Guangdong, China\nd Beijing Advanced Innovation Center for Soft Matter Science and Engineering, Beijing University of Chemical Technology, Beijing 100029, China\ne Department of Chemistry, Institute of Inorganic and Analytical Chemisty, Goethe-University, Frankfurt 60438, Germany\na r ",
+    "metadata": {
+      "title": "A memetic algorithm based on two_Arch2 for multi-depot heterogeneous-vehicle capacitated arc routing problem",
+      "author": "Bin Cao",
+      "subject": "Swarm and Evolutionary Computation, 63 (2021) 100864. doi:10.1016/j.swevo.2021.100864",
+      "keywords": "\"Capacitated arc routing problem\"; \"Heterogeneous-vehicle\"; \"Load utilization rate\"; \"Many-objective optimization\"",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 10.1.10 (Windows)",
+      "creation_date": "D:20210328043546+05'30'",
+      "mod_date": "D:20210328043626+05'30'"
+    }
+  },
+  {
+    "filename": "1-s2.0-S2210650223000202-main.pdf",
+    "title": "A GV-drone arc routing approach for urban traffic patrol by coordinating a ground vehicle and multiple drones",
+    "authors": [
+      "Binjie Xu"
+    ],
+    "year": "2023",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "Genetic Algorithm, GA, GP",
+    "algorithm_principle": "To conquer this shortage, the coordination of ground vehicles (GVs) and drones to finish complex Hybrid optimization algorithm tasks has attracted much attention recently",
+    "apa_citation": "Xu, B. (2023). A GV-drone arc routing approach for urban traffic patrol by coordinating a ground vehicle and multiple drones. Swarm and Evolutionary Computation, 77.",
+    "text_preview": "SwarmandEvolutionaryComputation77(2023)101246\nContents lists available at ScienceDirect\nSwarm and Evolutionary Computation\njournal homepage: www.elsevier.com/locate/swevo\nA GV-drone arc routing approach for urban traffic patrol by coordinating a\nground vehicle and multiple drones\nBinjie Xua, Kexin Zhaoa, Qizhang Luoa, Guohua Wua,*, Witold Pedryczb\naSchool of Traffic and Transportation Engineering, Central South University, Changsha 410075, China\nbDepartment of Electrical and Computer Engineering, University of Alberta, Canada\nA R T I C L E I N F O A B S T R A C T\nKeywords: With the continuous expansion of civilian field, unmanned aerial vehicle (UAV), also known as drone, has\nVehicle-drone coordination received much attention. Nevertheless, the flight range of a rotary wing drone is restricted due to limited battery\nArc routing problem endurance. To conquer this shortage, the coordination of ground vehicles (GVs) and drones to finish complex\nHybrid optimization algorithm\ntasks has attr",
+    "metadata": {
+      "title": "A GV-drone arc routing approach for urban traffic patrol by coordinating a ground vehicle and multiple drones",
+      "author": "Binjie Xu",
+      "subject": "Swarm and Evolutionary Computation, 77 (2023) 101246. doi:10.1016/j.swevo.2023.101246",
+      "keywords": "Vehicle-drone coordination,Arc routing problem,Hybrid optimization algorithm,Variable neighborhood descent,Traffic patrol",
+      "creator": "Elsevier",
+      "producer": "Acrobat Distiller 8.1.0 (Windows)",
+      "creation_date": "D:20230208031304Z",
+      "mod_date": "D:20230208061219Z"
+    }
+  },
+  {
+    "filename": "10.3934_jimo.2023150 (1).pdf",
+    "title": "Vol. 20,No. 5,May2024,pp. 1951-1966",
+    "authors": [],
+    "year": "2024",
+    "problem_variant": "Arc Routing Problem, Rural Postman Problem, RPP",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "Forthisproblem,weproposeaheuristicalgorithmconsisting of two phases We show that the proposed two-phase heuristic has a performance guarantee of ratio 2",
+    "apa_citation": "Unknown (2024). Vol. 20,No. 5,May2024,pp. 1951-1966. https://doi.org/10.3934/jimo.2023150",
+    "text_preview": "JournalofIndustrialandManagementOptimization\nVol. 20,No. 5,May2024,pp. 1951-1966\ndoi:10.3934/jimo.2023150\nA HEURISTIC ALGORITHM FOR THE DRONE RURAL\nPOSTMAN PROBLEM\nAiling Xie(cid:0)∗1, Keigo Miyagawa(cid:0)2, Wei Wu(cid:0)2\nand Mutsunori Yagiura(cid:0)1\n1NagoyaUniversity,Japan\n2ShizuokaUniversity,Japan\n(Communicated by Changjun Yu)\nAbstract. In this paper, we consider the drone rural postman problem\n(DRPP). Unlike a vehicle in the traditional rural postman problem, a drone\ncantravel directlybetween any two pointswithoutfollowingtheedges ofthe\ngraph. Thus, a drone can start (or restart) and end (or pause) the service of\nan edge at any two points of it, and an edge can be serviced separately (e.g.,\nfromanendpointtothemiddlepointinthefirstvisitandtheremaininghalf\nin the second visit). This property implies that a lower cost solution may be\nobtainedbyusingadrone. InDRPPinstances,theinputdataarerepresented\nby approximating each edge that have to be traversed by a polygonal chain\nwithafinite",
+    "metadata": {
+      "title": "",
+      "author": "",
+      "subject": "",
+      "keywords": "",
+      "creator": "LaTeX with hyperref",
+      "producer": "pdfTeX-1.40.24",
+      "creation_date": "D:20240227211902+08'00'",
+      "mod_date": "D:20240227211902+08'00'"
+    }
+  },
+  {
+    "filename": "2403.07028v1.pdf",
+    "title": "An Efficient Learning-based Solver Comparable to Metaheuristics",
+    "authors": [],
+    "year": "2024",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "The primary objective of a CARP solver is to Recently, neural networks (NN) have made great serve all the required edges with the lowest total path cost, strides in combinatorial optimization In this paper, we in- costs and the exponential growth of the search space as the troduce an NN-based solver to significantly nar- problemscaleincreases",
+    "apa_citation": "Unknown (2024). An Efficient Learning-based Solver Comparable to Metaheuristics.",
+    "text_preview": "An Efficient Learning-based Solver Comparable to Metaheuristics\nfor the Capacitated Arc Routing Problem\nRunzeGuo1, FengXue2, AnlongMing1 and NicuSebe2\n1BeijingUniversityofPostsandTelecommunications\n2UniversityofTrento\ngrz@bupt.edu.cn,feng.xue@unitn.it,mal@bupt.edu.cn,niculae.sebe@unitn.it\nAbstract depot ∈ V and conclude their journey by returning to the\nsame depot. The primary objective of a CARP solver is to\nRecently, neural networks (NN) have made great\nserve all the required edges with the lowest total path cost,\nstrides in combinatorial optimization. However,\nwhileadheringtothecapacityconstraintdenotedasQ.\nthey face challenges when solving the capacitated\nAccording to [Golden and Wong, 1981], the CARP is\narc routing problem (CARP) which is to find the\nrecognized as an NP-Hard problem, making it impractical\nminimum-cost tour covering all required edges on\nto obtain exact solutions for all CARP instances. In the\nagraph,whilewithincapacityconstraints. Intack-\npast, Memetic algorithms ",
+    "metadata": {
+      "title": "",
+      "author": "",
+      "subject": "",
+      "keywords": "",
+      "creator": "LaTeX with hyperref",
+      "producer": "pdfTeX-1.40.25",
+      "creation_date": "D:20240313011027Z",
+      "mod_date": "D:20240313011027Z"
+    }
+  },
+  {
+    "filename": "2406.15416v1.pdf",
+    "title": "A novel dual-stage algorithm for capacitated arc routing problems with time-dependent",
+    "authors": [],
+    "year": "2024",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "Genetic Algorithm, GA, GP",
+    "algorithm_principle": "In the current literature, exact algorithms designed for CARPTDSC can only handle small-scaleinstances, whileheuristicalgorithmsfailtoobtainhigh-qualitysolutions Toovercometheselimitations, wepropose anoveldual-stagealgorithm,calledMAENS-GN,thatconsistsofaroutingstageandavehicledeparturetimeoptimizationstage",
+    "apa_citation": "Unknown (2024). A novel dual-stage algorithm for capacitated arc routing problems with time-dependent.",
+    "text_preview": "A novel dual-stage algorithm for capacitated arc routing problems with time-dependent\nservice costs\nQingyaLia,ShengcaiLiua,JuanZoub,c,KeTanga\naGuangdongKeyLaboratoryofBrain-InspiredIntelligentComputation,DepartmentofComputerScienceandEngineering,SouthernUniversityofScienceand\nTechnology,Shenzhen518055,China\nbTheKeyLaboratoryofHunanProvinceforInternetofThingsandInformationSecurity,XiangtanUniversity,Xiangtan411105,China\ncTheKeyLaboratoryofIntelligentComputingandInformationProcessing,MinistryofEducation,XiangtanUniversity,Xiangtan411105,China\nAbstract\nThis paper focuses on solving the capacitated arc routing problem with time-dependent service costs (CARPTDSC), which is\nmotivated by winter gritting applications. In the current literature, exact algorithms designed for CARPTDSC can only handle\nsmall-scaleinstances, whileheuristicalgorithmsfailtoobtainhigh-qualitysolutions. Toovercometheselimitations, wepropose\nanoveldual-stagealgorithm,calledMAENS-GN,thatconsistsofaroutingstageandavehicle",
+    "metadata": {
+      "title": "",
+      "author": "",
+      "subject": "",
+      "keywords": "",
+      "creator": "LaTeX with hyperref",
+      "producer": "pdfTeX-1.40.25",
+      "creation_date": "D:20240625000426Z",
+      "mod_date": "D:20240625000426Z"
+    }
+  },
+  {
+    "filename": "3583133.3595829.pdf",
+    "title": "A Novel Generalized Metaheuristic Framework for Dynamic Capacitated Arc Routing Problems",
+    "authors": [
+      "Hao Tong"
+    ],
+    "year": "2023",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Arc Routing Problem",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "In vehiclesstopatdifferentlocations,labeledasoutsidevehicles,with thiswork,weproposedanovelgeneralizedmeta-heuristicframe- variousamountsofremainingcapacities overstate-of-the-artdynamicoptimizationalgorithmsintermsof OnlyfewstudiesintheliteraturehavefocusedonDCARPso thequalityofobtainedsolutionwithinthelimitedcomputational far[3,6–8]",
+    "apa_citation": "Tong, H. (2023). A Novel Generalized Metaheuristic Framework for Dynamic Capacitated Arc Routing Problems.",
+    "text_preview": "A Novel Generalized Metaheuristic Framework for Dynamic\nCapacitated Arc Routing Problems\nHaoTong StefanMenzel XinYao\nLeandroL.Minku∗ BernhardSendhoff† xiny@sustech.edu.cn\nhxt922@student.bham.ac.uk stefan.menzel@honda-ri.de DepartmentofComputerScienceand\nl.l.minku@bham.ac.uk bernhard.sendhoff@honda-ri.de Engineering,SUSTech\nSchoolofComputerScience HondaResearchInstituteEurope Shenzhen,China\nUniversityofBirmingham Offenbach,Germany SchoolofComputerScience\nBirmingham,UK UniversityofBirmingham\nBirmingham,UK\nABSTRACT CapacitatedArcRoutingProblems.InGeneticandEvolutionaryComputation\nThecapacitatedarcroutingproblem(CARP)aimsatscheduling ConferenceCompanion(GECCO’23Companion),July15–19,2023,Lisbon,\nPortugal.ACM,NewYork,NY,USA,2pages.https://doi.org/10.1145/3583133.\nafleetofvehicleswithlimitedcapacitiestoserveasetoftasks\n3595829\ninagraph.ThedynamicCARP(DCARP)optimizationfocuseson\nupdatingthevehicles’servicerouteswhenunpredicteddynamic\nevents happen and deteriorate the current service plan. Due ",
+    "metadata": {
+      "title": "A Novel Generalized Metaheuristic Framework for Dynamic Capacitated Arc Routing Problems",
+      "author": "Hao Tong",
+      "subject": "",
+      "keywords": "Dynamic Capacitated Arc Routing Problem, Meta-heuristic Algorithms, Routing Optimization, Evolutionary Algorithms",
+      "creator": "LaTeX with acmart 2021/09/24 v1.80 Typesetting articles for the Association for Computing Machinery and hyperref 2022-06-13 v7.00r Hypertext links for LaTeX",
+      "producer": "pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) kpathsea version 6.3.4",
+      "creation_date": "D:20230503184113Z",
+      "mod_date": "D:20230718120539-04'00'"
+    }
+  },
+  {
+    "filename": "Genetic_Programming_With_Niching_for_Uncertain_Capacitated_Arc_Routing_Problem.pdf",
+    "title": "Genetic Programming With Niching for Uncertain Capacitated Arc Routing Problem",
+    "authors": [],
+    "year": "2022",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "Genetic Algorithm, GA, Genetic Programming",
+    "algorithm_principle": "Ithasbeenproved tive, smaller, and simpler routing policies, this article proposes to be NP-hard [4] and received much research interest Many a novel genetic programming approach, which simplifies the approaches have been proposed for dealing with CARP [4]",
+    "apa_citation": "Unknown (2022). Genetic Programming With Niching for Uncertain Capacitated Arc Routing Problem.",
+    "text_preview": "IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022 73\nGenetic Programming With Niching for Uncertain\nCapacitated Arc Routing Problem\nShaolin Wang , Graduate Student Member, IEEE, Yi Mei , Senior Member, IEEE,\nMengjie Zhang , Fellow, IEEE, and Xin Yao , Fellow, IEEE\nAbstract—The uncertain capacitated arc routing problem I. INTRODUCTION\nis an important optimization problem with many real-world\nCAPACITATED arc routing problem (CARP) [1] is a\napplications. Genetic programming is considered a promising\nclassic combinatorial optimization problem with a num-\nhyper-heuristic technique to automatically evolve routing poli-\ncies that can make effective real-time decisions in an uncertain berofreal-worldapplications,suchaswastecollection[2]and\nenvironment. Most existing research on genetic programming wintergritting[3].ThemaingoalofCARPistoserveasetof\nhyper-heuristicfortheuncertaincapacitatedarcroutingproblem\nedges in a graph using a fleet of vehicles with the minimum\nonly focused",
+    "metadata": {
+      "title": "Genetic Programming With Niching for Uncertain Capacitated Arc Routing Problem",
+      "author": "",
+      "subject": "IEEE Transactions on Evolutionary Computation;2022;26;1;10.1109/TEVC.2021.3095261",
+      "keywords": "",
+      "creator": "LaTeX with hyperref package",
+      "producer": "Acrobat Distiller 21.0 (Windows); modified using iText® 7.1.1 ©2000-2018 iText Group NV (AGPL-version)",
+      "creation_date": "D:20220117155207+05'30'",
+      "mod_date": "D:20220127152719-05'00'"
+    }
+  },
+  {
+    "filename": "Int Trans Operational Res - 2024 - Corberán - The multidepot drone general routing problem with duration and capacity.pdf",
+    "title": "The multidepot drone general routing problem with duration and capacity constraints",
+    "authors": [
+      "Teresa Corberána",
+      "Isaac Planab",
+      "José M. Sanchisc",
+      "Paula Segurac"
+    ],
+    "year": "2025",
+    "problem_variant": "CARP, Vehicle Routing Problem, VRP",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "Twomatheuristicalgo- rithmsarepresented,focusedonsequentiallyselecting(andadding)somepromisingintermediatepointsto enterandexitaline",
+    "apa_citation": "Corberána, T., Planab, I., Sanchisc, J.M., & Segurac, P. (2025). The multidepot drone general routing problem with duration and capacity constraints. https://doi.org/10.1111/itor.13457",
+    "text_preview": "INTERNATIONAL\nTRANSACTIONS\nINOPERATIONAL\nIntl.Trans.inOp.Res.32(2025)3756–3779 RESEARCH\nDOI:10.1111/itor.13457\nThe multidepot drone general routing problem with duration\nand capacity constraints\nTeresa Corberána , Isaac Planab,∗ , José M. Sanchisc and Paula Segurac\naDepartamentd’EstadísticaiInvestigacióOperativa,UniversitatdeValència,Avda.Dr.Moliner50,Burjassot46100,Spain\nbDepartamentodeMatemáticasparalaEconomíaylaEmpresa,UniversitatdeValència,Avda.Tarongerss/n,València\n46022,Spain\ncDepartamentodeMatemáticaAplicada,UniversitatPolitècnicadeValència,CaminodeVeras/n,València46022,Spain\nE-mail:tecorfa@alumni.uv.es[Corberán];isaac.plana@uv.es[Plana];jmsanchis@mat.upv.es[Sanchis];\npsegmar@upvnet.upv.es[Segura]\nReceived24May2023;receivedinrevisedform18January2024;accepted13March2024\nAbstract\nThis paper studies the multidepot drone general routing problem with duration and capacity constraints\n(MDdGRP),anextensionoftheclassicalgeneralroutingproblemwithseveraldepots.Afleetofdroneswith\nlimited f",
+    "metadata": {
+      "title": "The multidepot drone general routing problem with duration and capacity constraints",
+      "author": "",
+      "subject": "Int Trans Operational Res 2025.32:3756-3779",
+      "keywords": "",
+      "creator": "LaTeX with hyperref package",
+      "producer": "Acrobat Distiller 25.0 (Windows); modified using iText 4.2.0 by 1T3XT",
+      "creation_date": "D:20250429205605+05'30'",
+      "mod_date": "D:20260429020247-07'00'"
+    }
+  },
+  {
+    "filename": "Knowledge_Transfer_Genetic_Programming_With_Auxiliary_Population_for_Solving_Uncertain_Capacitated_Arc_Routing_Problem.pdf",
+    "title": "Knowledge Transfer Genetic Programming With Auxiliary Population for Solving Uncertain Capacitated Arc Routing Problem",
+    "authors": [],
+    "year": "2023",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "Genetic Algorithm, GA, Genetic Programming",
+    "algorithm_principle": "However, the solutions found by the GP process Incontrast,geneticprogramming(GP)isapromisingapproach can lack diversity, and the existing methods use the transferred knowledge mainly during initialization We develop a novel scheme to carefully exchange ingproactivemethods[10]andotherpolicylearningmethods, the knowledge between the two pop",
+    "apa_citation": "Unknown (2023). Knowledge Transfer Genetic Programming With Auxiliary Population for Solving Uncertain Capacitated Arc Routing Problem.",
+    "text_preview": "IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023 311\nKnowledge Transfer Genetic Programming With\nAuxiliary Population for Solving Uncertain\nCapacitated Arc Routing Problem\nMazhar Ansari Ardeh , Yi Mei , Senior Member, IEEE, Mengjie Zhang , Fellow, IEEE,\nand Xin Yao , Fellow, IEEE\nAbstract—The uncertain capacitated arc routing problem As an extension of CARP, UCARP is also NP-hard [6], [7]\n(UCARP) is an NP-hard combinatorial optimization problem and, the uncertain nature of UCARP increases the difficulty\nwith a wide range of applications in logistics domains. Genetic\neven further, as the solution may become worse or infeasi-\nprogramming(GP)hyper-heuristichasbeensuccessfullyapplied\nble when the actual environment is different from expected.\nto evolve routing policies to effectively handle the uncertain\nenvironment in this problem. The real world usually encoun- Traditional optimization algorithms, such as mathematical\nters different but related instances due to events, suc",
+    "metadata": {
+      "title": "Knowledge Transfer Genetic Programming With Auxiliary Population for Solving Uncertain Capacitated Arc Routing Problem",
+      "author": "",
+      "subject": "IEEE Transactions on Evolutionary Computation;2023;27;2;10.1109/TEVC.2022.3169289",
+      "keywords": "",
+      "creator": "LaTeX with hyperref package",
+      "producer": "Acrobat Distiller 22.0 (Windows); modified using iText® 7.1.1 ©2000-2018 iText Group NV (AGPL-version)",
+      "creation_date": "D:20230320172951+05'30'",
+      "mod_date": "D:20230329153003-04'00'"
+    }
+  },
+  {
+    "filename": "Networks - 2023 - Campbell - The multi‐purpose K‐drones general routing problem.pdf",
+    "title": "The multi‐purpose K‐drones general routing problem",
+    "authors": [
+      "JamesCampbell1 ÁngelCorberán2 IsaacPlana3 JoséM.Sanchis4 PaulaSegura4"
+    ],
+    "year": "2023",
+    "problem_variant": "ARP, Dynamic, General Routing Problem",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "We present in this article an integer programming formulation for the K-GRP and propose a matheuristic algorithm and a branch-and-cut proce- dureforitssolution",
+    "apa_citation": "PaulaSegura4, J.Á.I.J. (2023). The multi‐purpose K‐drones general routing problem. https://doi.org/10.1002/net.22176",
+    "text_preview": "Received:10May2022 Revised:5July2023 Accepted:11July2023\nDOI:10.1002/net.22176\nRESEARCH ARTICLE\nThe multi-purpose K-drones general routing problem\nJamesCampbell1 ÁngelCorberán2 IsaacPlana3 JoséM.Sanchis4 PaulaSegura4\n1SupplyChainandAnalyticsDept.,Universityof\nAbstract\nMissouri-St.Louis,St.Louis,Missouri,USA\n2Dept.d’EstadísticaiInvestigacióOperativa, In this article, we present and solve the multi-purpose K-drones general routing\nUniversitatdeValència,Valencia,Spain\nproblem (MP K-DGRP). In this optimization problem, a fleet of multi-purpose\n3Dept.deMatemáticasparalaEconomíayla\nEmpresa,UniversitatdeValència,Valencia,Spain drones,aerialvehiclesthatcanbothmakedeliveriesandconductsensingactivities\n4Dept.deMatemáticaAplicada,Universidad (e.g.,imaging),havetojointlyvisitasetofnodestomakedeliveriesandmapone\nPolitécnicadeValencia,Valencia,Spain\normorecontinuousareas.Thisproblemismotivatedbyglobalhealthcareapplica-\nCorrespondence\ntionsthatdeploymultipurposedronesthatcombinedeliverytripswithcolle",
+    "metadata": {
+      "title": "The multi‐purpose K‐drones general routing problem",
+      "author": "",
+      "subject": "Networks 2023.82:437-458",
+      "keywords": "",
+      "creator": "LaTeX with hyperref package",
+      "producer": "Acrobat Distiller 11.0 (Windows); modified using iText 4.2.0 by 1T3XT",
+      "creation_date": "D:20231028135649+05'30'",
+      "mod_date": "D:20260429013543-07'00'"
+    }
+  },
+  {
+    "filename": "drones-08-00373 (1).pdf",
+    "title": "Drone Arc Routing Problems and Metaheuristic Solution Approach",
+    "authors": [
+      "Islam Altin",
+      "Aydin Sipahioglu"
+    ],
+    "year": "2024",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Arc Routing Problem",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "Additionally,novelneighborsearchoperatorsaredevelopedinthisstudy",
+    "apa_citation": "Altin, I. & Sipahioglu, A. (2024). Drone Arc Routing Problems and Metaheuristic Solution Approach.",
+    "text_preview": "drones\nArticle\nDrone Arc Routing Problems and Metaheuristic Solution Approach\nIslamAltin*andAydinSipahioglu\nDepartmentofIndustrialEngineering,EskisehirOsmangaziUniversity,Eskisehir26040,Turkey;\nasipahi@ogu.edu.tr\n* Correspondence:ialtin@ogu.edu.tr\nAbstract:Thedronearcroutingproblem(DARP)isoneofthearcroutingproblems(ARPs)thathas\nbeenstudiedbyresearchersrecently. UnliketraditionalARPs,dronescantraveldirectlybetween\nanytwopointsinthegraph.Duetotheflexibilityofdrones,itispossibletouseedgesnotdefined\ninthegraphswhendeadheadingtheedges. Thisadvantageofdronesmakesthisproblemmore\nchallengingthananyotherARP.Withthisstudy, theenergycapacitiesofdronesareconsidered\ninaDARP.Thus,anovelDARPcalledthedronearcroutingproblemwithdeadheadingdemand\n(DARP-DD)isaddressedinthisstudy. Dronecapacitiesareusedbothwhenservicingtheedges\nand when deadheading the edges in the DARP-DD. A special case of the DARP-DD, called the\nmultiple service drone arc routing problem with deadheading demand (MS-DARP-DD), is also\ndis",
+    "metadata": {
+      "title": "Drone Arc Routing Problems and Metaheuristic Solution Approach",
+      "author": "Islam Altin and Aydin Sipahioglu",
+      "subject": "The drone arc routing problem (DARP) is one of the arc routing problems (ARPs) that has been studied by researchers recently. Unlike traditional ARPs, drones can travel directly between any two points in the graph. Due to the flexibility of drones, it is possible to use edges not defined in the graphs when deadheading the edges. This advantage of drones makes this problem more challenging than any other ARP. With this study, the energy capacities of drones are considered in a DARP. Thus, a novel DARP called the drone arc routing problem with deadheading demand (DARP-DD) is addressed in this study. Drone capacities are used both when servicing the edges and when deadheading the edges in the DARP-DD. A special case of the DARP-DD, called the multiple service drone arc routing problem with deadheading demand (MS-DARP-DD), is also discussed, where some critical required edges may need to be served more than once. To solve these challenging problems, a simulated annealing algorithm is used, and the components of the algorithm are designed. Additionally, novel neighbor search operators are developed in this study. The computational results show that the proposed algorithm and its components are effective and useful in solving the DARP-DD and MS-DARP-DD.",
+      "keywords": "capacitated arc routing problem; drone arc routing problem; deadheading demand; multiple service; simulated annealing algorithm",
+      "creator": "LaTeX with hyperref",
+      "producer": "pdfTeX-1.40.25",
+      "creation_date": "D:20240803181139+08'00'",
+      "mod_date": "D:20240803121339+02'00'"
+    }
+  },
+  {
+    "filename": "mathematics-10-02205-v2.pdf",
+    "title": "An Artificial Bee Colony Algorithm for Static and Dynamic Capacitated Arc Routing Problems",
+    "authors": [
+      "Zsuzsanna Nagy",
+      "Ágnes Werner-Stark",
+      "Tibor Dulai"
+    ],
+    "year": "2022",
+    "problem_variant": "Capacitated Arc Routing Problem, CARP, Vehicle Routing Problem",
+    "core_algorithm": "GA, GP, Heuristic",
+    "algorithm_principle": "TheArtificialBeeColony(ABC)algorithmisanevolutionary optimizationalgorithmthatwasproventobeabletoprovidebetterperformancethanmanyother evolutionaryalgorithms,butitwasnotusedfortheCARPbefore",
+    "apa_citation": "Nagy, Z., Werner-Stark, Á., & Dulai, T. (2022). An Artificial Bee Colony Algorithm for Static and Dynamic Capacitated Arc Routing Problems.",
+    "text_preview": "mathematics\nArticle\nAn Artificial Bee Colony Algorithm for Static and Dynamic\nCapacitated Arc Routing Problems\nZsuzsannaNagy1,*,ÁgnesWerner-Stark1andTiborDulai1\nDepartmentofElectricalEngineeringandInformationSystems,FacultyofInformationTechnology,\nUniversityofPannonia,EgyetemSt.10,8200Veszprém,Hungary;werner.agnes@virt.uni-pannon.hu(Á.W.);\ndulai.tibor@virt.uni-pannon.hu(T.D.)\n* Correspondence:nagy.zsuzsanna@virt.uni-pannon.hu\nAbstract:TheCapacitatedArcRoutingProblem(CARP)isacombinatorialoptimizationproblem,\nwhichrequirestheidentificationofsuchrouteplansonagivengraphtoanumberofvehiclesthat\ngeneratestheleasttotalcost.TheDynamicCARP(DCARP)isavariationoftheCARPthatconsiders\ndynamicchangesintheproblem. TheArtificialBeeColony(ABC)algorithmisanevolutionary\noptimizationalgorithmthatwasproventobeabletoprovidebetterperformancethanmanyother\nevolutionaryalgorithms,butitwasnotusedfortheCARPbefore. Forthisreason,inthisstudy,\nanABCalgorithmfortheCARP(CARP-ABC)wasdevelopedalongwithanewmoveoperatorfor\n",
+    "metadata": {
+      "title": "An Artificial Bee Colony Algorithm for Static and Dynamic Capacitated Arc Routing Problems",
+      "author": "Zsuzsanna Nagy, Ágnes Werner-Stark and Tibor Dulai",
+      "subject": "The Capacitated Arc Routing Problem (CARP) is a combinatorial optimization problem, which requires the identification of such route plans on a given graph to a number of vehicles that generates the least total cost. The Dynamic CARP (DCARP) is a variation of the CARP that considers dynamic changes in the problem. The Artificial Bee Colony (ABC) algorithm is an evolutionary optimization algorithm that was proven to be able to provide better performance than many other evolutionary algorithms, but it was not used for the CARP before. For this reason, in this study, an ABC algorithm for the CARP (CARP-ABC) was developed along with a new move operator for the CARP, the sub-route plan operator. The CARP-ABC algorithm was tested both as a CARP and a DCARP solver, then its performance was compared with other existing algorithms. The results showed that it excels in finding a relatively good quality solution in a short amount of time, which makes it a competitive solution. The efficiency of the sub-route plan operator was also tested and the results showed that it is more likely to find better solutions than other operators.",
+      "keywords": "capacitated arc routing problem; dynamic capacitated arc routing problem; artificial bee colony algorithm; evolutionary optimization; move operator",
+      "creator": "LaTeX with hyperref",
+      "producer": "pdfTeX-1.40.21",
+      "creation_date": "D:20220630121307+08'00'",
+      "mod_date": "D:20220630061551+02'00'"
+    }
+  },
+  {
+    "filename": "s10589-022-00383-x.pdf",
+    "title": "Polyhedral analysis and a new algorithm for the length constrained K–drones rural postman problem",
+    "authors": [
+      "James Campbell"
+    ],
+    "year": "2022",
+    "problem_variant": "CARP, Arc Routing Problem, ARP",
+    "core_algorithm": "GA, Heuristic, RL",
+    "algorithm_principle": "This is a discrete arc routing problem, and therefore can be solved with combinatorial optimization techniques However, when the number of points in each polygonal chain is very large, the LC K–RPP instance can be so large that it is very difficult to solve, even for heuristic algorithms",
+    "apa_citation": "Campbell, J. (2022). Polyhedral analysis and a new algorithm for the length constrained K–drones rural postman problem.",
+    "text_preview": "Computational Optimization and Applications (2022) 83:67–109\nhttps://doi.org/10.1007/s10589-022-00383-x\nPolyhedral analysis and a new algorithm for the length\nconstrained K–drones rural postman problem\nJames Campbell1 · Ángel Corberán2 · Isaac Plana2 · José M. Sanchis3 ·\nPaula Segura3\nReceived: 28 September 2021 / Accepted: 25 May 2022 / Published online: 21 June 2022\n© The Author(s), under exclusive licence to Springer Science+Business Media, LLC, part of Springer Nature\n2022\nAbstract\nThe Length Constrained K–Drones Rural Postman Problem (LC K–DRPP) is a con-\ntinuous optimization problem where a set of curved or straight lines of a network\nhave to be traversed, in order to be serviced, by a fleet of homogeneous drones, with\ntotal minimum cost. Since the range and endurance of drones is limited, we consider\nhere that the length of each route is constrained to a given limit L. Drones are not\nrestricted to travel on the network, and they can enter and exit a line through any\nof its point",
+    "metadata": {
+      "title": "Polyhedral analysis and a new algorithm for the length constrained K–drones rural postman problem",
+      "author": "James Campbell ",
+      "subject": "Computational Optimization and Applications, https://doi.org/10.1007/s10589-022-00383-x",
+      "keywords": "Drones; Rural postman problem; Length constraints; Facets; Branch and cut",
+      "creator": "Springer",
+      "producer": "Acrobat Distiller 10.1.8 (Windows)",
+      "creation_date": "D:20220621181534+05'30'",
+      "mod_date": "D:20220727235550+05'30'"
+    }
+  },
+  {
+    "filename": "sensors-22-03702-v2.pdf",
+    "title": "A Coordinated Vehicle–Drone Arc Routing Approach Based on Improved Adaptive Large Neighborhood Search",
+    "authors": [
+      "Guohua Wu",
+      "Kexin Zhao",
+      "Jiaqi Cheng",
+      "Manhao Ma"
+    ],
+    "year": "2022",
+    "problem_variant": "CARP, VRP, Arc Routing Problem",
+    "core_algorithm": "Genetic Algorithm, GA, GP",
+    "algorithm_principle": "Tosolvethisproblem,animproved,adaptive,largeneighborhoodsearchalgorithm(IALNS)was proposed",
+    "apa_citation": "Wu, G., Zhao, K., Cheng, J., & Ma, M. (2022). A Coordinated Vehicle–Drone Arc Routing Approach Based on Improved Adaptive Large Neighborhood Search.",
+    "text_preview": "sensors\nArticle\nA Coordinated Vehicle–Drone Arc Routing Approach Based on\nImproved Adaptive Large Neighborhood Search\nGuohuaWu1,KexinZhao1,JiaqiCheng1andManhaoMa2,*\n1 SchoolofTraffic&TransportationEngineering,CentralSouthUniversity,Changsha410075,China;\nguohuawu@csu.edu.cn(G.W.);kx_zhao@csu.edu.cn(K.Z.);204207032@csu.edu.cn(J.C.)\n2 CollegeofSystemsEngineering,NationalUniversityofDefenseTechnology,Changsha410073,China\n* Correspondence:mhma@nudt.edu.cn\nAbstract: Throughurbantrafficpatrols,problemssuchastrafficcongestionandaccidentscanbe\nfoundanddealtwithintimetomaintainthestabilityoftheurbantrafficsystem.Themostcommon\nwaytopatrolisusinggroundvehicles,whichmaybeinflexibleandinefficient.Thevehicle–drone\ncoordinationmaximizesutilizingtheflexibilityofdronesandaddressestheirlimitedbatterycapacity\nissue.Thispaperstudiedavehicle–dronearcroutingproblem(VD-ARP),consistingofonevehicle\nand multiple drones. Considering the coordination mode and constraints of the vehicle–drone\nsystem,amathematicalmo",
+    "metadata": {
+      "title": "A Coordinated Vehicle–Drone Arc Routing Approach Based on Improved Adaptive Large Neighborhood Search",
+      "author": "Guohua Wu, Kexin Zhao, Jiaqi Cheng and Manhao Ma",
+      "subject": "Through urban traffic patrols, problems such as traffic congestion and accidents can be found and dealt with in time to maintain the stability of the urban traffic system. The most common way to patrol is using ground vehicles, which may be inflexible and inefficient. The vehicle–drone coordination maximizes utilizing the flexibility of drones and addresses their limited battery capacity issue. This paper studied a vehicle–drone arc routing problem (VD-ARP), consisting of one vehicle and multiple drones. Considering the coordination mode and constraints of the vehicle–drone system, a mathematical model of VD-ARP that minimized the total patrol time was constructed. To solve this problem, an improved, adaptive, large neighborhood search algorithm (IALNS) was proposed. First, the initial route planning scheme was generated by the heuristic rule of “Drone-First, Vehicle-Then”. Then, several problem-based neighborhood search strategies were embedded into the improved, adaptive, large neighborhood search framework to improve the quality of the solution. The superiority of IALNS is verified by numerical experiments on instances with different scales. Several critical factors were tested to determine the effects of coordinated traffic patrol; an example based on a real road network verifies the feasibility and applicability of the algorithm.",
+      "keywords": "vehicle–drone; arc routing problem; traffic patrol; routing optimization; adaptive large neighborhood search",
+      "creator": "LaTeX with hyperref",
+      "producer": "pdfTeX-1.40.21",
+      "creation_date": "D:20220516163540+08'00'",
+      "mod_date": "D:20220516105433+02'00'"
+    }
+  }
+]

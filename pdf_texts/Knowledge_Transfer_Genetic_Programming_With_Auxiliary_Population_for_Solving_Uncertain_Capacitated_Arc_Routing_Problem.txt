@@ -1,0 +1,1118 @@
+IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023 311
+Knowledge Transfer Genetic Programming With
+Auxiliary Population for Solving Uncertain
+Capacitated Arc Routing Problem
+Mazhar Ansari Ardeh , Yi Mei , Senior Member, IEEE, Mengjie Zhang , Fellow, IEEE,
+and Xin Yao , Fellow, IEEE
+Abstract—The uncertain capacitated arc routing problem As an extension of CARP, UCARP is also NP-hard [6], [7]
+(UCARP) is an NP-hard combinatorial optimization problem and, the uncertain nature of UCARP increases the difficulty
+with a wide range of applications in logistics domains. Genetic
+even further, as the solution may become worse or infeasi-
+programming(GP)hyper-heuristichasbeensuccessfullyapplied
+ble when the actual environment is different from expected.
+to evolve routing policies to effectively handle the uncertain
+environment in this problem. The real world usually encoun- Traditional optimization algorithms, such as mathematical
+ters different but related instances due to events, such as season programming and genetic algorithms cannot solve UCARP
+change and vehicle breakdowns, and it is desirable to transfer effectively [8], since the preplanned solutions are not flexible
+knowledgegainedfromsolvingoneinstancetohelpsolveanother
+enough and may incur large recourse cost in some situations.
+related one. However, the solutions found by the GP process
+Incontrast,geneticprogramming(GP)isapromisingapproach
+can lack diversity, and the existing methods use the transferred
+knowledge mainly during initialization. Thus, they cannot suffi- to solving UCARP [8], [9]. One of the primary advantages
+cientlyhandlethechangefromthesourcetothetargetinstance. of using GP is to evolve routing policies instead of actual
+Toaddressthisissue,wedevelopanovelknowledgetransferGP routes themselves. Such an indirect method for routing pro-
+with an auxiliary population. In addition to the main popula-
+vides much better flexibility and applicability of policies in
+tion for the target instance, we initialize an auxiliary population
+uncertain environments. GP has shown to outperform exist-
+usingthetransferredknowledgeandevolveitalongsidethemain
+population. We develop a novel scheme to carefully exchange ingproactivemethods[10]andotherpolicylearningmethods,
+the knowledge between the two populations, and a surrogate including linear models and neural networks [11], due to its
+modeltoevaluatetheauxiliarypopulationefficiently.Theexper- flexible representation, and low demand on the amount of
+imental results confirm that the proposed method performed
+trainingdata.GPHHhasshowntooutperformotherrobustness
+significantlybetterthanthestate-of-the-artGPapproachesfora
+optimization methods [10] and other policy learning methods,
+wide range of uncertain arc routing instances, in terms of both
+final performance and convergence speed. including linear models and neural networks [11], due to its
+flexibilityandlowdemandontheamountoftrainingdata[11].
+IndexTerms—Arcrouting,geneticprogramming(GP),hyper-
+The effectiveness of routing policies is sensitive to the
+heuristics, transfer optimization.
+characteristics of the UCARP instance (e.g., graph topology,
+number of vehicles, and distributions of the random vari-
+ables), and can dramatically deteriorate even with a slight
+I. INTRODUCTION
+change, such as adding/removing one vehicle in the same
+THE UNCERTAIN capacitated arc routing problem UCARP instance [9]. Therefore, new routing policies have to
+(UCARP) is an important optimization problem [1], [2] be retrained after every slight change in the UCARP instance.
+that models a collection of vehicles that are assigned to serve In reality, problems rarely exist in isolation [12], [13].
+a set of required edges in a graph. UCARP has important In the case of UCARP, different related instances could be
+real-worldapplicationsinlogisticsystems,suchasroadmain- encountered when expanding the fleet size or a vehicle breaks
+tenance [3], snow removal and ice control [4], and waste down, or changing from one season to another. Routing poli-
+collection [5]. cies are an indirect and higher abstraction of actual routes.
+Policies are not dependent on any particular maps and hence
+Manuscript received 27 August 2021; revised 6 January 2022 are a better representation of knowledge about good routing
+and 27 February 2022; accepted 5 April 2022. Date of publication by ignoring details specific to any particular map. Policies
+21April2022;dateofcurrentversion31March2023.(Correspondingauthor:
+can capture knowledge (e.g., subtree structures or probability
+MazharAnsariArdeh.)
+Mazhar Ansari Ardeh, Yi Mei, and Mengjie Zhang are with the School models) transferable across different problem instances bet-
+of Engineering and Computer Science, Victoria University of Wellington, ter. Therefore, it is desirable to develop transfer optimization
+Wellington6012,NewZealand(e-mail:mazhar@ecs.vuw.ac.nz).
+techniques [13] to improve the effectiveness and efficiency by
+Xin Yao is with the Department of Computer Science and Engineering,
+SouthernUniversityofScienceandTechnology,Shenzhen518055,China. discovering and transferring the knowledge in the policies for
+This article has supplementary material provided by the previous related UCARP instances.
+authors and color versions of one or more figures available at
+GP-based transfer learning and optimization has been
+https://doi.org/10.1109/TEVC.2022.3169289.
+DigitalObjectIdentifier10.1109/TEVC.2022.3169289 applied to a range of problems, including symbolic
+1089-778X(cid:2)c 2022IEEE.Personaluseispermitted,butrepublication/redistributionrequiresIEEEpermission.
+Seehttps://www.ieee.org/publications/rights/index.htmlformoreinformation.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+312 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023
+regression [14], [15] and UCARP [16], [17]. However, II. BACKGROUND
+previous studies have found that the GP process can lose its
+A. Uncertain Capacitated Arc Routing Problem
+populationdiversity[16],[18],[19].Forexample,thefinalGP
+The static CARP [6], [7] aims to find a set of routes to
+population can contain many duplicated individuals with the
+serveacollectionofrequirededges(tasks)inagraphG(V,E).
+same (good) fitness and common building blocks (i.e., sub-
+Initially, all the vehicles are stationed at a depot node. Each
+trees). The existing knowledge transfer methods that simply
+edge e∈E has a demand d(e), indicating the amount of work
+transfer knowledge from the top individuals tend to transfer
+tobedonetotheedge.Ifd(e)>0,theneisalsocalledatask.
+many duplicated building blocks, and make the GP search in
+The task set is denoted as E ⊆ E. Serving a task e incurs a
+thetargetinstanceeasilystuckintopoorlocaloptima.Inaddi- T
+serving cost sc(e) > 0. Traversing an edge e without serving
+tion, the existing GP-based transfer learning and optimization
+it will incur a deadheading cost dc(e) > 0. Each vehicle has
+methods are mostly limited to reusing the transferred build-
+a limited capacity of the demand q.
+ing blocks (e.g., subtrees or tree structure) to initialize the
+By taking into account the uncertain environment, in
+target population [16], [17], [19]–[22] which leads to a trade-
+UCARP, the demand of each task e ∈ E is a random vari-
+off to consider. On the one hand, the use of the building T
+able D(e), and the deadheading cost of each edge e ∈ E is
+blockscanhelptheGPprocessstartfromabetter-than-random
+a random variable DC(e). Due to the random task demands
+initial population. On the other hand, the initial population
+and deadheading costs, the following two types of failure can
+may be too restricted in the local region of the transferred
+occur when executing a solution in UCARP.
+individuals,especiallywhentheyhavemanyduplicatedbuild-
+1) A route failure occurs if the actual demand of the next
+ing blocks due to the loss of diversity. As a result, the
+served task is larger than expected, and exceeds the
+GP search for the target instance can hardly jump out of
+remaining capacity of the vehicle. The route needs to
+the initial local region to find better regions for the target
+be repaired by going back to the depot to replenish.
+instance.
+2) An edge failure occurs when the next edge becomes
+To address the above issues, we aim to propose a novel
+GP-based transfer optimization algorithm to evolve routing inaccessible(deadheadingcostbecomesinfinity).Inthis
+policies for UCARP. The new algorithm is named as GP case, a detour needs to be found.
+with auxiliary population for knowledge transfer (APTGP). A UCARP instance can be denoted as a tuple I =
+In our algorithm, all the individuals evaluated for solving the (cid:5)G,D(·),sc(·),DC(·),q(cid:6), where G is the graph, D(·) indicates
+source problem form the pool of transferred knowledge. To the random task demands, sc(·) represents the deterministic
+fight off the issue of diversity loss, APTGP clears duplicate serving costs, DC(·) indicates the random deadheading costs,
+individuals from the knowledge pool and utilizes the cleared and q is the capacity.
+pool to initialize the GP population for solving the target Note that a UCARP instance contains a number of random
+problem. Furthermore, after the initialization, the transferred variables, and can generate a large (if not infinite) number of
+knowledge is utilized to help GP handle the issue of diver- instance samples by sampling a value for each random vari-
+sity loss during the process of solving the target problem. For able. Given a UCARP instance I = (cid:5)G,D(·),sc(·),DC(·),q(cid:6),
+this purpose, the transferred pool is preserved as a second we denote the instance sample Iξ =(cid:5)G,dξ (·),sc(·),dcξ (·),q(cid:6),
+auxiliary population that evolves alongside the main popu- where dξ (e) (dcξ (e)) is the sampled demand (deadheading
+lation based on a surrogate model that is learned from and cost) of e using the random seed ξ.
+update by the main population. The main purpose of the A UCARP instance Iξ looks similar to a static CARP
+auxiliary population is to help GP maintain its population instance. The main difference is that in Iξ, the sampled val-
+diversity and for this matter, we devise an elaborate immi- uesdξ (·)and dcξ (·)areunknown during theoptimization, but
+grantexchangemechanismbetweenthemainandtheauxiliary gradually realized during the execution process as follows.
+populations. 1) Thesampleddemandofataskdξ (e)isrealizedafterthe
+Hence, our research objectives in this article are as follows. task is served.
+1) To handle the potential presence of duplicates in the 2) The sampled deadheading cost of an edge dcξ (e) is
+transferred knowledge, we develop a new initialization realized after the edge is traversed.
+mechanism that removes duplicates from the knowl- A solution to a UCARP instance I is denoted as a mapping
+edge pool and transfers unique individuals in the GP h (·), which can generate a feasible solution S = h (ξ) for
+I Iξ I
+for UCARP. each instance sample Iξ. Here, a solution S
+Iξ
+is feasible if it
+2) To reuse the transferred knowledge after the initializa- satisfies the following constraints.
+tion phase, we propose a mechanism for adapting the C1: Each route starts and ends at the depot.
+transferredknowledgetothetargetUCARPproblemand C2: Each task is served exactly once by one vehicle. An
+reusing it more efficiently. exception is that when route failure occurs, the failed
+3) To prevent the GP for UCARP from losing its vehicle returns to the depot to replenish in the middle
+population diversity, we devise an elaborate immi- of the service, and then resumes the remaining service.
+grant exchange mechanism between the main and the C3: The total demand served between two adjacent depot
+auxiliary populations that reduces duplicates in the visits cannot exceed its capacity q.
+population. Below are two examples of possible UCARP solutions.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+ANSARIARDEHetal.:KNOWLEDGETRANSFERGPWITHAUXILIARYPOPULATION 313
+1) A UCARP solution can contain a preplanned robust powerfulsearchmechanismthathasbeensuccessfullyapplied
+solution S along with a recourse operator RO(·) that to various problems [14], [30]. Since computer heuristics are
+I
+transforms S
+I
+to a feasible solution for each sample Iξ. computer programs in nature, GP can be utilized as a hyper
+In this case, h
+I
+(ξ)=RO(S
+I
+,Iξ ). heuristics (GPHHs) for evolving them automatically.
+2) The UCARP solution can be a routing policy RP(·) UCARProutingpoliciesarebasicallymathematicalexpres-
+that generates a feasible solution for each sample Iξ sionsthatareusedasheuristicsforbuildingUCARPsolutions.
+by making real-time reactive decisions. In this case, Liu and Mei [8] proposed a GPHH based on a tree-based
+h
+I
+(ξ) = RP(Iξ ). In this study, a UCARP solution is GP to evolve routing policies for a single vehicle. Mei and
+represented as a routing policy. Zhang [9] extended [8] to evolve routing policies for multiple
+UCARPistofindasolutionh (·)thatcangeneratefeasible vehicles. MacLachlan et al. [10] showed that allowing collab-
+I
+solutions for all possible samples Iξ, and the expected total orationsbetweenthevehiclescanimprovetheperformanceof
+cost is minimized. It can be stated as follows: the evolved policies. Wang et al. [31]–[33] proposed methods
+to evolve effective and small (thus potentially more inter-
+min E[tc(h (ξ))|ξ ∈(cid:3)] (1)
+hI (·)∈H I (·) I pretable)routingpoliciesforUCARP.Liuetal.[34]combined
+s.t.: h (ξ)satisfies constraints (C1)–(C3) (2) the reactive and proactive approaches in which the proactive
+I
+component of the algorithm evolves the sequence of vehicle
+where H (·) is the domain of possible UCARP solutions.
+I routesandthereactivecomponentevolvesaroutingpolicythat
+h
+I
+(ξ) = S
+Iξ
+is the feasible solution for Iξ, and (cid:3) is a set
+navigates the vehicle to the depot in case of route failures.
+of unseen test samples of the possible future situation.
+3) Evolutionary Transfer Optimization: Problems rarely
+It may seem that there exist some degree of similarity
+exist in isolation [13]. Most often, a family of problems share
+betweenUCARPandthebodyofdynamicoptimizationprob-
+some common properties, generally referred to as knowledge.
+lems [23], [24]. Nevertheless, the characteristic property of
+In the EA domain, transfer optimization methods are a set of
+dynamic optimization problems is that these problems change
+algorithms that aim at benefiting from this fact by extracting
+with time [23], [24]. UCARP, however, does not have a time-
+thecommonknowledgefromapreviouslysolvedproblemand
+dependent component and hence, it does not belong to the set
+reusing it to solve related problems more effectively [13].
+of dynamic problems.
+Intransferoptimization,theconceptofknowledgeisusually
+defined based on the problem to solve and the algorithm to
+B. Related Work
+use.Inearlytransferoptimizationattempts,theknowledgewas
+1) MethodsforUCARP: Theexistingapproachesforsolv- defined as the genetic materials that were discovered during
+ing UCARP can be divided into the proactive and reactive thecourseofsolvingthesourceproblem.Consequently,trans-
+methods. The proactive algorithms [1], [25]–[27] focus on fer optimization was performed with the injection of genetic
+finding the direct routes that demonstrate the best robust- materials into the population of the algorithm that searches
+ness. These methods take the environmental uncertainties into for the solutions of the target problem. Koçer and Arslan [35]
+account indirectly, and find the routes based on some robust- proposed a method, called GATL, that selected the best and
+ness measures. The reactive approaches [8], [9], on the other median individuals found at each generation of the source to
+hand, utilize routing policies that can create the solutions in initializethetargetEA.Dinhetal.[21]devisedthreeinjection
+real time and hence, react more flexibly to the uncertainties. methods that selected some genetic materials from a source
+A routing policy is a mathematical function that can calcu- population to initialize k% of the target GP. Their FullTree
+latethepriorityofeachunservedtaskbasedontheinformation selects the best individuals of the source final population. In
+about the state of tasks, vehicles, and the environment. With BestGen, the best individuals of each source generation are
+the help of a routing policy, it is fairly straightforward to con- chosen. The SubTree method considers the final source pop-
+struct UCARP solutions in real time. At first, all vehicles are ulation and selects a root subtree of individuals randomly as
+idle and stationed at the depot. Whenever a vehicle becomes the transferable genetic material.
+idle,itconsidersthesetofavailabletasks,calculatestheirpri- Subtrees are also effective transferable knowledge.
+orities, and selects the tasks with the highest priority to serve Particularly, Iqbal et al. [36] proposed the TLGPC algorithm
+next. As the vehicle serves the selected task, it may encounter that considered the high-quality solutions of the source
+edge and route failures which it needs to handle appropriately domain and extracted their subtrees into a pool. For ini-
+untilthetaskisserved.Atthispoint,thevehiclebecomesidle. tializing the target problem, the individual’s root subtree
+Ifallthetasksareserved,thenthevehiclereturnstothedepot was either selected created randomly or selected from the
+and a complete solution is obtained; otherwise, the process of pool. Also, for mutating an individual, a randomly selected
+selecting and serving tasks is repeated [8]. Since routing poli- subtree of the individual was either replaced with a subtree
+cies are heuristics that generate the final solutions, GP can be created randomly or a subtree from the pool. While most of
+utilized as a hyper-heuristic to evolve them automatically. the aforementioned methods selected transferable subtrees
+2) Genetic Programming Hyper Heuristics: GP evolves a randomly or based on the fitness of their individuals, other
+population of computer programs, abstracted as mathemati- methods defined an importance measure for selecting the
+cal expressions, iteratively [28], [29]. It first creates an initial subtrees [16], [37].
+population of programs randomly. Then, it repeatedly creates Another approach to knowledge transfer is to learn a
+newindividualswiththecrossover,mutation,andreproduction structure that models important information about the source
+operators, until some stopping criteria are met. GP is a problem. Such model-based algorithms then utilize the
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+314 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023
+Algorithm 1: Proposed APTGP
+Input:K S:routingpoliciesexaminedbyGPforthesourceinstance
+Input:Ig:thetargetUCARPinstancetosolve
+Input:Parametersηandϑ
+∗
+Output:rp :thebestroutingpolicyforthetargetinstance
+// Initialisation
+1
+K
+uni
+,K
+dup
+=PhenotypicSplit(K
+S
+);
+2 pop1 =K uni[1:popsize]; // main population
+3
+4
+p
+r
+o
+p
+p ∗2
+=
+=
+n
+K
+ul
+u
+l
+n
+,
+i
+g
+[1
+en
+:
+=
+po
+0
+p
+;
+size]; // auxiliary population
+// Search loop
+5
+whilegen<MaxGendo
+6 Evaluateth
+∗
+eroutingpoliciesinpop1;
+Fig.1. APTGPframework. 7 Updaterp withpop1;
+8 UpdatethesurrogatemodelΥ withpop1;
+9 Evaluatetheroutingpoliciesinpop2 usingthesurrogateΥ;
+10 (cid:7) 1 =Immigrants(pop1 ,η); // Select immigrants
+extracted model to guide the evolution for solving the tar-
+11
+(cid:7)
+2
+=Immigrants(pop2 ,η);
+get problem. In [38]–[40], the model is an autoencoder [41] /* Breeding with standard GP crossover,
+mutation and reproduction */
+that maps the search space of a source to that of a target 12 pop1 =Breed(pop1 );
+problem. In [42] and [43], the model is defined as a pos- 13 pop2 =Breed(pop2 );
+itive semi-definite matrix that provides a mapping between // Exchange Knowledge
+problem instances and their solutions. The probability distri- 1 1 4 5 p p o o p p 1 2 = = E E x x c c h h a a n n g g e e I I m m m m i i g g r r a a n n t t s s ( ( p p o o p p 1 2 , , (cid:7) (cid:7) 2 1 , , η η , , ϑ ϑ ) ) ; ;
+butions of the good source solutions are also capable models
+16
+gen=gen+1;
+for transferring useful knowledge [18], [20], [44], [45]. 17 end
+∗
+Ardehetal.[16]werethefirsttoapplytransferoptimization 18 returnrp ;
+for solving UCARP who analyzed the performance of sev-
+eral existing methods, as well as their own algorithm. They
+observed that the existence of duplicates and possible con-
+vergence to local optima of the source problem can have source instance. In this study, we consider that the knowledge
+a significant negative impact on the effectiveness of knowl- simplyincludesalltheexaminedroutingpoliciesbyGPwhen
+edge transfer. This finding was later confirmed in [18]–[20] solving the source instance. Additionally, APTGP is based on
+and [46]. Consequently and to increase the diversity in the theassumptionthatthesourceandtargetproblemsarerelated.
+pooloftransferredknowledge,Ardehetal.[17],[47]proposed Tosolvethetargetinstance,APTGPfirstinitializesthemain
+the SUFullTree algorithm that achieved a significant improve- and auxiliary populations using the transferred knowledge, in
+ment in the effectiveness of knowledge transfer by learning ordertohaveabetter-than-randominitialpopulation.Then,the
+a surrogate model [48]–[50] from the source solutions, cre- main and auxiliary populations are evolved in parallel. Since
+ating a large pool of unique individuals that were created theauxiliarypopulationaimstoassisttheevolutionofthemain
+from the good transferred individuals, evaluating them with population, all the individuals in the auxiliary population are
+the surrogate, and selecting the best ones for transfer. evaluated by surrogate. Here, we use the KNN surrogate [49],
+The act of knowledge sharing for solving related prob- which will be described in Section III-D.
+lems is also a fundamental part of multitask optimization At each generation, the individuals in the main popula-
+(MTO)[13],[51]whichsolvesmultiplerelatedtaskstogether. tion are first evaluated with the full evaluation (i.e., UCARP
+Gupta et al. [51] and Feng [52] first proposed a multifactorial simulations). Then, the surrogate model is updated by the
+evolutionary algorithm (MFEA) to solve multiple tasks with a newlyevaluatedindividuals.Afterwards,theindividualsinthe
+single population, which shares knowledge implicitly through auxiliary population are evaluated using the updated surro-
+the crossover operator between individuals solving different gate. Then, the two populations select immigrants and breed
+tasks. This work was extended later by Bali et al. [53]. offspring using the standard tree-based crossover, mutation,
+Zhou et al. [54] improved MFEA by proposing an adap- and reproduction operators [28]. Finally, the information is
+tive knowledge sharing mechanism. Feng et al. [55] proposed exchangedbetweenthepopulationsbysendingtheimmigrants
+an MTO algorithm for solving CARP using autoencoders. from one population to the other. As a result, the main differ-
+Zhong et al. [56] incorporated MFEA with GP to solve sym- ence between themain andauxiliary populations isthefitness
+bolic regression problems. Ardeh et al. [57] developed a evaluation, as well as the individuals within them.
+multitask GP for solving multiple related UCARP scenarios The pseudocode of APTGP is presented in Algorithm 1.
+together. In addition to the common GP parameters, APTGP has two
+parameters η and ϑ for knowledge exchange. For initializa-
+tion, the routing policies in K are first split into the subsets
+III. PROPOSEDALGORITHM
+of unique routing policies K
+S
+and duplicated policies K ,
+uni dup
+A. Overall Framework
+based on their phenotypic behaviors (details are given in
+Fig.1presentstheoverallframeworkofAPTGP.Theinputs Section III-C). Then, the main pop and auxiliary populations
+1
+of the algorithm include the target UCARP instance to be pop are both initialized with the best popsize unique routing
+2
+solved, as well as the knowledge gained from solving the policies. Since there are a large number of routing policies in
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+ANSARIARDEHetal.:KNOWLEDGETRANSFERGPWITHAUXILIARYPOPULATION 315
+Algorithm 2: S
+Iξ
+=rp(Iξ )
+Input:rp:aroutingpolicy
+Input:Iξ:aUCARPinstancesample
+Output:SIξ :afeasiblesolution
+1 Allvehiclesareatthedepot,alltaskareunserved;
+2 whilenotalltasksareserved do
+∗
+3 Findtheearliestidlevehicleveh (breakthetierandomly);
+4 FindalltheunservedtasksE T ∗ whosee ∗ xpecteddemanddonot
+exceedtheremainingcapacityofveh ;
+5 fortaske∈E T ∗ do
+6
+Calculatethepriorityvaluerp(e);
+F te i r g iz . a 2 t . ion. Example of the path-scanning heuristic and its phenotypic charac- 7 8 e S n e d lectnexttaske ∗=argmin e∈E∗rp(e);
+∗ ∗ T
+9 Sendveh toservee ;
+K (e.g.,50generationsand1024routingpoliciespergenera- 10 Repairifroute/edgefailuroccurs;
+S
+11 end
+tion), it is safe to assume that there are always enough unique
+12 returnthegeneratedsolution;
+routing policies in K .
+S
+At each generation, the two populations are first evalu-
+ated using the full simulations and surrogate, respectively, Algorithm 3: PhenotypicSplit(RP)
+∗
+and the best routing policy rp is updated by the best Input:RP:asetofroutingpolicies
+individual in pop
+1
+. Then, the immigrants (cid:7)
+1
+and (cid:7)
+2
+for Output:RP uni:theuniqueroutingpolicies
+the two populations are selected (details in Section III-E).
+Output:RP dup:theduplicatedroutingpolicies
+1
+RP
+uni
+=∅,RP
+dup
+=∅;
+After that, the new populations are generated by the stan-
+2
+RP=SortByFitness(RP);
+dardGPbreedingprocess.Specifically,oneortwoparentsare 3 forroutingpolicyrp∈RP do
+selected from the population by the size-7 tournament selec- 4
+Calculatethephenotypicbehaviorb(rp);
+5
+Calculatethehashvalueh(rp)=Hash(b(rp));
+tion, and the tree-based crossover, mutation, or reproduction 6 ifh(rp)(cid:9)=h(rp (cid:10)),∀rp (cid:10)∈RP uni then
+operator is applied to the parents to generate the offspring. 7 RP uni =RP uni ∪{rp};
+Finally, the two populations exchange knowledge with each 8 else
+other by the ExchangeImmigrants() function (details in 9
+RP
+dup
+=RP
+dup
+∪{rp};
+10 end
+Section III-F). 11 end
+12 returnRP uni,RP dup;
+B. Representation and Fitness Function
+In APTGP, a routing policy is represented as a tree, which
+is essentially a priority function. Fig. 2 shows an example this, K S is first split into the subsets of unique and duplicated
+routing policy 105 × CFH − DEM/SC, where CFH is the routing policies based on their phenotypic behaviors, by the
+cost from the current location to the candidate task, DEM PhenotypicSplit() function, described in Algorithm 3.
+is the expected demand of the candidate task, and SC is the Note that it takes any set of routing policies as input, and is
+servingcostofthecandidatetask.Thisexampleroutingpolicy used by the ExchangeImmigrants() function as well.
+is the well-known path-scanning heuristic [58], which selects 1) Phenotypic Characterization: In Algorithm 3, the rout-
+the task closest to the current location, and selects the task ingpoliciesinRP arefirstsortedbyfitness.Here,RP =K S ,
+with the smallest demand over serving cost to break the tie. and we use the source fitness for the sorting. Then, we cal-
+The fitness function of a routing policy is defined based on culate the phenotypic behavior vector b(rp) for each routing
+a set of training instance samples (cid:3) . Based on (1), the policy. This calculation is similar to the phenotypic charac-
+train
+fitness function is defined as terization in [49], which characterizes a routing policy by its
+(cid:2) selectedtasksinarangeofdecisionsituations(cid:2).Fig.2shows
+1
+fit(rp)= tc(rp(Iξ )) (3) anexampleofthecharacterizationofapolicyusingthreedeci-
+|(cid:3) |
+train ξ∈(cid:3) train sion situations (cid:2) = {(cid:8) 1 ,(cid:8) 2 ,(cid:8) 3 }. The first situation has two
+candidate tasks ((cid:8) and (cid:8) ), the second has two ((cid:8) and
+where the solution S
+Iξ
+=rp(Iξ ) is generated by Algorithm 2.
+(cid:8) ), and the third
+11
+contains
+1
+t
+2
+hree ((cid:8) , (cid:8) and (cid:8) ).
+2
+B
+1
+ased
+It is a simulation of applying the routing policy to an instance 22 31 32 33
+on the attributes of the tasks, we can see that the indices of
+sample to generate a solution. Initially, all the vehicles are
+the tasks selected by the routing policy in the situations are 2,
+at the depot, and all the tasks are unserved. Once a vehicle
+1, and 3. This forms the phenotypic vector [2,1,3].
+becomesidle,theroutingpolicycalculatesthepriorityofeach
+Knowledge transfer can be very expensive if not done
+unserved task that is expected to be feasible, and selects the
+carefully [59], [60]. The complexity of Algorithm 3 depends
+next task based on the priority. The simulation stops when all
+on the sorting operation (line 2) and the main loop
+the tasks are served, and all the vehicles return to the depot.
+(lines 3–11). As a sorting algorithm, SortByFitness has
+a time complexity of O(|RP)|log(|RP)|)). During the main
+C. Initialization
+loop,thecomplexityofeachiterationisdominatedbythephe-
+Themainandauxiliarypopulationsareinitializedbythetop notypic characterization (line 4), whose complexity is O(|(cid:2)|).
+unique routing policies from the source knowledge K . For If RP is implemented with a hash set data structure, then
+S uni
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+316 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023
+Algorithm 4: Hash(b) Algorithm 6: ExchangeImmigrants(pop,(cid:7),η,ϑ)
+Input:Abehaviourvectorb Input:pop:thegoalpopulation
+Output:Thehashvalueofthebehaviourvector Input:(cid:7):theimmigrantsfromthesourcepopulation
+1
+h=1; Input:η:numberofimmigrants
+2
+fori=1→|b|doh=h<<5−h+bi; Input:ϑ:numberoftrials
+3 returnh; Output:Thenewgoalpopulationpop
+// Select individuals to be replaced in pop
+1
+uni,dup=PhenotypicSplit(pop);
+Algorithm 5: Immigrants(pop,η) 2 3 r w e h p i l l a e ce |r d ep = la d c u e p d ; |<ηdo
+// Common tournament size for GP is 7
+Input:pop:apopulationofroutingpolicies
+Input:η:numberofimmigrants 4 Randomlyselect7individualsfromuni;
+Output:(cid:7):theimmigrantsfrompop 5 Addtheworstselectedindividualintoreplaced;
+1 2 (cid:7) wh = ile ∅ | ; (cid:7)|<ηdo 6 7 e re n p d laced=ReverseSortByFitness(replaced);
+// Common tournament size for GP is 7 // Refine the immigrants
+3 4 5 6 e re n t d ur R A n a d n (cid:7) d d ; t o h m e l b y e s s e t l s e e c l t e 7 cte in d d i i n v d id iv u i a d l u s a f l ro in m to p (cid:7) op ; ; 1 1 1 0 1 2 8 9 (cid:7) for (cid:10)= i f = o ∅ r ; 1 tr i → f ie ∃ s r η = (cid:7) p d [ 1 ∈ o i] → u = ni ϑ M , u h d t ( o (cid:7) at [i e ]) ((cid:7) = [ h i] ( ) r ; p)then
+13
+Calculatethephenotypicbehaviourb((cid:7)[i]);
+14
+Calculatethehashvalueh((cid:7)[i])=Hash(b((cid:7)[i]));
+15 else
+the uniqueness check at line 6 has a complexity of O(1), the 16 (cid:7)(cid:10)=(cid:7)(cid:10)∪{(cid:7)[i]};
+complexity of the main loop is O(|RP)|·|(cid:2)|). Considering 17 break;
+that usually log(|RP|) (cid:14) |(cid:2)|. Thus, the complexity of 18 end
+19 end
+Algorithm 3 is O(|RP)|log(|RP)|). 20 end
+2) Hashing for Duplicate Checking: For duplicate check- // Transfer immigrants
+21
+replaced[1:|(cid:7)(cid:10)|]=(cid:7)(cid:10)
+;
+ing, we need to compare the phenotypic vectors between
+22 returnpop;
+routing policies, which can be time consuming if a larger
+number of decision situations are used to capture the behav-
+iors of the routing policy accurately. To handle this issue, we
+create a hash value for each behavior vector, and use this
+F. Knowledge Exchange
+single hash value for the duplicate checking. Here, we use
+Afterbreeding,themainandauxiliarypopulationsexchange
+the well known LSHash function [61], which is given in
+knowledge by transferring the selected immigrants to each
+Algorithm 4. Given a behavior vector b, LSHash calculates
+other.Whentransferring,thefollowingtwofactorsareconsid-
+the hash value using the formula in line 2, where << is the
+ered: 1) to maintain diversity, the immigrants should not be a
+bitwiseleft-shiftoperator.TheHashfunctionhasatimecom-
+duplicate in the goal population and 2) the immigrants should
+plexity of O(|(cid:2)|), which depends on the number of decision
+replace the less useful individuals in the goal population.
+situations.
+Algorithm 6 shows the pseudocode of the knowledge
+exchange. First, it splits the goal population pop into the
+D. Surrogate Model for Auxiliary Population unique (uni) and duplicated individuals (dup). The individuals
+We use the KNN-based surrogate model [49] to estimate to be replaced (replaced) is first set to all the duplicated indi-
+the fitness of the individuals in the auxiliary population. viduals, as they are expected to contribute little to the popula-
+Specifically, the surrogate model Υ = {(b : fit)} contains the tion. If there are not enough duplicates (i.e., |replaced|<η),
+pairs of phenotypic behavior vector and fitness. The surrogate we fill in the remaining places by the size-7 reverse tour-
+fitnessofaroutingpolicyisassignedasthefitnesscorrespond- nament selection to uni. Then, we sort replaced by fitness
+ing to the phenotypic vector in Υ, which is closest to that of fromworsttobest[ReverseSortByFitness()].Notethat
+the routing policy based on the Euclidean distance. ExchangeImmigrants() is called between the breeding
+Initially, Υ is set to empty. In each generation, after and evaluation, and the newly generated individuals are not
+evaluating pop , all the phenotypically unique individu- evaluated yet. In this case, we simply use the fitness inherited
+1
+als in pop will be added into Υ. The maximal size of from the parent for the sorting.
+2
+Υ is 2 × popsize. If the number of elements exceeds Next, the immigrants are refined to make sure they are not
+the maximal size, Υ is trimmed by removing the oldest duplicatesofthegoalpopulation.Foreachimmigrant,ifitisa
+elements. duplicateofthegoalpopulation,thenwemutateittogenerate
+a different immigrant. We keep mutating the immigrant until
+it becomes a nonduplicate or the maximal number of trials
+E. Immigrants Selection ϑ is reached, and (cid:7) is refined to (cid:7)(cid:10) . Finally, we select the
+Beforethebreeding,foreachpopulation,weselectη immi- worse individuals (either duplicates or worst fitness) in pop
+grantspreparingtobetransferredtotheotherpopulation.Each and replace them with
+(cid:7)(cid:10)
+.
+immigrant is selected by the size-7 tournament selection. The The time complexity of Algorithm 6 is dominated by the
+pseudocode is shown in Algorithm 5. phenotypic split (line 1) and the operations in lines 9–20.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+ANSARIARDEHetal.:KNOWLEDGETRANSFERGPWITHAUXILIARYPOPULATION 317
+The phenotypic split has a complexity of O(|pop|log(|pop|), TABLEI
+TRANSFERSCENARIOSUSEDINTHEEXPERIMENTS
+and the operations in lines 9–20 have a complexity of
+O(ηϑ|(cid:2)|). Thus, Algorithm 6 has a time complexity of
+O(|pop|log(|pop|)+ηϑ|(cid:2)|).
+Overall, the overhead of APTGP for knowledge transfer is
+O(|RP|log(|RP|) + MaxGen · (|pop|log(|pop|) + ηϑ|(cid:2)|)).
+This is much smaller than the complexity of GPHH, which
+is O(MaxGen·|pop|·sim), where sim is the complexity of
+the training simulations, which is typically much larger than
+log(|pop|) and ηϑ|(cid:2)|.
+G. Summary
+The main idea of APTGP is to maintain two populations
+in the target instance and interact with each other to improve
+the search effectiveness. First, the main population is initial-
+ized by the unique individuals from the source knowledge,
+which can make the search start from a better region. Second,
+the auxiliary population starts from the same region as the
+main population, and evolves alongside the main population
+but toward different directions (e.g., by using the surrogate
+fitness). Third, the main population regularly receives nondu-
+plicate immigrants from the auxiliary population, which can
+help itjumpout of theinitiallocal region and handle thecon-
+cept drift from the source to the target instance. Finally, the
+main population migrates its best individuals to the auxiliary
+populationtoinfluenceitssearchtowardthebestsolutionsthat
+have been found so far.
+It should be noted that our algorithm bears some simi-
+larities with the cultural algorithms [62], [63]. However, the
+cultural algorithms focuse on solving a single problem, while
+APTGP focuses on transfer optimization and takes advantage
+of the source individuals during the search process in the tar-
+get problem. None of the populations in APTGP act as a
+belief space like in the cultural algorithms, and the auxiliary
+population in APTGP is evolved with a surrogate.
+Finally,itisimportanttonotethat,despiteresemblingmul-
+titask learning algorithms, the proposed algorithm does not
+solve multiple problems at the same time. In this sense, the
+APTGP method in this article is more similar to the works
+by Ruan et al. [59], [60] in the sense that it assumes the
+and a target instance. The last column “Sim.” (between −1
+source task is solved first and therefore, the main and auxil-
+and 1) indicates the similarity between the source and target
+iary populations of APTGP are focused on solving one target
+instances.Tocalculatethesimilarity,wegenerate1024unique
+problem.
+routing policies randomly, and evaluate them on both the
+sourceandtargetinstances(200sampleseach).Thesimilarity
+IV. EXPERIMENTSETUP
+isthenmeasuredbyKendall’srankcorrelationcoefficient[64]
+A. Datasets
+between the fitness of the 1024 random individuals on the
+Table I shows the source and target instances used sourceandtargetinstances.Ifthesimilarityiscloserto1,then
+in the experiments. The UCARP instances are extended the source and target instances are more similar. It should be
+from the well-known static CARP instances (converting noted that in practice, most UCARP instances are likely to be
+the deterministic variables into random ones with normal relatedtoeachothersbecausealltheUCARPproblemsaimto
+distribution), and have been commonly used in previous minimizethetotalcost,thustheyhavecommondesirablerout-
+studies [8], [9], [16], [17]. Some of these datasets are based ing decisions such as selecting the nearest tasks. Therefore, it
+onreal-worldroadnetworkfromLancashire,U.K.[10].Inthe is unlikely to have negative or very close to zero similarity
+table,thepresenceofthedm1(dm2)suffixattheendofdataset values and hence, the scenarios in Table I present a diverse
+name, e.g., Ugdb11dm2, highlights that the dataset is created range of similarity values.
+by increasing the mean of the random demands by 1 (2). As shown in Table I, the experiments include source and
+Each row is called a transfer scenario with a source instance target instances with varying similarities (from 0.46 to 0.99).
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+318 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023
+TABLEII TABLEIII
+GPPARAMETERSETTINGS COMPAREDGPWITHKNOWLEDGETRANSFER
+C. Compared Algorithms
+The comparison is made with GPHH, since it has been
+demonstrated to be a state-of-the-art approach for solv-
+ing UCARP, even when considering non-GP methods [10].
+Table III shows the state-of-the-art GP with knowledge trans-
+fer compared in the experiments. It also briefly describes
+the knowledge transfer mechanism of each algorithm. In the
+paperswecomparedwith,theyhadcomparedthesealgorithms
+against other methods from other groups [16], [21], [36] and
+found them to be generally less effective. Hence, we did not
+compare against them again in this article.
+Notethatwehavecalculatedalargenumberofsourceandtar- V. RESULTSANDDISCUSSION
+get instances, and most of them show decent similarities with
+In this section, we compare different aspects of the APTGP
+each other. A similarity of 0.46 is already a weak relatedness
+performance against the set of existing methods. In order
+between different UCARP instances.
+to investigate how the proposed algorithm performs on test
+datasets, we conduct experiments in Section V-A. To ana-
+B. Parameter Settings lyze how the proposed algorithm affects the complexity of
+the evolved policies, we investigate the GP tree sizes in
+TableIIgivestheterminal,function,andGPparametersets
+Section V-B. Finally, to the overhead of proposed knowledge
+which are commonly used in literature [8], [9], [16], [17]. In
+transfer we examine the training time of the algorithms in
+the function set, the protected division returns 1 if divided by
+zero. All the parameter settings in Table II, except η and ϑ, Section V-C.
+are commonly used in literature of using GPHH for solving
+A. Test Performance
+UCARP [8], [9], [16], [17] and to remain consistent with the
+previous studies, the values of these parameters are the same Table IV presents the test performance of the compared
+as the previous studies. We conducted parameter sensitivity algorithms, where the best results are highlighted in boldface.
+analysis on the two new η and ϑ parameters, and achieved As is evident, in almost all cases, APTGP had a best test
+the best results with η =300 and ϑ =10. In Algorithm 3, a performance among the compared ones. The Friedman test is
+set of decision situations is required for calculating the phe- alsoconductedtoverifystatisticalsignificance.Thecalculated
+notypic behavior. For each scenario (a row in Table I), we rank and p-value are given in the bottom rows of Table IV.
+apply the path scanning heuristic to a target instance sam- We can see that APTGP has the best rank and the p-value
+ple and arbitrarily select 20 decision situations during the shows that the difference between the results is significant.
+process. APTGP obtained the best mean test performance for all the
+Foreachtransferscenario,thesourceinstanceisfirstsolved scenarios in the experiments. To pinpoint the difference, the
+byrunningGPoncewiththesettinginTableII.Thisproduces Conover post-hoc analysis [65] is performed and the p-value
+1024×50 = 51200 examined routing policies as the trans- of the pairwise comparisons is given in Table V after being
+ferredknowledge.Then,werunAPTGP(orthecomparedGP adjustedwiththeBenjamini–Hochbergmethod[66].Thevery
+with knowledge transfer) based on the transferred knowledge small p-values in the last column of the table show that the
+on the target instance to train the routing policy. During the difference between APTGP and all other algorithm is signifi-
+training, we use five instance samples, and rotate the samples cant and, considering its rank, this indicates its superiority to
+ateachgenerationtoreduceoverfitting[8].Thetrainedrouting the other methods.
+policy is then tested on 500 unseen samples. Each algorithm Upon investigating Table IV, it could be noted that APTGP
+is run 30 times independently. has a larger variance on some problems which weakens
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+ANSARIARDEHetal.:KNOWLEDGETRANSFERGPWITHAUXILIARYPOPULATION 319
+TABLEIV
+Fig.3presentstheconvergencecurveofthealgorithmsfora
+TESTPERFORMANCEOF30INDEPENDENTRUNSOFTHE
+COMPAREDALGORITHMS(MEAN±STD) fewscenarios.Asisevident,APTGPstartswithabetterinitial
+stateandmanagestomaintainabetterperformancethroughout
+the entire evolutionary process. We observed similar patterns
+in almost all other scenarios. In Fig. 4, the distribution of the
+fitness value of the solutions obtained with each algorithm
+is given as violin plots for a few scenarios. It can be seen
+that APTGP obtained the best (lowest) distributions. Similar
+patterns were observed in other scenarios too.
+B. Program Size
+Fig. 5 presents the distribution of the program sizes (i.e.,
+numberofnodesinthetree)inthefinalpopulationobtainedby
+the compared algorithms, which indicate that APTGP evolved
+larger trees (65 nodes on average versus 58 nodes by GPHH).
+A possible reason for this could be that APTGP removes
+duplicates from the GP population, which prevents the com-
+putational resources from being wasted on evaluating the
+duplicates. As a result, APTGP can spend the saved computa-
+tional resources on discovering more effective policies, which
+tend to be larger and more complex.
+Fig. 6 presents an example of the evolved routing policies.
+As is evident, the policy does not have a trivial size which
+makesitdifficulttointerpretbutatthesametime,itrepresents
+thecomplexityoftheprocessingitperformsonthestateofthe
+environment. Nevertheless, it is possible to gain some high-
+levelinsightsfromthispolicy.Inthispolicy,themostfrequent
+terminals is CR (Cost to Refill). This indicates that this policy
+considers this information about the environmental state to be
+more important. This is consistent with our domain expertise
+that during the course of serving tasks, a majority of the total
+cost pertains to the cost returning to depot to refill.
+C. Training Time
+Fig.7presentsthesummaryofthetrainingtimeforeachof
+theexaminedalgorithms.Accordingtothisfigure,thetraining
+time of APTGP is slightly longer than the existing meth-
+ods. In APTGP, the initialisation operator and the knowledge
+exchange mechanism incur an additional computational cost
+and hence, the increased training time is expected. However,
+TABLEV the increment in time does not hinder the applicability of
+POST-HOCCOMPARISONOFTHECOMPAREDEXISTING
+the algorithm and, considering its superior performance, the
+ALGORITHMSWITHADJUSTEDp-VALUES
+additional cost can be considered acceptable.
+VI. FURTHERANALYSIS
+After confirming the superior performance of APTGP in
+Section V, we conduct further analysis in this section. First,
+to investigate the effect of each new component in APTGP
+on its overall performance, we consider different variants of
+APTGPandexaminetheirperformancesinSectionVI-A.One
+the justification for using the mean value to compare the of the main goals of this work is to maintain the population
+algorithms’ performances. Hence, to check the existence of diversity and we investigate this in Sections VI-B and VI-C.
+significant difference between the algorithm performances on Finally, Section VI-D investigates the quality of the knowl-
+each problem, we performed a Wilcoxon rank-sum teston the edge source in terms of the number of unique individuals it
+resultsofeachproblemandconfirmedthatAPTGPissuperior containsandtheeffectitcanhaveonthequalityofknowledge
+toallthecomparedalgorithmsinthemajorityofthescenarios. transfer.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+320 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023
+Fig.3. ConvergencecurveofAPTGPandsomeexistingtransfermethods.(a)FromUgdb23,from10toUgdb12witheightvehicles(Scn.14).(b)From
+Ugdb7withfivevehiclestoUgdb1,sixvehicles(Scn.18).(c)Ugdb3,fromfivetosevenvehicles(Scn.20).(d)Ugdb6,fromfivetosevenvehicles(Scn.35).
+(e)Ugdb21,fromsixtofourvehicles(Scn.37).(f)Ugdb7,fromfivetofourvehicles(Scn.38).
+Fig.4. PerformanceviolinplotsofAPTGPandthecomparedtransferalgorithms.(a)fromUegl-1-CwitheightvehiclestoUgdb13,fivevehicles(Scn.9).
+(b)Ugdb3,fromfivetosixvehicles(Scn.31).(c)Ugdb21,fromsixtofivevehicles(Scn.42).
+4) A surrogate model that allows the algorithm to evaluate
+more individuals.
+5) Aduplicateremovalmechanismthatremovesredundant
+individuals when exchanging immigrants.
+In order to investigate the contributions of each component to
+the effectiveness of APTGP, we conducted additional experi-
+ments with the following versions of APTGP in which one or
+more of the components were disabled.
+1) APTGP-NT: The APTGP with no knowledge transfer
+in initialization. It randomly generates the initial GP
+population for the target instance.
+Fig.5. Sizeoftheprogramsevolvedwiththecomparedalgorithms. 2) APTGP-NA: The APTGP with no auxiliary popula-
+tion. After the initialization with transfer, it runs the
+traditional GP for the target instance.
+A. Component Analysis
+3) APTGP-SE: The APTGP with a simple exchange
+APTGP consists of the following main novel components. scheme, which replaces all the low-quality individuals
+1) Initialization with the transferred knowledge. with the immigrants from the other population.
+2) An auxiliary population that is evolved alongside the 4) APTGP-ND: The APTGP with no duplicate removal
+main population. when initializing APTGP.
+3) A knowledge exchange mechanism that promotes 5) APTGP-SA: The surrogate assisted APTGP, which has
+diversity and quality of the populations. no explicit auxiliary population, but generates an extra
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+ANSARIARDEHetal.:KNOWLEDGETRANSFERGPWITHAUXILIARYPOPULATION 321
+Fig.6. Programsevolvedwiththecomparedalgorithms.
+TABLEVI
+TESTPERFORMANCEOF30INDEPENDENTRUNSOFAPTGP
+ANDITSVARIANTS(MEAN±STD)
+Fig.7. Trainingtimeofthecomparedalgorithms.
+1024 offspring from the main population in each gener-
+ation as the auxiliary population.
+AllthevariantsofAPTGPexcept APTGP-NAgenerates2000
+offspring in each generation, evaluate 1024 offspring by the
+actual evaluation, while the other 1024 offspring by the KNN
+surrogate model. APTGP-NA uses a traditional GPHH pro-
+cessinthetargetinstance,whichgeneratesandevaluates1024
+offspring in each generation.
+Table VI presents the test performance of APTGP and its
+variants. For each scenario (row), the entry with the best
+mean value is highlighted in boldface. We also conducted the
+Friedmantest,andshowtheranksofeachcomparedalgorithm
+and the p-value at the bottom of the table. As can be seen,
+APTGP has the best test performance (lowest rank of 1.68)
+andthep-valueisclosetozero,indicatingthatthedifferences
+among the compared algorithms are statistically significant.
+For post-hoc pairwise comparison, the adjusted p-values of
+theconoverpairwisecomparisons[65]aregiveninTableVII.
+From the table, it can be seen that APTGP significantly
+outperformed APTGP-NA, APTGP-SE, and APTGP-ND. The
+advantage of APTGP over APTGP-NA indicates that with-
+out using the auxiliary population in the search process, the
+performanceofAPTGPdegradessignificantly.Thisisanindi-
+cator of the important role that the auxiliary population plays
+in the algorithm. On the other hand, using an auxiliary pop-
+ulation with a simple knowledge exchange mechanism is not
+enoughforachievingsignificantimprovements,sinceAPTGP- The advantage of APTGP over APTGP-ND indicates that
+SE and APTGP-NA are statistically similar and APTGP-SE duplicate removal increases the amount of useful knowledge
+was ranked even worse than APTGP-NA. that is inherited from the source which in turn, highlights the
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+322 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023
+TABLEVII
+POST-HOCCOMPARISONOFTHEAPTGPANDITSVARIANTS
+negative impact that the presence of duplicates in the source
+knowledgecanhaveontheperformanceonthetargetinstance.
+Fig.8. Populationentropyofthecomparedalgorithms.
+Compared with APTGP-NT, the p-value was 0.02, which is
+veryclosetothesignificanceleveloftheBonferronicorrection
+(0.05/4 = 0.0125 for the four comparisons between APTGP
+and other four algorithms). From Table VI, we see that the
+rank of APTGP-NT is 2.62, closer to the rank of APTGP than
+APTGP-NA, APTGP-SE, and APTGP-ND, and obtained the
+best test performance on ten scenarios. This shows that even
+without the initial transfer, APTGP can still be quite effec-
+tive due to the use of an auxiliary population for knowledge
+transfer during the search process. Meanwhile, the consider-
+able difference between APTGP and APTGP-NT (rank 1.68
+versus rank 2.62) shows the effectiveness of the knowledge
+transfer in the initial population of the target instance.
+APTGP-SAshowedtheclosesttestperformancetoAPTGP.
+Itsrankwas2.6,andthep-valuewas0.02,slightlylargerthan
+the corrected significance level of 0.0125. It achieved the best
+Fig.9. Curveofthepopulationentropyofthecomparedalgorithmsforsome
+test performance on 11 scenarios. However, we can still see representativescenarios.
+the advantage of APTGP over APTGP-SA, as APTGP still
+has a much better rank (1.68 versus 2.6) and performed the
+best on 21 scenarios. This verifies the effectiveness of using effective APTGP was in maintaining and increasing the diver-
+the auxiliary population instead of directly generating extra sityduringthesearchprocess.Forthispurpose,weemploythe
+offspring and evaluate using the surrogate model. entropy measure [67] for calculating the population diversity.
+It should also be noted that APTGP-NA and APTGP-SE TocomputetheentropyofthepopulationPop,wegroupedthe
+had similar performances. Both algorithms transfer unique similar individuals into a set of clusters C using the DBScan
+individuals, but APTGP-SE additionally performs a simple clustering algorithm [68], where each individual is character-
+knowledge exchange that does not consider the possible pres- ized by the phenotypic vector [49] and the cluster radius was
+ence of duplicates. Hence, not only the algorithm does not set to zero. Then, the(cid:3)entropy of the population is calculated
+benefit from the exchange of knowledge, its slightly inferior as entropy(Pop)=− c∈C (|c|/|Pop|)log(|c|/|Pop|).
+performance indicates that the exchange was even harmful. Fig. 8 presents the distribution of the entropy of the pop-
+Thiscouldbeattributedtopossibilitythattheexchangemech- ulations during the evolutionary process of the compared
+anism may have increased duplicates in the main population. algorithms. For each algorithm, the entropy of the popula-
+The damage of this effect is to the point that APTGP-NT, tions in all the generations of all the 30 runs are taken into
+which does not utilize any transferred knowledge, has a sig- account. From Fig. 8, we can clearly see that APTGP man-
+nificantly better performance than APTGP-SE. On the other aged to reach a much higher entropy (better diversity) of the
+hand, APTGP-NT performs rather similarly to APTGP-NA. populations than the other algorithms.
+Tounderstandhowthepopulationentropychangedoverthe
+course of evolution, the average population entropy over the
+B. Phenotypic Diversity
+30 runs is plotted in Fig. 9 against GP generation for a few
+The GPHH method for solving UCARP is known to suffer scenarios (we observed similar patterns for other scenarios as
+from the loss of population diversity during the evolutionary well). As can be easily seen from the figure, all the compared
+process [16], [19]. This property can negatively impact the algorithms started with a high degree of diversity. However,
+quality of knowledge transfer since the transfer of duplicates as the evolution proceeded, all the other algorithms except
+reducestheamountofusefulknowledgethatcanbetransferred APTGP lost their diversity in the population rather quickly.
+andmayrunintotheriskoftrappingthesearchprocessinpoor On the other hand, although APTGP also lost some of its
+localoptima.Thisunderstandingwasoneofthekeyconsidera- diversity, it managed to maintain a high entropy (diversity)
+tionsfordesigningAPTGP.Inthissection,weinvestigatehow over time. Another interesting observation in Fig. 9 is that the
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+ANSARIARDEHetal.:KNOWLEDGETRANSFERGPWITHAUXILIARYPOPULATION 323
+Fig.11. Numberofthetransferreduniqueindividualsforeachscenario.
+Fig. 10(a) suggests that one may remove more duplicates
+and achieve better performance by increasing the value of
+the η parameter. However, when we investigated this pos-
+sibility, we did not observe any significant improvement in
+the results. On the contrary, there were cases in which the
+performance became slightly worse. One possible reason for
+this phenomenon is that as the value of η increases, more
+unique individuals are likely to be discarded in favor of the
+transferred immigrants. In such cases, APTGP does benefit
+from the possible improvement in diversity that immigrants
+could provide and it can just benefit from the exchange of the
+Fig.10. Dynamicsoftheduplicateremovalmechanism.(a)Averagenumber knowledge that immigrants contain. However, as the GP evo-
+of the removed duplicates. (b) Average number of trials to find a unique lution proceeds, the quality of the population also increases.
+immigrant.
+As a result, when unique individuals are replaced with the
+immigrants,itismorelikelythatthepopulationreplacesgood
+individuals with the immigrants which are not guaranteed to
+initial entropy of APTGP and SUFullTree is higher that other
+be good (considering that the immigrants may go through
+methods. This can be explained by considering the fact that
+mutation before being transferred).
+bothAPTGPandSUFullTreealgorithmsplaceahighemphasis
+Fig.10(b)presentstheaveragenumberoftrials(mutations)
+on creating a very diverse initial population.
+for APTGP to obtain a unique individual as an immigrant for
+knowledge exchange. As we can see from the figure, in the
+early generations, the algorithm is more likely to find out that
+C. Duplicate Removal
+the candidate immigrant is redundant in the target. However,
+In the knowledge exchange phase of APTGP (i.e.,
+as the algorithm proceeds, this likelihood decreases slightly
+Algorithm6),whenselectingindividualsinapopulationtobe
+because the diversity in both populations increases (as is seen
+replaced with the incoming immigrants from the other pop-
+in the entropy plots in Fig. 9).
+ulation, the duplicates in the population are first considered
+for replacement. If the population does not contain enough
+D. Transferred Unique Individuals
+duplicates, then low-quality unique individuals are selected
+to be replaced. Fig. 10(a) presents the number of duplicates Previous studies [16], [18], [19] have indicated that GP
+selected and replaced in each population over the generations may create numerous phenotypic duplicates when it solves
+of APTGP, averaged over all runs on all the scenarios. As UCARP, which can reduce the effectiveness of knowl-
+can be seen, throughout the evolutionary process, there exist edge transfer. This finding motivated the design of the
+a large number of duplicates in the population. The num- RemoveDuplicate method in APTGP. To verify the effec-
+ber of duplicates decrease slowly throughout the evolution tivenessoftheRemoveDuplicatemethod,werecordedthe
+as is suggested by the downward trend of the plot and the number of unique individuals that could be transferred to the
+increased standard deviation. On average, 298.67 duplicates target problem. Fig. 11 presents the distribution of the unique
+were replaced in each generation of APTGP, with a standard individuals that were found in each knowledge source over
+deviation of 7.14. Overall, we can see that there are a large the 30 runs. It should be noted that some scenarios share the
+amount of duplicates in the population of APTGP, despite the sameknowledgesource.However,sincethedecisionsituations
+pressure of the duplicate removal mechanism in APTGP. needed for phenotypic characterization are obtained from the
+According to Algorithm 1, the duplicate replacement is targetproblem,thenumberofduplicatesvariesevenwhenthe
+performed after the breeding operation. Since the population knowledge source is the same.
+diversity is maintained at a high level at the end of each gen- According to our experiment settings, 1024×50 individ-
+eration, as discussed in Section VI-B, the breeding operator uals have been examined in the GP process for solving the
+is the main reason for introducing duplicates. This observa- sourceproblem.AscanbeseeninFig.11,therewereatmost
+tion indicates the need for designing more effective breeding roughly around 12000 unique individuals in the knowledge
+operators for solving UCARP. source (scenario 13). There are other scenarios in which this
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+324 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.27,NO.2,APRIL2023
+numberfallsevenbelow2000individuals(e.g.,scenarios5,6, transferwhenthisassumptionisnotvalid.Finally,thepolicies
+7,and8).Consequently,ifthepresenceofthislargenumberof evolvedbyAPTGPtendtobelargeanddifficulttointerpret.In
+duplicates is not considered, then the quality of initial knowl- future,wewillimproveAPTGPtoproducemoreinterpretable
+edge transfer will degrade. The main reason for this effect is policies and also, we plan to test our algorithm on larger
+that the duplicates which initialize GP will limit the pool of real-world datasets, such as the real-world waste collection
+usefulinformationthatthesearchcanbeginwith.Asaconse- datasets in [69].
+quence,GPwillrequiremoreeffortforinvestigatingthesearch
+space.Toverifythis,weconsideredAPTGP-NAthatdoesnot REFERENCES
+utilizetheauxiliarypopulation,andcompareditsperformance
+[1] Y. Mei, K. Tang, and X. Yao, “Capacitated arc routing problem in
+againsttheresultsobtainedwiththeFullTreeandGPHHalgo-
+uncertain environments,” in Proc. IEEE Congr. Evol. Comput., 2010,
+rithms with Friedman’s test. The test ranked APTGP-NA as pp.1–8.
+thebestandthepost-hocanalysisrevealedittobesignificantly [2] J.Liu,K.Tang,andX.Yao,“Robustoptimizationinuncertaincapaci-
+tatedarcroutingproblems:Progressesandperspectives,”IEEEComput.
+better than both other methods. On the other hand, the anal-
+Intell.Mag.,vol.16,no.1,pp.63–82,Feb.2021.
+ysis revealed GPHH, which does not utilize any transferred [3] L. Chen, M. Gendreau, M. H. Hà, and A. Langevin, “A robust
+knowledge, and FullTree to be statistically similar. optimization approach for the road network daily maintenance routing
+problem with uncertain service time,” Transp. Res. E, Logist. Transp.
+For further illustration, an example of the unique trans-
+Rev.,vol.85,pp.40–51,Jan.2016.
+ferred individuals by APTGP is shown in Section S-III of the [4] J. F. Campbell and A. Langevin, Roadway Snow and Ice Control.
+supplementary file. Boston,MA,USA:Springer,2000,pp.389–418.
+[5] E. B. Tirkolaee, I. Mahdavi, M. M. S. Esfahani, and G.-W. Weber,
+“Ahybridaugmentedantcolonyoptimizationforthemulti-tripcapac-
+itated arc routing problem under fuzzy demands for urban solid waste
+VII. CONCLUSION management,”WasteManag.Res.,vol.38,pp.156–172,Feb.2020.
+[6] S. Wøhlk, A Decade of Capacitated Arc Routing. Boston, MA, USA:
+In this work, a novel transfer optimization algorithm for
+Springer,2008,pp.29–48.
+GP, called APTGP, was proposed to evolve routing policies [7] B. L. Golden and R. T. Wong, “Capacitated arc routing problems,”
+for UCARP. In APTGP, all the routing policies that GP has Networks,vol.11,no.3,pp.305–315,1981.
+[8] Y.Liu,Y.Mei,M.Zhang,andZ.Zhang,“Automatedheuristicdesign
+examined for solving a source problem are considered as the
+using genetic programming hyper-heuristic for uncertain capacitated
+transferable knowledge. First, we propose to remove dupli- arc routing problem,” in Proc. Genet. Evol. Comput. Conf., 2017,
+cates before using the source individuals to initialize the GP pp.290–297.
+[9] Y.MeiandM.Zhang,“Geneticprogramminghyper-heuristicformulti-
+populationforthetargetproblem.Then,duringthesearchpro-
+vehicleuncertaincapacitatedarcroutingproblem,”inProc.Genet.Evol.
+cess, the transferred knowledge is retained and evolved in a Comput.Conf.Companion,2018,pp.141–142.
+separate auxiliary population alongside the main population. [10] J.MacLachlan,Y.Mei,J.Branke,andM.Zhang,“Geneticprogramming
+hyper-heuristics with vehicle collaboration for uncertain capacitated
+The auxiliary population is evolved with a surrogate model
+arc routing problems,” Evol. Comput., vol. 28, no. 4, pp.563–593,
+that is learned from the main population. The main purpose Dec.2020.
+of the auxiliary population is to help GP address the issue [11] J. Branke, T. Hildebrandt, and B. Scholz-Reiter, “Hyper-heuristic evo-
+lutionofdispatchingrules:Acomparisonofrulerepresentations,”Evol.
+of losing its population diversity and increase its exploration
+Comput.,vol.23,no.2,pp.249–277,Jun.2015.
+capabilities.Toachievethis,anelaborateknowledgeexchange [12] S. J. Louis and J. McDonnell, “Learning with case-injected genetic
+mechanism is devised to share high quality and unique algorithms,” IEEE Trans. Evol. Comput., vol. 8, no. 4, pp.316–328,
+Aug.2004.
+individuals between the main and auxiliary populations.
+[13] A. Gupta, Y.-S. Ong, and L. Feng, “Insights on transfer optimization:
+TheeffectivenessofAPTGPhasbeenverifiedbycomparing Because experience is the best teacher,” IEEE Trans. Emerg. Topics
+withthestate-of-the-artalgorithmsonawiderangeoftransfer Comput.Intell.,vol.2,no.1,pp.51–64,Feb.2018.
+[14] B. Al-Helali, Q. Chen, B. Xue, and M. Zhang, “A new imputation
+scenarios.OuranalysisdemonstratedthatAPTGPmanagedto
+method based on genetic programming and weighted KNN for sym-
+significantly outperform all the state-of-the-art GP algorithms bolic regression with incomplete data,” Soft Comput., vol. 25, no. 8,
+with knowledge transfer. Additionally, we demonstrated that pp.5993–6012,Apr.2021.
+[15] B. Al-Helali, Q. Chen, B. Xue, and M. Zhang, “Multitree genetic
+APTGP helped GP overcome the limitation of losing pop-
+programming with new operators for transfer learning in symbolic
+ulation diversity. Furthermore, we conducted a detailed set regression with incomplete data,” IEEE Trans. Evol. Comput., vol. 25,
+of control experiments to verify the effectiveness and the no.6,pp.1049–1063,Dec.2021.
+[16] M. A. Ardeh, Y. Mei, and M. Zhang, “Transfer learning in genetic
+contribution of each novel component of APTGP.
+programminghyper-heuristicforsolvinguncertaincapacitatedarcrout-
+Thereareseveralpossibledirectionsforfutureworks.First, ing problem,” in Proc. IEEE Congr. Evol. Comput., Wellington, New
+the knowledge exchange mechanism of APTGP searches the Zealand,2019,pp.49–56.
+[17] M.A.Ardeh,Y.Mei,andM.Zhang,“AGPHHwithsurrogate-assisted
+receiving population to ensure the candidate individual for
+knowledge transfer for uncertain capacitated arc routing problem,” in
+knowledge transfer is not present there. However, our mecha- Proc.Symp.Ser.Comput.Intell.,2021,pp.2786–2793.
+nismonlyconsidersthecurrentpopulationanddoesnotcheck [18] M. A. Ardeh, Y. Mei, and M. Zhang, “Genetic programming hyper-
+heuristic with knowledge transfer for uncertain capacitated arc routing
+ifthecandidatehasbeenseeninearliergenerationsornot.We
+problem,” in Proc. Genet. Evol. Comput. Conf. Companion, 2019,
+intend to address this shortcoming in future. Also, the knowl- pp.334–335.
+edge exchange mechanism of APTGP does not consider the [19] M. A. Ardeh, Y. Mei, and M. Zhang, “A novel genetic program-
+ming algorithm with knowledge transfer for uncertain capacitated arc
+possibility that the set of immigrants may contain duplicates
+routing problem,” in PRICAI: Trends in Artificial Intelligence. Cham,
+that, through transfer, may introduce duplicates in the receiv- Switzerland:Springer,2019,pp.196–200.
+ingpopulation.Furthermore,APTGPisdesignedbasedonthe [20] M. A. Ardeh, Y. Mei, and M. Zhang, “Genetic programming hyper-
+heuristics with probabilistic prototype tree knowledge transfer for
+assumption that the source and target problems are related
+uncertaincapacitatedarcroutingproblems,”inProc.IEEECongr.Evol.
+and hence, does not have any measures to prevent negative Comput.,Glasgow,U.K.,2020,pp.1–8.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.
+ANSARIARDEHetal.:KNOWLEDGETRANSFERGPWITHAUXILIARYPOPULATION 325
+[21] T. T. H. Dinh, T. H. Chu, and Q. U. Nguyen, “Transfer learning in [44] M.PelikanandM.W.Hauschild,“Distance-basedbiasinmodel-directed
+genetic programming,” in Proc. IEEE Congr. Evol. Comput., 2015, optimization of additively decomposable problems,” in Proc. 14th Int.
+pp.1145–1151. Conf.Genet.Evol.Comput.,NewYork,USA,2012,pp.273–280.
+[22] E. Haslam, B. Xue, and M. Zhang, “Further investigation on genetic [45] M.W.HauschildandM.Pelikan,“Intelligentbiasofnetworkstructures
+programming with transfer learning for symbolic regression,” in Proc. in the hierarchical BOA,” in Proc. 11th Annu. Genet. Evol. Comput.
+IEEECongr.Evol.Comput.,2016,pp.3598–3605. Conf.,NewYork,USA,2009,pp.413–420.
+[23] K. Deb, Two Approaches for Single and Multi-Objective Dynamic [46] M. A. Ardeh, Y. Mei, and M. Zhangz, “Diversity-driven knowledge
+Optimization.Berlin,Germany:Springer,2013,pp.99–116. transferforGPHHtosolveuncertaincapacitatedarcroutingproblem,”
+[24] T. T. Nguyen, S. Yang, and J. Branke, “Evolutionary dynamic inProc.Symp.Ser.Comput.Intell.,2020,pp.2407–2414.
+optimization: A survey of the state of the art,” Swarm Evol. Comput., [47] M. A. Ardeh, Y. Mei, and M. Zhang, “Surrogate-assisted genetic pro-
+vol.6,pp.1–24,Oct.2012. grammingwithdiversetransferfortheuncertaincapacitatedarcrouting
+problem,”inProc.IEEECongr.Evol.Comput.,2021,pp.628–635.
+[25] J.Wang,K.Tang,J.A.Lozano,andX.Yao,“Estimationofthedistri-
+[48] R.Cheng,C.He,Y.Jin,andX.Yao,“Model-basedevolutionaryalgo-
+butionalgorithmwithastochasticlocalsearchforuncertaincapacitated
+rithms:Ashortsurvey,”ComplexIntell.Syst.,vol.4,no.4,pp.283–292,
+arc routing problems,” IEEE Trans. Evol. Comput., vol. 20, no. 1,
+2018.
+pp.96–109,Feb.2016.
+[49] T. Hildebrandt and J. Branke, “On using surrogates with genetic
+[26] J. Wang, K. Tang, and X. Yao, “A memetic algorithm for uncertain
+programming,”Evol.Comput.,vol.23,no.3,pp.343–367,2015.
+capacitatedarcroutingproblems,”inProc.WorkshopMemeticComput.,
+[50] H. Tong, C. Huang, L. L. Minku, and X. Yao, “Surrogate models
+2013,pp.72–79.
+in evolutionary single-objective optimization: A new taxonomy and
+[27] H.Tong,L.L.Minku,S.Menzel,B.Sendhoff,andX.Yao,“Towards
+experimentalstudy,”Inf.Sci.,vol.562,pp.414–437,Jul.2021.
+novel meta-heuristic algorithms for dynamic capacitated arc routing
+[51] A. Gupta, Y.-S. Ong, and L. Feng, “Multifactorial evolution: Toward
+problems,” in Parallel Problem Solving from Nature (PPSN XVI),
+evolutionarymultitasking,” IEEETrans. Evol.Comput., vol. 20,no.3,
+T.Bäcketal.,Eds.Cham,Switzerland:Springer,2020,pp.428–440.
+pp.343–357,Jun.2016.
+[28] J.R.Koza,GeneticProgramming:OntheProgrammingofComputers
+[52] L.Fengetal.,“Solvinggeneralizedvehicleroutingproblemwithocca-
+byMeansofNaturalSelection.Cambridge,MA,USA:MIT,1992.
+sional drivers via evolutionary multitasking,” IEEE Trans. Cybern.,
+[29] A.DeLorenzo,A.Bartoli,M.Castelli,E.Medvet,andB.Xue,“Genetic vol.51,no.6,pp.3171–3184,Jun.2021.
+programming in the twenty-first century: A bibliometric and content- [53] K. K. Bali, Y.-S. Ong, A. Gupta, and P. S. Tan, “Multifactorial evolu-
+based analysis from both sides of the fence,” Genet. Program. Evol. tionaryalgorithmwithonlinetransferparameterestimation:MFEA-II,”
+Mach.,vol.21,pp.181–204,Jul.2019. IEEETrans.Evol.Comput.,vol.24,no.1,pp.69–83,Feb.2020.
+[30] F. Zhang, Y. Mei, S. Nguyen, and M. Zhang, “Evolving scheduling [54] L. Zhou et al., “Toward adaptive knowledge transfer in multifacto-
+heuristics via genetic programming with feature selection in dynamic rial evolutionary computation,” IEEE Trans. Cybern., vol. 51, no. 5,
+flexible job-shop scheduling,” IEEE Trans. Cybern., vol. 51, no. 4, pp.2563–2576,May2021.
+pp.1797–1811,Apr.2021. [55] L. Feng et al., “Explicit evolutionary multitasking for combinatorial
+[31] S.Wang,Y.Mei,andM.Zhang,“Novelensemblegeneticprogramming optimization: A case study on capacitated vehicle routing problem,”
+hyper-heuristicsforuncertaincapacitatedarcroutingproblem,”inProc. IEEETrans.Cybern.,vol.51,no.6,pp.3143–3156,Jun.2021.
+Genet.Evol.Comput.Conf.,NewYork,NY,USA,2019,pp.1093–1101. [56] J.Zhong,L.Feng,W.Cai,andY.-S.Ong,“Multifactorialgeneticpro-
+[32] S. Wang, Y. Mei, and M. Zhang, “A multi-objective genetic pro- grammingforsymbolicregressionproblems,”IEEETrans.Syst.,Man,
+gramminghyper-heuristicapproachtouncertaincapacitatedarcrouting Cybern.,Syst.,vol.50,no.11,pp.4492–4505,Nov.2020.
+problems,”inProc.IEEECongr.Evol.Comput.,2020,pp.1–8. [57] M.A.Ardeh,Y.Mei,andM.Zhang,“Anovelmulti-taskgeneticpro-
+[33] S. Wang, Y. Mei, M. Zhang, and X. Yao, “Genetic program- gramming approach to uncertain capacitated arc routing problem,” in
+ming with niching for uncertain capacitated arc routing problem,” Proc.ACMGenet.Evol.Comput.Conf.,2021,pp.759–767.
+IEEE Trans. Evol. Comput., vol. 26, no. 1, pp. 73–87, Feb. 2022, [58] R. K. Arakaki and F. L. Usberti, “An efficiency-based path-scanning
+doi:10.1109/TEVC.2021.3095261. heuristicforthecapacitatedarcroutingproblem,”Comput.Oper.Res.,
+[34] Y.Liu,Y.Mei,M.Zhang,andZ.Zhang,“Apredictive-reactiveapproach vol.103,pp.288–295,Mar.2019.
+with genetic programming and cooperative coevolution for the uncer- [59] G.Ruan,L.L.Minku,S.Menzel,B.Sendhoff,andX.Yao,“Whenand
+tain capacitated arc routing problem,” Evol. Comput., vol. 28, no. 2, howtotransferknowledgeindynamicmulti-objectiveoptimization,”in
+pp.289–316,Jun.2020. Proc.IEEESymp.Ser.Comput.Intell.,2019,pp.2034–2041.
+[35] B.KoçerandA.Arslan,“Genetictransferlearning,”ExpertSyst.Appl., [60] G. Ruan, L. L. Minku, S. Menzel, B. Sendhoff, and X. Yao,
+vol.37,no.10,pp.6997–7002,2010. “Computationalstudyoneffectivenessofknowledgetransferindynamic
+multi-objective optimization,” in Proc. IEEE Congr. Evol. Comput.,
+[36] M.Iqbal,B.Xue,H.Al-Sahaf,andM.Zhang,“Cross-domainreuseof
+2020,pp.1–8.
+extractedknowledgeingeneticprogrammingforimageclassification,”
+[61] T.H.Cormen,C.E.Leiserson,R.L.Rivest,andC.Stein,Introduction
+IEEETrans.Evol.Comput.,vol.21,no.4,pp.569–587,Aug.2017.
+to Algorithms, 3rd ed. Cambridge, MA, USA: MIT Press, 2009, ch.
+[37] D. O’Neill, H. Al-Sahaf, B. Xue, and M. Zhang, “Common sub-
+HashTable,p.1320.
+trees in related problems: A novel transfer learning approach for
+[62] R. G. Reynolds, “An introduction to cultural algorithms,” in Proc. 3rd
+genetic programming,” in Proc. IEEE Congr. Evol. Comput., 2017,
+Annu.Conf.Evol.Program.,1994,pp.131–139.
+pp.1287–1294.
+[63] T.-T.NguyenandX.Yao,“Anexperimentalstudyofhybridizingcultural
+[38] L.Feng,Y.-S.Ong,S.Jiang,andA.Gupta,“Autoencodingevolutionary
+algorithms and local search,” Int. J. Neural Syst., vol.18 1, pp.1–17,
+searchwithlearningacrossheterogeneousproblems,”IEEETrans.Evol.
+2008.
+Comput.,vol.21,no.5,pp.760–772,Oct.2017.
+[64] M.G.Kendall,“Anewmeasureofrankcorrelation,”Biometrika,vol.30,
+[39] L. Feng et al., “Evolutionary multitasking via explicit autoencoding,”
+nos.1–2,pp.81–93,Jun.1938.
+IEEETrans.Cybern.,vol.49,no.9,pp.3457–3470,Sep.2019.
+[65] W.J.Conover,PracticalNonparametricStatistics,vol.350.NewYork,
+[40] L. Feng, W. Zhou, W. Liu, Y.-S. Ong, and K. C. Tan, NY,USA:Wiley,1998.
+“Solving dynamic multiobjective problem via autoencoding evolu- [66] Y.BenjaminiandY.Hochberg,“Controllingthefalsediscoveryrate:A
+tionary search,” IEEE Trans. Cybern., early access, Oct. 1, 2020, practicalandpowerfulapproachtomultipletesting,”J.Roy.Stat.Soc.
+doi:10.1109/TCYB.2020.3017017. Ser.B,Methodol.,vol.57,no.1,pp.289–300,1995.
+[41] P. Vincent, H. Larochelle, I. Lajoie, Y. Bengio, and P.-A. Manzagol, [67] E. K. Burke, S. Gustafson, and G. Kendall, “Diversity in genetic pro-
+“Stacked denoising autoencoders: Learning useful representations in a gramming:Ananalysisofmeasuresandcorrelationwithfitness,”IEEE
+deep network with a local denoising criterion,” J. Mach. Learn. Res., Trans.Evol.Comput.,vol.8,no.1,pp.47–62,Feb.2004.
+vol.11,pp.3371–3408,Dec.2010. [68] M. Ester, H.-P. Kriegel, J. Sander, and X. Xu, “A density-based
+[42] L.Feng,Y.-S.Ong,M.-H.Lim,andI.W.Tsang,“Memeticsearchwith algorithm for discovering clusters in large spatial databases with
+interdomain learning: A realization between CVRP and CARP,” IEEE noise,” in Proc. 2nd Int. Conf. Knowl. Discov. Data Min., 1996,
+Trans.Evol.Comput.,vol.19,no.5,pp.644–658,Oct.2015. pp.226–231.
+[43] L. Feng, Y.-S. Ong, A.-H. Tan, and I. W. Tsang, “Memes as building [69] W.Lan,Z.Ye,P.Ruan,J.Liu,P.Yang,andX.Yao,“Region-focused
+blocks: A case study on evolutionary optimization + transfer learning memetic algorithms with smart initialisation for real-world large-scale
+for routing problems,” Memetic Comput., vol. 7, no. 3, pp.159–180, waste collection problems,” IEEE Trans. Evol. Comput., early access,
+2015. Nov.2,2021,doi:10.1109/TEVC.2021.3123960.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 09:16:08 UTC from IEEE Xplore. Restrictions apply.

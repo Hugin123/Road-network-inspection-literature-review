@@ -1,0 +1,2035 @@
+Received:10May2022 Revised:5July2023 Accepted:11July2023
+DOI:10.1002/net.22176
+RESEARCH ARTICLE
+The multi-purpose K-drones general routing problem
+JamesCampbell1 ÁngelCorberán2 IsaacPlana3 JoséM.Sanchis4 PaulaSegura4
+1SupplyChainandAnalyticsDept.,Universityof
+Abstract
+Missouri-St.Louis,St.Louis,Missouri,USA
+2Dept.d’EstadísticaiInvestigacióOperativa, In this article, we present and solve the multi-purpose K-drones general routing
+UniversitatdeValència,Valencia,Spain
+problem (MP K-DGRP). In this optimization problem, a fleet of multi-purpose
+3Dept.deMatemáticasparalaEconomíayla
+Empresa,UniversitatdeValència,Valencia,Spain drones,aerialvehiclesthatcanbothmakedeliveriesandconductsensingactivities
+4Dept.deMatemáticaAplicada,Universidad (e.g.,imaging),havetojointlyvisitasetofnodestomakedeliveriesandmapone
+PolitécnicadeValencia,Valencia,Spain
+ormorecontinuousareas.Thisproblemismotivatedbyglobalhealthcareapplica-
+Correspondence
+tionsthatdeploymultipurposedronesthatcombinedeliverytripswithcollectionof
+PaulaSegura,Dept.deMatemáticaAplicada,
+aerialimagingdataforuseinemergencypreparednessandresilienceplanning.The
+UniversidadPolitécnicadeValencia,Caminode
+Veras/n,46022Valencia,Spain. continuous areas that have to be mapped may correspond to terrain surfaces (e.g.,
+Email:psegmar@upvnet.upv.es floodedareasorregionswithadiseaseoutbreak)ortoinfrastructurenetworkstobe
+Fundinginformation inspected.Thecontinuousareas can bemodeled as aset oflinesso thateach area
+FondoSocialEuropeo(FSE),Grant/Award
+is completely serviced if all the lines covering it are traversed. Thus, given a set
+Number:PGC2018-099428-B-I00;European
+RegionalDevelopmentFund,Grant/Award of nodes and a set of lines, the problem is to design drone routes of shortest total
+Number:PID2021-122344NB-I00;European duration traversing the lines and visiting the nodes, while not exceeding the range
+SocialFund;MinisteriodeCienciaeInnovación;
+limit (flight time) and capacity (loading) of the drones. Unlike ground vehicles in
+MinisteriodeCiencia,InnovaciónyUniversidades.
+classicalroutingproblems,dronescanenteralinethroughanyofitspoints,service
+only a part of that line and then exit through another of its points. The possibility
+offlyingdirectlybetweenanytwopointsofthenetworkofferedbydronescanlead
+to reduced costs, but it increases the difficulty of the problem. To deal with this
+problem,thelinesarediscretized,allowingdronestoenterandexiteachlineonly
+atafinitesetofpoints,thusobtaininganinstanceoftheK-vehiclesgeneralrouting
+problem (K-GRP). We present in this article an integer programming formulation
+for the K-GRP and propose a matheuristic algorithm and a branch-and-cut proce-
+dureforitssolution.Resultsareprovidedforproblemswithupto20deliveriesand
+upto28continuousareas.
+KEYWORDS
+branch and cut, capacity constraints, drones, general routing problem, logistics,
+matheuristic,max-timeconstraints
+1 INTRODUCTION
+Drones or UAVs (unmanned aerial vehicles) are unmanned flying vehicles that can be flown autonomously or controlled
+remotely.Commercialdronesaredeployedforawidevarietyofmissions,withtwobroadcategoriesbeingdeliveryandsensing.
+Deliverydronescanbeusedtodeliveritemstodiscretelocations,suchasforpackages,medicalitems(includingblood,organs,
+defibrillators,medicines,vaccines,etc.)anddisasterreliefsupplies.Anothertypeofdronedeliveryinagriculturalapplications
+involvesdeliveryofliquidchemicals(e.g.,herbicides,fertilizers)orseedsandseedlingstoafieldorregion[10].Notethatthis
+ThisisanopenaccessarticleunderthetermsoftheCreativeCommonsAttribution-NonCommercial-NoDerivsLicense,whichpermitsuseanddistributioninanymedium,provided
+theoriginalworkisproperlycited,theuseisnon-commercialandnomodificationsoradaptationsaremade.
+©2023TheAuthors.NetworkspublishedbyWileyPeriodicalsLLC.
+Networks.2023;82:437–458. wileyonlinelibrary.com/journal/net 437
+438 CAMPBELLETAL.
+typeofagriculturaldeliveryoperationhasmoreincommonwithagriculturaldronesensingoperations,asinbothacontinuous
+region of earth is involved (e.g., a farm field) rather than the discrete delivery points for package delivery. Drones for sens-
+ingoperationssuchasmapping,surveillance,inspection,andsearchactivitiesareequippedwithenvironmentalsensors(such
+as optical cameras, multispectral cameras, thermal sensors, LIDAR, radars of various types, magnetometers, etc.) to collect
+dataaboutground,undergroundorinfrastructureconditions(e.g.,planthealth,buriedobjects,wildfires,flooding,roadtraffic,
+bridgeconditions,etc.).Dronesarealsousedinsensingoperationstocollectdataontheairandweatherconditionsthrough
+whichtheyfly,suchaspollution,temperature,humidity,particulates,volatileorganiccompoundsandsoforth.Dronesensing
+operationsareaccomplishedbyflyingthedroneoveraregionoftheearthoranitemofinfrastructureinapaththatprovides
+coverageoftheareaofinterest.Theregiontobecoveredmaybea2-or3-dimensionalsurface(e.g.,aboundedterrainareaor
+abridge)oranetworkdefinedbyinfrastructure(e.g.,roads,powertransmissionlines,orpipelines).Droneshaveseveralben-
+efitsforsensinganddeliverymissionscomparedto“manned”operations,includingcostreductionandtimesavings,abilityto
+accessdifficult-to-reachareas,andabilitytooperateinsettingsthataretoodangerousforaperson,orthatrequirealevelof
+accuracythatonlytechnologyachieves.
+Droneflightshavetypicallybeendesignedforasinglepurpose(e.g.,eithermappingordelivery),thoughsomedronescan
+bereconfiguredtoaccomplishdifferentpurposesondifferenttrips(e.g.,[1,14]).Thus,itisimportanttodistinguishbetween
+adronethatcanbe(re)configuredtoperformdifferenttasks(delivery,mapping,etc.)onseparatetrips,andadronethatcan
+performmultipletasks(e.g.,bothdeliveryandmapping)onthesametrip.Inthisarticle“multi-purposedrones”referstothe
+lattercase.Inatypicaldronedelivery,thedronemakesanemptyreturntripafterthelastdelivery(assumingalldeliveriesare
+successful)andthisdeadheadingseemsinherentlywasteful.Ifsuchadronecouldbeusedforotheractivitiessuchasmapping
+orsensing,thenthereturntripswouldbelesswasteful.Similarly,ifadronebeingusedforsensingwasabletomakeadelivery
+near the flight path needed for sensing, then efficiencies might be gained. Optimizing the routing of drones for flights that
+combinedeliveryandsensinginonetripisthekeyissueaddressedinourresearch.
+Asdronecapabilitiesexpand,multipurposedronetripshavebecomeapossibility.Ourresearch wasoriginallymotivated
+by a UNICEF project in Malawi for multi-purpose drones that could both make deliveries of healthcare items, and perform
+imagingaswell([32,33]).Theimagingmaybeformappingafloodedarea,anareawithadiseaseoutbreakoranyothertype
+ofcontinuousarea,whilethedeliverywouldbetooneormorediscretenodes.Thecontinuousareatobeimaged(mappedor
+photographed)iscoveredbyaseriesofdroneflightssothatimagesareobtainedthatcovertheentireregionofinterest.Inmany
+settings, repeated imaging of a region is required to assess the changing conditions, whether the application area is for plant
+health,firespreadorflooding.
+Therearesomereportedapplicationsofmultipurposedronetripsinglobalhealthcaresettings.DroneproviderSwoopAero,
+in association with the UK Department for International Development and UNICEF Malawi, studied the benefits of using
+multi-purpose drones in Malawi to improve access to healthcare for remote communities and improve disaster preparedness
+through aerial mapping [39]. In 2020, they undertook a 10-month sustained multi-purpose air medical logistics and disas-
+ter relief operation in two districts of Malawi to combine daily long-range drone deliveries with flood mapping and disaster
+response.Areportonthisproject[29]saysthat“SwoopAerosuccessfullyprovedthemultifunctionalityofthetechnology-based
+platform to conduct simultaneous aerial mapping tasks as well as routine medical commodity deliveries within the south of
+thecountry”.Anotherexampleofmultipurposedronetripsinglobalhealthis[40]whichnotesthatadronedeliveringmedi-
+calsuppliescouldalsobeequippedwithasensortoobtainagriculturaldatafromfarmsthedronepassesontheway,serving
+two different users at once. Another project in Malawi is described in [41] in which a single UAV performs three separate
+publicservices:medicalsupply,soilmappingforUNICEF(inspectionandimagingthatcouldbeusedforagriculture,infras-
+tructureanddevelopmentprojects),andaerialsurveillancefortheMalawiRangerServicetomonitorendangeredspeciesand
+detectpoaching.Averydifferentexampleofmultipurposedronetripsthatincludessensingandcollection(insteadofdelivery)
+is[12]whichdescribesusingadroneforsensingneareruptingvolcanoes.Herethedronehassensorstomeasureconcentra-
+tions of various molecules and environmental conditions in the volcanic plume, and it also collects physical samples of the
+volcanicplume.
+Therearealsoapplicationsformultipurposedronesthatfocusoncommunicationofthedataacquiredinthesensingopera-
+tions.Inthesecases,thedeliverycomponentisdownloading(oruploading)information,whichisaccomplishedbyhavingthe
+dronetraveltocloseproximitytoabasestationorotherdrone.Reference[17]considersasystemwithonedroneroutethatcon-
+ductsvideosurveillanceoverarectangularregionusingrepeatedparallelpassesofthedrone,followedbytraveltoadelivery
+locationtocommunicatetheinformationcollectedtoabasestation.Thisresearchfocusesonspecificsofthecommunication
+channelsandcommunicationprotocols,ratherthanthedronerouting.Reference[9]considersasimilarproblemwithsurveil-
+lanceusingacameraofa“longstrip”asforlinearinfrastructure(e.g.,powertransmissionline,roadwayorpipeline),followed
+by delivery of the captured images to a base station. This includes problems where a single drone can surveille the width of
+thestripinonepass,andanextensionwheremultipledronesflytogetherdownthelengthofthestrip(aseachdrone’scamera
+cancoveronlypartofthewidthofthestrip).Routingforthesensingcomponentissimplifiedbyfollowingonelinearfeature,
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 439
+andtheresearchfocusesonthedatatransmissiontothebasestationnodewithdatatransmissionrateconstraints.Combining
+sensinganddeliveryofinformation(communication)toabasestationisagrowingareaofresearchas“thereishugeinterest
+toperformjointcommunicationsandsensingnow”[21].
+Multipurpose drones trips are also used in some other settings including avalanche scenarios, drowning, and search and
+rescue.Reference[19]describesusingdronesforsensingtodetectanarealikelytobeavalanchedoveraroad,andthenhaving
+the drone accurately drop explosive charges (delivery) to trigger controlled avalanches. In [28] a drone is used to thermally
+detectabodyburiedinanavalancheandthentodropanavalanchebeaconnearby.Asimilaruseofdronesisreportedin[6]for
+searchandrescueintheCanadianArctic,wherethedronecandropacommunicationdevicetoalostpartyoncelocated.Finally,
+drones for rescue of swimmers in distress is reported in [27], where there is testing of drones that first search for drowning
+swimmersandthendeliveraflotationdevice.Alloftheseapplicationsinvolvesensingtofindsomethingorsomeone,andthen
+delivery (dropping) of an item. These are different than the global health and communications applications described above
+in that the delivery is made to a location within the search area, and the delivery location is not known at the outset of the
+droneflight.
+There is very limited analytical research on routingin multi-purposedrone problems that combine delivery with sensing
+activitiesinthesamedronetrip.In[16],theauthorsstudyaprobleminwhichtheaimistodesigndronetrajectoriesthatperform
+atransportationoperationsuchaspackagedelivery,whilealsoprovidinguniformcoverage(overtime)ofaneighborhoodarea.
+They investigate the use of multi-purpose drones in a simplified scenario where the neighborhood area is a circular region,
+andinanotherscenariowheretheareaisanarbitrarilyshapedregion.Theauthorsproposeanalgorithmforeachscenariofor
+uniformcoverageandlast-miledeliveryapplications.
+InthisarticleweaddressthemultipurposedronegeneralroutingproblemwhereKdroneroutesaretobedeterminedtoboth
+providesensingoveradefinedregionandmakeasetofdeliveriestodiscretepoints.Theregionneedingsensingcoveragemay
+bea two-dimensionalsurface (e.g.,afloodedregion)oranetwork oflinear features (e.g.,rodsorpowertransmission lines).
+Sensingbyasingledronecoversalinearswathasthedroneflieswiththewidthoftheswath(andtheresolution)determinedby
+thesensorandthealtitudeofthedrone.Inourresearchlinearfeaturestobecoveredbysensingaremodeledaslinesegments
+whicharecoveredbyasingledronetraversalalongthelinesegment.Tocovertwodimensionalregionsbythedrone,wereplace
+theregionbyasetofparallellinestobeflownbythedronethatprovidecompletecoverageovertheregionofinterest(i.e.,the
+swathsfromthedroneflightscovertheregion).Typicallytheparallellinesareorientedtominimizethenumberofturnsbythe
+drone,asturnsinterruptthedatacollectionandincreasethedroneflightdistanceandtime(andbatteryusage)[30].Because
+we allow a region to be covered on several different drone trips, the optimal orientation of the flights might be different for
+differentpartsoftheregion.Weadoptthereasonablestrategyforcoveringaregiontohavethedronesflyparallellinesoriented
+withthelongeraxisoftheregion(thusminimizingtheturnsneededbythedrones),wherethespacingofthelinesreflectsthe
+characteristicsofthesensorbeingusedbythedrones.Althoughfindingtheoptimalwayofdesigningtheseparallellinesisan
+interestinganddifficultproblemitself,inthisworkwewillassumethatthelinesegmentsthatthedroneshavetofollowinorder
+toprovidesensingovertheareasareparallel,straightandalreadygiven.However,ourdroneroutingmethodologywillwork
+foranysetofgivenlines.
+Thus,givenasetoflines,whetheranetworkorlinescoveringatwo-dimensionalregion,andasetofdeliverypointswitha
+knowndemand,theproblemaddressedhereconsistsofdesigningdroneroutesoflowesttotalduration,jointlytraversingallthe
+linesandvisitingallthepoints(tomakedeliveries).Thedurationofeachrouteshouldnotexceedatimelimitandthedemand
+deliveredbyeachrouteshouldnotexceedthecapacityofthedrone.
+Otherarticleshavestudiedtheroutingofdronestoprovidesensing(i.e.,cover)overoneorseveralareas,butwithoutinclud-
+inganydronedeliveries.Xieetal.[37]studyapathplanningproblemconsistingoffindingtheoptimaltourforasingledrone
+thathastocovermultipleseparatedconvexpolygonalregions.Theauthorsprovideamixedintegerprogrammingformulation
+and propose a procedure for covering a single convexpolygonalregion.Based on thismethod, they develop two approaches
+tosolvethecompleteproblem,adynamicprogramming-basedexactalgorithmandaheuristictogeneratehigh-qualitytours.
+Puerto and Valverde [26] address the problem of designing routes for drones that must visit a number of geographical ele-
+mentstodeliversomegoodorservice.Theypresenttwoformulationsthataretestedonasetofinstanceswithdifferentshapes
+of elements, second order cone (SOC) representable and polyhedral neighborhoods and polygonal chains. Yang et al. [38]
+studiedtheconstructionofa routefor adronethathastomap an area whileminimizing thetotaldistance.Theauthorssplit
+the area into squares and present an ant colony metaheuristic to design the route that visits them. Wang et al. [36] consider
+the routing of drones that must “supervise” disjoint areas over a given time horizon. The areas are divided into cells which
+mustbevisitedseveraltimeswithinatimeperiod.Amultiobjectiveevolutionaryalgorithmtosolvetheproblemisproposed.
+Vasquez-Gomez et al. [34] propose a method for finding a path for a drone covering several disjoint areas consisting of two
+steps:firstdeterminingthevisitingorderoftheareasandthentheoptimizationoftheflightlinesorientation.InVasquez-Gomez
+etal.[35],theauthorsaddressthesameproblemwithonlyoneregionbuttakingintoaccountthestartingandendingpointsof
+thedrone.
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+440 CAMPBELLETAL.
+FIGURE1 Single-purposedronesversusmulti-purposedrones.(A)Deliveryroutes,(B)imagingroutes,(C)multi-purposeroutes.
+Inthiswork,weaddressaroutingproblemformulti-purposedronesthatbothmakedeliveriesandalsodosomesensingon
+thesamedronetrip.Thus,ratherthanhaveonetripfordeliveriesandasecondtripforsensing(usingareconfiguredordifferent
+drone), a single drone trip might perform both deliveries and sensing. Using multi-purpose drones instead of single-purpose
+onescanleadtoconsiderableimprovementsinthetotaldurationofthetrips,ascanbeseenintheexampleillustratedinFigure1.
+Thisexampleincludessixdeliverypointsandfourregionsrepresentedbyfoursetsofparallellinesthatprovidecoverageoffour
+regions.Figure1Ashowstheoptimalroutesforthreedelivery-onlydronetripsdeliveringpackagestothesixcustomers,with
+atotaldurationof3234.65.Figure1Bpresentstheoptimalroutesofthreesensing-dronetripscoveringthefourareas,whose
+totaldurationis4361.63.However,usingthreemulti-purposedronetrips,ascanbeseeninFigure1C,thedeliveryandsensing
+can be carried out with a total duration of 5574.07, which is 26.6% lower than for the six drone trips using single-purpose
+drones.
+Thecontributionsofthisresearchare:(1)introducingandsolvinganewdroneroutingproblemformultipurposedronetrips
+motivatedbyseveralapplications,includinginglobalhealthcareandsensing/surveillance;(ii)developmentofageneralsolution
+methodologyformultipledronesthatallowsanareatobecoveredbyseveraldifferentdronetrips,(iii)computationalresults
+todocumentperformanceofthemethodandbenefitsoveruseoftwokindsofsinglepurposedrones.Notethatourapproach
+allowssensingcoverageoftwo-dimensionalareascoveredbyanylinearfeatures(whetherparallellinesegmentsornot),aswell
+ascoverageofnetworksandlinearfeaturesthemselves,asforinfrastructure(transmissionlines,pipeline,roadways,etc.).
+InSection2,weformallydescribethemulti-purposeK-dronesgeneralroutingproblem,proposeaformulationforitsdis-
+crete version, the K-vehicles general routing problem (K-GRP), and present several valid inequalities for this problem. In
+Section3,abranch-and-cutalgorithmforthesolutionoftheK-GRPisproposed,whileSection4isdevotedtothedescription
+ofamatheuristicfortheMPK-DGRP.ThecomputationalexperimentsarepresentedinSection5andsomeconclusionsand
+futureresearchlinesarediscussedinSection6.
+2 THE MULTI-PURPOSE K-DRONES GENERAL ROUTING PROBLEM
+Letusconsiderafinitefamilyofseparatedcontinuousareas,aset ofisolatedlocationsandafleetofmultipurposedrones
+locatedatadepotv (seeleftimageinFigure2).Multipurposedroneshavebothimaginganddeliverycapability,andtheyhave
+0
+toprovidesensingoverthecontinuousregionsinandalsomakeacertaindeliveryateachlocationin,withoutrunningout
+ofbatteryandwithoutexceedingtheirloadcapacity.WeassumethateachregionorareaA∈isdescribed(covered)byaset
+ofvirtualparallelstraightlinessothat,bytraversingtheselines,dronescoverthewholearea(seerightimageinFigure2).The
+separationdistancebetweentheparallellinesdependsontechnicalaspectsofthedroneanditssensingequipment(suchasthe
+sizeofthecamerafootprint,thealtitudeoftheflightofthedrones,etc.).Moreover,dronesarecapableofdeliveringgoodsto
+thelocationsof,assumingthattheloadtheycantransportislimitedandthedemandofeachlocationmustbedeliveredby
+thesamevehicleatonetime.
+TheMPK-DGRPcanbedefinedasfollows.Letusconsiderasetoflines,eachonewithanassociatedservice(traversing)
+time,adepotv ,andasetoflocationswithanassociatedpositivedemandandaservice(visiting)time,andassumethatthe
+0
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 441
+FIGURE2 Amulti-purposedroneframeworkwith||=3and||=5.
+timeofdeadheadingbetweenanytwopointsistheEuclideandistance.GiventwoconstantsLand,theproblemconsistsof
+findingasetofdroneroutesstartingandendingatthedepot,withdurationnogreaterthanLandloadnotexceeding,such
+that they jointly traverse all the given lines and satisfy the demand of all the locations with minimum total duration. In this
+problem,weconsiderthatadronecantravelinastraightlinebetweenanytwopoints,andnotnecessarilyfollowingthelinks
+ofthegivennetworkashappensinclassicalroutingproblemswithgroundvehicles.Thus,adronecanenteralinethatrequires
+servicethroughanyofitspoints,traverseandservicepartofit,exitthelinethroughanotherofitspoints,thentraveldirectlyto
+anotherlineortomakeadeliveryatarequiredlocation,andcontinueitsroutewhilethetimelimitLisnotexceeded.
+The ability of drones to enter or leave each line at any of its points allows better solutions (lower cost routes) than those
+obtained with traditional vehicles that cannot travel off of a network, but it makes the optimization problem continuous and
+verydifficulttoaddress.Todealwiththisissue,asisdonein[4]and[5],weselectforeachinstanceafinitenumberofpoints
+oneachline,sothatdronescanenterandleaveeachlineonlyatthesepoints.Inotherwords,eachoriginallineisdividedinto
+smalledgesthatmustbetraversedbythedrones.Inthisway,forexample,asingleedgewithtwoendpointsmayhavefouradded
+intermediatepointsthattransformtheoneoriginaledgeintofiveedges,eachwithtimeoftraversalequaltotheproportional
+partofthetimeoftraversalofthecorrespondingoriginaledge.Thus,thecontinuousproblemisreducedtoadiscreteproblem,
+theK-vehiclesGeneralRoutingProblem(K-GRP).
+Obviously, the more intermediate points selected on each line, the better is the approximation of the original continu-
+ous problem, and thus better solutions might be obtained. However, if the number of intermediate points is very large, the
+size of the instance increases so much that it cannot be addressed, and even heuristic algorithms can fail to provide good
+solutions in reasonable computing time. Thus, it is necessary to devise sophisticated strategies to generate instances of the
+K-GRP with a reduced but significant number of intermediate points that can be solved to produce good solutions for the
+MPK-DGRP.
+Inwhatfollows,weformallydefinetheK-GRPandproposeaformulationforit.
+2.1 Aformulationforthe K-vehiclesgeneralroutingproblem
+Given an undirected and connected graph G = (V,E), a subset E ⊆ E of required edges and a subset V ⊆ V of required R R
+vertices,theGeneralRoutingProblem(GRP,Orloff[22])consistsoffindingaminimumcosttour(closedwalk)onGtraversing
+eachedgee∈E andvisitingeachvertexv∈V atleastonce.
+R R
+IntheK-vehiclesGeneralRoutingProblem(K-GRP),therequirededgesE ⊆ E correspondtothesegmentsintowhich
+R
+we have split the straight lines that have to be traversed in order to completely cover the continuous areas. Since these lines
+areisolatedstraightlines,thatis,therearenolinesadjacenttoeachother,whentheyarediscretizedweobtainisolatedchains
+ofrequirededges.Therefore,theverticesincidentwithedgesinE areincidentwitheitheronerequirededge(wecallthisset
+R
+of vertices V ) or with two required edges (we call this set of vertices V ). We denote by E the set of nonrequired edges,
+O E NR
+which form a complete graph with the node set V. There is a time cs ≥ 0 associated with the traversal and service of each
+e
+required edge e ∈ E , and a deadheading time c ≥ 0 associated with the traversal of each nonrequired edge e ∈ E . The R e NR
+deadheadingtimessatisfythetriangularinequality.ThesetofrequiredverticesV ⊆ V isformedbyallthenodesinV where
+R
+a drone should make a delivery. We will assume that these vertices are only incident with nonrequired edges and have to be
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+442 CAMPBELLETAL.
+serviced by exactly one drone. Otherwise, a simple transformation can be applied to meet this condition. Each node i ∈ V
+R
+hasanassociatedpositiveintegerdemand𝑑 > 0andaservicetimec ≥ 0.Furthermore,thedroneroutesstartandendata
+i i
+vertex(thedepot,vertexv )that,forthesakeofsimplicity,wewillassumeisnotincidentwithrequirededges.Hence,wehave
+0
+V ={v }∪V ∪V ∪V .
+0 R O E
+ThereisafleetofKdrones,eachwithaloadcapacityandatimelimitL.TheobjectiveoftheK-GRPistofindKroutes
+withminimumtotalduration,startingandendingatthedepot,thatjointlytraversealltherequirededgesandvisittherequired
+verticesexactlyonce,sothatthedurationandtheloadofeachroutedoesnotexceedthevaluesLand,respectively.Wewill
+callaK-GRPsolutionanysetofK toursthatmeetalltheconstraintsoftheproblem.
+The K-GRP can be formulated using a binary variable xk for each edge e ∈ E and for each drone k ∈ {1, … K}, and
+e R
+twobinaryvariablesxk andyk foreachedgee ∈ E andforeachdronek.Variablexk takesthevalue1iftherequirededge
+e e NR e
+eistraversed(andserviced)bydronek and0otherwise,whilevariablesxk andyk takethevalue1ifthenonrequirededgee
+e e
+istraversedonceortwicebydronek,respectively,and0otherwise.Inotherwords,variablesxk andyk representthefirstand
+e e
+secondtraversalofnonrequirededgeebydronek.Additionally,abinaryvariablezk isintroducedforeachvertexi ∈ V and
+i R
+eachdronek,takingthevalue1ifthevertexiisservicedbydronekand0otherwise.
+Weusethefollowingnotation.GiventwosubsetsofverticesS,S′ ⊆ V,(S ∶ S′)denotestheedgesetwithoneendpointin
+SandtheotherinS′.GivenasubsetS ⊆ V,letusdenote𝛿(S) = (S ∶ V ⧵S)andletE(S) = {e = (i,j) ∈ E ∶ i,j ∈ S}bethe
+∑
+setofedgeswithbothendpointsinS.ForanysubsetF ⊆ E,wedenoteF = F∩E ,F = F∩E ,xk(F) = xk and
+∑ R R NR NR e∈F e
+(xk+yk)(F)= (xk+yk).
+e=(i,j)∈F e e
+WeproposethefollowingformulationfortheK-GRP:
+∑K ∑ ( ) ∑K ∑ ∑K ∑
+Minimize c xk+yk + csxk+ czk, (1)
+e e e e e i i
+k=1e∈E k=1e∈E k=1i∈V NR R R
+s.t.
+∑ ∑ ( )
+xk+ xk+yk ≡0 (mod2), ∀i∈V⧵V , ∀k, (2)
+e e e R
+e∈𝛿
+R
+(i) e∈𝛿
+NR
+(i)
+∑
+(xk+yk)=2zk, ∀i∈V , ∀k, (3)
+e e i R
+e∈𝛿(i)
+∑K
+xk =1, ∀e∈E , (4)
+e R
+k=1
+∑K
+zk =1,∀i∈V , (5)
+i R
+k=1
+xk ≥yk, ∀e∈E , ∀k, (6)
+∑ ∑ ( ) e e NR
+xk+ xk+yk ≥2xk, ∀S⊆V⧵{v },∀f ∈E(S),∀k, (7)
+e e e f 0
+∑
+e∈𝛿 R∑(S)
+(
+e∈𝛿
+NR
+(S)
+) ∑
+csxk+ c xk+yk + czk ≤L, ∀k, (8)
+e e e e e i i
+e∈E
+R
+e∈E
+NR ∑
+i∈V
+R
+𝑑zk ≤, ∀k, (9)
+i i
+i∈V
+R
+zk ∈{0,1}, ∀i∈V , ∀k, (10)
+i R
+xk ∈{0,1}, ∀e∈E , ∀k, (11)
+e R
+xk,yk ∈{0,1}, ∀e∈E , ∀k. (12)
+e e NR
+Theobjectivefunction(1)minimizesthetotaldurationoftheroutes.Thefirsttermrepresentsthedeadheadingtimefrom
+traveling on nonrequired edges. The second and third terms represent, respectively, the time of servicing the required edges
+and the time of visiting the required nodes (for delivery). Due to constraints (4) and (5), both these last two terms are con-
+stant and could be removed from the objective. Constraints (2) force that the number of times a drone visits a nonrequired
+vertex is even, possibly zero, and equalities (3) ensure that a drone traverses two nonrequired edges incident with a required
+vertexiifitisservicedbythisdrone(andtraversesnoincidentedgesifitisnotserviced).Equations(4)forceeachrequired
+edge to be serviced exactly once, and the visit of each required vertex by exactly one drone is ensured by constraints (5).
+Constraints(6)guaranteethatasecondtraversalofanonrequirededgebyadronecanonlyoccurwhenithasbeentraversed
+previously by this drone. Inequalities (7) avoid subtours and ensure that each single route is connected and connected to the
+depot.Constraints(8)guaranteethatthedurationofeachroutedoesnotexceedL,whileconstraints(9)ensurethatthedemand
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 443
+serviced on each route is not greater than the drone capacity . Constraints (10), (11) and (12) are the binary conditionsfor
+thevariables.
+The following results allow us to remove some variables from the formulation, taking into account the structure of the
+optimalK-GRPsolutions.
+Theorem1. ThereisanoptimalK-GRPsolutioninwhicheachroutesatisfies:
+(a) Itdoesnotdeadheadtwoedges(i,j),(j,k)consecutively,exceptif j∈V anditisservicedbytheroute.
+R
+(b) Itdoesnotvisittheverticesin{v }∪V ∪V morethanonce.
+0 R O
+(c) ItdoesnotvisittheverticesinV morethantwice.
+E
+Proof. (a) Let us suppose a tour deadheads two edges (i,j), (j,k) consecutively with j ∉ V . Each one of these
+R
+two edges is either a nonrequired one or a required edge that had already been serviced in a previous traversal.
+Recallthatthenonrequirededge(i,k)existsbecauseE inducesacompletegraph,andthatc ≤ c +c dueto
+NR ik ij jk
+thetriangleinequality.Thetourobtainedafterreplacingthetraversalof(i,j),(j,k)withthetraversalof(i,k)hasa
+lowerorequaldurationandservicesthesamerequirededgesandthesamerequiredverticesastheformertour.By
+iteratingthisargumentweobtain(a).
+(b)Thedronetoursstartandendatv .Ifatourvisitsv again,itdeadheadstwoedgeswithoutservicingv ,
+0 0 0
+whichcontradicts(a).Letussupposeatourvisitsagivenvertexj∈V ∪V morethanonce.Notethatthereisonly
+R O
+oneserviceassociatedwithvertexj:theserviceofj,ifj ∈ V ortheserviceoftheuniquerequirededgeincident
+R
+withj,ifj∈V .Therefore,allvisitstothevertexj,exceptoneofthem,areperformedbydeadheadingtwoedges
+O
+withoutservicingj,whichcontradicts(a).
+(c) Let us supposea tourvisitsa given vertexj ∈ V more than twice. Note thatthere are onlytwo services E
+associated with vertex j: the service of the two required edges incident with j ∈ V . Therefore, all visits to the
+E
+vertexj,excepttwoofthem,areperformedbydeadheadingtwoedgeswithoutservicingj,whichcontradicts(a).▪
+Corollary1. For each drone k, variables yk for the following nonrequired edges e can be removed from the e
+formulation:
+• e=(u,v)withu∈V (orv∈V ),and
+O O
+• e=(u,v)withu,v∈V .
+R
+andthefollowinginequalitiescanbeaddedtotheformulation:
+xk(𝛿(i))=2xk, ∀(i,j)∈E , withi∈V ,∀k, (13)
+ij R O
+xk(𝛿(i))≤2xk +2xk, ∀(i,j),(l,i)∈E (i∈V ), ∀k. (14)
+ij li R E
+Note: Consider the special case of the K-GRP in which the lines are not split, that is, V = ∅. From Corollary 1, this case
+E
+canbeformulatedusingvariablesyk onlyforthoseedgesjoiningthedepotandverticesinV (alltheotheryk variablescanbe
+e R e
+removed).Moreover,fromTheorem1,thereisanoptimalsolutionthatdoesnotuseanynonrequirededgeparalleltoarequired
+one(otherwise,twoconsecutiveedgeswouldbedeadheaded),sonovariablexk isneededfortheseedges. e
+2.2 Other validinequalitiesforthe K-GRP
+Inthissectionwepresentfourfamiliesofvalidinequalitiesthatreinforcetheformulation.Theyarebasedonthecapacityand
+autonomyconstraintsofdronesoronknownfamiliesofvalidinequalitiesproposedin[7]fortheMaximumBenefitChinese
+PostmanProblem(MBCPP).
+Parity inequalities are obtained from those proposed in [7] for the MBCPP, which generalize the well known co-circuit
+inequalities[2].Theyrelyonthefactthateachdronetourtraversesanyedgecut-setaneven(orzero)numberoftimes:
+xk(𝛿 (S)⧵F )+(xk−yk)(𝛿 (S)⧵F )≥xk(F )+(xk−yk)(F )−|F|+1, (15)
+R R NR NR R NR
+foreachdronek∈{1, … K},forallS⊂V,andforallF ⊆𝛿(S) with |F| odd.
+Inordertoseethatinequalities(15)arevalidfortheK-GRPonG,notethatxk(F )+(xk−yk)(F )≤|F|.Foradronek,the
+R NR
+toursthatsatisfyxk(F )+(xk−yk)(F )=|F|traverseeachedgeinFonce,and,since|F|isodd,theytraverseatleastoneedge
+R NR
+in𝛿(S)⧵Fonce,thussatisfyingxk(𝛿 (S)⧵F )+(xk−yk)(𝛿 (S)⧵F )≥1.Forthedronetourssatisfyingxk(F )+(xk−yk)(F )≤
+R R NR NR R NR
+|F|−1,inequality(15)reducestoxk(𝛿 (S)⧵F )+(xk−yk)(𝛿 (S)⧵F )≥0,whichisobviouslysatisfied.
+R R NR NR
+p-connectivityinequalitiesarebasedonthosewiththesamenameproposedfortheMBCPPin[7]andaregeneralizedhere
+toalsoconsidertheexistenceofrequiredvertices.Let{S
+0
+, … ,S
+p
+}beapartitionofV.Assumethatv
+0
+∈ S𝑑,𝑑 ∈ {0, … ,p},
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+444 CAMPBELLETAL.
+andselecteitheranedgee ∈E (S)oravertexv ∈S ∩V foreachj∈{0, … ,p}⧵{𝑑}.LetI andI bethesetsofindicesin j R j j j R 1 2
+{0, … ,p}⧵{𝑑}inwhicharequirededgeorarequiredvertexhasbeenselected,respectively.Foreachdronek,thefollowing
+inequalityisvalid. ∑ ∑ ∑
+xk(𝛿 (S ))+(xk+yk)(𝛿 (S ))+2 xk(S ∶S)≥2 xk +2 zk. (16)
+R 0 NR 0 r t e v j j
+1≤r<t≤p j∈I j∈I
+1 2
+LetusassumethatthedepotbelongstoS andlet(x,y,z)beaK-GRPtour.
+0
+Givenadronek,ifthereisanedgee,j ∈ I ,oravertexv,j ∈ I ,suchthatxk = 0orzk = 0,wecanconsideranother
+j 1 j 2 e v
+j j
+p-connectivityinequalitywithp−1subsetsbymergingsetsS andS (orS ).Ifthenew(p−1)-connectivityinequalityis
+j j+1 j−1
+satisfiedbythesolution,theoriginalonewillalsobe.Therefore,wecanassumethatxk = 1foralli ∈ I andzk = 1forall
+e i 1 V O
+i∈I .
+2
+Moreover,ifxk(S ∶S)≥1,wecanalsomergeS andS,obtaininganew(p−1)-connectivityinequality.Asbefore,ifthis
+r t r t
+inequaltyissatisfied,soistheoriginalone.Thereforewecanalsoassumethatxk(S ∶S)=0foranypairofsetsS ,S.
+r t r t
+SinceeachsetS,i>0,mustbeconnectedtothedepotandxk(S ∶S)=0,xk(𝛿 (S ))+(xk+yk)(𝛿 (S ))≥2(|I |+|I |),
+i r t R 0 NR 0 1 2
+andtheinequalityholds.
+Capacityinequalitiesarewidelyusedinnodeandarcroutingproblemswhenthereisalimittothedemandavehiclecan
+service.GivenavertexsetS⊆V ⧵{v },theedgecut-set𝛿(S)hastobetraversedatleasttwicethenumberofvehiclesneeded
+0
+toservicethedemandoftherequiredverticesinS,and,therefore,thefollowinginequalityisvalid:
+⌈ ⌉
+∑K ∑K ∑
+xk(𝛿 (S))+ (xk+yk)(𝛿 (S))≥2 𝑑∕Q , ∀S⊆V⧵{v }. (17)
+R NR i 0
+k=1 k=1 i∈V ∩S
+R
+Max-timeinequalitiesarebasedonthelimitLtothedurationofadronetour.ConsidertwosetsF ⊆ E andS ⊆ V such R R
+thatthedurationoftheoptimaltour(oralowerboundtoit)startingandendingatv ,traversingalltheedgesinF,andvisiting
+0
+alltheverticesinS,isgreaterthanL.Ontheonehand,wehavethatasingledronekcannotserviceallthearcsinFandallthe
+verticesinSand,hence,inequalities
+xk(F)+zk(S)≤|F|+|S|−1, ∀k∈{1, … K}, (18)
+arevalidfortheK-GRPonG.Ontheotherhand,underthesamecircumstances,atleasttwodifferentdronesmustenterany
+subgraphofGthatcontainsalledgesinFandallverticesinSbutdoesnotcontainthedepot.Hence,ifW ⊂V ⧵{v }isaset
+0
+ofverticescontainingSandtheverticesincidentwiththeedgesinF,thefollowinginequalities
+∑( )
+xk(𝛿 (W))+(xk+yk)(𝛿 (W)) ≥4, (19)
+R NR
+k∈K
+and ∑ ( )
+xk′(𝛿 (W))+(xk′ +yk′)(𝛿 (W)) ≥2, ∀k∈{1, … K} (20)
+R NR
+k′∈K⧵{k}
+arealsovalidfortheK-GRPonG.Inequalities(18),(19),and(20)canbeeasilygeneralizedtothecasewhenthenumberof
+dronesneededtoservicetheedgesinagivensetFandtheverticesinagivensetSisgreaterthantwo.
+3 A BRANCH-AND-CUT ALGORITHM FOR THE K-GRP
+Wehaveimplementedabranch-and-cutalgorithm(B&C)fortheK-GRPbasedontheformulationproposedinSection2.1.The
+fundamental component of the B&C is a cutting-plane algorithm that incorporates separation procedures for the inequalities
+presentedinthisarticle.
+3.1 Separationalgorithms
+Ateachiterationofthecutting-planeprocedureweusesomeseparationalgorithmstoidentifyvalidinequalitiesthatareviolated
+bythecurrentLPfractionalsolution.Let(xk,yk,zk),fork = 1, … ,K,denotethisfractionalsolution,andlet𝜀 > 0beagiven
+parameter.Inwhatfollowswedescribetheseparationproceduresusedforeachfamilyofvalidinequalities.
+Connectivityinequalities
+Althoughconnectivityinequalities(7)canbeexactlyseparatedinpolynomialtimebymeansofmax-flowcomputations,the
+procedureisverytimeconsumingandmayproducemanysimilarviolatedinequalities.Therefore,wedecidedtouseheuristic
+algorithmsforseparatingthem.Thefirstoneisawell-knownmethodbasedonthecomputationoftheconnectedcomponents
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 445
+ofthegraphinducedbytheedgese∈Esuchthatxk(e)+yk(e)>𝜀,plusthedepot,ifnecessary.Inequality(7),associatedwith
+eachconnectedcomponentandwiththeedgef initwithmaximumxk(f),ischeckedforviolation.
+The second heuristic works in a smaller graph in which the connected components of the graph induced by edges with
+xk(e)≥1−𝜀areshrunkintoasinglevertexeach.Then,allminimumcutsbetweenthevertexcorrespondingtothecomponent
+containingthedepotandtheremainingonesarecalculatedandtheircorrespondingconnectivityinequalitiesarecheckedfor
+violation.
+Parityinequalities
+ParityinequalitiescanbeexactlyseparatedinpolynomialtimewithanalgorithmbasedonthePadberg-Raoprocedure[23]
+forthecomputationofoddminimumcuts(seealsoLetchfordetal.[18]foramoreefficientprocedure).Forthespecialcase
+where S = {v}, the exact procedure described in Ghiani and Laporte [13] gives the set F ⊆ 𝛿(v) associated with the most
+violatedparityinequality.
+Wealsouseasimpleandfastalgorithmbasedonthecomputationoftheconnectedcomponentsofthegraphinducedby
+theedgese∈Ewithxk(e)−yk(e)>𝜀,plusthedepot,ifnecessary.ThesameprocedureasforthecaseS={v}isusedhereto
+obtainthesetFcorrespondingtothecutsetassociatedwitheachcomponent.
+p-connectivityinequalities
+Toseparatetheseinequalities,wefirstlookfortightconnectivityinequalitiesbysearchingamongthecutsetsobtainedwith
+theconnectivityseparationprocedures.LetSbeasetofverticesassociatedwithsuchacutsetandassumethatv ∈S =V⧵S.
+0 0
+Iftheconnectivityinequalityistightfordronek,wecomputetheconnectedcomponentsinthesubgraphinducedinG(S)by
+theedgese ∈ E(S)withxk(e) ≥ 1−𝜀.ForeachpairC,C ofsuchcomponents,s = 2xk(V ,V)−2min{wk(𝛼),wk(𝛼)}is
+i j ij O j i j
+calculated,whereV denotesthesetofverticesinC and𝛼 istheedgeeinC (orthevertexvinV ∩V )withthehighestvalue
+t t t t t R
+ofxk(e)(orofzk(v)).Thecomponentsthatmaximizes areiterativelyshrunkwhiles ispositive.Inthisway,weobtainsets
+ij ij
+S , … ,S andtheassociatedinequality(16)ischeckedforviolation. 1 p
+Capacityinequalities
+Capacityinequalities(17)canbeseparatedheuristicallybyusingthefollowingsimpleprocedure.First,webuildthesupport
+∑
+graphG=(V,E ∪E ),whereE isdefinedbythosenonrequirededgeswithc = (xk+yk)>0.Requirededgeshave R NR NR e k∈K e e
+unitcapacityandedgesinE
+NR
+havecapacityc
+e
+.Foreachrequiredvertexi⌈∈
+∑
+V
+R
+,wecom⌉putethemaxflowinGfromthedepot
+toi.Let(S∶V⧵S)betheassociatedminimumcut,withi∈S,andn = 𝑑∕Q .Ifthemaxflowislessthan2n ,this
+v j∈V ∩S j v
+R
+cutsetdefinesaviolatedcapacityinequality(17).Whethertheinequalityisviolatedornot,wedefineasthesetofvehiclesk
+suchthatxk(𝛿 (S))+(xk+yk)(𝛿 (S))<2.Then,theinequality
+R NR
+∑ ∑
+xk(𝛿 (S))+ (xk+yk)(𝛿 (S))≥2(n −K+||), ∀S⊆V⧵{v } (21)
+R NR v 0
+k∈ k∈
+isvalidfortheK-GRPandcanbemoreviolatedthantheinitialone.
+Max-timeinequalities
+Weseparatemax-timeinequalities(18),(19),and(20)byusingtwoheuristicproceduresbasedontheonespresentedin[5]
+fortheLengthConstrainedK-DronesRuralPostmanProblem.
+Thefirstonelooksforviolatedinequalities(18).Let{e ,e , … ,e }beasetofrequirededgessuchthatxk ≥xk ≥ … ≥
+1 2 m e e
+1 2
+xk ≥ 0.5,andletF = {e ,e , … ,e },wheref isthemaximalnumbersuchthatxk(F) > |F|−0.5.ThenwedefineSasthe
+e 1 2 f m
+setofverticeswithzk = 1.NowwesolvetheGRPwiththesetofrequirededgesF andthesetofrequiredverticesS∪{v }
+i 0
+withthebranch-and-cutalgorithmdescribedin[8],andletC(F,S)beitsoptimalvalueoralowerbound.IfC(F,S) > Lthe
+correspondinginequality(18)isviolated.Otherwise,foreachedgee ∈ {e , … ,e },weconsiderthesetF = F∪{e}and f+1 m
+checkifC(F,S)isgreaterthanL.Foreachpair(F,S)(or(F,S))whosecorrespondinginequality(18)isviolated,welookfor
+thecutsetofminimumweightbetweenthedepotandtheedgesinFandverticesinSinthesupportgraphG = (V,E ∪E )
+R NR
+definedabovefortheseparationofcapacityinequalities.Forthiscutset,wecheckthecorrespondingmax-timeinequalities(19)
+and(20)forviolation.
+Thesecondheuristiclooksforinequalities(19).TheprocedurestartsbydefiningS={i},whereiisthevertexfarthestfrom
+thedepotsuchthatthemaximumflowfromv toiinGislessthan2K.ThenweiterativelyaddverticestoSinsuchawaythat
+∑ ∑ 0
+K xk(𝛿 (S))+ K (xk+yk)(𝛿 (S))isminimum.ForeachS,wecomputetheminimumnumberofvehiclesneededtoservice
+k=1 R k=1 NR
+all the edges in E (S) and all the required vertices in S by solving the associated GRP. The corresponding inequality (19) is R
+checkedforviolation.Ifaviolatedconstraint(19)isfound,atleastoneoftheinequalities(20)isalsoviolatedanditisadded.
+3.2 The cutting-plane algorithm
+TheinitialLPrelaxationcontainsinequalities(3),(4),(5),(6),(8),(9),andtheboundsonthevariables.Moreover,asisusual
+inroutingproblemswithseveralvehicles,somesymmetry-breakinginequalitiesareaddedtoavoidequivalentsolutions.
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on [29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+446 CAMPBELLETAL.
+At each iteration, the cutting-plane algorithm applies the first heuristic algorithm for connectivity inequalities with 𝜀 =
+0,0.25,0.5,wherethevalueof𝜀isincreasedonlyifnoviolatedinequalitiesarefoundwiththepreviousvalue.Ifthisheuristic
+fails in finding violated cuts, the second connectivity heuristic is applied for 𝜀 = 0,0.1,0.2,0.3,0.4. All the tight cut-sets
+obtainedwiththeconnectivityseparationproceduresarestoredandusedbythep-connectivityheuristictochecktheviolation
+oftheirassociatedinequalitieswith𝜀=0,0.15,0.3.
+Moreover,ateachiterationweapplytheheuristicforidentifyingviolatedcapacityinequalities,theexactparityseparation
+procedureforsinglevertices,andtheheuristicprocedureforparityinequalitieswithvalues0,0.25,and0.5for𝜀.Avalueof𝜀
+isusedonlyifthepreviousoneresultsinnoviolatedinequalities.
+Max-timeseparationalgorithmsarecalledonlyattherootnode.Furthermoretheexactprocedureforparityinequalitiesis
+appliedonlyattherootnodeifnoviolatedconnectivity,p-connectivity,norparityinequalitieshavebeenfoundsofar.
+4 A MATHEURISTIC FOR THE MULTI-PURPOSE K-DRONES GENERAL
+ROUTING PROBLEM
+InthissectionwepresentamatheuristicalgorithmfortheMPK-DGRPthatconsistsoftwoparts.Thefirstpartaimstofind
+solutions for the K-GRP considering that each original line of an instance is represented by a single required edge (without
+intermediatepoints).LetuscallthisinstanceK-GRP(0).Inthispart,weuseanorder-firstsplit-secondmethod(see[25])that
+initiallygeneratesa“gianttour”traversingalltherequirededgesandvisitingalltherequirednodesofGwithoutconsidering
+themax-timeandcapacityconstraints.Then,K feasibledroneroutesfortheK-GRP(0)instanceareobtainedfromit.Thisis
+describedinSection4.1.SeveraldifferentgianttoursaregeneratedandpartitionedintoK routestoobtainasetofK-GRP(0)
+feasiblesolutions.Theseinitialsolutionsareimprovedbyapplyingavariableneighborhooddescent(VND)algorithm,described
+inSection4.2,thatcombinesfourlocalsearchproceduresandarouteoptimizationphase.
+ThesecondpartofthematheuristicisfocusedonimprovingthenbestK-GRP(0)solutionsobtainedinthepreviouspart
+by adding some intermediate points to the required edges, thus allowing drones to enter (or to exit) the lines not only at its
+endpoints,butalsoatasubsetofintermediatepoints.FirstweconsiderthenewinstanceK-GRP(1)resultingfromaddingone
+intermediatevertextoeachrequirededge,sothateachlineisapproximatedbyapolygonalchainwithtwosegments(edges)with
+thesametraversal(andservice)time.EachoneofthenK-GRP(0)solutionspreviouslyobtainedistriviallytransformedintoa
+K-GRP(1)solution.Wecallthisprocedure“1-splitting”.WethenapplyagaintheVNDalgorithmandtherouteoptimization
+proceduretoeachK-GRP(1)solution.Someofthesesolutionsmayhavebeennowimprovedduetodronesenteringorleaving
+somerequirededgesthroughitsmiddlepoint.Themost“promising”edgesofeachsolution,thosewhosetwohalvesarenow
+servicedbydifferentdrones(orbythesamedronebutnotconsecutively),aresplitagainbyaddingpequidistantintermediate
+vertices.Wethentrytoimprovethesolutionbyusingthesenewvertices.ThisisdetailedinSection4.3.
+Throughoutthissection,wewilluseK-GRPsolutiontorefertoaset = (T ,T , … ,T )ofK routes,eachonestarting
+1 2 K
+andendingatthedepot,eachwithdurationnogreaterthanLandtotaldemandnotexceedingthedronecapacity,suchthat
+eachrequirededgeistraversedandeachrequirednodeisvisited.Wewillusetaskt =(t ,t )torefereithertoarequirededge
+i i1 i2
+(t ,t ) serviced by traversing it from t to t or to a required vertex t = t . Then, a route associated with drone k can be
+i1 i2 i1 i2 i1 i2
+representedbyasequenceoftasksT ={tk, … ,tk},whereitisassumedthatthedeadheadingfromthedepottothefirsttask,
+k i j
+fromtheendofatasktothebeginningofthefollowingone,andfromthelasttaskbacktothedepot,isdonebytraversingthe
+correspondingnonrequirededge.Wewilldenoteby𝑑(tk)thedemandoftasktk,tk ∈ V ∩T .Aroutewillbefeasibleifits
+𝓁 𝓁 𝓁 R k
+durationisnotgreaterthanLandifitstotaldemanddoesnotexceed.
+4.1 Solutionsfor K-GRP(0)
+Asmentionedabove,thisfirstpartofthematheuristicfocusesonfindingsolutionsfortheK-GRP(0)instance.Thealgorithm
+startsbyfindinganoptimaltouronG = (V,E)traversingalltherequirededgesandvisitingalltherequirednodesofG.This
+tour,commonlycalledagianttourintheliterature,isgeneratedbyrelaxingdronecapacityandtimelimit,andsolvingtheGRP
+instanceoptimallywiththebranch-and-cutalgorithmdescribedin[8].Thetourreturnedbythisprocedurehasanassociated
+sequenceoftasksT .
+G
+The giant tour is optimally partitioned into K feasible drone routes by solving a shortest path problem over an auxiliary
+directedgraphG∗ =(V∗,A∗)(see[3,31]).Thisprocedurewasalreadyusedin[5]andhasbeenextendedtoconsiderrequired
+verticesasfollows:
+ThesetV∗ contains|V R |+|E R |+1nodes,wherev 0 denotesthedepotandtheremainingnodesv𝓁 representthetaskst𝓁.
+Thenodesarearrangedfromlefttorightfollowingtheorderinwhichtheirassociatedtasksareperformedinthegianttour.
+Each arc in A∗ represents a feasible drone route on G. An arc from node v to node v is added if the route starting from the
+i j
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 447
+Algorithm1. SplittingprocedureforagianttourT G
+Require: G,T
+G
+1:
+initializeG∗ =(V∗,A∗):V∗ ←{0,1,…,n};A∗ ←∅
+2:
+fori←1tondo
+3:
+j←i
+4:
+arctime←0
+5: 𝑑eman𝑑 ←𝑑(t j )
+6:
+while(j≤n)and(𝑑eman𝑑 ≤)and(arctime≤L)do
+7:
+arctime←𝛾(i−1,j)
+8: if arctime≤Lthen
+9:
+addarc(i−1,j)toA∗withtraversaltimearctime
+10:
+j←j+1
+11: 𝑑eman𝑑 ←𝑑eman𝑑+𝑑(t j )
+12: endif
+13: endwhile
+14: endfor
+15: computetheshortestpathPfrom0toninG∗
+16: transformeacharcofPintoasequenceoforderedtasks
+17: return aK-GRP(0)solution(asetofK droneroutes)
+FIGURE3 ExampleofanauxiliarygraphusedintheSplitwithFlipsprocedure.
+depot,performingtaskst , … ,t inthatorder,andgoingbacktothedepot,isfeasible.Thetimeassociatedwiththesearcs,
+i+1 j
+denoted𝛾(i,j),isthedurationofthecorrespondingroute.
+IngraphG∗wecomputeashortestpathfromnodev 0 tonodev|V |+|E |,whosesetofarcs,asprovedinUlusoy[31],defines
+R R
+apartitionofthegianttourintoKfeasibletoursthatisoptimalregardingtheorderingofthetraversalofthetasks.Algorithm1
+summarizesthisprocedure.However,thismethoddoesnottakeintoaccountthatrequirededgescanbetraversedintwopossible
+directions.Prinsetal.[24]proposeaprocedurecalledSplitwithFlipsthatisageneralizationofthepreviousmethodconsidering
+thetwodirectionsinwhicheachedgecanbetraversed.Themaindifferenceconsistsofthewaythetimes𝛾(i,j)associatedwith
+thearcsinG∗arecalculated.
+Wehaveadaptedthisalgorithmtoconsiderrequiredverticesasfollows.Foreacharcina∈A∗representingaroute,anew
+auxiliarydirectedgraphG∗ iscreatedinordertocalculateitsassociatedduration.Eachtaskcorrespondingtoarequirededge a
+inGisrepresentednowwithtwoarcs,oneforeachpossibledirectionoftraversal,withtimesequaltoitsoriginalservicetime.
+Foreachtaskassociatedwitharequiredvertex,onevertexiscreatedwitha(visiting)timeequaltoitsoriginalservicetimein
+G.Thenanarcisaddedfromtheendvertexofeacharc(orvertex)representingatasktotheinitialvertexofthefollowingarc
+(orvertex),whosetimeisthatofthecorrespondingshortestpathinG.Twoadditionalverticesrepresentingthedepotareadded
+andconnectedwiththefirstandlasttaskoftheroute,respectively,withtimesequaltothoseofthecorrespondingshortestpaths
+inG.Inthisgraph,ashortestpathbetweenthetwocopiesofthedepotiscalculated.Thisshortestpathdeterminestheoptimal
+directionoftraversalofeachtaskanditstimewillbetheoneassignedtoarca∈A∗.
+Figure 3 illustrates the graph generated for a subsequence T = {t
+1
+,t
+2
+,t
+3
+,t
+4
+,t
+5
+} of tasks, where arc t𝓁 represents task t𝓁
+traversedinthedirectiongivenbytherouteandarct−1correspondstotheoppositedirectionoftraversal.Thenumbersnextto 𝓁
+thenodesandedgesrepresenttheirservicetimes.Dashedlinesrepresentthenonrequirededgescorrespondingtotheshortest
+pathsjoiningthetasks.Inthisexample,theshortestpath{t ,t ,t−1,t ,t }hasvalue52,whilethedirectionsgivenbythegiant
+1 2 3 4 5
+tourhaveavalueof58.
+Inordertoobtainalargersetofinitialsolutions,weapplytheabovealgorithmwithotherinitialgianttoursonGdefined
+by different Eulerian circuits obtained from the optimal GRP solution. Note that a GRP solution is an Eulerian graph that
+10970037,
+2023,
+4, Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+448 CAMPBELLETAL.
+Algorithm2. PseudocodeoftheVNDalgorithm
+1: foreachK-GRP(0)solution ∈̄ do
+2:
+𝜌←1
+3:
+while𝜌≤4do
+4:
+obtain′ ∈ 𝜌()byapplyingthe𝜌-thlocalsearchmethodto
+5: if f(′)<f()then
+6:
+ ←′and𝜌←1
+7: else
+8:
+𝜌←𝜌+1
+9: endif
+10: endwhile
+11: endfor
+can be traversed in different ways. We try to generate different Eulerian circuits by applying the Hierholzer algorithm [15]
+|E |+|V |times,startingeachtimewithadifferenttask.Wethusobtainaset ofdifferentinitialK-GRP(0)solutions,with
+R R
+||≤|E |+|V |.
+R R
+4.2 Avariableneighborhooddescent algorithmforthe K-GRP(0)
+OncetheinitialsetofK-GRP(0)feasiblesolutionsisgenerated,avariableneighborhooddescentalgorithm(VND)[11,20]is
+appliedtoeachsolution ∈  totrytoimproveit.AVNDisametaheuristicthatexploresasequence = (N
+1
+, … ,N𝜌 )
+max
+of neighborhood structures in a deterministic way. Starting from an initial solution  and 𝜌 = 1, each iteration of the VND
+explores the neighborhood N𝜌() to try finding a better solution. If one improving move is detected, it is executed and 𝜌 is
+resetto1;otherwise,𝜌isincrementedtobrowsethenextneighborhood.Thealgorithmstopswhentheexplorationofthelast
+neighborhoodN𝜌 ()bringsnoimprovement,thatis,whenthecurrentsolution isalocaloptimumoveralltheconsidered
+max
+neighborhoods.TheVNDalgorithmproposedhereexplores𝜌 =4differentneighborhoodstructures(seeAlgorithm2).
+max
+ThefirstneighborhoodstructureN isdefinedbytheintra-routemoveandconsistsofallthepermutationsresultingfrom
+1
+movingatasktoanotherpositionwithintheroutethatperformsit.ForeachrouteT ofasolution,theintra-routeprocedure
+k
+removesataskt𝓁 ∈T
+k
+ateachstepandinsertsitinthepositionofT
+k
+thatminimizesthedurationoftheroute.
+The second neighborhood structure N is defined by the destroy and repair move. Each iteration of the associated
+2
+local-searchprocedurerandomlychoosesrtasks,with2≤r ≤8,andremovesthemfromtheircorrespondingroutes.Then,the
+algorithmtriestorelocateeachtaskonebyoneintherouteandpositionthatminimizesthetotaltime,satisfyingthetimelimit
+andthecapacityconstraints.Notethatitispossiblethatarequirededgecannotbeplacedinitsoriginalpositionbecauseanother
+edgehasbeenpreviouslyaddedtoitsroute.Ifanedgecannotbeinsertedinanyroute,anewrouteservicingitiscreated.Ifthe
+totaltimeofthenewsolutionisnotbetterthanthetimeoftheoriginalone,thechangesmadeinthisiterationarediscarded.
+Thisprocedureisrepeateduntiloneimprovingmoveisdetectedoruntili consecutiveiterationswithoutanyimprovement
+max
+areperformed,withi agivenparameter.
+max
+ThethirdneighborhoodstructureN isdefinedbythe0to𝓁-exchangemove.Eachiterationofthislocal-searchprocedure
+3
+removes𝓁 consecutivetasksfromtherouteservicingthemandinsertsallofthembetweentwoconsecutivetasksofanother
+route.Thealgorithmconsiderstheremovalofallthepossiblesetsof𝓁consecutivetasksandtheirinsertioninallthepossible
+positionsofotherroutessuchthatthedurationandthetotaldemandoftheresultingroutedonotexceedLand,respectively.
+Thealgorithmstartswith𝓁 = 1,andifnoexchangeimprovestheoriginalsolution,𝓁 isincrementedby1andtheprocessis
+repeated.Theprocedurestopswhenanimprovingmoveisexecuted,orwhen𝓁 = 𝓁 andtherearenomovesthatimprove
+max
+thetotaltime,with𝓁 agivenparameter.
+max
+The last neighborhood structure N is defined by the 𝓁 to 𝓁 -exchange move and contains all the solutions obtained by
+4 1 2
+interchanging a chain of 𝓁 consecutive tasks from one route with a chain of 𝓁 consecutive tasks from another route, with
+1 2
+𝓁 ≤𝓁 .Thelocal-searchprocedurestartswith𝓁 =𝓁 =1,andtriestointerchangethetasksbetweenthetworoutesinorder
+1 2 1 2
+tofindanimprovingmove.Ifnoexchangemovereducesthetotaltimesatisfyingtheroutecapacityandtimelimitconstraints,
+𝓁 isincrementedbyoneunitandtheprocessisrepeated.If𝓁 reaches𝓁 andnoimprovingexchangesarefound,then𝓁
+2 2 max 1
+increasesbyoneunitand𝓁 issetequalto𝓁 .Theprocedurestopswhenanimprovingmoveisfound,orif𝓁 = 𝓁 = 𝓁
+2 1 1 2 max
+andtherearenoexchangemovesthatproduceabettersolution.
+OncetheVNDalgorithmisterminated,aroute-optimizationprocedureisappliedtoeachsolution ∈ .Foreachdrone
+routeT ofasolution,thisproceduredefinesaGRPinstanceongraphGformedbytherequirededgesandtherequirednodes
+10970037,
+2023,
+4, Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 449
+FIGURE4 Illustrationofp-splitting.(A)Addingpnewintermediatepoints,(B)selectingthebestintermediatepoint.
+corresponding to the tasks performed on T. This GRP instance is then optimally solved with the branch-and-cut algorithm
+proposedin[8].Theresultingrouteswillhaveatotaltimelessthanorequaltothatoftheoriginalones.
+4.3 Adding intermediatepointstoobtainbetter K-GRP solutions
+Let  be the subset of the n best K-GRP(0) solutionsobtained in the first part of the matheuristic. We add an intermediate
+b
+vertexi (equidistantfrombothendpoints)toeachrequirededge(i,j)ofGtoobtainanewinstancecalledK-GRP(1)withtwo 1
+edges(i,i ),(i ,j)foreachoriginalrequirededge(i,j).Givenasolution ∈  ofK-GRP(0),itiseasytotransformitintoa
+1 1 b
+solution′ofK-GRP(1)withthesametotaldurationthattraversesedges(i,i ),(i ,j)consecutively.
+1 1
+Let  be the set of all the K-GRP(1) solutions obtained in this way. The VND algorithm and the route optimization
+1
+procedureareappliedtoeach′ ∈  totrytoimprovetheiroverallduration.Observethatdronescannowenterandleave
+1
+anylinethroughitsmiddlepoint,whichmayleadtoabettersolutionwheretheserviceofsomeoriginallinescanbesharedby
+twodrones.
+LetE′bethesetoforiginallineswhosemiddlepointisincidenttononrequirededgesinsolution′.Notethatanedgein
+1
+E′isservicedbytwodrones(orbythesamedronebutnotservicingbothhalvesconsecutively).Itmaybepossibletoimprove
+1
+this solution by “moving” this middle point closer to the extreme points of the edge. To do this, we consider p, with p odd,
+intermediate vertices evenly spaced in the line. Note that the middle point is one of them. Then, we study the improvement
+obtainedbychangingtheentry/leavingpointforthisedgetoeachoneofthep−1othernewpoints.Thisprocedure,whichwe
+call“p-splitting”,isappliedtoalltheedgesinE′.
+1
+Figure4Aillustrateshowthe“p-splitting”procedureimprovesasolutionwheretwo(notnecessarilydifferent)routes,T
+i
+(inorange)andT (ingreen),areinvolvedinservicinganoriginalrequiredlinejoiningverticesiandj.Notethattheseroutes
+j
+enterorleavethelineatitsmiddlepointi and,thus,i isincidentwithtwononrequirededges(dashedlines)inthesolution.
+1 1
+Afteranalyzingthetotaldurationoftheroutesobtainedbyreplacingvertexi byallthepintermediatepoints,thebestsolution
+1
+istheonethatusesvertexs ,whichisdepictedinFigure4B.
+best
+Thisp-splittingprocedureisappliedwithp=15toeachsolution′ ∈ andthebestsolutionobtainedisselectedasthe
+1
+finalsolutionofthematheuristic.
+Figure5A,Billustratesanexampleofasolutionbeforeandafterapplyingtheproceduredescribedinthissubsection.For
+this instance, the deadheading time is reduced by 5.2% due to drones entering and leaving six of the original required edges
+throughsomeoftheirintermediatepoints.
+5 COMPUTATIONAL EXPERIMENTS
+In this section, we present the instances we have generated to analyze the behavior of the proposed matheuristic and
+branch-and-cutalgorithms,aswellasthecomputationalstudyperformed.ThealgorithmshavebeenimplementedinC++and
+allthetestshavebeenrunonanIntelCorei7at2.8GHzwith16GBRAM.TheB&CusesCPLEX12.10MIPSolverwith
+asinglethread.CPLEXheuristicalgorithmswereturnedoff,andCPLEX’sowncutswereactivatedinautomaticmode.The
+optimalitygaptolerancewassettozeroandbestboundstrategywasselected.Thebranch-and-cutalgorithmusedforobtaining
+theinitialoptimalgianttourandforoptimizingtheroutesaftereachVNDimprovementphasewasalsocodedinC++anduses
+CPLEX12.10MIPSolvertoo.
+5.1 Instances
+Asdefinedabove,amulti-purposeK-DronesGRPinstanceisgivenbyseveralsetsofparallellines(eachsetcoveringacontin-
+uousarea),someisolatedverticesfordelivery(thoserequirednodeswithpositivedemand),andadepot.Inordertoevaluate
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+450 CAMPBELLETAL.
+FIGURE5 TwosolutionsofinstanceMPDGRP882beforeandafterapplyingthesplittingpartofthematheuristic.Deadheadingtime:(A)4341.9and
+(B)4116.27.
+thebehaviorofthebranchandcutandthematheuristicalgorithm,wehaverandomlygeneratedtwodifferenttypesofinstances,
+bothdifferinginthewaytheyarebuilt,classifiedasTypeIorTypeIIinstances.
+First,weselectvaluesfornandm,andgenerateaGRPinstanceonagridwithn×mpointswhosecoordinatesaremultiples
+of100.Thegraphinitiallycontainsalltheverticalandhorizontaledges,aswellassomerandomdiagonals.FortypeIinstances
+generation,wedividethegridintoanumberofregionscomputedbynareas=⌈n⌉⋅⌈n⌉andwerandomlydeclarerequiredan
+3 3
+edgeineachregion.Eachoneoftheserequirededgesgivesrisetoarequiredarealater.Thisprocedureensuresthatareasare
+disjointandhomogeneouslydistributedthroughoutthegrid.
+FortypeIIinstancesgeneration,eachedgeoftheoriginalgridisconsideredrequired(andthereforeincludedontheinstance)
+withprobabilityp,thusobtainingseveralconnectedcomponentsofrequirededges.Assomeofthesecomponentsmaycontain
+morethanoneedge,weiterativelyremoverequirededgesthatareincidenttoverticeswithdegreegreaterthanone(atrandom)
+untilweonlyhaveisolatedrequirededges.Theideabehindthissecondtypeistogeneratelargerinstanceswithasetofrequired
+areasthatareclosertoeachother.Thesetypeofinstancescanalsobemoredifficultforouralgorithms.
+Oncearepresentativerequiredlinefromeachareaisgenerated,thefollowingstepsareidenticalforbothtypesofinstance.
+We randomly select the depot and a number nvreq of isolated required nodes among those vertices of the grid that are not
+incident with the selected required edges. The vertices, except for the depot, that are not required nor incident with required
+edgesareremoved,andthecoordinatesofalltheverticesoftheinstancearerandomlyperturbedbyaddingavaluein[−20,20]
+toeachcoordinate,avoidingcompletelyhorizontalandverticaledgesandalsoslightlychangingthelengthoftheedges.Each
+required area is completely defined by adding a set of npar(e) parallel lines to each initial required edge e (separated by a
+distancedistpartoeachother).Thelengthandpositionofthesenewedgesarethenslightlyperturbedinarandomwaysothat
+therepresentedareahasamoreirregularshape.Thedemandofeachrequirednodevisgivenbyavaluedem(v)andtheservice
+timeofeachrequirededgeistheEuclideandistancemultipliedbyaparametertimefactor.
+We have generated MP K-DGRP instances with different values for n,m ∈ {6,7,8,9,10,12}, npar(e) ∈ {1,2,3} for
+each initial required edge e, distpar = 20 and timefactor = 1.5. For type I instances, we have generated two sets with nvreq
+∈ [n−4,n+4]:onewithdem(v) ∈ {1,2,3}foreachrequirednodev(version1),andanotherwithunitdemands(version2).
+Sincethedemandsoftheverticesrepresenttheweightofthedelivery,andgiventhatitseemsreasonablethatthetotalweight
+thatcanbecarriedbyadroneisnotverylarge,wehavenotconsidereddemandsgreaterthan3.FortypeIIinstances,wehave
+alsogeneratedtwodifferentsetswithunitdemands:onewithp=0.4andnvreq∈[n−1,n+1](version1),andanotherwith
+p=0.3andnvreq∈[2n−1,2n+1](version2).
+ThecharacteristicsofalltheMPK-DGRPinstancesgeneratedareshowninTable1andcanbefoundinhttp://www.uv.es/
+plani/instancias.htm.Table1ashows,foreachMPK-GRPinstanceoftypeI,thenumberofvertices,thenumberofrequired
+vertices and its total demand, the number of required lines, and the number of areas. Table 1b shows the type II instances
+characteristicsandpresentsthesamestructureexceptforthetotaldemand,whichisnotincludedbecauseitsvaluematchesthe
+number of required vertices. The digits in the name of each instance indicate the values of m, n and if this is the first or the
+secondversiongeneratedfromthesamegrid.ExamplesofatypeIinstance,atypeIIinstance(version1),andatypeIIinstance
+(version2)onagridwithn=m=9areshowninFigure6A–C.
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 451
+TABLE1 CharacteristicsoftheMPK-DGRPinstances
+(a)TypeIinstances
+Instancename |V| |V | D |E | ♯areas
+R R
+MPDGRP661 31 6 14 12 4
+MPDGRP662 37 6 6 15 4
+MPDGRP681 48 7 16 20 6
+MPDGRP682 50 7 7 21 6
+MPDGRP771 32 5 10 13 4
+MPDGRP772 34 5 5 14 4
+MPDGRP861 50 7 15 21 6
+MPDGRP862 55 8 8 23 6
+MPDGRP881 32 5 10 13 4
+MPDGRP882 39 6 6 16 4
+MPDGRP8101 79 12 24 33 12
+MPDGRP8102 93 10 10 41 12
+MPDGRP991 61 10 22 25 9
+MPDGRP992 69 10 10 29 9
+MPDGRP1081 83 12 24 35 12
+MPDGRP1082 85 12 12 36 12
+MPDGRP10101 61 10 22 25 9
+MPDGRP10102 66 11 11 27 9
+MPDGRP12121 103 10 22 46 16
+MPDGRP12122 111 12 12 49 16
+(b)TypeIIinstances
+Instancename |V| |V | |E | ♯areas R R
+MPDGRP661 60 7 26 8
+MPDGRP662 54 13 20 6
+MPDGRP681 83 6 38 11
+MPDGRP682 70 13 28 9
+MPDGRP6101 114 7 53 17
+MPDGRP6102 85 12 36 14
+MPDGRP771 105 8 48 14
+MPDGRP772 71 14 28 9
+MPDGRP791 134 7 63 20
+MPDGRP792 81 14 33 11
+MPDGRP881 118 9 54 18
+MPDGRP882 103 16 43 15
+MPDGRP8101 150 9 70 24
+MPDGRP8102 97 16 40 12
+MPDGRP991 157 10 73 25
+MPDGRP992 74 19 27 11
+MPDGRP9101 163 10 76 23
+MPDGRP9102 94 19 37 14
+MPDGRP10101 179 10 84 28
+MPDGRP10102 143 20 61 19
+InordertochoosethevaluesforL,eachinstancehasbeenexecutedseveraltimeswithdifferentLvaluestoguaranteethat
+the solutions will use a number of drones ranging from 2 to 6. The capacity Q of the drones has been chosen so that all the
+demandoftherequiredverticescanbeservicedwhilekeepingthenumberofpackagescarriedbyeachdroneaslowaspossible.
+5.2 Computationalresults
+Wepresentheretheresultsobtainedwiththebranch-and-cutandthematheuristicalgorithmsontheMPK-DGRPinstances.
+FirstwehaveappliedtheB&CalgorithmontheK-GRP(0)instances,thatis,ontheinstanceswithoutaddinganyadditional
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+452 CAMPBELLETAL.
+FIGURE6 MPK-DGRPinstancesonagrid9×9.(A)TypeI,(B)TypeII(Version1),(C)(B)TypeII(Version2).
+TABLE2 ComputationalresultswiththeB&CforK-GRP(0)andthematheuristicontheinstancesofTypeI.
+Branch-and-Cut Matheuristic
+|V| K ♯opt Gap0(%) Gap(%) Nodes Time ♯opt ♯best Gap(%) Imp(%) Time
+GeneralDemands ≤60 2 5 3.86 0.00 57.0 3.9 5/5 5 0.00 0.19 3.4
+3 5 5.82 0.00 178.2 16.3 4/5 4 0.13 0.02 3.9
+4 5 8.78 0.00 237.2 24.8 5/5 5 0.00 0.11 2.9
+5 5 12.72 0.00 654.6 98.5 4/5 4 0.00 0.67 3.7
+6 5 17.02 0.00 2590.8 427.0 3/4 3 0.13 0.65 4.4
+>60 2 5 3.00 0.00 199.0 49.1 4/5 4 0.00 0.15 30.1
+3 5 5.22 0.00 705.6 349.9 2/5 2 0.09 0.02 19.9
+4 3 8.80 0.82 5498.6 3828.4 2/3 4 0.98 0.26 19.9
+5 2 10.07 2.46 4224.0 5501.0 1/2 3 2.67 0.57 17.8
+6 0 11.24 4.50 5042.6 7200.0 0/0 3 4.97 0.20 17.4
+UnitDemands ≤60 2 5 3.17 0.00 46.2 6.3 4/5 4 0.01 0.01 4.8
+3 5 6.47 0.00 206.4 25.5 5/5 5 0.00 0.01 4.1
+4 5 10.75 0.00 348.8 60.2 3/5 3 1.28 0.10 4.2
+5 5 15.17 0.00 1991.4 1511.9 5/5 5 0.00 0.26 4.5
+6 5 17.74 0.00 4065.2 1736.5 4/5 4 0.02 0.83 4.4
+>60 2 5 3.95 0.00 608.8 112.7 3/5 3 0.28 0.11 43.7
+3 5 5.11 0.00 381.0 148.7 3/5 3 0.21 0.02 34.4
+4 3 8.34 1.02 2899.4 3211.5 1/3 3 1.04 0.08 28.0
+5 1 12.01 2.73 4659.8 5692.9 1/1 4 2.83 0.28 26.9
+6 0 13.18 5.03 4196.2 7200.0 0/0 5 5.03 0.24 27.5
+Total 79 59/79 76
+intermediatevertices.Later,wewillstudythebehavioroftheB&CintheTypeIinstancestowhoserequirededgeswewilladd
+anadditionalintermediatevertextogettheirK-GRP(1)associatedinstances.Eachofthese40instances,20oftypeIand20of
+typeII,issolvedwith2,3,4,5and6drones,and,hence,atotalof200instanceshavebeenrun.
+Tables2and3summarizethecomputationalresultsobtainedwithbothalgorithmsforalltheinstancesoftypeIandtypeII,
+respectively.Bothtablespresentthesamestructure.Theresultsforeachtypeofinstanceareseparatedintwoblocksbyadouble
+horizontallineaccordingtotheinstancegenerationcharacteristics(generalorunitdemandsintypeIinstances,andversion1
+orversion2intypeIIinstances).Eachoftheseblocksisalsoseparatedaccordingtothenumberofvertices.Thenumberof
+dronesusedbythesolutionisshowninColumn2.Eachrowreferstothedataof5instances.
+TheresultsobtainedwiththeB&CalgorithmforthecorrespondingK-GRP(0)instanceswithatimelimitof7200seconds
+arereportedincolumns3to7.Column3showsthenumberofinstancesoutoffivesolvedtooptimality.Columns4and5show
+theaveragepercentagegapsbetweenthevalueoftheoptimalsolution(orthebestupperboundfound)andthelowerboundat
+the end of the root node (“Gap0”) and the final lower bound (“Gap”), respectively. Column 6 reports the average number of
+nodesofthebranchingtreeandColumn7showstheaveragetotaltime,inseconds,usedbytheB&C.
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 453
+TABLE3 ComputationalresultswiththeB&CforK-GRP(0)andthematheuristicontheinstancesofTypeII.
+Branch-and-Cut Matheuristic
+|V| K ♯opt Gap0(%) Gap(%) Nodes Time ♯opt ♯best Gap(%) Imp(%) Time
+Version1 ≤120 2 5 2.69 0.00 2775.2 761.6 5/5 5 0.00 0.30 68.2
+3 4 4.08 0.07 5702.8 4240.7 1/4 2 0.15 0.38 58.0
+4 2 5.00 1.48 4610.2 5792.5 2/2 5 1.48 0.48 46.0
+5 0 7.35 4.56 3594.0 7200.0 0/0 5 4.56 0.69 44.3
+6 0 8.58 6.02 2892.4 7200.0 0/0 5 6.02 0.66 39.7
+>120 2 2 2.01 0.33 3746.2 4750.6 1/2 2 0.51 0.26 285.0
+3 0 3.03 1.66 2535.4 7200.0 0/0 2 1.83 0.41 215.4
+4 0 4.02 2.80 1303.2 7200.0 0/0 5 2.80 0.18 170.0
+5 0 5.45 4.51 814.2 7200.0 0/0 4 4.51 0.25 162.0
+6 0 7.46 6.77 499.0 7200.0 0/0 5 6.77 0.45 154.3
+Version2 ≤84 2 5 2.86 0.00 491.2 44.8 2/5 2 0.04 0.38 24.5
+3 5 4.71 0.00 2947.2 1521.3 2/5 2 0.23 0.39 19.3
+4 3 5.99 0.90 4334.0 4362.8 1/3 3 1.19 0.84 19.2
+5 1 9.21 3.70 3694.6 7200.0 1/1 5 3.70 0.84 18.6
+6 0 10.67 6.07 2545.0 7200.0 0/0 5 6.07 0.71 19.0
+>84 2 5 2.29 0.00 1144.6 283.9 1/5 1 0.40 0.44 130.9
+3 3 4.13 0.44 4166.2 4446.0 1/3 3 0.57 0.43 82.6
+4 0 6.28 3.47 2591.8 7200.0 0/0 4 3.55 0.40 89.3
+5 0 9.41 6.99 1504.0 7200.0 0/0 5 6.99 0.52 71.9
+6 0 11.04 8.94 1017.2 7200.0 0/0 5 8.94 0.20 70.3
+Total 35 17/35 75
+FromTable2weobservethattheB&CiscapableofsolvingalltypeIinstanceswithupto60verticesand2,3,4,5,and
+6dronesinlessthan30minutesonaverageofcomputingtime.Regardingtheinstanceswithmorethan60vertices,itcanbe
+seenthatmostoftheinstanceswith2,3,and4drones(26outof30)havebeensolvedinlessthanonehourofcomputingtime.
+However,theB&Chasonlybeenabletosolve3outof20instanceswith5and6drones.Ontheotherhand,comparingthe
+valuesof“Gap0”,“Gap”,and“Time”obtainedfortheinstanceswithgeneraldemandsandunitarydemands,wecanobserve
+thatthelatterseemabitmoredifficultfortheB&Cthanthosewithgeneraldemands.Thisapparentlysmallincreaseindifficulty
+couldbeexplainedbytheuseofCPLEXcoverinequalitiesinthecaseofgeneraldemands.
+Table3reportstheresultsobtainedbytheB&CandthematheuristicinTypeIIinstances,whichareassociatedwithlarger
+graphs.Itcanbeseenthatonlyasmallnumberofinstanceshavebeensolvedtooptimality.Specifically,17instancesoutof20
+with2drones,12outof20with3drones,and6with4,5,and6dronesoutof60instances.Note,however,thatexceptforthe
+largestinstanceswith6drones,thefinalgapsobtainedareverygood,showingthattheinequalitiesintheformulationandthe
+proposedvalidinequalitiesprovideagooddescriptionoftheconvexhullofthesolutionsoftheproblem.Theseresultsreflect
+thegreatdifficultyoftheproblemwhentheinstanceislargeandencouragethedevelopmentofheuristicalgorithmsforsolving
+themulti-purposeK-dronesgeneralroutingproblem.
+The results obtained with the matheuristic on all the instances of type I and II are reported in columns 8 to 12 of
+Tables2and3.Toanalyzeitsperformance,wehavecomparedtheresultsofthefirstpartofthematheuristic(withoutadding
+intermediatepoints)withthoseofthebranchandcutontheK-GRP(0)instances.Notethatthefinalsolutionsofthematheuris-
+tic(providedafterthesecondpartofthealgorithm)arenotfeasiblesolutionsoftheK-GRP(0)instance,butwecomparethem
+withthesolutionsobtainedinthefirstparttobeabletoanalyzetheimprovementofallowingdronestousesomeintermediate
+vertices.
+Column 8 shows the number of optimal solutions of the K-GRP(0) instances found with the matheuristic, and column 9
+reportsthenumberoftimesthematheuristicreachestheoptimalsolutionorprovidesthebestupperbound.The“Gap”column
+showstheaveragepercentagegapbetweenthevalueofthesolutionprovidedbythefirstpartofthematheuristicandthelower
+bound given by the branch-and-cut algorithm in two hours of computing time. Column “Imp” gives the average percentage
+improvementafterapplyingthesecondpartofthematheuristicalgorithmwithrespecttothesolutionprovidedinthefirstpart.
+Thelastcolumnreportstheaveragetotalcomputingtime,inseconds,usedbythematheuristic.
+We can see that in 151 out of the 200 instances considered, the matheuristic provides a K-GRP(0) solution equal to or
+betterthantheoneobtainedwiththeB&Cinamuchmorereasonablecomputingtime.Nearly67%oftheK-GRP(0)instances
+optimallysolvedbytheB&Carealsooptimallysolvedbythematheuristic.
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+454 CAMPBELLETAL.
+TABLE4 Resultsfortheinstanceswithknownoptimalsolutions.
+Type K ♯optB&C ♯optM Gap(%) Gap-p(%) Time
+I 2 20 16 0.07 −0.04 20.5
+II 17 9 0.15 −0.23 95.9
+I 3 20 14 0.11 0.09 15.6
+II 12 4 0.18 −0.27 51.1
+I 4 16 11 0.47 0.33 9.8
+II 5 3 0.29 −0.55 24.4
+I 5 13 11 0.00 −0.37 6.0
+II 1 1 0.00 −0.56 9.0
+I 6 10 7 0.08 −0.69 4.4
+II 0 - - - -
+Total 114 76
+TABLE5 ResultswiththeB&ContheinstancesofTypeIforK-GRP(1).
+|V| K ♯opt Gap0(%) Gap(%) Nodes Time Imp(%)
+GeneralDemands ≤60 2 5 4.62 0.00 54.0 9.9 0.09
+3 5 6.94 0.00 360.4 102.5 0.01
+4 5 8.48 0.00 1512.6 627.5 0.18
+5 4 12.62 1.07 1600.6 1827.9 1.27
+6 3 16.85 1.79 4774.8 3571.3 1.29
+>60 2 5 3.24 0.00 508.6 237.8 0.08
+3 4 5.35 0.19 1003.8 1857.7 0.00
+4 1 9.00 3.07 2252.4 5985.3 0.07
+5 0 10.34 4.39 1826.4 7200.0 0.53
+6 0 12.15 8.09 1099.2 7200.0 0.11
+UnitDemands ≤60 2 5 3.85 0.00 67.8 14.2 0.00
+3 5 6.00 0.00 305.0 41.1 1.32
+4 5 10.78 0.00 1892.8 447.7 0.02
+5 3 15.63 3.25 2430.2 3210.3 0.26
+6 1 18.16 5.58 7215.6 6244.4 0.68
+>60 2 5 3.82 0.00 867.8 675.2 0.05
+3 5 5.20 0.00 713.8 749.5 0.00
+4 2 8.97 3.25 1213.4 4908.2 0.24
+5 0 12.67 7.86 925.8 7200.0 0.16
+6 0 14.69 11.47 604.2 7200.0 0.17
+Total 63
+Table4summarizestheresultsobtainedbythematheuristiconthe114instancesforwhichanoptimalsolutionisknown
+for the corresponding K-GRP(0) instance. Columns 1 and 2 contain the instance type and the number of drones. Column 3
+reportsthe number of K-GRP(0) instances with known optimal value, and Column 4 the number among them for which the
+firstpartofthematheuristicprovidestheoptimalsolution.The“Gap”columnshowstheaveragepercentagegapbetweenthe
+valueofthesolutionofthefirstpartofthematheuristicandtheoptimalsolution,while“Gap-p”representsthesamegapfor
+thesolutionobtainedbythematheuristicafterthep-splittingphase.Notethatsomeoftheselattergapsmaybenegative,sincethe
+solutionsprovidedbythematheuristicfortheinstancewithintermediateverticesmaybebetterthantheoptimalsolutionofthe
+K-GRP(0)instance.The“Time”columnreportstheaveragecomputingtimeinseconds.
+Asmentionedabove,thefirstpartofthematheuristicisabletooptimallysolve76outofthe114instancesforwhichthe
+optimal solution is known. For the remaining 38, the solutions obtained are very close to the optimal ones. In addition, the
+p-splittingprocedureallowsustoimprovethemevenmore,obtainingsolutionsinmanycasesbetterthantheoptimalsolutions
+withoutsplitsinveryshortcomputingtimes.Thisconfirmsthatconsideringintermediateverticeswhensolvingtheproblem
+canleadtobettersolutions.
+So far we have presented the results obtained with the B&C in the K-GRP(0) instances and compared these to results
+providedbythematheuristic.ToexplorethelargestinstancesizethattheB&Cwascapableofoptimallysolving(orfinding
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 455
+TABLE6 Comparisonofresultswithsingle-purposeversusmulti-purposedrones.
+Cost
+Singlepurpose
+K ♯inst Nodes Edges Nodes+Edges Multipurpose Imp(%)
+General 2 5 3331.2 4377.4 7708.6 6146.1 20.35
+3 5 3916.4 4608.9 8525.3 6764.3 20.79
+4 5 4372.1 4901.2 9273.3 7362.2 20.70
+5 5 4711.8 5424.9 10136.7 8269.4 18.28
+6 5 4907.5 6092.0 10999.5 9203.1 15.71
+Unit 2 5 3066.0 4359.3 7425.3 5830.9 21.63
+3 5 3239.5 4667.9 7907.4 6306.9 20.24
+4 5 3819.6 5022.1 8841.7 7009.1 20.47
+5 5 3819.6 5512.5 9332.0 7954.6 14.41
+6 5 4225.1 6130.6 10355.7 8777.8 14.87
+FIGURE7 SolutionsfortwoMPK-DGRPinstanceswith3continuousareasand5locations.(A)AsetL1oflinescoveringtherequiredareas,(B)solution
+oftheinstancewithE =L1,(A)AsetL1oflinescoveringtherequiredareas,(B)solutionoftheinstancewithE =L1,(C)AsetL2oflinescoveringthe
+R R
+requiredareas,(D)solutionoftheinstancewithE =L2.
+R
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+456 CAMPBELLETAL.
+goodupperandlowerbounds),wehavealsorunitonallK-GRP(1)instances.Aswesuspected,theexactalgorithmwasnot
+abletooptimallysolvemostinstanceswithmorethan60vertices.Inparticular,inTypeIIinstances,itwasonlyabletofind
+3optimaoutof50Version1instancesand10outof50Version2instances.Itwasalsounabletofindafeasiblesolutionfor
+mostofthoseinstances.Then,wereportonlytheresultsobtainedontheTypeIinstances.TheyareshowninTable5.
+Table 5 shows the same figures as in Tables 2 and 3, except the column “Imp (%)” that reports the average percent-
+ageimprovementofthesolutionsobtainedintheK-GRP(1)instanceswithrespecttothoseobtainedfortheircorresponding
+K-GRP(0) instances. The results provided by the B&C in the instances with |V| ≤ 60 are very good, since it is capable of
+solving 22 instances with general demands and 19 with unitary demands out of 25 of each type and the final average per-
+centage gaps in the unsolved instances are small (less than 1.8% and 5.6% for instances with general and unitary demands,
+respectively). The results with more than 60 vertices are quite good for the instances with up to 4 vehicles, but the gaps
+for instances with 5 and 6 vehicles can be up to 11.5%. This shows the difficulty of these large instances, and that the dif-
+ficulty increases with the number of vehicles. We also observe that the improvement found when intermediate vertices are
+addedattheedgesisnotgreat,particularlyintheinstanceswithfewervehicles.Thereasonforthisbehaviormaybethespe-
+cificspatialdistributionoftherequiredlinesintheinstancesconsideredhere,whichdoesnotfavorthatseveraldronesshare
+itsservice.
+Finally, to get an idea of how much the cost of the solutions is improved by using multi-purpose drones versus using
+single-purpose drones (to service nodes or edges), we have applied our B&C on all the K-GRP(0) instances of Type I with
+|V| ≤ 60,firstconsideringonlytherequiredverticesoftheinstancesandthenonlytherequirededges.Weassumethattwo
+fleetsofdrones(KdroneswithdeliverycapabilityandKwithinspectioncapability)areavailabletoperformeachtypeoftask
+(itmaybethesameK dronesthatarereconfiguredformissionsofdifferenttype).Theresultsobtainedinthese50instances
+aresummarizedinTable6.Eachrowofthistablereportstheaveragedataforthe5solvedinstances.Columns3and4provide
+thetotalcost(onaverage)ofthesolutionsifweconsiderdronesthatonlyservicetherequirednodes(deliveryonly)anddrones
+thatonlytraversealltherequirededges(sensingonly),respectively.Thesumofbothofthesecostsforsinglepurposedrones
+is shown in Column 5. The average costs of the solutions obtained with multi-purpose are shown in Column 6, and the last
+columngivestheaveragepercentageimprovementthatthesecostsrepresentwithrespecttothesumofthecostsprovidedby
+single-purposedrones.Itcanbeseenthattheuseofafleetofmulti-purposedronesimprovesthetotalcostbetween14%and
+21%(onaverage)comparedtotheuseoftwofleetsofsingle-purposedrones.
+5.3 Extensions
+In this work, we have assumed that the areas to be mapped were already described by means of a given set of parallel lines.
+However, there may be multiple possible orientations of these lines, which can greatly influence the quality of the resulting
+solutions.Forexample,considerthecaseillustratedinFigure7.Figure7A,Bisthesolutionsobtainedwiththematheuristicfor
+FIGURE8 Solutionofaninstancewith8requiredverticesand6connectedcomponentsinducedby37requirededgescorrespondingtoarealnetwork.
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+CAMPBELLETAL. 457
+theMPK-DGRPinstancesrepresentedinFigure7A,B,whichcorrespondtothesameareas,butwithdifferentorientationsof
+thesetsoflinesthatcoverthem.Thevalueofthesecondsolutionis6.2%shorterthanthefirstone.Studyingtheoptimalway
+ofcoveringtheareasisthereforeaninterestingproblemthatwewouldliketoinvestigateinthefuture.
+Thesolutionmethodsdescribedinthisarticle,thebranchandcutandthematheuristic,canbeadaptedtodealwithgeneral
+networksassociatedwithrequiredverticesandconnectedcomponentsinducedbytherequirededges(ratherthansetsofparallel
+requiredlines).Anexampleofsuchanetworkandasolutiontoitwiththreemulti-purposedronescanbeseeninFigure8.This
+includesaconnectedcomponentwith20requirededgesservicedbythethreedrones.Wealsoplantoextendthecurrentwork
+bydevelopingversionsofbothmethodsthatexploittheparticularitiesofthesegeneralnetworks.
+6 CONCLUSIONS AND FUTURE WORK
+Inthisarticle,wehaveaddressedthemulti-purposeK-dronesgeneralroutingproblem,whereafleetofmulti-purposedronesare
+usedtojointlyprovidesensingoveraregionornetworkalongwithdeliveriestodiscretenodes.Thecontinuousareasforsensing
+coveragecanbemodeledasasetofparallellinessothateachareaiscompletelyservicedifallitslinesaretraversed.Forthis
+problem,wehaveproposedaformulationofitsdiscretizedversionandpresentedamatheuristicalgorithmandabranch-and-cut
+procedureforitssolution.Theresultsobtainedwiththebranch-and-cutshowthattheformulationandthevalidinequalitiesare
+usefulforoptimallysolvingsmallandmedium-sizeinstancesandprovidegoodlowerboundsforlargerinstancesthatallowus
+tomeasurethequalityofthefeasiblesolutionsprovidedbythematheuristic.Thismatheuristicalgorithmiscapableoffinding
+verygoodsolutionsinshortcomputingtimes.
+Futureresearch couldconsideravarietyofpracticalextensionsformulti-purposedrones.Onearea thatappliesforsome
+deliverysettingsistoprioritizeeitherdeliveriesorsensing.Thusonecouldenforcearequirementtocompletedeliveriesfirst
+(beforesensingactivities)orviceversa.Onemightalsoenforceatimeconstraintonthelastdelivery,ascanbeimportantfor
+medicalsuppliesorperishableproducts.Anotherextensioncouldbetoallowdronerecharging,sothedroneneednotreturnto
+thebase,butcouldberecharged(orreloadedformoredeliveries)inthefield.Arelatedareaoffutureresearchcouldmodelthe
+dronebatteryconsumptionasdependingonthedifferentactivities(flyingloaded,flyingempty,andsensing).Researchcould
+alsoexploretheoptimalorientationoflinestocoveraregion,orexploreotherdroneflightpathsforcoveringaregion.Froman
+algorithmicperspective,futureresearchcanaddressotherwaysofidentifyingintermediatepointswheredronescanenterand
+exitlines,andotherheuristicsolutionapproachesforverylargeproblems.
+ACKNOWLEDGMENTS
+The work by Ángel Corberán, Isaac Plana, José M. Sanchis, and Paula Segura was supported by the Spanish Ministerio de
+Ciencia,InnovaciónyUniversidades(MICIU)andFondoSocialEuropeo(FSE)throughprojectPGC2018-099428-B-I00and
+byMCIN/AEI/10.13039/501100011033and“ERDFAwayofmakingEurope”throughprojectPID2021-122344NB-I00.
+DATAAVAILABILITYSTATEMENT
+ThedatathatsupportthefindingsofthisstudyareopenlyavailableinArcRoutingProblems:DataInstancesathttps://www.
+uv.es/plani/instancias.htm.
+ORCID
+JamesCampbell https://orcid.org/0000-0003-2951-8703
+ÁngelCorberán https://orcid.org/0000-0002-0664-4232
+IsaacPlana https://orcid.org/0000-0002-0516-4608
+JoséM.Sanchis https://orcid.org/0000-0002-0039-8122
+PaulaSegura https://orcid.org/0000-0002-0395-9263
+REFERENCES
+[1] Aerolab(2022).XAGP40MultipurposeSprayDrone(20L),Aerolab,NewZealand.https://www.aerolab.co.nz/collections/agriculturaldrones/
+products/xagp40.
+[2] F.BarahonaandM.Grötschel,Onthecyclepolytopeofabinarymatroid,J.Combinat.TheoryB40(1986),40–62.
+[3] J.E.Beasley,Routefirst–clustersecondmethodsforvehiclerouting,Omega11(1983),403–408.
+[4] J.F.Campbell,Á.Corberán,I.Plana,andJ.M.Sanchis,Dronearcroutingproblems,Networks72(2018),543–559.
+[5] J.F.Campbell,Á.Corberán,I.Plana,J.M.Sanchis,andP.Segura,SolvingthelengthconstrainedK–dronesruralpostmanproblem,Eur.J.Oper.
+Res.292(2021),60–72.
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License
+458 CAMPBELLETAL.
+[6] D.G.Clark,J.D.Ford,andT.Tabish,Whatrolecanunmannedaerialvehiclesplayinemergencyresponseinthearctic:Acasestudyfrom
+Canada,PLoSOne13(2018),no.12,e0205299.
+[7] Á.Corberán,I.Plana,A.M.Rodríguez-Chía,andJ.M.Sanchis,Abranch–and–cutalgorithmforthemaximumbenefitChinesepostmanproblem,
+Math.Program.141(2013),21–48.
+[8] Á.Corberán,I.Plana,andJ.M.Sanchis,Abranch&cutalgorithmforthewindygeneralroutingproblemandspecialcases,Networks49
+(2007),245–257.
+[9] N.V.Cuong,Y.W.P.Hong,andJ.P.Sheu,UAVtrajectoryoptimizationforjointrelaycommunicationandimagesurveillance,IEEETrans.
+Wirel.Commun.21(2022),10177–10192.
+[10] DJI Agriculture (2022). What does agricultural drone spraying of 66.7 million hectares mean to the planet?, https://ag.dji.com/newsroom/
+dji-ag-news-en-greener.
+[11] A.Duarte,N.Mladenovic,J.Sánchez-Oro,andR.Todosijevic,“Variableneighborhooddescent,”HandbookofHeuristics,R.Martí,P.Pardalos,
+andM.Resende(eds.),SpringerInternationalPublishingAG,Cham,2018.
+[12] B.Galle,S.Arellano,N.Bobrowski,V.Conde,T.P.Fischer,G.Gerdes,A.Gutmann,T.Hoffmann,I.Itikarai,T.Krejci,E.J.Liu,K.Mulina,
+S.Nowicki,T.Richardson,J.Rüdiger,K.Wood,andJ.Xu,Amulti-purpose,multi-rotordronesystemforlong-rangeandhigh-altitudevolcanic
+gasplumemeasurements,Atmos.Meas.Tech.14(2021),4255–4277.
+[13] G.GhianiandG.Laporte,Abranch–and–cutalgorithmfortheUndirectedRuralPostmanProblem,Math.Program.87(2000),467–481.
+[14] UnmannedSystemsTechnology(2022).SondaX8UAS,FoldableMulti-MissionOctocopter,https://www.unmannedsystemstechnology.com/
+company/hd-air-studio/sonda-x8-uas/.
+[15] C.Hierholzer,ÜberdieMöglichkeit,einenLinienzugohneWiederholungundohneUnterbrechungzuumfahren,Math.Ann.6(1873),30–32.
+[16] M.Khosravi,S.Enayati,H.Saeedi,andH.Pishro-Nik,Multi-PurposeDronesforCoverageandTransportApplications,IEEETrans.Wirel.
+Commun.20(2021),3974–3987.
+[17] N. Kumar, M. Ghosh, and C. Singhal, “UAV Network for Surveillance of Inaccessible Regions with Zero Blind Spots,” IEEE INFOCOM
+2020-IEEEConf.Comput.Commun.Workshops,Canada,Toronto,2020,pp.1213–1218.
+[18] A.N.Letchford,G.Reinelt,andD.O.Theis,Oddminimumcut–setsandb–matchingsrevisited,SIAMJ.Discr.Math.22(2008),1480–1487.
+[19] E.McCormackandJ.Stimberis,Smallunmannedaircraftevaluatedforavalanchecontrol,Transp.Res.Rec.2169(2010),168–173.
+[20] N.MladenovicandP.Hansen,Variableneighborhoodsearch,Comput.Oper.Res.24(1997),1097–1100.
+[21] W.K.NewandC.Y.Leow,“UnmannedAerialVehicle(UAV)inFutureCommunicationSystem,”in26thIEEEAsia-PacificConf.Commun.
+(APCC),IEEE,KualaLumpur,2021,pp.217–222.
+[22] C.S.Orloff,AFundamentalProbleminVehicleRouting,Networks4(1974),35–64.
+[23] M.W.PadbergandM.R.Rao,Oddminimumcut–setsandb–matchings,Math.Oper.Res.7(1982),67–80.
+[24] C.Prins,N.Labadi,andM.Reghioui,Toursplittingalgorithmsforvehicleroutingproblems,Int.J.Prod.Res.47(2009),no.2,507–535.
+[25] C.Prins,P.Lacomme,andC.Prodhon,Order–firstsplit–secondmethodsforvehicleroutingproblems:Areview,Trans.Res.C:Emerg.Technol.
+40(2014),179–200.
+[26] J.PuertoandC.Valverde,Routingforunmannedaerialvehicles:Touringdimensionalsets,Eur.J.Oper.Res.298(2022),118–136.
+[27] C.Seguin,G.Blaquiére,A.Loundou,P.Michelet,andT.Markarian,Unmannedaerialvehicles(drones)topreventdrowning,Resuscitation
+127(2018),63–67.
+[28] M.Silvagni,A.Tonoli,E.Zenerino,andM.Chiaberge,MultipurposeUAVforsearchandrescueoperationsinmountainavalancheevents,
+Geomat.Nat.Haz.Risk8(2017),18–33.
+[29] SwoopAero,StrengtheninghealthsupplychainsinMalawi,https://swoop.aero/solutions/malawi/.
+[30] M.Torres,D.A.Pelta,J.L.Verdegay,andJ.C.Torres,Coveragepathplanningwithunmannedaerialvehiclesfor3Dterrainreconstruction,
+ExpertSyst.Appl.55(2016),441–451.
+[31] G.Ulusoy,Thefleetsizeandmixproblemforcapacitatedarcrouting,Eur.J.Oper.Res.22(1985),329–337.
+[32] UNICEFMalawi(2019).CallforExpressionsofInterest(EOI):Research,Evaluation,andMarketAnalysisServicesRelatedtoMulti–Purpose
+UnmannedAerialSystems(UAS).https://www.ungm.org/Public/Notice/91388.
+[33] E.Chigwedere(2021).SummativeEvaluationoftheImpactofUsingDronesonPopulationHealthandOtherOutcomes,UNICEF.https://www.
+unicef.org/malawi/reports/summative-evaluation-impact-using-drones-population-health-other-outcomes.
+[34] J.I.Vasquez-Gomez,J.C.Herrera-Lozada,andM.Olguin-Carbajal,“Coveragepathplanningforsurveyingdisjointareas,”Proc.Int.Conf.
+UnmannedAircraftSystems(ICUAS),IEEE,Dallas,TX,USA,June2018,2018,pp.899–904.
+[35] J.I.Vasquez-Gomez,M.Marciano-Melchor,L.Valentin,andJ.C.Herrera-Lozada,CoveragePathPlanningfor2DConvexRegions,J.Intell.
+Robot.Syst.97(2020),81–94.
+[36] Y.Wang,T.Kirubarajan,R.Tharmarasa,R.J.Zargani,andN.Kashyap,Multiperiodcoveragepathplanningandschedulingforairborne
+surveillance,IEEETrans.Aerosp.Electron.Syst.54(2018),2257–2273.
+[37] J.Xie,L.R.GarciaCarrillo,andL.Jin,PathplanningforUAVtocovermultipleseparatedconvexpolygonalregions,IEEEAccess8(2020),
+51770–51785.
+[38] C.H.Yang,M.H.Tsai,S.C.Kang,andC.Y.Hung,UAVpathplanningmethodfordigitalterrainmodelreconstruction–adebrisfanexample,
+Autom.Constr.93(2018),214–230.
+[39] https://medium.com/frontier-technologies-hub/multi-purpose-drone-operation-in-malawi-b4cf671b14d1.
+[40] https://www.fastcompany.com/90645533/how-drones-are-aiding-in-international-development.
+[41] https://www.aerosociety.com/news/multirole-lifesavers-a-new-approach-to-humanitarian-drones/.
+Howtocitethisarticle:J.Campbell,Á.Corberán,I.Plana,J.M.Sanchis,andP.Segura,Themulti-purposeK-drones
+generalroutingproblem,Networks.82(2023),437–458.https://doi.org/10.1002/net.22176
+10970037,
+2023,
+4,
+Downloaded
+from
+https://onlinelibrary.wiley.com/doi/10.1002/net.22176
+by
+Beihang
+University
+(Buaa),
+Wiley
+Online
+Library
+on
+[29/04/2026].
+See
+the
+Terms
+and
+Conditions
+(https://onlinelibrary.wiley.com/terms-and-conditions)
+on
+Wiley
+Online
+Library
+for
+rules
+of
+use;
+OA
+articles
+are
+governed
+by
+the
+applicable
+Creative
+Commons
+License

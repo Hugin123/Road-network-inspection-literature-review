@@ -1,0 +1,1102 @@
+IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022 73
+Genetic Programming With Niching for Uncertain
+Capacitated Arc Routing Problem
+Shaolin Wang , Graduate Student Member, IEEE, Yi Mei , Senior Member, IEEE,
+Mengjie Zhang , Fellow, IEEE, and Xin Yao , Fellow, IEEE
+Abstract—The uncertain capacitated arc routing problem I. INTRODUCTION
+is an important optimization problem with many real-world
+CAPACITATED arc routing problem (CARP) [1] is a
+applications. Genetic programming is considered a promising
+classic combinatorial optimization problem with a num-
+hyper-heuristic technique to automatically evolve routing poli-
+cies that can make effective real-time decisions in an uncertain berofreal-worldapplications,suchaswastecollection[2]and
+environment. Most existing research on genetic programming wintergritting[3].ThemaingoalofCARPistoserveasetof
+hyper-heuristicfortheuncertaincapacitatedarcroutingproblem
+edges in a graph using a fleet of vehicles with the minimum
+only focused on the test performance aspect. As a result, the
+cost. CARP is considered as an arc routing counterpart to the
+routing policies evolved by genetic programming are usually too
+large and complex, and hard to comprehend. To evolve effec- well-knownvehicleroutingproblem(VRP).Ithasbeenproved
+tive, smaller, and simpler routing policies, this article proposes to be NP-hard [4] and received much research interest. Many
+a novel genetic programming approach, which simplifies the approaches have been proposed for dealing with CARP [4].
+routing policies during the evolutionary process using a nich-
+However, most previous studies assume that the environment
+ing technique. The simplified routing policies are stored in an
+isstatic,wherealltheparameters(e.g.,taskdemandandtravel
+external archive. We also developed new elitism, parent selec-
+tion, and breeding schemes for generating offspring from the cost) are fixed and known in advance. This is usually not true
+original population and the archive. The experimental results in the real world, where the environment is often uncertain
+showthatthenewlyproposedapproachcanachievesignificantly
+and dynamic. For example, in waste collection, the amount of
+better test performance than the current state-of-the-art genetic
+wastetobecollectedisnotknowninadvanceandvariesfrom
+programming algorithms for the uncertain capacitated arc rout-
+ing problem. The evolved routing policies are smaller, and thus one day to another.
+potentially more interpretable. Uncertain CARP (UCARP) [5]–[7] was proposed to bet-
+ter reflect the reality. A variety of uncertainties, such as
+Index Terms—Capacitated arc routing, genetic programming,
+hyper-heuristic,programsimplification,stochasticoptimization. the stochastic task presence and demand, stochastic edge
+deadheadingcost,andstochastictraveltime,havebeenconsid-
+ered[6].InadditiontotheNP-hardnessinheritedfromCARP,
+the main challenge in UCARP is the route failure caused by
+the stochastic task demand. A route failure occurs when the
+remainingcapacityofthevehiclebecomesinsufficienttoserve
+Manuscript received October 10, 2020; revised April 13, 2021 and June the edge, because the actual demand of an edge that needs to
+19, 2021; accepted June 24, 2021. Date of publication July 7, 2021;
+be served exceeds the vehicle’s expected demand. Therefore,
+date of current version January 31, 2022. This work was supported
+in part by the Marsden Fund of New Zealand Government under thevehiclehastogobacktothedepottorefillandcomeback
+Contract VUW1509 and Contract VUW1614; in part by the Research to finish serving the edge again. A route failure might lead to
+Institute of Trustworthy Autonomous Systems; in part by the Guangdong
+a high recourse cost.
+Provincial Key Laboratory under Grant 2020B121201001; in part by
+the Program for Guangdong Introducing Innovative and Enterpreneurial Traditional solution optimization approaches for dynamic
+Teams under Grant 2017ZT07X386; in part by the Shenzhen Science and routing problem, such as the mathematical programming [1],
+TechnologyProgramunderGrantKQTD2016112514355531;andinpartby
+genetic algorithm [7], particle swarm optimisation [8], and
+the Program for University Key Laboratory of Guangdong Province under
+Grant 2017KSYS008. The work of Shaolin Wang was supported by the Markov decision processes [9], cannot effectively handle the
+VictoriaUniversityofWellingtonPh.D.Scholarship.(Correspondingauthor: routefailureinUCARP.Ontheonehand,thetraditionalsolu-
+ShaolinWang.)
+tion optimisation approaches try to optimise a solution (i.e.,
+Shaolin Wang, Yi Mei, and Mengjie Zhang are with the Evolutionary
+Computation Research Group, School of Engineering and Computer a solution that performs reasonably well in all possible envi-
+Science, Victoria University of Wellington, Wellington 6140, ronments) beforehand. It is repaired by the recourse operator
+New Zealand (e-mail: shaolin.wang@ecs.vuw.ac.nz; yi.mei@ecs.vuw.ac.nz;
+if a route failure occurs. However, the preplanned solution is
+mengjie.zhang@ecs.vuw.ac.nz).
+Xin Yao is with the Research Institute of Trustworthy Autonomous not flexible enough, and cannot be sufficiently changed by
+Systems, Department of Computer Science and Technology, Southern
+the recourse operator to cope with the dynamic nature of the
+University of Science and Technology, Shenzhen 518055, China, and also
+with CERCIA, School of Computer Science, University of Birmingham, route failure situation. In addition, it may induce a large extra
+BirminghamB1S2TT,U.K.(e-mail:xiny@sustc.edu.cn). recourse cost in some situations. On the other hand, some
+Color versions of one or more figures in this article are available at
+solution optimisation methods [9], [10] aim to reoptimise the
+https://doi.org/10.1109/TEVC.2021.3095261.
+DigitalObjectIdentifier10.1109/TEVC.2021.3095261 remaining routes when a route failure occurs. Although this
+1089-778X(cid:2)c 2021IEEE.Personaluseispermitted,butrepublication/redistributionrequiresIEEEpermission.
+Seehttps://www.ieee.org/publications/rights/index.htmlformoreinformation.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+74 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022
+can potentially obtain better solutions, the reoptimisation pro- threshold. The final test performance is highly sensitive to
+cessbyrunningthesolutionoptimisationalgorithmistypically these parameters, and it is hard to set them properly. To the
+too slow to respond in real time. best of our knowledge, there is no existing study that imple-
+The routing policy-based approaches [11] are promising ments the simplification based on the phenotype of GP trees.
+techniques that can effectively handle the uncertain envi- Also, there is no existing study that applies GP simplifica-
+ronment in UCARP. Unlike traditional solution optimisation tiontoGPHHforUCARPtoevolvebotheffectiveandsimple
+approaches, these approaches do not have to preplan any routing policies.
+solution. On the other hand, they use routing policies to To simplify a GP tree based on phenotypic behavior, we
+guide a vehicle to determine which task to serve next as aim to replace a large tree with another smaller tree with the
+soon as it becomes idle [11]. A typical manually designed same phenotypic behavior. An intuitive approach is to group
+routing policy is the path scanning [12]. However, numer- the individuals in the population based on their phenotypic
+ous factors, such as the objective(s) and the graph topology behavior (each group contains the individuals with the same
+can affect the effectiveness of the routing policy [13]. The behavior) and simplify all the individuals in each group by
+genetic programming hyper-heuristic (GPHH) is considered replacing itwiththesmallestindividual inthatgroup. Wecall
+as a promising technique that can automatically evolve effec- this approach niching simplification, since it is similar to the
+tive heuristics for dynamic problems [14], such as scheduling niching techniques [39], [40] that divides the individuals in
+problems [15]–[18] and resource allocation problems [19]. the population into different groups/niches.
+Recently,GPHHhasalsobeensuccessfullyappliedtoUCARP The overall goal of this article is to propose a novel GPHH
+to evolve effective routing policies automatically [20]–[24]. that simplifies the individuals during the evolutionary pro-
+However, the routing policies evolved by GPHH are usu- cess based on their phenotypic behavior. In this way, we
+ally too large and complex, which usually leads to poor can obtain both more effective and smaller routing policies,
+interpretability. Evolving small and simple routing policies which can be potentially more interpretable and generaliz-
+(without losing effectiveness) can help end-users understand able. To achieve this goal, we have the following research
+the evolved routing policies better so that they can use them objectives.
+confidently and modify them when necessary. Intuitively, the 1) To develop a new niching simplification scheme based
+size (number of nodes) of the routing policy is an essen- on phenotypic behavior. Specifically, the individuals
+tial factor that can affect the interpretability, and a larger with the same phenotypic behavior (i.e., fitness in this
+(smaller)routingpolicytendstobeharder(easier)tointerpret. study) are grouped into a niche. In each niche, all
+Usually, the tree size of the routing policy evolved by GPHH the individuals are replaced by the individual with the
+is too large. The main reason is that GP tends to continu- smallest size (so-called representative of the niche).
+ously increase the size of its individuals, which is known 2) To compromise the loss of population diversity due to
+as bloat [25]–[27]. For bloat control, one can simply limit thenichingsimplification,westillkeeptheoriginalpop-
+the tree size or depth during the GP evolution (e.g., [28] ulationandstorethenicherepresentativesinanexternal
+and [29]) or design specific genetic operators to consider archive.
+both tree size and effectiveness (e.g., [26], [30], and [31]). 3) To develop a multisource breeding mechanism to gen-
+However, these approaches cannot balance the two aspects erate offspring from the original population and the
+well. Their performance could be biased by either tree size representative archive, respectively.
+or effectiveness. 4) To design niching-based elitism and parent selec-
+GP simplification is another way to reduce the tree size tion schemes for the breeding from the representative
+by removing redundant materials from GP trees. GP pro- archive.
+duces trees that typically contain a large number of redundant 5) To develop a new GPHH algorithm with niching
+components (subtrees). It is desirable to remove as much (GPHH-N) that incorporates all the above-designed
+of these redundant materials as possible without sacrific- components.
+ing the exploration ability of GP. Manual simplification on 6) To verify the effectiveness of GPHH-N, and analyse the
+the final GP tree has been tried in the past. However, it is routing policies evolved by GPHH-N.
+more preferred to simplify GP trees during the search pro- Note that the goal of this article is not to address the inter-
+cess [32]. Zhang et al. [33]–[35] and Wong and Zhang [36] pretability problems explicitly, although GPHH-N is expected
+have explored the use of algebraic tree simplification with the to evolve smaller and simpler routing policies that are poten-
+hashing technique and applied it to regression and classifica- tially more interpretable.
+tion problems. Kinzett et al. [37] and Song et al. [38] have
+proposednumericaltreesimplificationmethods.Bothmethods
+are based on the local effect of a subtree.
+II. BACKGROUND
+The above simplification methods have several limita- For CARP, there have been various studies considering
+tions. First, they detect redundant subtrees based on geno- different aspects of uncertainties [20], [41]–[43], such as
+typic information (e.g., tree structure) rather than phenotypic stochastic task demand, stochastic edge deadheading cost,
+information (e.g., behavior in decision making). Thus, they stochastictaskpresence,andstochasticedgeexistence.Inthis
+may fail to detect some implicit redundancies. Second, they article, we focus on the UCARP [5] that considers all four
+need predefined parameters, i.e., simplification rules and important uncertainties.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+WANGetal.:GENETICPROGRAMMINGWITHNICHINGFORUNCERTAINCAPACITATEDARCROUTINGPROBLEM 75
+A. Uncertain Capacitated Arc Routing Problem
+(cid:6)j L(cid:6)k −1
+Sξ .n (k)×
+(cid:7)
+1−Sξ .z (k)(e)
+(cid:8)
+=0 ∀e:dξ (e)=0
+i i
+AUCARPinstancecanberepresentedbyaconnectedundi-
+k=1 i=1
+rected graph G(V,E), where V and E indicate the sets of (7)
+vertices and edges, respectively. The vertex v ∈ V denotes
+0
+the depot. Each edge e∈E has a positive random deadhead- where (1) is the objective function. It is used to minimis the
+ingcostς¯(e).Afleetofvehicleswithagivenpositivecapacity expected total cost C(Sξ ) of the solution Sξ over all sam-
+Q are allocated to serve all the tasks T ⊆E. Each task t ∈T ples ξ ∈ (cid:4). The total cost of a solution on one sample ξ
+hasapositiverandomdemandd ¯(t),andapositiveservingcost is calculated by (8), where ς ξ (u,v) is the realized deadhead-
+sc(t). The goal is to minimis the total cost of serving all the ing cost between the node u to v in ξ. For any sample ξ, a
+tasks in T. Several constraints have to be satisfied. First, all feasible solution Sξ is generated by a routing policy which
+the routes must start and end at v ∈ V. Second, each task gradually builds the solution on-the-fly. Equation (2) is the
+0
+t ∈ T must be served exactly once, but it can be traversed capacity constraint, and dξ refers to the realized task demand
+multiple times. Third, the total demand served by each route
+inξ.Equations(3)and(4)arethedomainconstraintsofSξ .M
+(an edge sequence starts and ends at the depot) cannot exceed and Sξ .N. Equation (5) indicates that all the routes start and
+the capacity of the vehicle. end at the depot. Equation (6) means that each task is served
+In UCARP, there are a number of random variables, each exactly once (the total demand fraction served by all vehicles
+of which can have different samples. Accordingly, a UCARP is 1). Sξ .z ( i k)(e) equals 1 if (Sξ .m ( i k),Sξ .m ( i+ k) 1 )=e, and 0 oth-
+instance may contain different samples. In a UCARP instance erwise. Sξ .z (k)(e) indicates whether the edge is a task or not.
+sample, each random variable, i.e., the task demand d
+¯(t)
+and Equation(7)
+i
+ensuresthatanynonrequirededgeisnotservedat
+deadheading cost ς¯(e), takes a realized value. However, the all, i.e., its service fraction is zero everywhere in the solution
+realizeddemandofataskisunknownuntilithasbeenserved,
+a a n d d va t n h c e e r a e n a d liz i e s d r d ev ea e d al h e e d ad d in u g rin c g os t t he of tr a a n ve e r d s g al e o is ve u r nk th n e ow ed n g i e n . C (cid:3) Sξ (cid:4) = (cid:6)j L(cid:6) k −1(cid:7) ς ξ (cid:7) Sξ .m ( i k),Sξ .m ( i+ k) 1 (cid:8)(cid:8)
+The nature of the uncertainties of the environment will lead k=(cid:6)1 i= (cid:3)1 (cid:4)
+to two kinds of failures during the serving process. + sc(t)−ς ξ (t) . (8)
+1) Route failure the actual demand of a task exceeds the t∈T
+vehicle’s remaining capacity. The static CARP is a special case of UCARP, where all
+2) Edge failure an edge in the route becomes inaccessible the variables are known in advance. Route failure is the main
+(its deadheading cost becomes infinity). extra challenge of UCARP over the static CARP, and it can
+When a route failure occurs, the vehicle will go back to the lead to large extra recourse cost.
+depot to refill and return to the failed task to complete the
+remaining service. When an edge failure occurs, the solu-
+B. Related Work
+tion can be repaired by finding a shortest detour under the
+1) ApproachesforCapacitatedArcRoutingProblem: Most
+current situation using pathfinding algorithms (e.g., Dijkstra’s
+existing approaches focus on the static CARP. Golden and
+algorithm [44]).
+A solution to a UCARP instance is represented as S = Wong[1]developedanintegerlinearprogrammingmodeland
+(S.M,S.N). S.M = {S.M (1),...,S.M (j)} is a set of ver- solved CARP using the branch-and-cut algorithm. Belenguer
+andBenavent[45]appliedacuttingplanealgorithmtoCARP.
+tex sequences, where j is the number of vertex sequences
+(routes).S.M (k) =(S.m (k),...,S.m (k))standsforthekthroute, Itisguaranteedthattheobtainedsolutionsareoptimalbyusing
+1 Lk
+exact approaches. However, the approach is limited to only a
+where L represents the number of vertices in the kth route.
+k
+S.N ={S.N (1),...,S.N (j)} is a set of continuous vectors, and small number of instances due to the NP-hardness of CARP.
+S.N (k) = (S.n (k),...,S.n (k) ) (S.n (k) ∈ [0,1]) is the fraction Theseapproachescanbecometime-consumingastheproblem
+of demand ser 1 ved along t L h k e −1 routeS i .M (k) .The problem can be becomes large.
+To obtain reasonably good solutions in a limited time bud-
+formulated as follows:
+getandforlargerprobleminstances,constructiveheuristicsare
+(cid:2) (cid:3) (cid:4)(cid:5)
+appliedtoCARP[1].Constructiveheuristicsgenerateapprox-
+min Eξ∈(cid:4) C Sξ (1)
+imated solutions from scratch. Although these approaches
+s.t.
+L(cid:6)k −1
+dξ
+(cid:7)
+Sξ .m
+i
+(k),Sξ .m
+i
+(
++
+k)
+1
+(cid:8)
+×Sξ .n (
+i
+k) ≤Q ∀k=1,...,j c
+th
+a
+e
+n
+y
+no
+a
+t
+re
+gu
+m
+a
+u
+ra
+c
+n
+h
+te
+c
+e
+he
+t
+a
+h
+p
+a
+e
+t
+r
+t
+t
+h
+h
+e
+an
+ob
+ex
+ta
+a
+i
+c
+n
+t
+ed
+app
+so
+ro
+lu
+a
+t
+c
+i
+h
+o
+e
+n
+s
+s
+. A
+ar
+t
+e
+th
+o
+e
+pt
+s
+im
+am
+al
+e
+,
+i=1
+time, they can usually provide good enough solutions very
+(2)
+(cid:7) (cid:8) quickly.Thepathscanningheuristic,augment-mergeheuristic,
+(cid:7) Sξ .m i (k) (cid:8) ,Sξ .m ( i+ k) 1 ∈E (3) and Ulusoy’s split heuristic are commonly used constructive
+Sξ .n (k) ∈[0,1] (4) heuristics for CARP [12].
+i To make an improvement, meta-heuristic approaches have
+Sξ .m
+1
+(k) =Sξ .m (
+L
+k
+k
+) =v
+0
+∀k=1,2,...,j (5) been used in recent years. A typical meta-heuristic algorithm
+(cid:6)j L(cid:6)k −1 startsfromoneormoresolutions,anditerativelyimprovesthem.
+Sξ .n (k)×Sξ .z (k)(e)=1 ∀e:dξ (e)>0 (6) Thus, meta-heuristic algorithms can usually obtain promising
+i i
+solutionsinareasonabletimebudget.Typically,solutionsfrom
+k=1 i=1
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+76 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022
+meta-heuristic algorithms can be no worse than constructive new MA with an integrated fitness function and a large step-
+heuristics since they can take the solution from constructive size local search operator to UCARP. The new MA can find
+heuristicsastheirinitialsolutions.Inaddition,theyareusually good solutions for UCARP. The integrated fitness function
+lesstime-consumingthantheexactapproaches.Variousmeta- is used to guide the search direction, and the large step-size
+heuristicalgorithmshavebeenproposedforCARP,suchastabu local search operator is used to prevent MA being trapped in
+search[46],[47],geneticalgorithms[48],memeticalgorithms local optima. Wang et al. [61] focused on finding solutions
+(MAs)[12],[49],[50],andantcolonyoptimisation[51]–[53]. that can perform well over a set of UCARP instances and
+Meietal.[54]andTangetal.[55]handledlarge-scaleCARP proposedanestimationofdistributionalgorithmwithstochas-
+with decomposition approaches. ticlocalsearch(EDASLS).ThenewEDASLSisbasedonthe
+To enhance the problem solving for CARP, Feng et al. [56] edge histogram-based sampling algorithm (EHBSA) [62] and
+utilized Meme learning and selection to transfer useful struc- a novel stochastic local search (SLS) which can effectively
+turesorlatentpatternsthatarecapturedfromprevious experi- handle the uncertainties in UCARP. Recently, Tong et al. [63]
+ences of problem-solving. The captured knowledge was then proposedageneralizedmeta-heuristicframeworkforUCARP.
+applied to enhance future evolutionary search. Comparing Inaddition,Tongetal.[64]alsoproposedahybridlocalsearch
+with existing works, the work in [56] can transfer and reuse framework which can handle the small dynamic changes in
+knowledge across problems of different size, structure, or UCARP.
+representation. To make an improvement, Feng et al. [57] SomeotherapproachesuseGPHHtoevolveroutingpolicies
+proposed a new memetic computing paradigm which con- thatconstructsolutionsgraduallyinrealtime.Itdoesnotmain-
+tains four culture-inspired operators, i.e., learning, selection, tain any preplanned solution. Weise et al. [65] first proposed
+variation, and imitation. Comprehensive studies on the widely a GPHH for UCARP with a single vehicle and examined its
+studiedNP-hardcapacitatedVRP(CVRP)andCARPdomains performance.Theresultsshowed thatroutingpoliciesevolved
+have been made. The experimental results showed the bene- byGPHHcouldoutperformmanuallydesignedroutingpolicies.
+fitsoftheproposedfasterevolutionarysearchapproach.Rather Liuetal.[20]proposedanovelandeffectivemeta-algorithmto
+than transferring knowledge from the same problem domain, filterirrelevantcandidatetasksduringthedecision-makingpro-
+Feng et al. [58] proposed an evolutionary memetic comput- cess.Tobetterreflectthereality,themodelwasextendedfrom
+ing paradigm that is able to learn and evolve knowledge asingle-vehicletomultivehicleversionbyMeiandZhang[22].
+memesthattraversetwodifferentbutrelatedproblemdomains, Then the solution can be generated with multiple vehicles on
+i.e., CVRP and CARP, to speed up the search efficiency. the road simultaneously. MacLachlan et al. [21] proposed a
+Experimental results showed that evolutionary optimization noveltaskfilteringmethodandaneffectivelook-aheadterminal.
+can benefit from different but related problem domains. The Then,MacLachlanetal.[66]examinedtheadvantageofvehicle
+appropriate choice of knowledge memes is an essential factor collaborationinhandlingtheuncertainenvironment.Recently,
+for enhancing the evolutionary search process. Ardeh et al. [67] applied transfer learning to speed up the
+2) Approaches for Uncertain CARP: There are many dif- training process. Liu et al. [68] proposed a new predictive-
+ferenttypesofuncertaintiesinreal-worldCARP.Liuetal.[6] reactive approach with Genetic Programming and cooperative
+gave a comprehensive review on the uncertain factors in coevolutionwhichevolvedatasksequenceandarecoursepol-
+CARP,includingstochastictaskdemand,stochasticedgedead- icy simultaneously. The existing GPHH approaches managed
+heading cost, stochastic task presence and stochastic edge to obtain effective routing policies for UCARP. However, the
+existence, and the corresponding approaches to address them. interpretabilityoftheevolvedroutingpolicieshasbeenignored.
+Many approaches aim to find solutions that can handle all 3) GP Tree Size Reduction Approaches: A typical tree-
+possible realizations of the random variables. Typically, the basedGPHHapproachblindlygeneratesGPtreesbyrandomly
+output of these approaches consists of two main components: swapping the subtrees of the parents in crossover and replac-
+1) a preplanned solution and 2) a recourse operator. First, ing a subtree with a randomly generated subtree in mutation.
+the optimisation algorithm produces a solution based on the GP search usually leads to large and complex trees that are
+prediction of the environment. Then, the solution is executed hard to interpret without careful control of the tree size. Also,
+whilepossiblefailures,suchasroutefailures,couldbehandled a large and complex tree tends to be less generalizable [69].
+bytherecourseoperator.Theperformanceoftheseapproaches Therefore,itisessentialtoreducethetreesizeandcomplexity
+is highly affected by the accuracy of predicting the stochastic without deteriorating the effectiveness.
+environment and the effectiveness of recourse operators. There have been various studies to reduce tree size during
+Fleury et al. [41] proposed an MA that integrated an accu- the GP evolutionary process. The most straightforward way is
+rate approximation of the expected total cost for CARP with to limit the number of nodes of the tree [28], [29]. However,
+stochastic task demand and concluded that MA could be eas- thisstrategyhastwomainlimitations.First,itlimitsthesearch
+ily adapted to handle the stochastic task demand and obtain space and may weaken the exploration ability of GP, and thus
+better solutions than other simple techniques like keeping a lead to worse effectiveness. Second, it is nontrivial to prede-
+slack in each vehicle. Tirkolaee et al. [59] developed a mix fine a reasonable limit for the number of nodes [25]. Another
+integerprogrammingmodeltohandlethedemanduncertainty. commonly used strategy is to penalize large trees during the
+They also proposed a hybrid meta-heuristic approach based selection, known as the parsimony pressure [70]. However, it
+on simulated annealing and a constructive heuristic to obtain is hard to set a proper coefficient of the penalty term with-
+good solutions for CARPSD. Wang et al. [60] adapted a out extensive trial and error [26]. Kinzett et al. [30] pointed
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+WANGetal.:GENETICPROGRAMMINGWITHNICHINGFORUNCERTAINCAPACITATEDARCROUTINGPROBLEM 77
+out that it is difficult to obtain a small and effective solu-
+tionin somescenarios. The solution could be biased by either
+tree size or fitness in GP. Luke and Panait [31] reviewed a
+set of bloat control methods in GP and compare them with
+the depth limiting method on different problems. The authors
+argue that linear parsimony pressure [71] performed the best
+in the cross-problem comparison, and the double tournament
+(DT) selection [72] performed the second best. However, the
+conclusions obtained in [31] are purely empirical.
+GP tree simplification methods are an alternative for tree
+size reduction. Hooper and Flann [73] utilized the expression
+simplificationtosimplifythetrees.Theirsimplificationmethod
+employedover200simplificationrulestosimplifyanexpression.
+Fig.1. OverallframeworkofGPHH-N.
+To speed up the simplification process, Zhang etal.[33]–[35]
+and Wong and Zhang [36] proposed the use of algebraic tree
+simplificationwiththehashingtechniques.However,thesealge-
+braicmethodscannotdetectallkindsofredundancies[74].Itcan
+easilysimplifytheexpressionA−Ato0.However,A+10 −100
+cannotbesimplifiedtoAdirectly,although10
+−100doesnotplay
+any significant role in the final output. In addition to the alge-
+braicapproach,Kinzettetal.[37]andSongetal.[38]proposed
+numericalsimplificationmethods.Thesemethodsarebasedon
+the local effect of a subtree. Kinzett et al. [37] removed a Fig.2. IllustrationoftheoffspringgenerationinGPHH-N.
+nodeorasubtreeifitsnumericalcontributionissmallerthana
+predefinedthreshold.Songetal.[38]replacedtheparentnode
+with its child node if the difference between their outputs is
+below apredefined threshold.
+In summary, most GP simplification methods can only
+Fig.3. ExampleofGPtree.
+detect redundancies based on genotypic information (con-
+tribution of the genotypic subtrees) rather than phenotypic
+Section III-F. The multisource breeding process selects par-
+information(outputofthewholeGPtree).Thus,manyredun-
+ents from both the original and simplified populations so that
+dancies will still exist. Also, they require manually selected
+thesimplifiedblocksarenotcompletelylost.Wewilldescribe
+simplification rules or predefined threshold parameter. The
+itsdetailsinSectionIII-G.Therelationshipbetweenthepopu-
+final test performance is highly sensitive to these parameters.
+lation and representative archive and how the newly proposed
+Itishardtosettheseparametersproperly.Thisarticleattempts
+operations update them are shown in Fig. 2.
+todealwiththeaboveissuesbyproposinganovelGPHHwith
+phenotypic simplification using niching.
+B. Individual Representation
+In this article, each routing policy is represented as a pri-
+III. PROPOSEDGPHH-N ority function. The priority function is a combination of the
+A. Overall Framework state features, such as the cost from the current location to
+the candidate task (CFH) and the cost from the candidate task
+TheoverallframeworkofGPHH-NisshowninFig.1.First,
+to the depot (CTD). For example, if the priority function is
+apopulationofroutingpolicies(eachrepresentedasaGPtree)
+“CFH+CTD,” as shown in Fig. 3, the priority function tends
+is initialized randomly. Then, the routing policies are evalu-
+to select tasks that are closer to the current location and also
+atedateachgenerationbasedontheirsimulationperformance
+closer to the depot. The routing policy works as a decision-
+(total cost). If the stopping criteria are not reached, the popu-
+makerduringthesolutionconstructionprocess.Typically,each
+lation undergoes the evolutionary process. In the evolutionary
+vehicle can only serve one task at a time. The routing pol-
+process, routing policies are first simplified by the niching
+icy will be applied to each unserved task to determine each
+simplification. Details of the niching simplification will be
+unserved task’s priority once a vehicle completes its current
+given in Section III-D. After that, the smallest tree in each
+task and is ready to serve the next task. The task with the
+niche is considered the niche representative and is stored in a
+best priority value will be served next. The decision process
+representativearchive.Thenichingelitismandnichingtourna-
+finishes when all the tasks have been served and the routes
+mentselectionarethenappliedtoboththeoriginalpopulation
+returned as the solution constructed by the routing policy.
+and representative archive to produce offspring. The niching
+elitism selects diverse trees for the next generation. It will be
+C. Fitness Evaluation
+described in Section III-E. The newly developed niching tour-
+nament selection can ensure that diverse parents are selected Givenaroutingpolicyrp,thefitnessisdefinedbasedonthe
+from the simplified population. Details will be discussed in average quality (i.e., total cost) of the routes that it generates.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+78 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022
+Algorithm 1: Fitness Evaluation in GPHH-N Algorithm 2: Niching Simplification
+Input:TrainingsetS train,Anunevaluatedpopulationpop Input:OriginalPopulationpop
+(cid:7)
+Output:Anevaluatedpopulationpop Output:OriginalPopulationpop,SimplifiedPopulationpop,
+1
+RandomlysampleatrainingsubsetS(cid:7)⊆S
+train; RepresentativeArchivearchive
+// Evaluate pop using S(cid:7) 1 Initialisearchive=∅;
+2
+foreachroutingpolicyrp∈popdo
+2
+foreachroutingpolicyrp∈popdo
+// Evaluate rp 3 inNiche(rp)=false;
+3
+foreachtrainingsamples∈S(cid:7)
+do 4 end
+4 whiletasksinqueueisnotemptydo 5 foreachroutingpolicyrp∈popdo
+5 ifvehicleisreadythen 6 ifinNiche(rp)==truethen
+6 Selectwhichtasktoserveusingrp; 7 continue ;
+7 end 8 end
+8 end 9 Createanewniche={rp};
+9
+Getthetotalcostofthegeneratedsolution,i.e.tc(rp,s);
+10
+SetinNiche(rp)=true;
+10 end 11 foreachroutingpolicyrp
+(cid:7)∈popdo
+11
+Calculatefit(rp)usingEq.(9);
+12
+iffit(rp (cid:7))equalstofit(rp)then
+(cid:7)
+12 end 13 Addrp toniche;
+13 returnevaluatedpopulationpop; 14 SetinNiche(rp (cid:7))=true;
+15 end
+16 end
+17 Findouttheindividualwithsmallesttreesizeinds inniche;
+Specifically 18 Addinds toarchive;
+(cid:6) 19 Replaceallotherindividualsinthenichewithinds;
+fit(rp)= 1 tc(rp,s) (9) 20 end (cid:7)
+|S(cid:7)| 21 returnpop,pop andarchive;
+s∈S(cid:7)
+where
+S(cid:7)
+is a set of instance samples,
+|S(cid:7)|
+is the number
+of instance samples. tc(rp,s) stands for the total cost of the phenotypic characterizations, such as the structure of the
+solution obtained by rp on instance sample s. The solution is obtained routes for a given instance, or the phenotypic vec-
+constructed based on a simulation process that is commonly tor [76], the fitness-based characterization is shown to be
+used in UCARP [23], [29]. Algorithm 1 shows the fitness effective enough empirically, and is very efficient to compute.
+evaluation in GPHH-N.
+Onecanseethateachroutingpolicyisappliedasapriority
+E. Niching Elitism
+(heuristic) function. When a vehicle is ready (at a decision-
+Elitism is used in GP to avoid losing the previously found
+making point), a routing policy is applied to determine which
+best individuals. In the traditional elitism scheme, we directly
+candidatetasktoservenext.Thequalityofeachroutingpolicy
+copy the best individuals (e.g., the top ten individuals in
+can be evaluated by applying it to a set of training samples
+S(cid:7)
+. A solution can be constructed using the routing policy on
+terms of fitness) from the population to the next generation.
+a training sample
+s∈S(cid:7)
+.
+However, this will lead to a significant loss of diversity after
+the niching simplification since all the best individuals might
+We randomly resample a subset of training samples for
+come from the same niche. We propose a niching elitism
+the fitness evaluation (line 1). Such sample rotation has been
+scheme to address this issue, which selects the elitists only
+commonly used in other studies [20], [75] to improve the
+from the representative archive to maintain diversity. First,
+generalization of the evolved heuristics.
+the archive is sorted based on the fitness value. Then, top
+individuals are returned, and they can survive to the next
+D. Niching Simplification
+generation.
+ThenichingsimplificationmethodisshowninAlgorithm2.
+It first places the trees with the same phenotype into the same
+F. Niching Tournament Selection
+niche. Then, each niche identifies the tree with the smallest
+treesize(numberofnodesinthetree)inthenicheastheniche In GP, the parents are typically selected by tournament
+representative, and replaces all the other trees with this repre- selection. In GPHH-N, each niche can contain many individ-
+sentative.Iftherearemultipletreeswiththesmallesttreesize, uals with identical (good) fitness, and traditional tournament
+the first identified tree is chosen as the representative. In this selection tends to select identical parents. To avoid such a
+way, each niche is represented by a tree with the smallest tree loss of diversity, we modified the tournament selection oper-
+sizeunderthesamephenotype.Fig.4showstwotreeswiththe ator. The new niching tournament selection selects only from
+same phenotype but different tree sizes. Tree A can be hardly the representative archive so that the parents for crossover are
+simplified to Tree B by the algebraic or the numerical simpli- more likely to be different. We set the probability of select-
+fication method. However, Tree A can be easily simplified to ing a representative proportional to its niche size using the
+Tree B by the niching simplification approach. following equation:
+Note that fitness is used as a high-level phenotypic behav- (cid:3) (cid:4) H α
+ior of a GP individual. This is a specific design for GPHH P rep i = (cid:9) N i α ,α ∈[0,1] (10)
+H
+for UCARP, since our preliminary study has shown that i=1 i
+many routing policies have different tree structures but the where H stands for the number of individuals in niche,
+i i
+same fitness value. Although we can use other more precise N refers to the total number of niches. α (0 ≤ α ≤ 1)
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+WANGetal.:GENETICPROGRAMMINGWITHNICHINGFORUNCERTAINCAPACITATEDARCROUTINGPROBLEM 79
+(a) (b)
+Fig.4. Twotreeswiththesamefitnessbutdifferenttreesizes.(a)TreeA.(b)TreeB.
+Algorithm 3: Multisource Breeding GPHHwiththealgebraicsimplification(GPHH-A)[33].Bloat
+Input:Originalpopulationpop,Representativearchivearchive, control approaches are most commonly used to consider both
+populationsizeS testperformanceandtreesizeinGP.Inthiscase,wecompareour
+Output:Newpopulationnewpop
+GPHH-N with three representative bloat control approaches,
+1
+traditionalelitism(pop);
+2
+whilesize(newpop)<S/2do i.e., Tarpeian, linear parametric parsimony pressure (LPPP),
+3 Selectparentsfrompopusingtraditionaltournamentselection; and DT in the literature [31]. The comparisons are conducted
+4 Generateanoffspringbyapplying within the scope of GP approaches. First, the purpose of the
+(crossover/mutation/reproductionoperators);
+5 Addtheoffspringtonewpop; experiments is to verify whether our new GP algorithm can
+6 end obtain both effective and small routing policies. The tree size
+7
+nichingelitism(archive);
+can only be compared with other GP approaches. Second,
+8
+whilesize(newpop)<Sdo
+9 Selectparentsfromarchiveusingnichingtournamentselection; the previous study [66] has already shown that GPHH is a
+10 Generateanoffspringbyapplying competitive approach for UCARP, which is no worse than the
+(crossover/mutation/reproductionoperators);
+state-of-the-art non-GP approaches such as EDASLS [61].
+11 Addtheoffspringtonewpop;
+12 end ForeachUCARPinstance,werandomlygenerate500train-
+13 returnnewpop; ing samples and 500 test samples by randomly sampling the
+stochastic task demands and deadheading costs. The sam-
+ples share the same graph topology of the UCARP instance
+is a parameter to control the balance between exploration but different realized values for the stochastic demands and
+and exploitation. When α equals 1, the niching tournament deadheading costs.
+selection becomes the traditional tournament selection, which A GP run on a UCARP instance contains training and test
+selects parents directly from the simplified population. On the phases. In the training phase, routing policies are trained on
+other hand, when α equals 0, each representative will have 500trainingsamples.Thesesamplesaresplitinto100batches,
+the same probability of selection regardless of the number of each containing five samples
+(S(cid:7)
+in (9)). A different batch is
+individuals in its niche. A parameter sensitivity analysis on α used for the training in each of the 100 generations. The best
+will be given in Section IV-C1. routingpolicyinthefinalpopulationisreturnedasthetrained
+policy.Inthetestphase,thetrainedroutingpolicyistestedon
+G. Multisource Breeding the500testsamples.Thetestperformanceofaroutingpolicy
+The niching simplificatin process may lead to the loss of on the UCARP instance is defined as the average total cost
+the potential useful building blocks in the large trees. To over the 500 test samples, calculated as follows:
+compensate for such loss, we design a multisource breeding 1 (cid:6)
+scheme. The multisource breeding produces offspring from TestPerf(rp)= |S | tc(rp,s) (11)
+twosources,i.e.,theoriginalpopulationandtherepresentative test s∈S test
+archive. Each source is used to produce half of the offspring where S is the test set, and |S |=500 is the size of the
+test test
+population. The pseudocode of the multisource breeding is
+test set. Fig. 5 shows the training and test phases of one GP
+shown in Algorithm 3. We breed offspring from two sources
+run on one UCARP instance.
+so that each source will produce half of the population in the
+next generation.
+A. Dataset
+IV. EXPERIMENTALSTUDIES
+Inthisarticle,weusetheUgdbandUvaldatasets,whichare
+To verify the effectiveness of the proposed GPHH-N, we commonlyusedinUCARP[20]–[23].Theyareextendedfrom
+compare it with the baseline GPHH (which evolves routing gdb and val which are well known static CARP datasets. The
+policiesusingGPHHwithoutanysimplificationmethods)[20], instances in the gdb dataset are mostly small. They contain at
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+80 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022
+TABLEIII
+WIN-DRAW-LOSETABLEFORTHEPAIRWISECOMPARISONSBETWEEN
+DIFFERENTαVALUESINTERMSOFTestPerformance
+Fig.5. TrainingandtestphasesofaGPrunonaUCARPinstance.
+TABLEI
+TERMINALSETINTHEEXPERIMENTS TABLEIV
+WIN-DRAW-LOSETABLEFORTHEPAIRWISECOMPARISONSBETWEEN
+DIFFERENTαVALUESINTERMSOFTreeSize
+We use the evolutionary computation Java (ECJ) pack-
+age [79] to implement all the algorithms. For each UCARP
+instance, each compared algorithm is run 30 times indepen-
+dently (each run trains a routing policy on the 500 training
+samples, and then test it on the 500 test samples).
+C. Results and Discussions
+TABLEII
+PARAMETERSETTINGFORTHECOMPAREDAPPROACHES We compared the algorithms using the Wilcoxon rank-sum
+test with the significance level of 0.05. In the tables, “+,”
+“−,” or “=” next to each compared algorithm indicates that
+the compared algorithm performed statistically significantly
+better than, worse than, or comparable to GPHH-N.
+1) Parameter Sensitive Analysis on α: The parameter α
+is important in balancing exploration and exploitation in the
+nichingtournamentselection.Tosettheα value,wecompared
+most 55 tasks that need to be served by at most five vehicles. the GPHH-N with three different α values, i.e., 0, 0.5, and 1.
+The val dataset contains instances with the number of tasks
+Tables III and IV show the results of the pairwise com-
+ranging from 34 to 97 by at most ten vehicles.
+parisonamongGPHH-N-0.0,GPHH-N-0.5,andGPHH-N-1.0.
+ForeachUCARPinstance,thetaskdemandd
+¯(t)andtraver-
+Each entry is represented in the Win-Draw-Lose format. Win
+salcostς¯(e)arerandomvariables.Theyaretransformedfrom
+(Lose) indicates the number of instances where the row
+the original task demand d(t) and traversal cost ς(e) from the
+approachperformssignificantlybetter(worse)thanthecolumn
+static CARP instance. The random variables are assumed to
+approach. Draw indicates the number of instances where the
+follow the truncated normal distribution [20]–[22]:
+twoapproachesshownosignificantdifference.TableIIIshows
+(cid:10) (cid:11) (cid:7) (cid:8)
+d ¯(t)∼N d(t),
+d(t)
+,ς¯(e)∼N ς(e),
+ς
+. (12)
+the results in terms of the test performance, and Table IV
+5 5 shows the results in terms of the tree size. From Table III, we
+canseethatbothGPHH-N-0.0andGPHH-N-0.5achievedthe
+Anynegativesampledtaskdemandissetto0,andanynegative
+best test performance among the compared algorithms. From
+sampled traversal cost is set to ∞, which means that the arc
+TableIV,GPHH-N-0.5achievedsignificantlysmallertreesize
+becomes inaccessible.
+than GPHH-N-0.0. Overall, GPHH-N-0.5 is the best in terms
+of the test performance and the tree size.
+B. Parameter Setting Fig. 6 shows the scatter plot of GPHH-N with different α
+The function setis setto {+,−,×,/,min,max},where the values on a representative instance Uval2B. Each shape repre-
+“/” operator returns 1 if divided by 0. The terminal set is sents the mean tree size and test performance of the 30 inde-
+shown in Table I. Table II shows the parameter settings of the pendent runs. We can see that GPHH-N-0.5 and GPHH-N-0.0
+GP algorithms compared in the experiments. The initializa- achieved much better test performance than GPHH-N-1.0. In
+tion method of the population for all compared algorithms addition, GPHH-N-0.5 obtained a much smaller tree size than
+is Ramped Half-and-Half. All these parameter settings are GPHH-N-0.0. Therefore, α = 0.5 is used in the subsequent
+commonly used in the GPHH [20]–[22], [66], [77], [78]. experiments.
+Forthecomparedbloatcontrolmethods,theparametersare 2) Test Performance: Tables V and VI show the mean
+set according to [31]. The simplification rules for GPHH-A and standard deviation for the test performance over the 30
+are set according to [33]. independent runs on Ugdb and Uval instances.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+WANGetal.:GENETICPROGRAMMINGWITHNICHINGFORUNCERTAINCAPACITATEDARCROUTINGPROBLEM 81
+TABLEV
+MEANANDSTANDARDDEVIATIONFORTestPerformanceOFCOMPAREDAPPROACHESONTHEUgdbINSTANCESOF30RUNS
+DT on 20 out of 34 instances and showed comparable test
+performance on the other instances. GPHH-N beat LPPP on
+all the instances. The average test performance of GPHH-N
+(384.27) is better than all the other approaches.
+3) Tree Size: Tables VII and VIIIshow the mean and stan-
+dard deviation for the tree size of routing policies of the
+compared algorithms on Ugdb and Uval instances.
+In Table VII, we can see that GPHH-N can evolve much
+smaller routing policies than GPHH on 18 out of 23 instances
+ontheUgdbdataset.GPHH-Ncanalsoobtainsmallerrouting
+policiesthanGPHH-Aon18outof23instances.InTableVIII,
+the results are consistent with that in Table VII. GPHH-N can
+evolvemuchsmallerroutingpoliciesthanGPHHon24outof
+Fig.6. ScatterplotofGPHH-Nwithdifferentα valueonUval2B. 34 instances on the Uval dataset. It can evolve much smaller
+routing policies than GPHH-A on 19 out of 34 instances.
+OntheUgdbdataset,wecanseethatGPHH-Nsignificantly NotethatTarpeianandLPPPachievedmuchsmallerrouting
+outperformed all the compared algorithms. It performed sig- policies on both datasets. However, their test performance is
+nificantly better than GPHH on 11 out of 23 instances and much worse than GPHH-N in most instances. The tree size of
+neverperformedworsethanGPHH.Besides,GPHH-Nsignif- routingpoliciesevolvedbyDTiscomparablewiththatinGPHH
+icantly outperformed GPHH-A on 9 out of 23 instances while on both datasets. This is because DT first selects the parents
+was defeated by GPHH-A on only two instances. GPHH- based on the fitness and then considers the tree size. Thus,
+N performed significantly better than Tarpeian on 19 out if all the good individuals selected from the first tournament
+of 23 instances and slightly worse on only one instance. selectionarelarge,thereisnochancetoselectsmallindividuals
+GPHH-NwasdefeatedbyDTononlyoneinstance.However, inthesecondtournamentselectionprocess.Overall,GPHH-N
+it outperformed DT on 10 out of 23 instances. GPHH-N performed well on the tree size, which is expected, as it can
+outperformed LPPP on all the instances except Ugdb16. On effectively remove redundant components in GP trees.
+average, GPHH-N (283.85) performed the best among all the 4) Test Performance versus Tree Size: To show the results
+compared approaches on the Ugdb dataset. more clearly, we also plot the results in a scatter map, where
+The same pattern can be observed for the Uval dataset. the x-axis is mean test performance on 30 independent runs
+GPHH-N significantly outperformed GPHH on 22 out of and the y-axis is the mean tree size. Fig. 7 shows the scat-
+34 instances while never performed worse. GPHH-N outper- ter plot on Ugdb1 and Uval2B. Each compared algorithm is
+formed GPHH-A on 24 instances while showed comparable representedasasingledotwithaspecificshapeineachfigure.
+resultsontheremainingteninstances.GPHH-NbeatTarpeian From Fig. 7, we can see that GPHH-N dominates all
+on32outof34instancesbutnevershowedsignificantlyworse the other methods except Tarpeian and LPPP, which achieve
+test performance. GPHH-N also significantly outperformed smaller tree size but much worse test performance. Consider
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+82 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022
+TABLEVI
+MEANANDSTANDARDDEVIATIONFORTestPerformanceOFCOMPAREDAPPROACHESONTHEUvalINSTANCESOF30RUNS
+TABLEVII
+MEANANDSTANDARDDEVIATIONFORTreeSizeOFROUTINGPOLICIESOFTHECOMPAREDALGORITHMSONUgdbINSTANCESOF30RUNS
+that the test performance is relatively more important than the As expected, both GPHH-A and GPHH-N can significantly
+tree size, we can see that GPNN-N is better than all the other reduce the training time on most instances. This is mainly
+compared algorithms. because the simplification operation can remove the redun-
+5) TrainingTime: TableIXshowsthemeantrainingtimeof dant components. The simplified routing policies need less
+GPHH, GPHH-A, and GPHH-N on Ugdb and Uval instances. time to be evaluated. We can see that GPHH-N can further
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+WANGetal.:GENETICPROGRAMMINGWITHNICHINGFORUNCERTAINCAPACITATEDARCROUTINGPROBLEM 83
+TABLEVIII
+MEANANDSTANDARDDEVIATIONFORTreeSizeOFROUTINGPOLICIESOFTHECOMPAREDALGORITHMSONUvalINSTANCESOF30RUNS
+Fig.7. Scattermapofcomparedapproachesonrepresentativeinstances.(a)Ugdb1.(b)Uval2B.
+TABLEIX
+Overall, we can see obvious advantage of GPHH-N over
+MEANTrainingTime(SECONDS)OFTHECOMPAREDALGORITHMS
+ONUgdbANDUvalDATASETS GPHH, GPHH-A, and the compared bloat control methods.
+GPHH-N can obtain better and smaller routing policies in a
+shorter training time.
+V. FURTHERANALYSIS
+A. Effect of Each Component
+reducetrainingtimecomparingwithGPHH-A.Thisismainly It has been shown that GPHH-N can evolve both better
+because GPHH-N can remove more redundant components and smaller routing policies. There are four main com-
+than GPHH-A and makes evolved trees smaller. ponents in GPHH-N. They are the niching simplification
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+84 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022
+TABLEX
+WIN-DRAW-LOSETABLEFORTHECONTROLLEDEXPERIMENTS
+BETWEENTHECOMPAREDALGORITHMSANDGPHH-NINTERMSOF
+TestPerformance
+TABLEXI
+WIN-DRAW-LOSETABLEFORTHECONTROLLED
+EXPERIMENTSBETWEENTHECOMPAREDALGORITHMSANDGPHH-N
+INTERMSOFTreeSize
+Fig. 8. Scatter map of controlled experiment on a representative instance
+Uval2B.
+with the similar test performance
+(SectionIII-D),nichingelitismscheme(SectionIII-E),niching
+tournamentselection(SectionIII-F),andmultisourcebreeding RP=S +max(S ,S ) (13)
+1 2 3
+(Section III-G). In order to verify the effectiveness of each
+where
+component of GPHH-N, we designed some controlled experi-
+ments.Duetothepagelimit,wewillpresenttheexperimental S =2DEM+CFH−CTD (14)
+1
+results in the Win-Draw-Lose format. Win (Lose) indicates S =DEM+CFH−CTD (15)
+2
+thatGPHH-Ncansignificantlyperformbetter(worse)thanthe
+S =FUT+RQ−max(CFR1,CTT1). (16)
+comparedalgorithm.DrawindicatesthatGPHH-Ncanachieve 3
+comparable results with the compared algorithm. Table X To make it easier to understand, we can also transform RP
+shows the results in terms of test performance and Table XI to the following IF-ELSE format rule set.
+shows the results in terms of the tree size of the evolved if S ≥S then
+2 3
+routing policies. RP=3DEM+2CFH−2CTD
+From Table X, one can see that the niching tournament
+else
+selection made the most contribution to GPHH-N in terms of if CFR1>CTT1 then
+test performance. The test performance decreases on 28 out RP=2DEM+CFH−CTD+FUT+RQ−CFR1
+of57instanceswhennichingtournamentselectionisnotused
+else
+(using traditional tournament selection on the simplified pop- RP=2DEM+CFH−CTD+FUT+RQ−CTT1
+ulation instead). The multisource breeding method can make
+end if
+somecontributions.Thenichingelitismdoes notplayamajor
+end if
+role in improving the test performance.
+We can identify the following patterns and interpretations
+FromTableXI,onecanobservethatthenichingtournament
+from the above rule set.
+selection tends to increase the tree size. The niching tourna-
+1) WhenS ≥S ,theRPbecomesRP=3DEM+2CFH−
+2 3
+mentselectioncanimprovethediversityoftheparentselection
+2CTD. There are two possible cases for S ≥ S to
+2 3
+process and lead to better test performance. However, it will
+happen.
+also increase the tree size.
+a) S is large. This indicates that all the remaining
+2
+Fig. 8 shows the scatter plot of the GPHH-N with and
+taskshavelargedemand,farawayfromthecurrent
+without different components. We can see that all the three
+location of the vehicle and close to the depot.
+components are important in terms of test performance. We
+b) S is small. This indicates that there are not many
+3
+can see that the dot of GPHH-N without niching tournament
+remaining tasks, the vehicle is almost full, and all
+selection is located at the bottom right area of the plot. This
+the remaining tasks have a large CFR1 and CTT1
+indicates that niching tournament selection can improve the
+(theyarefarawayfromtheothervehiclesandeach
+test performance at the cost of larger tree size.
+other);
+In these two cases, RP prefers the tasks with small
+B. Semantic Analysis of Evolved Policies
+demands, close to the current location of the vehicle
+To gain further understanding of the behavior of the and far away from the depot.
+routing policies, a representative routing policy is selected. 2) Otherwise, S < S indicates that the remaining tasks
+2 3
+Equations (13)–(16) show a selected policy evolved by canhavesmalldemands,areclosetothecurrentlocation
+GPHH-NfortheUgdb19instance.Thepolicyhasapromising of the vehicle, and far away from the depot, and the
+test performance (63.39, while the mean test performance of vehicleisrelativelyempty.Italsohastwopossiblecases.
+GPHH-Nis63.63).Inaddition,ithas21nodes,whichismuch a) CFR1 > CTT1, this indicates that the task is
+smaller than the routing policies evolved by other algorithms close to some other tasks, but far away from other
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+WANGetal.:GENETICPROGRAMMINGWITHNICHINGFORUNCERTAINCAPACITATEDARCROUTINGPROBLEM 85
+vehicles.Inthiscase,inadditiontosmalldemands, [5] Y. Mei, K. Tang, and X. Yao, “Capacitated arc routing problem in
+close to the current location of the vehicle and far uncertain environments,” in Proc. IEEE Congr. Evol. Comput., 2010,
+pp.1–8.
+awayfromthedepot,RPalsoprefersthetaskswith
+[6] J.Liu,K.Tang,andX.Yao,“Robustoptimizationinuncertaincapaci-
+largerCFR1,i.e.,fartherawayfromothervehicles. tatedarcroutingproblems:Progressesandperspectives,”IEEEComput.
+b) CFR1<CTT1, this indicates the task is far away Intell.Mag.,vol.16,no.1,pp.63–82,Feb.2021.
+[7] H.Tong,L.L.Minku,S.Menzel,B.Sendhoff,andX.Yao,“Towards
+from other tasks, but can be close to some other
+novel meta-heuristic algorithms for dynamic capacitated arc routing
+vehicles.Inthiscase,inadditiontosmalldemands, problems,” in Proc. Int. Conf. Parallel Probl. Solving Nat., 2020,
+close to the current location of the vehicle and far pp.428–440.
+[8] M. R. Khouadjia, B. Sarasola, E. Alba, L. Jourdan, and E.-G. Talbi,
+awayfromthedepot,RPalsoprefersthetaskswith
+“AcomparativestudybetweendynamicadaptedPSOandVNSforthe
+larger CTT1, i.e., far away from other tasks. In vehicle routing problem with dynamic requests,” Appl. Soft Comput.,
+other words, RP prefers the isolated tasks toward vol.12,no.4,pp.1426–1439,2012.
+[9] N. Secomandi and F. Margot, “Reoptimization approaches for the
+the beginning of the routes.
+vehicle-routingproblemwithstochasticdemands,”Oper.Res.,vol.57,
+no.1,pp.214–230,2009.
+[10] G.ChryssolourisandV.Subramaniam,“Dynamicschedulingofmanu-
+VI. CONCLUSIONANDFUTUREWORK facturingjobshopsusinggeneticalgorithms,”J.Intell.Manuf.,vol.12,
+no.3,pp.281–293,2001.
+The goal of this work was to evolve both effective and
+[11] U.Ritzinger,J.Puchinger,andR.F.Hartl,“Asurveyondynamicand
+smaller/simpler routing policies for UCARP. This goal has stochastic vehicle routing problems,” Int. J. Prod. Res., vol. 54, no. 1,
+been successfully achieved by the newly proposed novel pp.215–231,2016.
+[12] P.Lacomme,C.Prins,andW.Ramdane-Cherif,“Competitivememetic
+GPHH with a simplification approach using a niching tech-
+algorithms for arc routing problems,” Ann. Oper. Res., vol.131,
+nique(GPHH-N).GPHH-Nwasexaminedandcomparedwith nos.1–4,pp.159–185,2004.
+the basic GPHH approach without simplification (GPHH), [13] J.Jacobsen-Grocott,Y.Mei,G.Chen,andM.Zhang,“Evolvingheuris-
+ticsfordynamicvehicleroutingwithtimewindowsusinggeneticpro-
+the basic GPHH approach with algebraic simplification
+gramming,”inProc.IEEECongr.Evol.Comput.,2017,pp.1948–1955.
+(GPHH-A) and three representative bloat control methods [14] H.Al-Sahafetal.,“Asurveyonevolutionarymachinelearning,”J.Roy.
+on 57 UCARP instances. The results suggest that GPHH- Soc.NewZealand,vol.49,no.2,pp.205–228,2019.
+[15] S.Nguyen,M.Zhang,M.Johnston,andK.C.Tan,“Automaticdesign
+N can outperform all the compared approaches in terms of
+ofschedulingpoliciesfordynamicmulti-objectivejobshopscheduling
+test performance. GPHH-N can also outperform GPHH and via cooperative coevolution genetic programming,” IEEE Trans. Evol.
+GPHH-A in terms of tree size and training time. We also Comput.,vol.18,no.2,pp.193–208,Apr.2014.
+[16] J. Branke, S. Nguyen, C. W. Pickardt, and M. Zhang, “Automated
+analyzed the effect of the newly proposed components by
+designofproductionschedulingheuristics:Areview,”IEEETrans.Evol.
+a set of controlled experiments. The results showed that all Comput.,vol.20,no.1,pp.110–124,Feb.2016.
+the three new components could contribute to evolve smaller [17] F. Zhang, Y. Mei, S. Nguyen, and M. Zhang, “Collaborative multi-
+fidelity based surrogate models for genetic programming in dynamic
+and better routing policies. The niching tournament selection
+flexiblejobshopscheduling,”IEEETrans.Cybern.,earlyaccess,Feb.2,
+and multisource breeding components are more effective than 2021,doi:10.1109/TCYB.2021.3050141.
+the niching elitism component. Overall, GPHH-N can obtain [18] F. Zhang, Y. Mei, S. Nguyen, and M. Zhang, “Correlation coefficient
+basedrecombinativeguidanceforgeneticprogramminghyper-heuristics
+better test performance and smaller and potentially more
+in dynamic flexible job shop scheduling,” IEEE Trans. Evol. Comput.,
+interpretable routing policies than the current state-of-the-art vol.25,no.3,pp.552–566,Jun.2021.
+GPHH approach. [19] B. Tan, H. Ma, Y. Mei, and M. Zhang, “A cooperative coevolution
+geneticprogramminghyper-heuristicapproachforon-lineresourceallo-
+In the future, we will consider combining our approach
+cation in container-based clouds,” IEEE Trans. Cloud Comput., early
+withothersimplificationapproaches.Inaddition,wewillcon- access,Sep.24,2020,doi:10.1109/TCC.2020.3026338.
+sider some other ways that can improve the interpretability of [20] Y.Liu,Y.Mei,M.Zhang,andZ.Zhang,“Automatedheuristicdesign
+usinggeneticprogramminghyper-heuristicforuncertaincapacitatedarc
+evolvedroutingpolicies,suchasGeneticprogrammingvisual-
+routing problem,” in Proc. ACM Genet. Evol. Comput. Conf., 2017,
+ization techniques and grammar-based Genetic Programming. pp.290–297.
+GPHH-N was developed for UCARP. However, it could also [21] J.MacLachlan,Y.Mei,J.Branke,andM.Zhang,“Animprovedgenetic
+programming hyper-heuristic for the uncertain capacitated arc routing
+beextendedtoevolveeffectiveandsimpleheuristicsforother
+problem,”inProc.Aust.JointConf.Artif.Intell.,2018,pp.432–444.
+dynamic and uncertain problems such as dynamic job shop [22] Y.MeiandM.Zhang,“Geneticprogramminghyper-heuristicformulti-
+scheduling by changing the fitness evaluation and pheno- vehicleuncertaincapacitatedarcroutingproblem,”inProc.ACMGenet.
+Evol.Comput.Conf.Companion,2018,pp.141–142.
+typic characterization for niching if necessary. We will extend
+[23] Y.Liu,Y.Mei,M.Zhang,andZ.Zhang,“Apredictive-reactiveapproach
+GPHH-N to other problems in our future work. with genetic programming and cooperative co-evolution for uncer-
+tain capacitated arc routing problem,” Evol. Comput., vol. 28, no. 2,
+pp.289–316,Jun.2020.
+REFERENCES [24] G. Gao, Y. Mei, B. Xin, Y.-H. Jia, and W. N. Browne, “Automated
+coordination strategy design using genetic programming for dynamic
+[1] B. L. Golden and R. T. Wong, “Capacitated arc routing problems,” multipoint dynamic aggregation,” IEEE Trans. Cybern., early access,
+Networks,vol.11,no.3,pp.305–315,1981. Jun.2,2021,doi:10.1109/TCYB.2021.3080044.
+[2] S.AmponsahandS.Salhi,“Theinvestigationofaclassofcapacitated [25] S.Bleuler,M.Brack,L.Thiele,andE.Zitzler,“Multiobjectivegenetic
+arcroutingproblems:Thecollectionofgarbageindevelopingcountries,” programming: Reducing bloat using SPEA2,” in Proc. IEEE Congr.
+WasteManag.,vol.24,no.7,pp.711–721,2004. Evol.Comput.,2001,pp.536–543.
+[3] H. Handa, L. Chapman, and X. Yao, “Robust route optimization for [26] E.D.DeJong,R.A.Watson,andJ.B.Pollack,“Reducingbloatandpro-
+gritting/saltingtrucks:Acerciaexperience,”IEEEComput.Intell.Mag., motingdiversityusingmulti-objectivemethods,”inProc.Conf.Genet.
+vol.1,no.1,pp.6–9,Feb.2006. Evol.Comput.,2001,pp.11–18.
+[4] S.Wøhlk,“Adecadeofcapacitatedarcrouting,”inTheVehicleRouting [27] R. Poli, N. F. McPhee, and L. Vanneschi, “Elitism reduces bloat in
+Problem: Latest Advances and New Challenges. Boston, MA, USA: genetic programming,” in Proc. Conf. Genet. Evol. Comput., 2008,
+Springer,2008,pp.29–48. pp.1343–1344.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+86 IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION,VOL.26,NO.1,FEBRUARY2022
+[28] R.Poli,W.B.Langdon,N.F.McPhee,andJ.R.Koza,AFieldGuide [54] Y.Mei,X.Li,andX.Yao,“Cooperativecoevolutionwithroutedistance
+toGeneticProgramming,Lulu,AbuDhabi,UAE,2008. groupingforlarge-scalecapacitatedarcroutingproblems,”IEEETrans.
+[29] S.Wang,Y.Mei,andM.Zhang,“Novelensemblegeneticprogramming Evol.Comput.,vol.18,no.3,pp.435–449,Jun.2014.
+hyper-heuristicsforuncertaincapacitatedarcroutingproblem,”inProc. [55] K.Tang,J.Wang,X.Li,andX.Yao,“Ascalableapproachtocapacitated
+Genet.Evol.Comput.Conf.,2019,pp.1093–1101. arcroutingproblemsbasedonhierarchicaldecomposition,”IEEETrans.
+[30] D.Kinzett,M.Zhang,andM.Johnston,“Investigationofsimplification Cybern.,vol.47,no.11,pp.3928–3940,Nov.2017.
+threshold and noise level of input data in numerical simplification of [56] L. Feng, Y.-S. Ong, I. W.-H. Tsang, and A.-H. Tan, “An evolutionary
+geneticprograms,”inProc.IEEECongr.Evol.Comput.,2010,pp.1–8. searchparadigmthatlearnswithpastexperiences,”inProc.IEEECongr.
+[31] S. Luke and L. Panait, “A comparison of bloat control methods for Evol.Comput.,2012,pp.1–8.
+geneticprogramming,”Evol.Comput.,vol.14,no.3,pp.309–344,2006. [57] L. Feng, Y.-S. Ong, A.-H. Tan, and I. W. Tsang, “Memes as building
+[32] D. Kinzett, M. Johnston, and M. Zhang, “How online simplification blocks:Acasestudyonevolutionaryoptimization+transferlearningfor
+affectsbuildingblocksingeneticprogramming,”inProc.Conf.Genet. routingproblems,”MemeticComput.,vol.7,no.3,pp.159–180,2015.
+Evol.Comput.,2009,pp.979–986. [58] L. Feng, Y. Ong, M. Lim, and I. W. Tsang, “Memetic search with
+[33] M. Zhang, P. Wong, and D. Qian, “Online program simplification in interdomain learning: A realization between CVRP and CARP,” IEEE
+geneticprogramming,”inProc.Asia–Pac.Conf.Simulat.Evol.Learn., Trans.Evol.Comput.,vol.19,no.5,pp.644–658,Oct.2016.
+2006,pp.592–600. [59] E. B. Tirkolaee, M. Alinaghian, M. B. Sasi, and M. S. Esfahani,
+[34] M. Zhang and P. Wong, “Genetic programming for medical classifica- “Solvingarobustcapacitatedarcroutingproblemusingahybridsimu-
+tion:Aprogramsimplificationapproach,”Genet.Program.Evol.Mach., latedannealingalgorithm:Awastecollectionapplication,”J.Ind.Eng.
+vol.9,no.3,pp.229–255,2008. Manag.Stud.,vol.3,no.1,pp.61–76,2016.
+[35] M.Zhang,Y.Zhang,andW.Smart,“Programsimplificationingenetic [60] J. Wang, K. Tang, and X. Yao, “A memetic algorithm for uncertain
+programmingforobjectclassification,”inProc.Int.Conf.Knowl.Based capacitated arc routing problems,” in Proc. IEEE Workshop Memetic
+Intell.Inf.Eng.Syst.,2005,pp.988–996. Comput.(MC),2013,pp.72–79.
+[36] P.WongandM.Zhang,“AlgebraicsimplificationofGPprogramsduring [61] J.Wang,K.Tang,J.A.Lozano,andX.Yao,“Estimationofthedistri-
+evolution,”inProc.Conf.Genet.Evol.Comput.,2006,pp.927–934. butionalgorithmwithastochasticlocalsearchforuncertaincapacitated
+[37] D. Kinzett, M. Zhang, and M. Johnston, “Using numerical simplifica- arc routing problems,” IEEE Trans. Evol. Comput., vol. 20, no. 1,
+tiontocontrolbloatingeneticprogramming,”inProc.Asia–Pac.Conf. pp.96–109,Feb.2016.
+Simulat.Evol.Learn.,2008,pp.493–502.
+[62] S. Tsutsui, M. Pelikan, and D. E. Goldberg, “Using edge histogram
+[38] A. Song, D. Chen, and M. Zhang, “Contribution based bloat control modelstosolvepermutationproblemswithprobabilisticmodel-building
+in genetic programming,” in Proc. IEEE Congr. Evol. Comput., 2010, genetic algorithms,” Illinois Genet. Algorithms Lab., Univ. Illinois at
+pp.1–8. Urbana-Champaign,Urbana,MI,USA,IlliGALRep.2003022,2003.
+[39] S.W.Mahfoud,“Nichingmethodsforgeneticalgorithms,”Ph.D.disser-
+[63] H. Tong, L. L. Minku, S. Menzel, B. Sendhoff, and X. Yao, “A
+tation, Dept. Gen. Eng., Univ. Illinois at Urbana–Champaign, Urbana,
+novelgeneralisedmeta-heuristicframeworkfordynamiccapacitatedarc
+IL,USA,1995.
+routingproblems,”2021.[Online].Available:arXiv:2104.06585.
+[40] T.Huang,Y.-J.Gong,S.Kwong,H.Wang,andJ.Zhang,“ANiching
+[64] H.Tong,L.Minku,S.Menzel,B.Sendhoff,andX.Yao,“Ahybridlocal
+memeticalgorithmformulti-solutiontravelingsalesmanproblem,”IEEE
+searchframeworkforthedynamiccapacitatedarcroutingproblem,”in
+Trans.Evol.Comput.,vol.24,no.3,pp.508–522,Jun.2020.
+Proc.Genet.Evol.Comput.Conf.,2021,p.9.
+[41] G. Fleury, P. Lacomme, and C. Prins, “Evolutionary algorithms for
+[65] T. Weise, A. Devert, and K. Tang, “A developmental solution to
+stochastic arc routing problems,” in Proc. Workshops Appl. Evol.
+(dynamic)capacitatedarcroutingproblemsusinggeneticprogramming,”
+Comput.,2004,pp.501–512.
+inProc.ACMConf.Genet.Evol.Comput.,2012,pp.831–838.
+[42] H.Handa,L.Chapman,andX.Yao,“Robustsaltingrouteoptimization
+[66] J.MacLachlan,Y.Mei,J.Branke,andM.Zhang,“Geneticprogramming
+using evolutionary algorithms,” in Evolutionary Computation in
+hyper-heuristicswithvehiclecollaborationforuncertaincapacitatedarc
+DynamicandUncertainEnvironments.Berlin,Germany:Springer,2007,
+routingproblems,”Evol.Comput.,vol.28,no.4,pp.563–593,2020.
+pp.497–517.
+[67] M. A. Ardeh, Y. Mei, and M. Zhang, “Genetic programming hyper-
+[43] M. Fadzli, N. Najwa, and M. Luis, “Capacitated arc routing problem
+heuristic with knowledge transfer for uncertain capacitated arc routing
+and its extensions in waste collection,” in Proc. AIP Conf., 2015, Art.
+problem,” in Proc. Genet. Evol. Comput. Conf. Companion, 2019,
+no050001.
+pp.334–335.
+[44] E.W.Dijkstraetal.,“Anoteontwoproblemsinconnexionwithgraphs,”
+[68] Y.Liu,Y.Mei,M.Zhang,andZ.Zhang,“Apredictive-reactiveapproach
+NumerischeMathematik,vol.1,no.1,pp.269–271,1959.
+with genetic programming and cooperative coevolution for the uncer-
+[45] J. M. Belenguer and E. Benavent, “A cutting plane algorithm for the
+tain capacitated Arc routing problem,” Evol. Comput., vol. 28, no. 2,
+capacitated arc routing problem,” Comput. Oper. Res., vol. 30, no. 5,
+pp.289–316,2020.
+pp.705–728,2003.
+[69] Q. Chen, B. Xue, and M. Zhang, “Rademacher complexity for
+[46] A. Hertz, G. Laporte, and M. Mittaz, “A Tabu search heuristic for the
+enhancing the generalization of genetic programming for symbolic
+capacitatedarcroutingproblem,”Oper.Res.,vol.48,no.1,pp.129–135,
+regression,” IEEE Trans. Cybern., early access, Jul. 16, 2020,
+2000.
+doi:10.1109/TCYB.2020.3004361.
+[47] J. Brandão and R. Eglese, “A deterministic Tabu search algorithm for
+thecapacitatedarcroutingproblem,”Comput.Oper.Res.,vol.35,no.4, [70] J.R.KozaandJ.R.Koza,GeneticProgramming:OntheProgramming
+pp.1112–1126,2008. of Computers by Means of Natural Selection, vol. 1. Cambridge, MA,
+USA:MITPress,1992.
+[48] P. Lacomme, C. Prins, and W. Ramdane-Chérif, “A genetic algorithm
+for the capacitated arc routing problem and its extensions,” in Proc. [71] M.J.CavarettaandK.Chellapilla,“Dataminingusinggeneticprogram-
+WorkshopsAppl.Evol.Comput.,2001,pp.473–483. ming:Theimplicationsofparsimonyongeneralizationerror,”inProc.
+[49] K.Tang,Y.Mei,andX.Yao,“Memeticalgorithmwithextendedneigh- IEEECongr.Evol.Comput.(CEC),vol.2,1999,pp.1330–1337.
+borhoodsearchforcapacitatedarcroutingproblems,”IEEETrans.Evol. [72] S. Luke and L. Panait, “Fighting bloat with nonparametric parsi-
+Comput.,vol.13,no.5,pp.1151–1166,Oct.2009. monypressure,”inProc.Int.Conf.ParallelProbl.SolvingNat.,2002,
+[50] Y.Mei,K.Tang,andX.Yao,“Decomposition-basedmemeticalgorithm pp.411–421.
+formultiobjectivecapacitatedarcroutingproblem,”IEEETrans.Evol. [73] D. C. Hooper and N. S. Flann, “Improving the accuracy and robust-
+Comput.,vol.15,no.2,pp.151–165,Apr.2011. nessofgeneticprogrammingthroughexpressionsimplification,”inProc.
+[51] K. F. Doerner, R. F. Hartl, V. Maniezzo, and M. Reimann, “Applying Conf.Genet.Program.,1996,pp.428–428.
+antcolonyoptimizationtothecapacitatedarcroutingproblem,”inProc. [74] D.Kinzett, M.Johnston,andM.Zhang,“Numerical simplification for
+Int.WorkshopAntColonyOptim.SwarmIntell.,2004,pp.420–421. bloatcontrolandanalysisofbuildingblocksingeneticprogramming,”
+[52] L.-N. Xing, P. Rohlfshagen, Y.-W. Chen, and X. Yao, “A hybrid ant Evol.Intell.,vol.2,no.4,p.151,2009.
+colonyoptimizationalgorithmfortheextendedcapacitatedarcrouting [75] T. Hildebrandt, J. Heger, and B. Scholz-Reiter, “Towards improved
+problem,” IEEE Trans. Syst. Man, Cybern. B, Cybern., vol. 41, no. 4, dispatching rules for complex shop floor scenarios: A genetic pro-
+pp.1110–1123,Aug.2011. grammingapproach,”inProc.ACMGenet.Evol.Comput.Conf.,2010,
+[53] Y.-H. Jia, Y. Mei, and M. Zhang, “A bilevel ant colony optimization pp.257–264.
+algorithmforcapacitatedelectricvehicleroutingproblem,”IEEETrans. [76] T. Hildebrandt and J. Branke, “On using surrogates with genetic
+Cybern.,earlyaccess,Apr.20,2021,doi:10.1109/TCYB.2021.3069942. programming,”Evol.Comput.,vol.23,no.3,pp.343–367,2015.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.
+WANGetal.:GENETICPROGRAMMINGWITHNICHINGFORUNCERTAINCAPACITATEDARCROUTINGPROBLEM 87
+[77] E. K. Burke, M. Hyde, G. Kendall, and J. Woodward, “A genetic Mengjie Zhang (Fellow, IEEE) received the
+programming hyper-heuristic approach for evolving 2-D strip packing B.E. and M.E. degrees from Artificial Intelligence
+heuristics,” IEEE Trans. Evol. Comput., vol. 14, no. 6, pp.942–958, Research Center, Agricultural University of Hebei,
+Dec.2010. Baoding,China,in1989and1992,respectively,and
+[78] E.K.Burke,M.R.Hyde,G.Kendall,andJ.Woodward,“Automating the Ph.D. degree in computer science from RMIT
+thepackingheuristicdesignprocesswithgeneticprogramming,”Evol. University,Melbourne,VIC,Australia,in2000.
+Comput.,vol.20,no.1,pp.63–89,2012. HeiscurrentlyaProfessorofComputerScience,
+[79] S. Luke et al. (2006). ECJ: A Java-Based Evolutionary Computation theHeadoftheEvolutionaryComputationResearch
+Research System. [Online]. Available: http://cs.gmu.edu/eclab/ Group, and the Associate Dean (Research and
+projects/ecj Innovation)withtheFacultyofEngineering,Victoria
+UniversityofWellington,Wellington,NewZealand.
+He has published over 500 research papers in refereed international jour-
+nals and conferences. His current research interests include evolutionary
+computation,particularlygeneticprogramming,particleswarmoptimization,
+Shaolin Wang (Graduate Student Member, IEEE) and learning classifier systems with application areas of image analysis,
+receivedtheB.Sc.degreeingeographicinformation multiobjectiveoptimization,featureselectionandreduction,job-shopschedul-
+system from Nanning Normal University, Nanning, ing,andtransferlearning.
+China,in2012,thePostgraduateDiplomadegreein Prof. Zhang was the Chair of the IEEE CIS Intelligent Systems and
+geographic information system from the University Applications Technical Committee, the IEEE CIS Emergent Technologies
+of Otago, Dunedin, New Zealand, in 2014, the Technical Committee, and the Evolutionary Computation Technical
+GraduateDiplomadegreeincomputersciencefrom Committee and a member of the IEEE CIS Award Committee. He is the
+the University of Canterbury, Christchurch, New Vice-Chair of the Task Force on Evolutionary Computer Vision and Image
+Zealand, in 2016, and the master’s degree in Processing and the Founding Chair of the IEEE Computational Intelligence
+computer science from the Victoria University of Chapter in New Zealand. He is also a Committee Member of the IEEE NZ
+Wellington, Wellington, New Zealand, in 2019, CentralSection.HeisaFellowoftheRoyalSocietyofNewZealandandan
+where he is currently pursuing the Ph.D. degree with the School of IEEEDistinguishedLecturer.
+EngineeringandComputerScience.
+His research interests are artificial intelligence, evolutionary computation,
+hyper-heuristic,routing,andreal-worldoptimisation.
+Xin Yao (Fellow, IEEE) received the B.Sc. degree
+from the University of Science and Technology of
+China (USTC), Hefei, China, in 1982, the M.Sc.
+Yi Mei (Senior Member, IEEE) received the B.Sc. degreefromtheNorthChinaInstituteofComputing
+and Ph.D. degrees from the University of Science Technologies,Sanhe,China,in1985,andthePh.D.
+andTechnologyofChina,Hefei,China,in2005and degreefromUSTCin1990.
+2010,respectively. He is the Chair Professor of Computer Science
+HeiscurrentlyaSeniorLecturerwiththeSchool with the Southern University of Science and
+of Engineering and Computer Science, Victoria Technology, Shenzhen, China, and a Part-Time
+UniversityofWellington,Wellington,NewZealand. Professor of Computer Science with the University
+Hisresearchinterestsincludeevolutionaryschedul- of Birmingham, Birmingham, U.K. His major
+ing and combinatorial optimisation, machine learn- research interests include evolutionary computation, ensemble learning, and
+ing,geneticprogramming,andhyper-heuristics. theirapplicationstosoftwareengineering.
+Dr.MeiservesastheVice-ChairoftheIEEECIS Dr.Yaoreceivedthe2012RoyalSocietyWolfsonResearchMeritAward,
+Emergent Technologies Technical Committee and a member of Intelligent the2013IEEECISEvolutionaryComputationPioneerAward,andthe2020
+Systems Applications Technical Committee. He is an editorial board mem- IEEE Frank Rosenblatt Award. His work won the 2001 IEEE Donald G.
+ber/associate editor of four International Journals, and a guest editor of a Fink Prize Paper Award; 2010, 2016, and 2017 IEEE TRANSACTIONSON
+specialissueoftheGeneticProgrammingEvolvableMachine.Heservesasa EVOLUTIONARYCOMPUTATIONOutstandingPaperAwards;the2011IEEE
+reviewer of over 30 international journals. He has over 130 fully referred TRANSACTIONS ON NEURAL NETWORKS Outstanding Paper Award; the
+publications, including the top journals in EC and Operations Research, 2010BTGordonRadleyAwardforBestAuthorofInnovation(Finalist);and
+such as IEEETRANSACTIONSONEVOLUTIONARYCOMPUTATION, IEEE manyotherbestpaperawardsatconferences.HeservedasthePresidentfrom
+TRANSACTIONS ON CYBERNETICS, Evolutionary Computation, European 2014to2015ofIEEECISandtheEditor-in-Chieffrom2003to2008ofIEEE
+Journal of Operational Research, and ACM Transactions on Mathematical TRANSACTIONSONEVOLUTIONARYCOMPUTATION.HeisaDistinguished
+Software. LectureroftheIEEEComputationalIntelligenceSociety.
+Authorized licensed use limited to: BEIHANG UNIVERSITY. Downloaded on April 29,2026 at 08:52:34 UTC from IEEE Xplore. Restrictions apply.

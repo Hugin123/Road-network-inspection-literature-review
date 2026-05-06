@@ -1,0 +1,1808 @@
+mathematics
+Article
+An Artificial Bee Colony Algorithm for Static and Dynamic
+Capacitated Arc Routing Problems
+ZsuzsannaNagy1,*,ÁgnesWerner-Stark1andTiborDulai1
+DepartmentofElectricalEngineeringandInformationSystems,FacultyofInformationTechnology,
+UniversityofPannonia,EgyetemSt.10,8200Veszprém,Hungary;werner.agnes@virt.uni-pannon.hu(Á.W.);
+dulai.tibor@virt.uni-pannon.hu(T.D.)
+* Correspondence:nagy.zsuzsanna@virt.uni-pannon.hu
+Abstract:TheCapacitatedArcRoutingProblem(CARP)isacombinatorialoptimizationproblem,
+whichrequirestheidentificationofsuchrouteplansonagivengraphtoanumberofvehiclesthat
+generatestheleasttotalcost.TheDynamicCARP(DCARP)isavariationoftheCARPthatconsiders
+dynamicchangesintheproblem. TheArtificialBeeColony(ABC)algorithmisanevolutionary
+optimizationalgorithmthatwasproventobeabletoprovidebetterperformancethanmanyother
+evolutionaryalgorithms,butitwasnotusedfortheCARPbefore. Forthisreason,inthisstudy,
+anABCalgorithmfortheCARP(CARP-ABC)wasdevelopedalongwithanewmoveoperatorfor
+theCARP,thesub-routeplanoperator.TheCARP-ABCalgorithmwastestedbothasaCARPand
+aDCARPsolver,thenitsperformancewascomparedwithotherexistingalgorithms. Theresults
+showedthatitexcelsinfindingarelativelygoodqualitysolutioninashortamountoftime,which
+makesitacompetitivesolution.Theefficiencyofthesub-routeplanoperatorwasalsotestedandthe
+resultsshowedthatitismorelikelytofindbettersolutionsthanotheroperators.
+Keywords:capacitatedarcroutingproblem;dynamiccapacitatedarcroutingproblem;artificialbee
+(cid:1)(cid:2)(cid:3)(cid:1)(cid:4)(cid:5)(cid:6)(cid:7)(cid:8)(cid:1) colonyalgorithm;evolutionaryoptimization;moveoperator
+(cid:1)(cid:2)(cid:3)(cid:4)(cid:5)(cid:6)(cid:7)
+Citation:Nagy,Z.;Werner-Stark,Á.; MSC:68W50;90B06;90B20;90C27;90C35;90C59;90C90
+Dulai,T.AnArtificialBeeColony
+AlgorithmforStaticandDynamic
+CapacitatedArcRoutingProblems.
+Mathematics2022,10,2205. https:// 1. Introduction
+doi.org/10.3390/math10132205
+TheCapacitatedArcRoutingProblem(CARP)isanNP-hardcombinatorialoptimiza-
+AcademicEditors:ZsoltTibor tionproblemthatwasfirstintroducedbyGoldenandWongin[1]. TheCARPrequires
+KosztyánandZoltánKovács determiningtheleastcostrouteplansonagraphofaroadnetworkforvehiclessubjectto
+someconstraints. Ithasmanyapplicationsinreallife,forinstance,inwintergritting[2,3]
+Received:27May2022
+orinurbansolidwastecollection[4,5]. SincetheCARPisanNP-hardproblem,insteadof
+Accepted:22June2022
+exactmethods,mainlyheuristicsandmeta-heuristics(e.g.,[6–10])areconsideredinthe
+Published:24June2022
+literaturetofindsolutions. Theexistingmethodsareeithertooslowordonotgiveenough
+Publisher’sNote:MDPIstaysneutral goodqualitysolutions,sothereisstillroomforimprovements.
+withregardtojurisdictionalclaimsin The standard CARP assumes a static problem, which is not the closest to real life,
+publishedmapsandinstitutionalaffil- wherechangesmayhappenduringtheexecutionofthesolution. Thesechangesmodify
+iations.
+theinstance,andthus,mayhaveaneffectonthefeasibilityandoptimalityofthecurrent
+solution[11]. Forthisreason, theDynamicCARP(DCARP),whichisavariationofthe
+CARPthattakesintoaccountdynamicchanges,isabetterapproach. Tomakethemodel
+oftheproblemunderconsiderationclosertothereal-lifeproblem,thechangesshouldbe
+Copyright: © 2022 by the authors.
+madebasedonthecollectedinformationaboutthevehiclesandtheroads. Forinstance,
+Licensee MDPI, Basel, Switzerland.
+informationcanbeprovidedbythedriversofthevehiclesabouttheexecutedtasks,bythe
+This article is an open access article
+GPSofthevehiclesabouttheircurrentposition,and(indirectly)bytrafficpatroldrones[12]
+distributed under the terms and
+aboutthecurrentstateoftheroads.
+conditionsoftheCreativeCommons
+Attribution(CCBY)license(https:// TheArtificialBeeColony(ABC)algorithmisaswarmintelligence-basedalgorithm
+creativecommons.org/licenses/by/ for optimization problems [13]. It was successfully applied on multiple combinatorial
+4.0/). optimizationproblemsthataresimilartotheCARP[14–19]andwasshownthattheABC
+Mathematics2022,10,2205.https://doi.org/10.3390/math10132205 https://www.mdpi.com/journal/mathematics
+Mathematics2022,10,2205 2of38
+algorithmprovidesbetterperformancethanmostoftheevolutionarycomputation-based
+optimization algorithms [16]. However, the ABC algorithm was never applied before,
+neitherontheCARPnorontheDCARP.
+Inourpreviouswork[20],wecollectedallthepossibleeventsandanalyzedtheiref-
+fectsonthemodel. Basedontheresults,adata-drivenDCARPframeworkwiththreeevent
+handlingalgorithmsandareroutingalgorithm(RR1)wasdeveloped. Theframeworkuses
+‘the‘virtualtask”strategy[21]tobeabletousestaticCARPsolversforDCARPinstances.
+Thecontributionsofthisworkareasfollows:
+1. ThedefinitionofthefirstABCalgorithmfortheCARP(CARP-ABC).
+2. Thedefinitionofanewsmallstep-sizemoveoperatorfortheCARP,thesub-route
+planoperator,whichisutilizedintheCARP-ABCalgorithm.
+3. Thedefinitionofanewmethodforcreatinginitialpopulation,theRSG.Thepurpose
+oftheRSGistocreaterandombutfeasiblesolutionsfortheCARPquickly.
+4. NumericalexperimentstotesttheCARP-ABCalgorithmonavarietyofCARPand
+DCARP instances. The same experiments were performed with other algorithms
+forCARP,thentheresultswerecompared. TheresultsshowedthatforbothCARP
+andDCARPinstances,theCARP-ABCalgorithmexcelsinfindingarelativelygood
+qualitysolutioninashortamountoftime.
+5. Numericalexperimentstotesttheefficiencyofthesub-routeplanoperatorwithinthe
+CARP-ABCalgorithm,onavarietyofCARPinstances. Theresultsshowedthatthe
+sub-routeplanoperatorismorelikelytofindabettersolutionthantheotheroperators,
+especiallywhenagreatermodificationisneededonthecurrentsolution(sinceitisa
+randomlygeneratedsolutionand/oritisasolutionofalargerCARPinstance).
+The rest of the paper is structured as follows. In Section 2, the related works are
+presented. InSection3,thebasicconceptsrelatedtotheproposedCARP-ABCalgorithmis
+introduced. InSection4andSection5,thealgorithmandthesub-routeplanmoveoperator
+areformulatedindetail,respectively. InSection6,theexperimentsandtheirresultsare
+discussed. ThepaperisconcludedinSection7.
+2. RelatedWorks
+Inthissection,therelatedworksareintroduced. InSection2.1,thealgorithmsthat
+weredevelopedforCARParepresented. InSection2.2,theapproachesforDCARPare
+summarized. InSection2.3,theABCalgorithmsthatweredevelopedforproblemsthatare
+similartotheCARParepresented.
+2.1. AlgorithmsfortheCARP
+As it was mentioned in Section 1, there are mainly approximate approaches (i.e.,
+heuristicsandmetaheuristics)fortheCARP.Forthisreason,onlythemethodsthatbelong
+tothatcategoryarementionedinthissubsection.
+2.1.1. Heuristics
+Golden et al. developed the first heuristic algorithms for the CARP, namely, the
+path-scanning and the augment-merge [22]. Other notable heuristics for the CARP are
+theparallel-insertmethod[23],Ulusoy’stoursplittingmethod[24],theaugment-insert
+method[25],thepath-scanningwithellipserule[26]andthepath-scanningwithefficiency
+rule[27].
+2.1.2. Metaheuristics
+ThemetaheuristicalgorithmsfortheCARPcanbedividedintotwomaincategories
+(withsomeexceptions): trajectory-basedandpopulation-based.
+Fromthetrajectory-basedalgorithms, thenotableonesaretheguidedlocalsearch
+algorithm [28], the tabu search algorithms [29,30], the variable neighborhood search al-
+gorithm[31],andthegreedyrandomizedadaptivesearchprocedurewithevolutionary
+path relinking [32]. It must be mentioned that in [29], two versions of the tabu search
+Mathematics2022,10,2205 3of38
+algorithm(TSA)wereproposed(TSA1andTSA2),fromwhichthelatterperformedbetter.
+In[33],aglobalrepairoperatorwasdevelopedandembeddedintotheTSA,creatingthe
+repair-basedtabusearch(RTS),whichoutperformstheTSA.
+Fromthepopulation-basedalgorithms,thenotableonesarethegeneticalgorithm[34],
+thememeticalgorithms[6,35],andtheantcolonyoptimizationalgorithms[8,36,37]. From
+these,theMemeticAlgorithmwithExtendedNeighborhoodSearch(MAENS)[6]isthe
+mostpopularone,eventhoughitonlygivesrelativelygoodqualitysolutionsandalsohas
+slowruntime. TherearemultiplesolutionsthattrytoimprovesomepartsoftheMAENS
+(e.g., [9,10]), but these improvements do not really increase the overall performance of
+it. TheAntColonyOptimizationAlgorithmwithPathRelinking(ACOPR)[8]givesonly
+relativelygoodqualitysolutions,butcurrentlyithasthefastestruntimeonmostofthe
+CARPinstancesfromthebenchmarktestsets.
+The Hybrid Metaheuristic Approach (HMA) [7] is a population-based algorithm
+thatutilizesarandomizedtabuthresholdingprocedureasapartofitslocalrefinement
+procedure. TheHMAgivesthebestqualitysolutionsamongallexistingalgorithmsand
+hasfasterruntimethanMAENS,butitisstillrelativelyslowonsomereal-lifebasedCARP
+instances. TheACOPRgivesonlyrelativelygoodqualitysolutions,butcurrently,ithasthe
+fastestruntimeonmostoftheCARPinstancesfromthebenchmarktestsets.
+2.2. ApproachesfortheDCARP
+DespitetheimportanceoftheDCARP,thenumberofstudiesaboutCARP(orARP)
+thatconsiderdynamicchangesintheproblemduringtheexecutionofthesolutionare
+relativelysmall[20,21,38–45]. Moreover,thereareonlythreestudiesthatconsidermore
+thantwotypeofchanges[20,21,42]andonlytwoofthem(includingourpreviouswork)
+considersallthecriticalchangesthatcanhappen[20,21]. (Foramoredetailedcomparison
+see[11,20].) Criticalchangesoreventsmaychangetheproblemtosuchanextentthatthe
+currentsolutionisnotfeasibleanymore,sohandlingthemisessential. Both[20,21]propose
+aframeworkfortheDCARPthat,insteadofusingcomplexspecializedalgorithms,allows
+theuseofanystaticCARPsolversforsolvingaDCARPinstance.
+Tothebestofourknowledge, thedata-drivensolutionfortheDCARPintroduced
+in[20]istheonlydata-drivenapproachforDCARPorevenCARP.
+2.3. TheABCAlgorithmandItsApplications
+TheoriginalABCalgorithmwasproposedbyKarabogain[13]. In[46],Karabogaand
+Görkemliproposedanewdefinitionforthesearchbehavioroftheonlookerbees,which
+improvedtheconvergenceperformanceofthealgorithm. Forthisreason,thenewversion
+oftheABCalgorithmwasnamedquickABC(qABC).
+TheABCalgorithmwasintroducedasanalgorithmformultivariableandmulti-modal
+continuousfunctionoptimization,butlateritwassuccessfullyappliedonothertypesof
+optimizationproblemsaswell. KarabogaandGörkemliintroducedanABCandaqABC
+algorithmforcombinatorialproblems(CABCandqCABC,respectively)andappliedthem
+totheTravelingSalesmanProblem(TSP)[14,15]. BothalgorithmsusetheGreedySubTour
+Mutation(GSTM)operator[47],whichwasdevelopedtoincreasetheperformanceofa
+geneticalgorithm(GA)thatsolvestheTSP.ItwasproventhattheGSTMissignificantly
+fasterandandmoreaccuratethanotherexistingmutationoperators[47]. Furthermore,it
+wasshownthattheABCandtheqABCalgorithmprovidebetterperformancethanmany
+evolutionarycomputation-basedoptimizationalgorithms[16]. SincetheTSPissimilarto
+theCARP,inthehopethatanABCalgorithmwithamutationoperatorsuchasGSTMwill
+performwell,wedevelopedtheCARP-ABCalgorithm(Section4)withthesub-routeplan
+operator(Section5).
+There are also ABC algorithms for the Vehicle Routing Problem (VRP) [48] and its
+variations[17,18]. However,thereisonlyoneABCalgorithmfortheCARPandeventhat
+is for just a variation of CARP, the undirected CARP with profits [19]. Therefore, to the
+bestofourknowledge,currentlytherearenoABCalgorithms,neitherfortheCARPnorfor
+theDCARP.
+Mathematics2022,10,2205 4of38
+3. ProblemFormulations
+ThissectionintroducesbasicconceptsrelatedtotheproposedCARP-ABCalgorithm
+tohelptounderstandhowitworks. Theconceptsareintroducedonlybriefly,foramore
+detaileddescriptionthecorrespondingworksarereferredto.
+Inthissection,first,thestaticCARP,thenthe(data-driven)DCARPisformulated. Itis
+followedbytheintroductionofthebasicABCalgorithmandtheexistingmoveoperators
+forCARP(whichareusedintheproposedCARP-ABCsolution). Thenotationsusedfor
+theCARPandtheDCARParecollectedinTableA1inAppendixA.
+3.1. TheCARP
+In the existing works, as the input graph, some assume an undirected graph [7],
+othersassumeadirectedgraph[8,49],andotheronesamixedgraph[6,34]. Inthiswork,
+adirectedgraphisassumed,inwhichundirectededgesareregardedastwooppositely
+directededges.
+The(directed)graphoftheCARPcanbedescribedthefollowingway: G = (V,A),with
+asetofverticesV andasetofarcs(directededges) A. Asetoftasks T ⊆ Aisalsogiven,
+whichdefinesthearcsthathavetasksassignedtothem. IfthegraphofaCARPinstance
+contains(undirected)edges,thenanedgeisaddedtoAasapairofarcs,oneforeachdirection.
+Forinstance,if(v,v )isanedgeandv,v ∈V,thenthearcs(v,v )and(v ,v )areaddedto
+i j i j i j j i
+A.Similarly,if(v,v )isanedgewithtasksassignedtoitandv,v ∈V,thenthearcs(v,v )
+i j i j i j
+and(v ,v )areaddedtoT.Thegraphalsohasaspecialvertexv (v ∈V),thedepot,anda
+j i 0 0
+dummytaskt = (v ,v ),thesignificanceofwhichisexplainedlater.
+0 0 0
+Thetasksareperformedbyafleetofwhomogeneousvehiclesofcapacityq. Every
+vehiclestartsandendsitsrouteatthedepot(v ). Eachtaskmustbeperformedinasingle
+0
+operation,andeachvehiclecansatisfyatmostasmanydemandsasitsmaximumcapacity.
+Thegraphcanbemappedtoaroadnetworkwherethearcsareroadsegments. Some
+oftheroadsegmentshavetasks. Tofulfillthetasks,differentamountsbutthesametypeof
+demandmustbeserved. Eacharcischaracterizedbythefollowingfunctions:
+• head: theheadvertexofthearc;
+• tail: thetailvertexofthearc;
+• dc: thedead-headingortraversingcost,thecostofcrossingthearc.
+Inaddition,eachtaskischaracterizedbythefollowingfunctions:
+• id: theuniqueidentifierofthetask,whichisapositiveinteger;
+• dem: (positive)demand,whichindicatestheloadnecessarytoservethetask;
+• sc: servicecost,whichisthecostofexecutingthetaskandcrossingthearc(i.e.,dcis
+includedinsc).
+Althoughanedgeisregardedastwooppositelydirectedarcs,ifataskisassignedto
+it,thenthetaskshouldbeexecutedonlyonce,ineitherdirection. Lett ∈ Tbeataskofone
+ofthearcsofanedge,thenletinv(t)denotetheinversionoft,theothertaskoftheedge. If
+head(t)andtail(t)aretheheadandthetailvertexesoft,thenhead(inv(t)) = tail(t)and
+tail(inv(t)) = head(t)aretheheadandthetailvertexesofinv(t). Thedc,demandscvalues
+arethesamefortandinv(t).
+Letthetotalnumberoftasksthathavetobeexecutedbyatleastoneofthevehiclesbe
+denotedbyn. ThevalueofndependsonthecompositionofT: ifTonlycontainsarctasks
+fromedges,thenn = |T|/2,ifTonlycontainsarctasksfromarcsthenn = |T|.
+Theminimaltotaldead-headingcostbetweentwoverticesisprovidedbythemdc :
+V×V → Nfunction,whichusesDijkstra’salgorithmasthesearchalgorithm. Forinstance,
+mdc(v,v )denotestheminimaltotaldead-headingcosttraversingfromvertexv tovertex
+i j i
+v ,wherev,v ∈V.
+j i j
+ACARPinstance(I)isdefinedasfollows:
+I = (V,v ,A,T,n,w,q,head,tail,dc,id,dem,sc,inv,mdc) (1)
+0
+Mathematics2022,10,2205 5of38
+3.1.1. SolutionRepresentation
+AsolutionforaCARPinstanceisexpressedasasetofrouteplans. Therouteplansare
+sequencesofthet ∈ Ttasksthatneedtobeexecutedinthegivenorder. Theconsecutive
+tasksareconnectedbytheshortestpaths,whichisprovidedbythemdcfunction. Therefore,
+asolutionSforaCARPinstancecanbeexpressedthefollowingway:
+S = {r ,r ,...,r } (2)
+1 2 |S|
+where |S| is the number of route plans and r (k ∈ {1,2,...,|S|}) is the k-th route plan
+k
+withinthesolutionS. Thek-throuteplancanbeexpressedthefollowingway:
+r = (cid:104)t ,t ,t ,...,t ,t (cid:105) (3)
+k 0 k,1 k,2 k,lk 0
+wherel isthenumberof(notdummy)tasksandt isthei-thtaskwithinthek-throute
+k k,i
+plan. Itmustbenotedthathere,kisanindex,whichisonlyusedtoidentifyaspecificroute
+planinthesolution. Theorderoftherouteplanswithinthesolutionhasnoeffectonthe
+qualityofthesolution.
+Sinceeveryroutestartsandendsinthedepot,thedummytaskt –whichrepresents
+0
+thevehiclebeinginthedepot–isaddedalsoasthefirstandthelastelementoftheroute
+plansequences. Itsid,dc,demandscaresetto0,andboththeheadandthetailvertexes
+arethedepotvertex.
+ForthesolutionrepresentationoftheCARP,anaturalencodingapproachcanbeused,
+justlikeinmostvehicleroutingproblems. Thismeansthatallrouteplanscanbeencoded
+asanorderedlistofidsofthetasks,soasolutioncanberepresentedastheconcatenation
+oftheselists. However, everyrouteplanstartsandendswiththedummytask t , soif
+0
+theencodedrouteplansareconcatenated,thenthereareconsecutivedummytasksinthe
+resultinglist. Forthesakeofsimplicity,onlyoneofeachconsecutivedummytaskiskept
+intheencodedsolution. Figure1showsanexampleofasolutionrepresentation.
+0 1 4 10 0 8 2 7 3 0 6 9 5 0
+Figure1.AnexampleofasolutionrepresentationforaCARPinstancewith10requiredtasks,where
+0istheidofthedummytask.Inthisexample,thereare3routes.Thefirstrouteservicesthetasks
+withids1,4and10.Thesecondservicesthetaskswithids8,2,7and3.Thethirdservicesthetasks
+withids6,9and5.
+3.1.2. ObjectiveandConstraints
+TheobjectiveoftheCARPistominimizethetotalcostofthesolutionSsubjecttosome
+constraints,whicharedefinedinthissection. ThetotalcostofasolutionS(i.e.,TC(S))is
+calculatedwiththefollowingformula(Equations(4)–(6)):
+|S|
+∑
+TC(S) = DC(r )+SC(r ) (4)
+k k
+k=1
+(cid:0) (cid:1)
+lk∑ −1
+(cid:0) (cid:1) (cid:0) (cid:1)
+DC(r k ) = mdc t 0 ,head(t k,1 ) + mdc tail(t k,i ),head(t k,i+1 ) +mdc tail(t k,lk ),t 0 (5)
+i=1
+∑
+lk
+SC(r ) = sc(t ) (6)
+k k,i
+i=1
+whereDC(r )andSC(r )arethetotaldead-headingandservicecostoftherouteplanr .
+k k k
+ThesolutionShastosatisfythefollowingconstraints. First,eachrouteplanstartsand
+endsatthedepot. Second,eachtaskisexecutedexactlyonce. Therefore,thetotalnumber
+oftasksexecutedoneachrouteplan(excludingthedummytaskt )isequalton:
+0
+Mathematics2022,10,2205 6of38
+|S|
+∑
+l = n (7)
+k
+k=1
+Moreover, a task cannot be executed more than once, neither in the same route nor in an-
+otherroute:
+t (cid:54)= t ,∀(a,i) (cid:54)= (b,j) (8)
+a,i b,j
+wherer andr arerouteplanswithinS,t isthei-thtaskintherouteplanr ,andt is
+a b a,i a b,j
+the j-thtaskintherouteplanr . Ifataskthasaninverse(i.e., ∃inv(t)),theneithertor
+b
+inv(t)isexecuted. Bothcannotbeexecutedinthesamesolution. Third,thetotaldemand
+servedeachrouteplandoesnotexceedthecapacity(q)ofthevehicle:
+∑
+lk
+dem(t ) ≤ q, ∀k ∈ {1,2,...,|S|} (9)
+k,i
+i=1
+3.2. TheData-drivenDCARP
+TherearevariousapproachesforDCARP,butinthiswork,thedata-drivenversionof
+DCARPisconsidered,whichwasrecentlyformulatedin[20].
+In this problem, instead of one static CARP instance, there is a series of DCARP
+instances (i.e., a DCARP scenario [21]) that needs to be solved. A DCARP scenario is
+denoted by I = (cid:104)I 0 ,I 1 ,...,I i ,...,I m−1 (cid:105), where m is the number of DCARP instances
+within the scenario (i.e., the number of dynamic events that occurred and changed the
+previous DCARP instance is m−1). Each I (I ∈ I) DCARP instance contains all the
+i i
+informationaboutthecurrentproblem. ThepreviousDCARPinstance I i−1 ,theexecution
+oftheacceptedsolutionfor I i−1 andtheoccurredevent(s)definethenextDCARPinstance
+I,where0<i < m. Theinitialinstance(I )canbeviewedasastatic(data-driven)CARP
+i 0
+instance,sinceinitiallyeveryvehicleisinthedepot(ingoodstate)andnotaskhasbeen
+executedyet.
+For a data-driven DCARP instance, information needs to be stored about all the
+vehiclesandrouteplans. Foreachvehicle,thecurrentlocationandstatehavetobeknown.
+Furthermore,identifiersareneededtobeusedforthevehiclesandtherouteplans,sincea
+vehiclemayfollowmultiplerouteplans(oneafteranother)anditisimportanttoknowfor
+eachrouteplanwhetheravehiclealreadyexecutedit,itsexecutionisstillinprogress,ora
+vehiclestillneededtobeassignedtoittostartitsexecution.
+Insteadofthenumberofvehicles(w),asetofidentifiersofallthevehiclesisneeded
+to be defined, which is denoted by H. The set of the identifiers of the (currently) free
+vehiclesisdenotedbyH (H ⊆ H),whichisinitiallyequaltoH. Theidentifierofavehicle
+f f
+isaddedto H ,ifthevehiclefinishestheexecutionofarouteplan,andtheidentifieris
+f
+removed,whenanewrouteplanisassignedtothevehicle. Iftheexecutionofallthetasks
+isfinishedandallthevehiclesarereturnedtothedepot(i.e.,therearenobrokendown
+vehiclesoutsideontheroads),thenH = H,otherwiseH ⊂ H.
+f f
+ThesetofidentifiersofalltherouteplansisdenotedbyR,andthesetofidentifiers
+oftherouteplansthatcurrentlycannotbemodifiedandnotexecutedbyanyvehicleis
+denotedbyR (R ⊆ R). Whenanewrouteplaniscreated,itsidentifierisaddedtoR,and
+e e
+whentheexecutionofitisfinishedorsuspended(duetovehiclebreakdown),itsidentifier
+isaddedtoR . Iftheexecutionofalltherouteplansisfinishedandtherearenomoretasks
+e
+toexecute,thenR = R,otherwiseR ⊂ R. TheidentifierisremovedfromR onlyifthe
+e e e
+vehiclewhichisassignedtoitwasbroken,butgotfixedandcancontinuetheexecution
+oftheplan. Thefunctionthatdefineswhichvehicleisassignedtoaspecificrouteplanis
+denotedbyrv : R → H.
+Tostorethecurrentlocationofthevehiclesintheinstance,thevirtualtaskstrategy
+introducedin[21]isused,whichreplacestheexecutedtasksineachrouteplanwith“virtual
+tasks”. A“virtualtask”isanarcwhoseheadisthedepotvertexv andtailisthecurrent
+0
+locationofthevehicle,vertexv(v ∈V). Forthesakeofsimplicity,itisassumedthatwhen
+Mathematics2022,10,2205 7of38
+anunexpectedeventoccurs, everyvehicleislocatedexactlyatavertex. Sincethistask
+is“virtual”,itcannotbetraversed,forthisreason,ithasaninfinitetraversingcost(i.e.,
+dc(v) = ∞). Furthermore,sinceitisa“task”,thereisademandandaservicecostassigned
+toit,whicharecalculatedaccordingtotheprovideddata: theservicecostisthetotalcost
+producedbythevehiclesofar(i.e.,itisthesumoftraversingandservingcostofthearcs
+thatwerecrossedorservedbythevehicle),andthedemandisthetotaldemandserved
+bythevehiclesofar. Arouteplancanhaveatmostonevirtualtask. Therefore,ifaroute
+planalreadyhasavirtualtask,thenitisupdatedtakingintoaccountthearcstraversed
+andthetasksexecutedsincethenbythecorrespondingvehicle. Thesetofallvirtualtasks
+isdenotedby T (T ⊆ T),andthefunctionthatdefineswhichvirtualtaskbelongstoa
+v v
+specificrouteplanisdenotedbyrt : R → T .
+v
+The set of arc tasks that need to be executed is denoted by T. If according to the
+gatheredinformationataskt(t ∈ T)wasexecutedbythevehicleh(h ∈ H),theninthe
+newDCARPinstancetneedstoberemovedfromT. Furthermore,thevirtualtaskofthe
+routeplanofthevehicle(e.g.,t ,whererv(k) = handt ∈ T )needstobeupdated. The
+k,v k,v v
+newvirtualtaskisgeneratedinsuchawaythattisincludedinit(alongwiththeother
+tasksthevehicleexecutedandarcsthevehicletraversed). Ifthasaninverse(i.e.,∃inv(t)),
+thenitisremovedfromTaswell. Accordingly,thetotalnumberoftasksthathavetobe
+executed(n)isdecreasedbyoneortwo.
+TheinitialDCARPinstance(I )issimilartoastaticCARPinstance. Thesetsofthe
+0
+routeplanidentifiers(R)andthefunctionrvarecreatedandfilledonlyafterthesolutionis
+foundfor I . ThesetH isinitiallyequaltoH,thenbasedonrv,allthevehicleidentifiers
+0 f
+thatareassignedtoarouteplanareremovedfromH . Atthisstage,thesetsR andT are
+f e v
+emptysets,thereforethefunctionrtisanemptyfunctionaswell. Accordingtothese,the
+initialDCARPinstance(I )isdefinedasfollows:
+0
+I = (V,v ,A,T,n,w,q,H,head,tail,dc,inv,dem,sc,mdc) (10)
+0 0
+ThesubsequentDCARPinstances(I,where0<i < m)aredefinedasfollows:
+i
+I = (V,v ,A,T,T ,n,q,H,H ,R,R ,rt,rv,head,tail,dc,inv,dem,sc,mdc) (11)
+i 0 v f e
+3.2.1. StructureofaScenario
+AnewDCARPinstanceisconstructedandaddedtotheDCARPscenario,whenan
+unexpectedeventhappensthatchangesthecurrentproblemtosuchanextentthatithas
+effectonthecurrentlyexecutedsolution. In[21]allthepossibleevents(basedonrealistic
+assumptions)werecollectedandanalyzedbasedontheireffect.
+Itisassumedthattheroadmap,thenumberofvehicles,andthemaximumcapacityof
+thevehiclescannotchange(atleastduringtheexecutionofthesolution). Therefore,V,v ,
+0
+A,head,tail,inv,qandHarethesameinalltheDCARPinstancesofaDCARPscenario.
+Itisassumedthatroadscanbecomeclosed/opened(itchangesdc,thusmdc,too),the
+trafficcandecrease/increase(itchangesdcandinsomecasessc,thusmdc,too),taskscan
+getcancelled/added(itchanges T, n, dem, and sc)andvehiclescanbreakdown/restart
+(it changes R ), which are unexpected events. The expected events are the events that
+e
+normallyoccurduringtheexecutionofthesolution: ataskisexecuted(itchanges T),a
+vehiclemoves(itchangesT ,thusrt,too),oravehiclereturnstothedepot(itchangesH
+v f
+andinsomecasesrv). Theaffectedcomponentsareupdatedonlywhenanewinstance
+isconstructed. Ifreroutingisperformed,thenRandrvmaychange,butthechangesare
+visibleonlyinthenextDCARPinstance. Therefore,T,T ,n, H ,R,R ,rt,rv,dem,sc,dc,
+v f e
+andmdcmaybedifferentamongtheDCARPinstancesofaDCARPscenario.
+SinceduetotheunexpectedeventssomecomponentsoftheDCARPinstancechange,
+theoptimalsolutionmaychange,too. Itisone’schoicetoconstructanewDCARPinstance
+andreroutewhentheremightbeabettersolutionavailable,butthecurrentsolutionisstill
+feasible. However,constructinganewDCARPinstanceandreroutingisnecessarywhen
+thecurrentsolutionisnotfeasibleanymore.
+Mathematics2022,10,2205 8of38
+3.2.2. SolutionRepresentation
+ForeachDCARPinstance,thesolutionrepresentationismainlythesameasforstatic
+CARPinstances. Theonlydifferenceisthatiftherouteplanhasavirtualtaskassigned
+toit,thenthevirtualtaskisthesecondtaskwithintherouteplan(sincethefirsttaskis
+alwaysthedummytaskt ). Forinstance,iftherouteplanr = (cid:104)t ,t ,t ,...,t ,t (cid:105)has
+0 k 0 k,1 k,2 k,lk 0
+anidentifierk(k ∈ R)andthereisavirtualtaskt assignedtoit(i.e.,rt(k) = t ),then
+v,k v,k
+t = t .
+k,1 v,k
+3.2.3. ObjectiveandConstraints
+ForeachDCARPinstance,theobjectiveandtheconstraintsaremainlythesame,as
+wellasforstaticCARPinstances. Theonlydifferenceisatthesecondconstraint,which
+requires that the total number of tasks in the solution S (excluding the dummy task t )
+0
+isequaltothesumofthenumberoftasksthatstillneedtobeexecuted(n)andthetotal
+numberofvirtualtasks(|T |):
+v
+|S|
+∑
+l = n+|T | (12)
+k v
+k=1
+Theattributesofavirtualtaskguaranteethatasolverwillalwaysplacethevirtual
+taskrightafterthedummytaskwithinarouteplanofa(nearlyoptimal)solution,sothere
+isnoneedtoaddaconstraintregardingit.
+3.2.4. FindingaSolution
+Thedata-drivenDCARPframeworkallowsreroutingwhenacriticalevent(i.e.,an
+unexpectedeventthatmaychangethefeasibilityofthecurrentsolution)occurs. These
+eventsarethetaskappearance,thedemandincreasedandthevehiclebreakdown.
+The data-drivenDCARP framework allows theuse ofstatic CARPsolvers bycon-
+verting the current data-driven DCARP instance into a static CARP instance. After a
+(sufficientlygood)solutionisfoundbytheCARPsolver,thesolutionisconvertedintoa
+data-drivenDCARPsolution.
+Converting a data-driven DCARP instance into a static CARP instance works as
+follows: thesetsofvehicleandrouteplanidentifiers(i.e., H, H ,R,andR )areomitted,
+f e
+alongwiththerelatedfunctions(rtandrv).Furthermore,allvirtualtasksrelatedtofinished
+andsuspendedrouteplansareremovedfromT. Forinstance,ifrt(k) = t (t ∈ T)isthe
+v,k v,k
+virtualtaskoftherouteplanwithidentifierk(k ∈ R)andk ∈ R ,thent isremovedfrom
+e v,k
+T(i.e.,T\{t }).
+v,k
+Converting a static CARP solution into a data-driven DCARP solution works as
+follows: thevirtualtasksthatarerelatedtofinishedandsuspendedrouteplansareadded
+tothesolutioninseparaterouteplanstokeeptrackthetotalcostoftheDCARPscenario.
+Furthermore,ifthereareanynewrouteplanswithinthesolution,theframeworkgives
+themidentifiersandalsoattemptstoassigneachofthemtoafreevehicle. Fortheother
+routeplans,itcanbeeasilydeterminedwhichrouteplanidentifierbelongstowhichroute
+plan,basedonthevirtualtaskwithinthem.
+3.3. TheBasicABCAlgorithm
+ThissectionintroducesthebasicABCalgorithmforcombinatorialproblems,based
+on[16]. JustlikeintheoriginalABCalgorithm[13],theartificialbeesareclassifiedintothe
+threegroups:
+• employedbees,whoareexploitingthefoodsources;
+• onlookerbees,whoaremakingthedecisionaboutwhichfoodsourcetoselect;
+• scoutbees,whoarerandomlychoosinganewfoodsource.
+In the ABC algorithm, a food source is corresponded to a solution and the nectar
+amountofafoodsourceiscorrespondedtothefitnessofasolution.
+TheABCalgorithmisaniterativeprocesswithfourphasesintotal. Itbeginswiththe
+initialphase,thenititeratesthreebeephases(alwaysinthesameorder)untilapredefined
+Mathematics2022,10,2205 9of38
+terminationcriterionismet. Intheinitialphase,thepopulationisinitializedwithrandomly
+generatedfoodsources. Inthefirstphase,theemployedbeephase,theemployedbeesare
+senttothefoodsources,wheretheydeterminethenectaramountsofthefoodsources. In
+thesecondphase,theonlookerbeephase,theprobabilityvalueofthesourcesarecalculated
+basedontheirnectaramount,thentheonlookerbeesaresenttothepreferredfoodsource
+tofindneighboringfoodsourcesanddeterminetheirnectaramount. Inthethirdphase,
+the scout bee phase, the exploitation process of the sources exhausted by the bees are
+stoppedandthescoutbeesaresentouttorandomlydiscovernewfoodsourceswithinthe
+searcharea. Ineachphase,thebestfoodsourcefoundsofarismemorized. Thephasesare
+describedinmoredetailinthesubsectionsbelow.
+3.3.1. InitializationPhase
+In the initialization phase, the parameters and the population are initialized. The
+parametersoftheABCalgorithmcanbedefinedasfollows:
+• sn: thenumberoffoodsources,whichisalsothenumberoftheemployedbeesand
+onlookerbees(i.e.,foreveryfoodsource,thereisonlyoneemployedbee);
+• limit: thenumberoftrialsafterwhichafoodsourceisassumedtobeabandoned;
+• aterminationcriterion.
+Thepopulationisinitializedbyrandomlygeneratingsnnumberoffoodsourcesand
+assigningoneemployedbeestoeachofthem. Theemployedbeesevaluatethefitnessof
+thesesolutions.
+3.3.2. EmployedBeePhase
+Atthisphase,eachemployedbeex generatesanewfoodsourcex intheneigh-
+i new
+borhoodofitscurrentposition. Oncex isobtained,itwillbeevaluatedandcompared
+new
+to x. If the nectar amount of x is equal to or higher than that of x, x replaces x
+i new i new i
+andbecomesanewmemberofthepopulation,otherwisex isretained. Inotherwords,a
+i
+greedyselectionmechanismisemployedbetweentheoldandthenewcandidatesolutions.
+3.3.3. OnlookerBeePhase
+Anonlookerbeeevaluatesthenectarinformationtakenfromalltheemployedbees
+and selects a food source x depending on its probability value p calculated by the
+i i
+followingexpression:
+fit
+p = i (13)
+i ∑sn fit
+j=1 j
+where fit isthenectaramount(i.e.,thefitnessvalue)ofthei-thfoodsourcex. Thehigher
+i i
+thevalueof fit is,thehighertheprobabilityofthatthei-thfoodsourceisselected.
+i
+Oncetheonlookerhasselectedherfoodsourcex,sheproducesamodificationonx
+i i
+byusingalocalsearchoperator. Thelocalsearchoperatorrandomlyselectsapositionin
+theneighborhoodofx. Asinthecaseoftheemployedbees,ifthemodifiedfoodsourcehas
+i
+abetterorequalnectaramountthanx,themodifiedfoodsourcereplacesx andbecomes
+i i
+anewmemberinthepopulation.
+3.3.4. ScoutBeePhase
+Ifafoodsourcex cannotbefurtherimprovedthroughapredeterminednumberof
+i
+trialslimit,thefoodsourceisassumedtobeabandoned,andthecorrespondingemployed
+beebecomesascout. Thescoutproducesafoodsourcerandomly.
+InthebasicABCalgorithm,ineachcycle,atmostonescoutbeegoesoutsidetosearch
+foranewfoodsource.
+3.4. MoveOperatorsfortheCARP
+Inpopulation-basedevolutionaryalgorithms,toenrichthediversityofthepopulation,
+moveoperatorswithdifferentlevelsofstep-sizeareutilizedtogeneratenew,neighboring
+solutions. Thesemoveoperatorscanbedividedintotwomaincategories: smallstep-size
+Mathematics2022,10,2205 10of38
+operatorsandlargestep-sizeoperators. Smallstep-sizeoperatorscanmodifytheposition
+and/orthedirectionofthetaskswithinoneortworouteplans. Incontrast,largestep-size
+operatorsareabletomodifymorethantworouteplans. Themostcommonlyusedsmall
+step-size operators in the literature, which are used in this work as well, are inversion,
+(single)insertion,swap,andtwo-optoperators[6–8]. Inthiswork,anovelsmallstep-size
+operatorisusedaswell,thesub-routeplanoperator,whichisintroducedinthiswork,in
+Section5. Theonlylargestep-sizeoperatorusedinthisworkismerge-split,whichwas
+introducedin[6]. Itiscalledalarge-step-sizeoperator,sinceitisabletomodifymorethan
+tworouteplans.
+Theinversionandthesub-routeoperatorscanonlychangethedirectionandtheorder
+of the tasks within one route plan, so they do not change the feasibility of the solution.
+Incontrast,theinsertion,theswap,andthetwo-optoperatorsmaychangetheamount
+of demand that needs to be served in some of the route plans, so the feasibility of the
+solutionmaychange,too. Forthisreason,basedonthesettings,theoutputsolutionof
+theseoperatorscouldbedifferent.Ifinfeasiblesolutionsarenotacceptedandthecalculated
+outputsolutionisinfeasible,thentheoperatorreturnstheoriginal,inputsolutioninstead
+(assumingthattheinputsolutionisafeasiblesolution).
+3.4.1. InversionOperator
+Theinversionoperatorrandomlyselectsataskt ∈ Twithintheinputsolution. Ifthis
+taskhasaninverse(i.e.,∃inv(t) ∈ T),thentheoperatorreplacestwithinv(t)withinthe
+solution,elseitreturnstheinputsolution.
+3.4.2. InsertionOperator
+Theinsertionoperatorrandomlyselectsataskt ∈ T,thenreplaces(inserts)itbefore
+1
+orafteranotherrandomlyselectedtaskt ∈ Twithintheinputsolution. Theselectedtasks
+2
+canbeindifferentrouteplansorinthesamerouteplan,buttheycannotbethesametasks
+(i.e.,t (cid:54)= t ).
+1 2
+Itcreatestwopotentialoutputsolutions,basedonwheret isinserted(beforeorafter
+1
+t ). Ift hasaninverse,thentheoperatorcreatesotherpotentialoutputsolutions,which
+2 1
+containstheinversetaskofthetask(i.e.,inv(t ))insteadoft . Itselectsthesolutionasthe
+1 1
+outputsolutionwhichhasthesmallesttotalcostamongthepotentialoutputsolutions.
+3.4.3. SwapOperator
+The swap operator randomly selects two tasks (t and t , where t ,t ∈ T), then
+1 2 1 2
+replacesthemwitheachother(i.e.,swapsthem). Similarlytotheinsertionoperator,the
+selectedtaskscanbefromthesamerouteplanordifferentrouteplans,buttheycannotbe
+thesametasks.
+Itcreatespotentialoutputsolutions,whichcontainoneortwoinversetask(s)ofthe
+selected tasks instead of the task(s). All the four possible combinations are considered.
+Itselectsthesolutionastheoutputsolutionwhichhasthesmallesttotalcostamongthe
+potentialoutputsolutions.
+3.4.4. Two-OptOperator
+Thetwo-optoperatorrandomlyselectstworouteplans(e.g.,r andr )ofthesolution.
+1 2
+Basedontheselectedtworouteplans,twocasesexistforthismoveoperator. Iftheselected
+tworouteplansarethesame(i.e.,r = r ),thenasub-routeplan(i.e.,apartoftheroute
+1 2
+plan)isselectedrandomlyanditsdirectionisreversed. Iftheselectedtworouteplansare
+different(i.e.,r (cid:54)= r ),thenthesetworouteplansarerandomlycutintofoursub-route
+1 2
+plans,andthentwonewpotentialoutputsolutionsaregeneratedbyreconnectingthefour
+sub-route plans and the best one from them is selected. For example, r and r are cut
+1 2
+intosub-routeplansr r andr r ,respectively. Twonewsolutionsaregeneratedby
+11 12 21 22
+connectingtheminthefollowingways: (1)r withr andr withr and(2)r with
+11 22 21 12 11
+reversedr andreversedr withr .
+21 12 22
+Mathematics2022,10,2205 11of38
+3.4.5. Merge-splitOperator
+Asitwasmentionedbefore,themerge-splitoperatorcanmakelargechangesinthe
+solution(e.g.,itcanmodifytheorderofallthetaskswithinoneormorerouteplans),soitis
+consideredalargestep-sizeoperator. Thisoperatorrandomlyselectsxnumberofdifferent
+routeplansintheinputsolution,wherexisarandomnumber(1≤ x ≤ |S|). Itobtainsan
+unorderedlistoftasksbymergingthetasksoftheselectedrouteplansintoonelist,and
+thensortsthisunorderedlistwithapathscanningheuristic(e.g.,[22],whichisusedinthis
+workaswell). Theobtainedorderedlististhenoptimallysplitintonewrouteplansusing
+Ulusoy’ssplittingprocedure[24].
+Theorderedlistisconstructedbythepathscanningheuristicthefollowingway. First,
+anemptypathisinitialized,then,theaffectedtasksareaddedonebyoneintothecurrent
+path, untilnotasksareleftintheunorderedlist. Ineachiteration, onlythosetasksare
+takenintoaccountthatcanbeaddedtothecurrentpathwithoutbreakingthecapacity
+constraint. Iftherearenoanytaskslikethat,thenthedepotisaddedtothecurrentpath
+andanewpathisinitialized(thatbecomesthecurrentpath). Whenataskorthedepotis
+addedtothecurrentpath,thetask/depotisconnectedtotheendofthecurrentpathwith
+theshortestpathbetweenthem. Iftherearemultipletasksthatcanbeadded,theonethat
+isclosesttotheendofthecurrentpathisadded. Iftherearemultipletasksthatareclosest
+totheendofthecurrentpath,thenoneofthefollowingrulesareappliedtodetermine
+whichtaskshouldbeaddednext:
+1. maximizethedistancebetweenhead(t)andv ;
+0
+2. minimizethedistancebetweenhead(t)andv ;
+0
+dem(t)
+3. maximizetheterm ;
+sc(t)
+dem(t)
+4. minimizetheterm ;
+sc(t)
+5. userule1,ifthevehicleislessthanhalf-full,otherwiseuserule2.
+Intherulesabove,t(t ∈ T)isataskandv (v ∈V)isthedepot. Inonerun,onlyone
+0 0
+oftherulescanbeused. Therefore,thepathscanningheuristicisranfivetimes,which
+resultsinfiveorderedlists.
+TheUlusoy’ssplittingprocedurecreatesfivenewcandidateoutputsolutionsfromthe
+fiveorderedlistsbysplittingthelistsintorouteplans. Howtheprocedureworksisbest
+summarizedin[50]. TheprocedurestartswithconstructingtheDirectedAcyclicGraph
+(DAG)fromtheorderedlist. ADAGisagraphwitharcsthatrepresentfeasiblesub-tours
+of one giant tour. Next, the shortest path through the graph is calculated, which gives
+theoptimalpartitionofthegianttourintofeasiblerouteplans. Asthefinalstep,anew
+candidatesolutioniscreatedfromtheuntouchedrouteplansoftheinputsolutionandthe
+routeplansreturnedbytheprocedure. Fromthefivecandidatesolutionsthebestoneis
+chosenandreturnedbytheoperator.
+4. TheProposedABCAlgorithmforCARP(CARP-ABCAlgorithm)
+Inthischapter,theABCalgorithmdevelopedforCARP(CARP-ABCalgorithm)is
+presented. ThenotationsusedfortheCARP-ABCalgorithmarecollectedinTableA2in
+AppendixA.
+ThealgorithmicdescriptionofthemainCARP-ABCalgorithmcanbeseeninAlgorithm1.
+Themainalgorithmcanbedividedintofourmainphases: initialization,employedbee,
+onlookerbee,andscoutbeephases. Thealgorithmbeginswiththeinitializationphase,
+thenentersacycle,whereitrepeatsthementionedphasesintherespectiveorderuntilthe
+terminationcriterionissatisfied(line4). Intheinitializationphase(line2),thecolony(C),
+theageofthesolutionswithinthecolony(A),theglobalbestsolution(S∗),anditsage(α∗)
+areinitialized. Intheemployedbeephase(line6),localsearchisperformedaroundthe
+membersofthecolony. Intheonlookerbeephase(line7),amorein-depthlocalsearch
+isperformedaroundonesolutionfromthecolony. Inthescoutbeephase(line8),global
+searchisperformed.
+Mathematics2022,10,2205 12of38
+Algorithm1:MainCARP-ABCalgorithm.
+input: I;n ,n ,n ,n ,n
+∈N
+cs mi gsl lsl sal
+1 begin
+2
+C,A,S∗,α∗ ←initializationP(I,n
+cs
+);
+3 t ←0;
+4 whilet < n mi ∧α∗ < n gsl do
+5
+C¯ ←C;
+6 C,P ← employedBP(I,C,n lsl );
+7 C ← onlookerBP(I,C,P,n cs ,n lsl );
+8
+C,A,S∗,α∗ ← scoutBP(I,C¯,C,A,S∗,α∗,n
+sal
+);
+9 t ← t+1;
+10
+returnS∗;
+Theparametersofthealgorithmarethefollowings:
+• I: aCARPinstance;
+• n : thesizeofthecolony,thenumberofsolutionsinthepopulation;
+cs
+• n : themaximumnumberofiterationsofthealgorithm;
+mi
+• n : theglobalsearchlimit,themaximallyallowednumberofconsecutiveiterations
+gsl
+inwhichthecurrentlyknownglobalbestsolutionisnotimproved;
+• n : thelocalsearchlimit,themaximallyallowednumberofconsecutiveiterationsin
+lsl
+whichthecurrentlyknownlocalbestsolutionisnotimprovedintheemployedbee
+phaseandtheonlookerbeephaseofthealgorithm;
+• n : thesolutionagelimit,themaximallyallowednumberofconsecutiveiterationsof
+sal
+thealgorithminwhichasolutioniskeptinthepopulation;
+• aterminationcriterion,whichindefaultisthateitherthen orthen isreached.
+mi gsl
+4.1. InitializationPhase
+ThealgorithmicdescriptionoftheinitializationphaseoftheCARP-ABCalgorithm
+can be seen in Algorithm 2. The algorithm in this phase first initializes the sets for the
+solutionsS fori =1,2,...,n andtheirage(lines2–3). Toguaranteeaninitialpopulation
+i cs
+with certain quality and diversity, the solutions are generated randomly by using the
+RandomSolutionGeneration(RSG)algorithmforCARP(line6),whichisintroducedin
+thiswork(inSection4.1.1).Otherpopulationbasedevolutionaryalgorithmsusuallyusethe
+RandomizedPath-ScanningHeuristic(RPSH)[22]togenerateinitialsolutions. However,
+ourexperimentsshowedthat,inthecaseoftheCARP-ABCalgorithm,itdoesnotimprove
+theconvergencespeedofthealgorithm,soonlytheRSGisused.
+Aftertheinitializationofthecolony,thealgorithmselectsthesolutionS ∈Cwiththe
+i
+best(highest)fitnessvaluebyusingtheselectBestSolutionfunction(line11).Thefitnessofa
+solutionS isdefinedbyitstotalcostTC(S)(itneedstobeassmallaspossible). Therefore,
+i i
+thefitnessvalueofasolutionS iscomputedbythefollowingfitfunction:
+i
+LB
+fit(S) = (14)
+i TC(S)
+i
+where LB is the lower bound of the solution (i.e., the total service cost of all the tasks,
+involvingonlyoneofeachtaskswhichhasaninverse). Itsvaluerangesbetween0and1.
+Solutionswithgreaterfitnessvaluesarepreferred,sincegreaterfitnessvaluemeansthat
+thetotalcostofthesolutionisclosertothelowerbound.
+Mathematics2022,10,2205 13of38
+Algorithm2:initializationP(InitializationPhaseoftheCARP-ABCalgorithm).
+input: I;n
+∈N
+cs
+1 begin
+2 C ← ∅;
+3
+A ← ∅;
+4 i ←1;
+5 whilei ≤ n cs do
+6 S i ← RSG(I);
+7 α i ←0;
+8 C ←C∪S i ;
+9 A ← A∪α i ;
+10 i ←i+1;
+11
+S∗ ← selectBestSolution(C);
+12
+α∗ ←0;
+13
+returnC,A,S∗,α∗;
+4.1.1. RandomSolutionGenerationAlgorithm
+Asthefirststep, thealgorithmgenerates n randompermutations, whichcontain
+cs
+positiveintegersfrom1ton(i.e.,theidofeveryarctaskandoneofthetwoidsofevery
+edgetask)inrandomorder. Asthenextstep,thealgorithmreadstheidsinthepermutation
+one-by-onefromlefttoright,whilesummingupthedemandofthecorrespondingtasks.
+If the task assigned to the currently read id would break the capacity constraint of the
+currentrouteplan,thealgorithminsertsa“0”(theidofthedummytaskt )beforetheid
+0
+ofthetaskinthesequence(i.e.,thetaskisaddedtoanewrouteplan). Afteritisfinished
+withseparatingtheidsofthetasksintorouteplans,thealgorithmcheckseachtaskinthe
+solutionand,ifithasaninversetask,thenrandomly(e.g.,with0.5probability)replaces
+theidofthetaskwiththeidofitsinverse. Asthefinalstep,thealgorithminsertsa“0”as
+thefirstandlasttaskofthesolutiontomakeitavalidsolution.
+4.2. EmployedBeePhase
+ThealgorithmicdescriptionoftheemployedbeephaseoftheCARP-ABCalgorithm
+canbeseeninAlgorithm3. Thealgorithminthisphase,foreachemployedbee,generates
+newcandidatesolutionsintheneighborhoodofS witheachsmallstep-sizeoperator,then
+i
+evaluatesandselectsthebestsolution(lines2–11).Inthisphase,onlytheinversionoperator
+(line 6) and the sub-route plan operator (line 7) are used, because only these operators
+guaranteethatthenewcandidatesolutionwillbefeasible. Itisrepeateduntiltheknown
+bestlocalsolutionS∗ cannotbeimprovedwithinthedefinednumberofiterations(i.e.,its
+i
+agereachedn ). IfthefitnessvalueofthenewcandidatesolutionS∗ isgreaterthanor
+lsl i
+equaltothefitnessvalueofthecurrentsolutionS,thenewsolutionreplacesthecurrent
+i
+oneinthepopulation(lines14–15).
+Asthenextstep,thealgorithmcalculatesthewinningprobabilityvalues p forthe
+i
+solutionsS (lines16–19). Theprobabilityvalues p arecalculatedwiththesamefunction
+i i
+asinthebasicABCalgorithm(Equation(13)).
+Mathematics2022,10,2205 14of38
+Algorithm3:employedBP(EmployedBeePhaseoftheCARP-ABCalgorithm).
+input: I;C = {S ,S ,...,S,...,S };n ∈N
+1 2 i ncs lsl
+1 begin
+2 forallS i ∈Cdo
+3 S i ∗ ← S i ;
+4 α i ∗ ←0;
+5 whileα i ∗ < n lsl do
+6 S i,1 ←inverse(I,S i );
+7 S i,2 ← subRoutePlan(I,S i );
+8 S i (cid:48) ← selectBestSolution({S i ∗,S i,1 ,S i,2 });
+9 if fit(S i ∗) < fit(S i (cid:48))then
+10 S i ∗ ← S i (cid:48);
+11 α i ∗ ←0;
+12 else
+13 α i ∗ ← α i ∗+1;
+14 if fit(S i ) < fit(S i ∗)then
+15 S i ← S i ∗;
+16 P ← ∅;
+17 forallS i ∈Cdo
+fit(S)
+18 p i ← ∑ncs fit i (S ) ;
+j=1 j
+19 P ← P∪p i ;
+20 returnC,P;
+4.3. OnlookerBeePhase
+ThealgorithmicdescriptionoftheonlookerbeephaseoftheCARP-ABCalgorithmcan
+beseeninAlgorithm4. Thealgorithminthisphase,dependingonthe p values,selectsa
+i
+solutionS withtheselectSolutionfunction.Thisfunctionfirstperformsarouletteselection
+√ i √
+Int( n )timestoselect Int( n )numberofsolutionsfromthecolony.Next,itcompares
+cs cs
+theselectedsolutionstoeachotherandselectsthebestonefromthem(i.e.,theonewiththe
+greatestfitnessvalue).
+Asanextstep, thealgorithmgenerates n numberofnewcandidatesolutions S
+cs i,j
+intheneighborhoodofS (i.e.,onesolutionforeachonlookerbee)withthemerge-split
+i
+operator(lines5–6). Itgeneratesnewcandidatesolutionsintheneighborhoodofthese
+solutionswiththesmallstep-sizeoperators,untiltheknownbestlocalsolutionS∗ cannot
+i,j
+be improved within the defined number of iterations (i.e., the age of the solution, α∗ ,
+i,j
+reaches n ) (lines 7–21). In this phase, all the small step-size operators (i.e., inversion,
+lsl
+insertion,swap,2-opt,andsub-routeplan)areappliedtoS(cid:48) ,whichisthebestsolution
+i,j
+that was found in the previous iteration (lines 11–15). From the resulted solutions, the
+bestoneischosenwiththeselectBestSolutionfunctionasthenewS(cid:48) (line16). Ifthenew
+i,j
+S(cid:48) isbetterthanthecurrentlyknownbestsolutionintheneighborhoodofS (i.e.,S∗ ),
+i,j i,j i,j
+thenitissetasthenewbestsolutionS∗ (lines17–19). Otherwise,theageofS∗ (i.e.,α∗ )
+i,j i,j i,j
+isincreasedbyone(lines20–21). Afterthesearchendsintheneighborhoodof S ,itis
+i,j
+checkedwhetherthebestsolutionfound(i.e.,S∗ )isbetterthanthebestsolutionfoundin
+i,j
+thewholeneighborhoodofS (i.e.,S∗). IfS∗ hasahigherfitnessvalueandisalsofeasible
+i i i,j
+(itstotalexcessdemandiszero),thenitwillbesetasthenewS∗ (lines22–23).
+i
+Ifthebestsolutionfoundinthisphase(i.e.,S∗)isbetterthanthecurrentsolutionS,
+i i
+thenS isreplacedbyS∗ inthecolony(lines25–26).
+i i
+Mathematics2022,10,2205 15of38
+Algorithm4:onlookerBP(OnlookerBeePhaseoftheCARP-ABCalgorithm).
+input: I;C = {S ,S ,...,S,...,S };P = {p ,p ,...,p,...,p };n ,n ∈N
+1 2 i ncs 1 2 i ncs cs lsl
+1 begin
+2 S i ← selectSolution(C,P);
+3 S i ∗ ← S i ;
+4 j ←1;
+5 whilej ≤ n cs do
+6 S i,j ← mergeSplit(S i );
+7 S i ∗ ,j ← S i,j ;
+8 S i (cid:48) ,j ← S i,j ;
+9 α i ∗ ,j ←0;
+10 whileα i ∗ ,j < n lsl do
+11 S i,j,1 ←inverse(I,S i (cid:48) ,j );
+12 S i,j,2 ←insert(I,S i (cid:48) ,j );
+13 S i,j,3 ← swap(I,S i (cid:48) ,j );
+14 S i,j,4 ← twoOpt(I,S i (cid:48) ,j );
+15 S i,j,5 ← subRoutePlan(I,S i (cid:48) ,j );
+16 S i (cid:48) ,j ← selectBestSolution({S i,j,1 ,S i,j,2 ,S i,j,3 ,S i,j,4 ,S i,j,5 });
+17 if fit(S i ∗ ,j ) < fit(S i (cid:48) .j )then
+18 S i ∗ ,j ← S i (cid:48) ,j ;
+19 α i ∗ ,j ←0;
+20 else
+21 α i ∗ ,j ← α i ∗ ,j +1;
+22 if fit(S i ∗) < fit(S i ∗ ,j )∧totalExcessDem(S i ∗ ,j ) =0then
+23 S i ∗ ← S i ∗ ,j ;
+24 j ← j+1;
+25 if fit(S i ) < fit(S i ∗)then
+26 S i ← S i ∗;
+27 returnC;
+4.4. ScoutBeePhase
+ThealgorithmicdescriptionofthescoutbeephaseoftheCARP-ABCalgorithmcan
+be seen in Algorithm 5. The algorithm in this phase increases the age of unchanged
+solutions(lines3–4)andsetstheagetozerofornewsolutions(lines8–9)withinthecolony.
+Furthermore,ifthereisanabandonedsolution(i.e.,asolutionwhichcouldnotbeimproved
+throughapredeterminednumberoftrials,whichiscalledn ),thealgorithmreplacesit
+sal
+withanewsolution(lines5–7),whichisgeneratedbyusingtheRSGalgorithm(asinthe
+initializationphase).
+Inthisphase,thealgorithmalsoupdatestheglobalbestsolution,S∗. First,thebest
+solutionofthenewcolonyisselectedwiththeselectBestSolutionfunctionassolutionS(cid:48)
+(line10). IfS(cid:48) isbetterthanS∗,thenS(cid:48) issetasthenewglobalbestsolution(lines11–13).
+Otherwise,theageofS∗ (i.e.,α∗)isincreasedbyone(lines14–15).
+Mathematics2022,10,2205 16of38
+Algorithm5:scoutBP(ScoutBeePhaseoftheCARP-ABCalgorithm).
+input: I;C¯ = {S¯ ,S¯ ,...,S¯,...,S¯ };C = {S ,S ,...,S,...,S };
+1 2 i ncs 1 2 i ncs
+A = {α ,α ,...,α,...,α };S∗;α∗,n ∈N
+1 2 i ncs sal
+1 begin
+2 forallS i ∈Cdo
+3 if fit(S i ) = fit(S¯ i )then
+4 α i ← α i +1;
+5 ifα i = n sal then
+6 S i ← RSG(I);
+7 α i ←0;
+8 else
+9 α i ←0;
+10
+S(cid:48) ← selectBestSolution(C);
+11 if fit(S∗) < fit(S(cid:48))then
+12
+S∗ ← S(cid:48);
+13
+α∗ ←0;
+14 else
+15
+α∗ ← α∗+1;
+16
+returnC,A,S∗,α∗;
+4.5. ComputationalComplexityAnalysis
+Inthissection,thecomputationalcomplexityoftheproposedCARP-ABCalgorithmis
+discussed. Thecomputationalcomplexityisexpressedbyusingthebig-Onotation. For
+thesakeofsimplicity,approximationsareusedandtheconstantvaluesareomitted. The
+computationalcomplexityofthewholealgorithmdependsonthegivenparametervalues
+andthecomplexityoftheinputCARPinstance,mainlyonn(i.e.,thenumberoftasksthat
+havetobeexecuted).
+4.5.1. InitializationPhase
+ThecomputationalcomplexityoftheinitializationphaseisO(n ∗n+n ),inwhich
+cs cs
+O(n)isthecomplexityoftheRSGalgorithmandO(n )isthecomplexityofselectingthe
+cs
+bestsolution. O(n)ismultipliedbyn ,becauseRSGisexecutedn timestocreatethe
+cs cs
+initialpopulation.
+WithintheRSGalgorithm,thecomplexityofgeneratingarandompermutationofthe
+taskidentifiersisO(n),assumingthattheFisher–Yatesshufflealgorithm[51]isusedfor
+it. Afterapermutationisgenerated,thealgorithmiteratesovereachelement,whichalso
+hasO(n)ascomplexity. Therefore,thecomplexityoftheRSGalgorithmisaroundO(2∗n),
+whichisO(n)iftheconstantmultiplierisomitted.
+4.5.2. EmployedBeePhase
+ThecomputationalcomplexityoftheemployedbeephaseisO(n ∗n ∗(n+logn+
+cs lsl
+n )+n ),inwhichthecomplexityofthelocalsearchisO(n ∗(logn+n+n )). The
+max cs lsl max
+complexityoftheprobabilitycalculationisO(n )(assuming,thatthesumofthefitness
+cs
+valuesiscalculatedonlyonce). O(n ∗(logn+n+n ))ismultipliedbyn ,because
+lsl max cs
+thelocalsearchisexecutedforallthen membersofthepopulation.
+cs
+Within the local search, the complexity of the inversion operator is O(n) and the
+complexityofthesub-routeplanoperatorisO(logn+n+n ax). Withinthesub-route
+m
+planoperator,thecomplexityofselectingarouteplanisO(logn),sinceintheworstcase
+|S| = n(i.e.,everytaskisonaseparateroute). Afterarouteplanisselected,oneofthe
+methodsoftheoperatorisexecuted. Fromthemethods,thesub-routeplanrotationmethod
+hasthegreatestcomplexity,whichisO(n+n ),sinceintheworstcasel = n(i.e.,there
+max k
+isonlyonerouteplaninthesolution).
+Mathematics2022,10,2205 17of38
+4.5.3. OnlookerBeePhase
+ThecomputationalcomplexityoftheonlookerbeephaseisO(n +n ∗(logn+n+
+cs cs
+n ∗(n+logn+n ))),inwhichthecomplexityofselectingasolutionfromthecolony
+lsl max
+isO(k∗n )orO(n )istheconstantkisomitted. Thecomplexityofthemainsearchis
+cs cs
+O(n ∗(logn+n+n ∗(n+logn+n )).
+cs lsl max
+Withinthemainsearch,thecomplexityofthemerge-splitoperatorisO(logn+n),
+becausethecomplexityofselectingthenumberofrouteplansisO(logn)andthecomplex-
+ityoftheothercomponentsoftheoperator(i.e.,selectingtherouteplans,collectingthe
+affectedtasks,andexecutingtheRPSH)isO(n). ThecomplexityofRPSHisO(n),since
+intheworstcaseallthentasksareaffectedinthesolution. Afterthemerge-splitoperator
+returnsasolution,searchisperformedaroundthissolution. Thecomplexityofthissearch
+isO(n ∗(n+logn+n )), becausethecomplexityofthesub-routeplanoperatoris
+lsl max
+O(logn+n+n )andthecomplexityoftheotheroperators(i.e.,inversion,insertion,
+max
+swap,andtwo-opt)areO(n).
+4.5.4. ScoutBeePhase
+ThecomputationalcomplexityofthescoutbeephaseisO(n ∗n+n ),becausein
+cs cs
+theworstcase,allthesolutionshavetobereplacedinthecolonyforexceedingn ),so
+sal
+RSGisexecutedn times. Next,thebestsolutionischosenfromthecolony,whichhas
+cs
+O complexity.
+cs
+4.5.5. WholeAlgorithm
+ThecomputationalcomplexityofthewholeCARP-ABCalgorithmiscomposedofthe
+complexityoftheinitializationphaseandthemultiplicationoftheotherphasesbyn ,
+mi
+sinceintheworstcasethealgorithmrunstillthemaximumnumberofiterationsisreached.
+Iftheduplicationsareremoved,thenitisthefollowing:O(n ∗n+n +n ∗(n ∗n ∗
+cs cs mi cs lsl
+(n+logn+n )+n +n ∗(logn+n+n ∗(n+logn+n )))).
+max cs cs lsl max
+IftheparametersoftheCARP-ABCalgorithmandthesub-routeplanoperatorare
+set to a fixed value, then the computational complexity is the following: O(n+logn).
+Therefore,thetimecomplexityoftheCARP-ABCalgorithmismostlylinearbutitcontains
+componentswithlogarithmictimecomplexity(e.g.,whenarouteplanisselected).
+5. Sub-RoutePlanOperator
+Thesub-routeplanoperatorisbasedontheGSTMoperatorforTSP[47]. Themain
+differencesbetweenthemodifiedversionandtheoriginalversionareduetothedifferences
+betweentheTSPandtheCARP.Therefore,themodifiedversionworkswitharcsinstead
+ofnodes. Furthermore,sincethesolutionforaTSPisalwaysonerouteplan, whilethe
+solutionforaCARP(usually)consistsofmorethanonerouteplan,themodifiedversion
+takesintoaccountonlyapartofthesolution(onerouteplan)insteadofthewholesolution.
+Thesub-routeplanoperatorisacomplexmoveoperatorwhichconsistsoftwodifferent
+greedysearchmethods(greedyreconnectionandsub-routerotation)andamethodthatpro-
+videsdistortion.Inallthreemethods,inversionoftheaffectedtasksisconsidered.Inversion
+ofthetaskshasrealimportancewhenasequenceoftasksisinvertedinthesub-routerotation
+methodbecausewhentheexecutionorderofthetaskschanges,thedirectioninwhichthe
+tasks are executed should be changed too, to keep the traveling cost minimal. The used
+notationswithinthischapterarecollectedinTableA3inAppendixA.
+5.1. TheMainAlgorithm
+Thealgorithmicdescriptionofthemainalgorithmofthesub-routeplanoperatorcan
+beseeninAlgorithm6. Asinput,aCARPinstance I,asolutionSof I,andtheparameters
+ofthealgorithmareexpected. Theparametersarethefollowing:
+• thereconnectionprobability(p );
+rc
+• thecorrectionandperturbationprobability(p );
+cp
+• thelinearityprobability(p );
+l
+Mathematics2022,10,2205 18of38
+• theminimumlengthofthesub-routeplan(l );
+min
+• the(maximal)sizeoftheneighborhoodofataskarcthatisconsidered(n ).
+max
+Algorithm6:subRoutePlan(mainalgorithmofthesub-routeplanoperator).
+input: I;S; p ,p ,p
+∈R
+;l ,n
+∈N+
+rc cp l min max
+1 begin
+2 r k ← selectOne(S);
+3 ifl k ≥ l min then √
+4 l max ← max({l min ,toInt( l k )});
+5 r k (cid:48) ←r k ;
+6 l ←randInt(l min ,l max );
+7 s ←randInt(1,l k −l+1);
+8 e ← s+l−1;
+9 r k ∗ ← (cid:104)t k,s ,...,t k,e (cid:105);
+10 r k # ←removeSubRoutePlan(r k ∗,r k );
+11 p rand ←randFloat(0,1);
+12 if p rand ≤ p rc then
+13 r k (cid:48) ← greedyReconnection(I,r k ,r k ∗,r k #);
+14 else
+15 p rand ←randFloat(0,1);
+16 if p rand ≤ p cp then
+17 r k (cid:48) ← distortion(I,r k ∗,r k #,s,p l );
+18 else
+19 r k (cid:48) ← subRoutePlanRotation(I,r k ,s,e,n max );
+20 S ← (S\r k )∪r k (cid:48);
+21 returnS;
+Themaximallengthofthesub-routeplan(l )isdeterminedaftertherouteplanis
+max
+selected. IntheproposedCARP-ABCalgorithm,theparametersofthisalgorithmaregiven
+asconstantvalues,soonly I andSareexpected.
+Inthefirststepofthealgorithm,arouteplanr isselectedfromthesolutionS(line2),
+k
+then,ifthenumberof(notdummy)taskswithinr issufficient(i.e.,l isgreaterthanor
+k k
+equaltol ,line3),thealgorithmproceedstothenextstep. Otherwise,itreturnstheinput
+min
+solutionSunchanged(line21).
+In the following step of the algorithm, the parameters are initialized and the (sub-
+)routeplansaregenerated. Themaximumlengthofthesub-routeplan(l )isdetermined
+max
+based on the number of tasks within r (l ) and the predefined minimum length of the
+k k
+sub-routeplan(l )(line4),andthenewrouteplan(r(cid:48))isinitialized(line5). Thelengthof
+min k
+thesub-routeplanlisdeterminedrandomlybasedonl andl (line6). Theposition
+min max
+indexofthestartingtaskofthesub-routeplan(s)israndomlyselectedtakingintoaccount
+l(line7). Thepositionindexoftheendingtaskofthesub-routeplan(e)isdeterminedby
+sandl (line8). Thesub-routeplanr∗ isconstructedbytakingthesub-routeplanthatis
+k
+enclosedbythetaskst andt fromr (line9). Therouteplanwithoutr∗ isdenotedby
+k,s k,e k k
+r#(line10).
+k
+Asthenextstepofthealgorithm, arandomnumberisgenerated(p )between0
+rnd
+and1(line11),whichdeterminestheoperationoftheoperator. If p islessthanorequal
+rnd
+tothepredefinedreconnectionprobability p (i.e., p ≤ p , line12), thenthegreedy
+rc rnd rc
+reconnectionmethodisexecuted(line13,Section5.2),otherwise,anewrandomnumberis
+generated(line15). Ifthenewvalueofp islessthanorequaltothepredefinedcorrection
+rnd
+andperturbationprobability p (i.e., p ≤ p ,line16),thendistortionisaddedtor
+cp rnd cp k
+(line17,Section5.3),otherwise,thesub-routeplanrotationmethodisexecuted(line19,
+Section5.4). Asthefinalstep,thesolutionSisupdatedbyremovingtheoldrouteplanr
+k
+andaddingthenewone,r(cid:48) (line20),thentheupdatedsolutionisreturned(line21).
+k
+Mathematics2022,10,2205 19of38
+5.2. GreedyReconnectionMethod
+Thegreedyreconnectionmethodinsertsr∗ intothepositionwithinr#thatgenerates
+k k
+theleastamountofincreaseinthetotalcostoftherouteplan.
+5.2.1. Algorithm
+Thealgorithmicdescriptionofthegreedyreconnectionmethodwithinthesub-route
+planoperatorcanbeseeninAlgorithm7. Asinput,theCARPinstance I,theoriginalroute
+planr ofthesolutionS,theselectedsub-routeplanr∗,andthetruncatedrouteplanr#(i.e.,
+k k k
+r withoutr∗)areexpected.
+k k
+Algorithm7:greedyReconnection(algorithmofthegreedyreconnectionmethod
+withinthesub-routeplanoperator).
+input: I;r ;r∗;r#
+k k k
+1 begin
+2 r k (cid:48) ←r k ;
+3 i ←1;
+4 whilei ≤ l#+1do
+k
+5 r k,i ←insertSubRoutePlan(r k ∗,r k #,i);
+6
+ifTC({r
+k,i
+}) < TC({r
+k
+(cid:48)})then
+7 r k (cid:48) ←r k,i ;
+8 i ←i+1;
+9
+returnr(cid:48);
+k
+Inthefirststepofthealgorithm,thenewrouteplanr(cid:48) isinitializedwiththecurrent
+k
+routeplanr (line2). Thepositionindexithatisusedtofindthebestpositionforinsertion
+k
+ofr∗ intor#isinitializedaswell(line3). Thevalue“1”referstothefirst(notdummy)task
+k k
+withinr#(i.e.,t# ). Thevalue“0”wouldrefertothefirstdummytask(t )and“l#+1”to
+k k,1 0 k
+thelastdummytaskwithinr#(assumingl#isthenumberofnotdummytaskswithinr#).
+k k k
+Inthefollowingstep,thealgorithmcheckseachpositionwithinr#tofindthebestoneto
+k
+insertr∗ into(lines4–8). Ineachiteration,beforetaskt# withinr#,itinsertsr∗ withthe
+k k,i k k
+insertSubRoutePlanfunction(line5). Thetotalcostoftheresultingrouteplan(r )isthen
+k,i
+comparedwiththetotalcostofr(cid:48) (line6). Ifr isbetterthanr(cid:48) (i.e.,ithaslowertotalcost),
+k k,i k
+thenitbecomesthenewvalueofr(cid:48) (line7).
+k
+Inthefinalstepofthealgorithm,r(cid:48) isreturnedbythefunction(line9).
+k
+5.2.2. Example
+Forabetterunderstandingofthemethod,seethefollowingexample. Lettheselected
+routeplanber = (cid:104)t ,t ,t ,...,t ,t (cid:105)andthelengthofthesub-routeplanbel = 3.
+k 0 k,1 k,2 k,13 0
+Based on these, let the selected starting and ending task be t = t and t = t ,
+k,s k,5 k,e k,7
+thentheselectedsub-routeplanisr∗ = (cid:104)t ,t ,t (cid:105)andtherouteplanr withoutr∗ is
+k k,5 k,6 k,7 k k
+r# = (cid:104)t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t (cid:105). Let us assume that inserting r∗
+k 0 k,1 k,2 k,3 k,4 k,8 k,9 k,10 k,11 k,12 k,13 0 k
+between t and t in r# results in the least amount of increase in the total cost of the
+k,8 k,9 k
+solution,thenr(cid:48) = (cid:104)t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t (cid:105)willbe
+k 0 k,1 k,2 k,3 k,4 k,8 k,5 k,6 k,7 k,9 k,10 k,11 k,12 k,13 0
+thenewk-throuteplaninthesolution.
+TheexamplediscussedinthepreviousparagraphisdepictedinFigures2and3. In
+bothfigures,thearctasksservedwithinarouteplanaredepictedwithsolidlines,andthe
+otherarcs,whichareonlytraversed,aredepictedwithdashedlines. Theoriginalroute
+planr canbeseeninFigure2. InFigure3,thesub-routeplanr∗ andthetruncatedroute
+k k
+planr#areshown,highlightedwithredandbluecolors,respectively. Theselectedstarting
+k
+andendingtasks(t andt )aredepictedwiththickerlines.
+k,s k,e
+Mathematics2022,10,2205 20of38
+tk,9
+tk,7
+tk,10
+tk,2
+tk,3
+tk,6
+tk,11
+tk,5
+tk,1
+tk,12
+tk,4
+tk,8
+tk,13
+t0
+Figure2.Examplerouteplanr .
+k
+tk,9 tk,9
+t
+tk,7 tk,7
+e
+tk,10 tk,10
+tk,2 tk,2
+tk,3
+tk,6
+tk,3
+tk,6
+tk,11 tk,5 tk,11 tk,5
+t
+s
+tk,12
+tk,1
+tk,12
+tk,1
+tk,4 tk,8 tk,4 tk,8
+tk,13 tk,13
+t0 t0
+(a) (b)
+Figure 3. Greedy reconnection method: (a) sub-route plan r∗ subtracted from route plan r ;
+k k
+(b)sub-routeplanr∗connectedtotherouteplanr#.
+k k
+5.3. DistortionMethod
+The distortion method takes the tasks in r∗ and inserts them one-by-one into r#,
+k k
+startingfromthepositionindexs,andbyrollingormixingwiththepredefinedlinearity
+probability (p ). Rolling means selecting the current last task in r∗ and mixing means
+l k
+selectingarandomtaskinr∗.
+k
+5.3.1. Algorithm
+Thealgorithmicdescriptionofthedistortionmethodwithinthesub-routeplanopera-
+torcanbeseeninAlgorithm8. Asinput,theCARPinstance I,theselectedsub-routeplan
+r∗,thetruncatedrouteplanr#(i.e.,r withoutr∗),thepositionindexsofthestartingtask
+k k k k
+ofr∗ withintheoriginalrouteplanr ,andthelinearityprobability p areexpected.
+k k l
+Mathematics2022,10,2205 21of38
+Algorithm8:Distortion(algorithmofthedistortionmethodwithinthesub-route
+planoperator).
+input: I;r∗;r#;s; p
+k k l
+1 begin
+2 i ← s;
+3
+r(cid:48) ←r#;
+k k
+4
+while|r∗| (cid:54)=0do
+k
+5 p rnd ←randFloat(0,1);
+6 t ← t∗ k,|r∗| ;
+k
+7 if p rnd ≤ p l then
+8 j ←randInt(1,|r∗|);;
+k
+9 t ← t∗ ;
+k,j
+10
+r(cid:48) ←insertTask(t,r(cid:48),i);
+k k
+11
+r∗ ←removeTask(t,r∗);
+k k
+12 i ←i+1;
+13
+returnr(cid:48);
+k
+Inthefirststepofthealgorithm,thepositionindexiisinitializedwiths(line2)and
+thenewrouteplanr(cid:48) isinitializedwiththetruncatedrouteplanr#(line3). Whilethereare
+k k
+tasksinr∗,thealgorithmexecutesthefollowingsteps(lines4–12). First,arandomnumber
+k
+isgenerated(p )between0and1(line5)andthelasttaskisselectedfromr∗intot(line6).
+rnd k
+If p islessthanorequalto p ,thenthevalueoftischangedintoarandomtaskfromr∗
+rnd l k
+(lines7–9). Theselectedtasktistheninsertedintothepositioniinr(cid:48) withtheinsertTask
+k
+function(line10)andremovedfromr∗ withtheremoveTaskfunction(line11). Thetaskis
+k
+alwaysinsertedrightafterthepreviouslyinsertedtask. Whenr∗ runsoutoftasks(i.e.,all
+k
+thetaskswithinithavebeeninsertedintor(cid:48)),thealgorithmreturnsr(cid:48) (line13).
+k k
+5.3.2. Example
+Forabetterunderstandingofthemethod,seethefollowingexample. Lettheselected
+routeplanber = (cid:104)t ,t ,t ,...,t ,t (cid:105)andthelengthofthesub-routeplanbel = 3.
+k 0 k,1 k,2 k,13 0
+Based on these, let the selected starting and ending task be t = t and t = t ,
+k,s k,5 k,e k,7
+thentheselectedsub-routeplanisr∗ = (cid:104)t ,t ,t (cid:105)andtherouteplanr withoutr∗ is
+k k,5 k,6 k,7 k k
+r# = (cid:104)t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t (cid:105). Thelengthofr∗ isthree,sointhis
+k 0 k,1 k,2 k,3 k,4 k,8 k,9 k,10 k,11 k,12 k,13 0 k
+casethealgorithmhasthreeiterations. Letthelinearityprobabilitybe p =0.2.
+l
+Inthefirstiteration,lettherandomnumberbe p =0.1. Sinceitissmallerthan p ,
+rnd l
+arandomtaskisselectedfromr∗. Lettheselectedtaskbet . Inthiscase,thenewroute
+k k,6
+planisr(cid:48) = (cid:104)t ,t ,t ,t ,t ,t ,t ,...(cid:105)(i.e.,t isinsertedbetweent andt )and
+k 0 k,1 k,2 k,3 k,4 k,6 k,8 k,6 k,4 k,8
+r∗ = (cid:104)t ,t (cid:105)(i.e.,t isremoved).
+k k,5 k,7 k,6
+Intheseconditeration,lettherandomnumberbe p =0.8. Sinceitisgreaterthan
+rnd
+p ,thecurrentlylasttaskisselectedfromr∗,whichist . Inthiscase,thenewrouteplan
+l k k,7
+isr(cid:48) = (cid:104)t ,t ,t ,t ,t ,t ,t ,t ,...(cid:105)(i.e., t isinsertedbetweent andt )and
+k 0 k,1 k,2 k,3 k,4 k,6 k,7 k,8 k,7 k,6 k,8
+r∗ = (cid:104)t (cid:105).
+k k,5
+Inthethirditeration,sinceonlyonetaskleftinr∗,regardlessofthevalueof p ,t
+k rnd k,5
+isselected. Therefore,r(cid:48) = (cid:104)t ,t ,t ,t ,t ,t ,t ,t ,t ,...(cid:105)andr∗ = (cid:104)t (cid:105). Since
+k 0 k,1 k,2 k,3 k,4 k,6 k,7 k,5 k,8 k k,5
+r∗ isnowempty,thealgorithmreturnsr(cid:48).
+k k
+5.4. Sub-routePlanRotationMethod
+The sub-route plan rotation method selects one neighbor task randomly from the
+neighbors of t k,s and t k,e (t k,s∗ and t k,e∗, respectively), then inverts the sequence of tasks
+enclosedby t k,i and t k,i∗ (including t k,i∗ inthesequence), where (i,i∗) ∈ {(s,s∗),(e,e∗)}.
+Theinversionofthesequenceisperformedinsuchamanner,thatt k,i andt k,i∗ (orinv(t k,i∗ ))
+becomedirectneighborsinthenewrouteplanr(cid:48).
+k
+Mathematics2022,10,2205 22of38
+5.4.1. Algorithm
+Thealgorithmicdescriptionofthesub-routeplanrotationmethodwithinthesub-route
+planoperatorcanbeseeninAlgorithm9. Asinput,theCARPinstance I,theoriginalroute
+planr ,thepositionindexsofthestartingtaskandthepositionindexeoftheendingtask
+k
+ofr∗ withintheoriginalrouteplanr ,andthesizeoftheneighborhoodn areexpected.
+k k max
+Algorithm9:subRoutePlanRotation(algorithmofthesub-routeplanrotation
+methodwithinthesub-routeplanoperator).
+input: I;r ;s;e;n
+k max
+1 begin
+2 s∗ ← selectNeighborTask(r k ,s,n max );
+3 e∗ ← selectNeighborTask(r k ,e,n max );
+4 r k (cid:48) ←r k ;
+5
+forall(i,i∗) ∈ {(s,s∗),(e,e∗)}do
+6
+r(cid:48) ← (cid:104)(cid:105);
+k,i
+7 ifi <i∗ then
+8 r k (cid:48) ,i ← (cid:104)t 0 ,t k,1 ,...,t k,i (cid:105)·(cid:104)t k,i∗,t k,i∗−1 ,...,t k,i+1 (cid:105)·(cid:104)t k,i∗+1 ,...,t k,lk ,t 0 (cid:105);
+9 j ←i∗;
+10 whilei < jdo
+11
+if∃inv(t
+k,j
+)then
+12 r k (cid:48) ,i ←replaceTask(t k,j ,inv(t k,j ),r k (cid:48) ,i );
+13 j ← j−1;
+14 else
+15 r k (cid:48) ,i ← (cid:104)t 0 ,t k,1 ,...,t k,i∗−1 (cid:105)·(cid:104)t k,i−1 ,t k,i−2 ,...,t k,i∗ (cid:105)·(cid:104)t k,i ,...,t k,lk ,t 0 (cid:105);
+16 j ←i−1;
+17 whilei∗ ≤ jdo
+18
+if∃inv(t
+k,j
+)then
+19 r k (cid:48) ,i ←replaceTask(t k,j ,inv(t k,j ),r k (cid:48) ,i );
+20 j ← j−1;
+21
+ifTC({r(cid:48) }) < TC({r(cid:48)})then
+k,i k
+22 r(cid:48) ←r(cid:48) ;
+k k,i
+23
+returnr(cid:48);
+k
+Inthefirststepofthealgorithm,onepositionindexofthen closestneighbortasksis
+max
+selectedrandomlyforbotht andt (s∗ande∗,respectively)withtheselectNeighborTask
+k,s k,e
+function(lines2–3)andthenewrouteplanr(cid:48) isinitializedwiththeoriginalrouteplanr
+k k
+(line4). Inthenextstep,forall(i,i∗) ∈ {(s,s∗),(e,e∗)},thefollowingstepsareexecuted
+(lines5–22). First,thepotentialnewrouteplanr(cid:48) isinitializedwithanemptysequence
+k,i
+(line6),then,basedontherelationshipbetweeniandi∗,asub-routeplanisselectedand
+inverted. If t k,i is before t k,i∗ (i.e., i < i∗) in r k , then t k,i is directly followed by t k,i∗ (or
+inv(t k,i∗ )) in r k (cid:48) (lines 7–8). Otherwise, if t k,i∗ is before t k,i in r k , then t k,i∗ (or inv(t k,i∗ )) is
+directlyfollowedbyt inr(cid:48) (lines14–15). Inbothcases,eachtaskthathasaninverseand
+k,i k
+iswithintheinvertedsub-sequence,isreplacedbyitsinversetaskinthenewrouteplanr(cid:48)
+k
+withthereplaceTaskfunction(lines9–13,lines16–20). Fromthesub-routeplanrotations,
+theonethathasthelowesttotalcostischosen(lines21–22)andreturnedbythealgorithm
+(line23).
+5.4.2. DeterminingtheNeighborhood
+Theneighborsaredeterminedaccordingtothepredefinedsizeoftheneighborhood
+(n ). Thedistancebetweenarctaskt andanotherarctaskiscalculatedbasedontheir
+max k,i
+orderwithinr andwhethertheotherarctaskhasaninversetask(i.e.,itisfromanedge
+k
+task)ornot. Lett beanarctaskinr thatisnott (i.e.,t (cid:54)= t ). Ift isbeforet inr
+k,j k k,i k,i k,j k,j k,i k
+Mathematics2022,10,2205 23of38
+(i.e.,j <i)andhasinversetask(i.e.,inv(t ) ∈ T),thenthedistancebetweenthetwoarc
+k,j
+tasksistheshortestpathbetweentheheadverticesoft andt ,soitcanbecalculated
+k,j k,i
+(cid:0) (cid:1)
+withtheexpressionmdc head(t ),head(t ) . Theshortestpathiscalculatedstartingfrom
+k,j k,i
+head(t ),becauseduringthesub-routeplanrotationt getsreversed(i.e.,itgetsreplaced
+k,j k,j
+by its inverse in the route plan) and it is known that the head vertex of the task is the
+(cid:0) (cid:1)
+sameasthetailvertexoftheinversetask(i.e.,tail inv(t ) = head(t )). Ifthetaskdoes
+k,j k,j
+nothaveinverse,thentheshortestpathiscalculatedstartingfromtail(t ). Ift isafter
+k,j k,j
+(cid:0) (cid:1)
+t inr (i.e., j > i)andhasinversetask,thenmdc tail(t ),tail(t ) iscalculated. Ifthe
+k,i k k,i k,j
+taskdoesnothaveinverse,thentheshortestpathiscalculatedendingathead(t ). The
+k,j
+reasoningbehindwhatexpressiontouseineachcaseissummarizedinTable1.
+Table1.Summarytableaboutwhatexpressiontousetocalculatethedistancebetweenanarbitrary
+arctaskt fromtherouteplanr andt (i∈{s,e}).
+k,j k k,i
+Ist beforeoraftert inr ? Doest HaveInverseTask? Expression
+k,j k,i k k,j
+(cid:0) (cid:1)
+before yes mdc head(t ),head(t )
+k,j k,i
+(cid:0) (cid:1)
+before no mdc tail(t ),head(t )
+k,j k,i
+(cid:0) (cid:1)
+after yes mdc tail(t ),tail(t )
+k,i k,j
+(cid:0) (cid:1)
+after no mdc tail(t ),head(t )
+k,i k,j
+5.4.3. Example
+Forabetterunderstandingofthemethod,seethefollowingexample. Lettheselected
+routeplanber = (cid:104)t ,t ,t ,...,t ,t (cid:105),thelengthofthesub-routeplanbel =3,and
+k 0 k,1 k,2 k,13 0
+the size of the neighborhood be n = 5. (At this method, l only defines the distance
+max
+betweenthetwoselectedarctasks,ithasnoeffectonthelengthoftherotatedsub-route
+plans.) Basedonthese, lettheselectedtwoarcstaskbe t = t and t = t . Letus
+k,s k,6 k,e k,8
+assumethatallthearctasksinr arefromanedgetask,sotheyallhaveinversetask.
+k
+The route plan, the selected arc tasks, and their neighborhood are illustrated on
+Figure4. Thearctasksservedwithintherouteplanaredepictedwithsolidlines,andthe
+otherarcs,whichareonlytraversed,aredepictedwithdashedlines. Thearctaskst and
+k,s
+t and their neighborhood are highlighted with red and blue color, respectively. Only
+k,e
+thearctasksthatarecompletelycoveredbytheellipsesarepartoftheneighborhood. It
+mustbenotedthattheellipsesareonlyforrepresentationalpurpose. Sinceidentifyingthe
+neighborhoodisquitecomplexduetothedistancecalculation,thisyieldstothattheshape
+thatcoversonlytheneighborarctasksvaries. Basedonthis,fort ,thesetoftheneighbor
+k,s
+arctasksis{t ,t ,t ,t ,t },andfort ,itis{t ,t ,t ,t ,t }.
+k,2 k,3 k,7 k,8 k,11 k,e k,4 k,6 k,7 k,9 k,10
+Fort k,s ,letusassumethattheselectedneighbortaskist k,2 (i.e.,t k,s∗ = t k,2 ),thenthe
+sub-routeplanisr k ∗ = (cid:104)t k,2 ,t k,3 ,t k,4 ,t k,5 (cid:105)(Figure5a). Sincet k,s∗ precedest k,s (i.e.,s∗ < s),
+thesub-routeplanisreversedinamannerthatinthenewrouteplaninv(t
+k,s∗
+)isdirectly
+followed by t . The reversed sub-route plan is (cid:104)inv(t ),inv(t ),inv(t ),inv(t )(cid:105),
+k,s k,5 k,4 k,3 k,2
+thereforethenewrouteplanisr(cid:48) = (cid:104)t ,t ,inv(t ),inv(t ),inv(t ),inv(t ),t ,...(cid:105)
+k 0 k,1 k,5 k,4 k,3 k,2 k,6
+(Figure5b).
+For t k,e , letusassumethattheselectedneighbortaskis t k,10 (i.e., t k,e∗ = t k,10 ), then
+the sub-route planis r k ∗ = (cid:104)t k,9 ,t k,10 (cid:105) (Figure 6a). Since t k,e∗ is after t k,e (i.e., e < e∗), the
+sub-routeplanisreversedinamannerthatinthenewrouteplaninv(t
+k,e∗
+)directlyfollows
+t . Thereversedsub-routeplanis(cid:104)inv(t ),inv(t )(cid:105),thereforethenewrouteplanis
+k,e k,10 k,9
+r(cid:48) = (cid:104)t ,t ,...,t ,inv(t ),inv(t ),t ,...,t ,t (cid:105)(Figure6b).
+k 0 k,1 k,8 k,10 k,9 k,11 k,13 0
+Mathematics2022,10,2205 24of38
+tk,11
+tk,9
+tk,12
+tk,6
+ts
+tk,2
+tk,7
+tk,10
+tk,3
+tk,8
+te
+tk,4
+tk,13
+tk,5
+tk,1
+t0
+Figure4. Nearestneighborsofthearctaskst (t )andt (t )withintherouteplanr ,when
+k,s k,6 k,e k,8 k
+nmax =5.
+t t
+k,11 k,11
+t t
+k,9 k,9
+t t
+k,12 t k,12 t
+k,6 k,6
+t t
+s s
+t inv(t )
+k,2 k,2
+t* inv(t*)
+s s
+t t
+k,7 t k,7 t
+k,10 k,10
+t t
+t k,8 k,8
+k,3 inv(t )
+k,3
+t inv(t )
+k,4 k,4
+t t
+k,13 t k,13 inv(t )
+k,5 k,5
+t t
+k,1 k,1
+t t
+0 0
+(a) (b)
+Figure5.Rotationofthesub-routeplanenclosedbyt k,s∗ andt k,s :(a)Anarctask(heret k,2 )israndomly
+selectedast k,s∗ fromtheneighborlistofarctaskt k,s (t k,6 ),thusasub-routeplanisobtained;(b)The
+sub-routeplanisinverted,soinv(t k,s∗ )willbedirectlyfollowedbyt k,s inthenewrouteplanr k (cid:48).
+Mathematics2022,10,2205 25of38
+tk,11 tk,11
+tk,9 inv(tk,9)
+tk,12
+tk,6
+tk,12
+tk,6
+tk,2 tk,2
+tk,3
+tk,7
+tk,8
+t*e
+tk,10
+tk,3
+tk,7
+tk,8
+inv(te*)
+inv(tk,10)
+te te
+tk,4 tk,4
+tk,13
+tk,5
+tk,13
+tk,5
+tk,1 tk,1
+t0 t0
+(a) (b)
+Figure6.Rotationofthesub-routeplanenclosedbyt
+k,e
+andt k,e∗:(a)Anarctask(t
+k,10
+)israndomly
+selectedast k,e∗ fromtheneighborlistofarctaskt k,e (t k,8 ),thus,asub-routeplanisobtained;(b)The
+sub-routeplanisinverted,sot k,e willbedirectlyfollowedbyinv(t k,e∗ )inthenewrouteplanr k (cid:48).
+6. Experiments
+The proposed CARP-ABC algorithm (ABC algorithm from now on in this section)
+alongwiththesub-routeplanoperatorwasimplementedinPython(3.6)intheSpyder
+(4.2.1)developmentenvironment. TocomparetheABCalgorithmwithotherstaticCARP
+solvers,theHMAandtheACOPRwerealsoimplemented. TotesttheABCalgorithmand
+theHMAascompletereroutingalgorithmswithintheDCARPframeworkandcompare
+them to the minimal rerouting algorithm RR1, the implementations from our previous
+work[20]wereused. Pythonprogramminglanguagewaschosenfortheimplementation,
+becausetheDCARPframeworkwillbesupportedinthefuturewiththePM4Pyprocess
+miningplatform,whichiswritteninPython. Theexperimentswereperformedonalaptop
+PCwithWindows10operationsystem,equippedwithanIntel(R)Core(TM)i5-3320M2.60
+GHz2-coreCPUand8GBofRAM.
+Itmustbesignified,thattheHMAandtheACOPRwereimplementedbasedontheir
+algorithmicdescription(in[7]andin[8],respectively),becausetheoriginalimplemented
+versionofthemisnotavailable. Therefore,theimplementationsusedinthisworkmight
+haveerrorsthatdecreasetheeffectivenessofthesealgorithms.
+Inthissection,first,thesetupsoftheexperimentsarespecified(Section6.1). Next,
+theresultsoftheCARPexperiments(Section6.2),theresultsoftheDCARPexperiments
+(Section6.4),andtheresultsoftheoperatorexperiments(Section6.3)arediscussed,inthe
+respectiveorder.
+6.1. ExperimentalSetups
+FortheCARPexperiments,fiveCARPinstancesofdifferentsizeswereused. TheABC
+algorithm,theHMA,andtheACOPRwererun30timeswithatimelimitsetto10minand
+appliedtotheCARPinstances,independently,thentherecordedoutputswerecompared
+andanalyzed.
+FortheDCARPexperiments, oneCARPinstanceofmediumsizewasused. Since
+theinitialDCARPinstanceisfundamentallyastaticCARPinstanceandtheHMAisthe
+currentlyknownthemostaccuratemetaheuristicforCARP,theHMAwasusedtoobtain
+theinitialsolution. Thetravelandservicelogsandtheeventsweregeneratedwiththe
+algorithmsintroducedin[20].Foreacheventtype,15eventswereindependentlygenerated,
+thenexecutedontheinitialinstance,creatingnewDCARPinstances. TheRR1algorithm,
+Mathematics2022,10,2205 26of38
+theABCalgorithm,andtheHMAwererunwithatimelimitsetto1minandappliedto
+theseinstances,independently,thentherecordedoutputswerecomparedandanalyzed.
+Fortheoperatorexperiments,threeCARPinstancesofdifferentsizeswereused. The
+sub-routeplanoperatorandtheothersmallstep-sizeoperatorsforCARP(i.e.,inversion,
+insertion,swap,andtwo-opt)wereusedaslocalsearchoperatorswithintheemployedbee
+phaseoftheABCalgorithm. Theemployedbeephasewaschoseninsteadoftheonlooker
+bee phase so the efficiency of the operators can be measured on solutions of different
+qualities,notonlyongoodqualitysolutions. The(modified)ABCalgorithmwasrun30
+timeswithatimelimitsetto10minandappliedtotheCARPinstances,independently,
+thentherecordedoutputswerecomparedandanalyzed.
+AttheCARPandtheDCARPexperiments,duringtheexecutionofeachalgorithm,
+thenewglobalbestsolutionandthetimeittookforthealgorithmtofindthenewglobal
+bestsolution(i.e.,theelapsedtimesincethebeginningoftheexecutionofthealgorithm)
+wererecordedandanalyzed. Attheoperatorexperiments, duringtheexecutionofthe
+algorithm,thenumberofsearchtrialsinwhichthemoveoperatorsfoundabetterlocal
+bestsolution(i.e.,S∗)wasrecordedandanalyzed.
+i
+Theusedinstancesandtheparametersettingsoftheusedalgorithmsarespecifiedin
+thesubsections(inSection6.1.1andinSection6.1.2,respectively).
+6.1.1. UsedInstances
+TotesttheCARPsolvers,benchmarktestsetsareoftenusedintheliterature. These
+test sets can be divided into two main categories: synthetic (e.g., containing randomly
+generatedinstances)[52–54]andreal-lifebased(containingexamplesbasedonrealroad
+networksandtasks)[2,28,29].
+Sincetestinganalgorithmonalltheinstanceswouldbetime-consuming,onlythe
+followingfiveinstanceswereselectedfortheCARPexperiments:
+• “kshs1”fromtheKSHSset[54];
+• “egl-e1-A”and“egl-s1-A”fromtheEGLset[2];
+• “egl-g1-A”and“egl-g2-A”fromEGL-Largeset[29].
+FortheDCARPexperiments,onlythe“egl-e1-A”instancewasused. Fortheoperator
+experiments,the“egl-e1-A”,“egl-s1-A”,and“egl-g1-A”instanceswereused.
+TheEGLandtheEGL-Largesetsoriginatefromthedataofawintergrittingapplication
+inLancashire(UK).TheEGLsetcontains24instancesinwhichtwodifferentgraphsare
+combined with various attributevalues. The instances “egl-e1-A” and “egl-s1-A” were
+selectedtorepresentoneofeachgraph. TheEGL-Largesetcontains10instancesinwhich
+thegraphisthesamebutthenumberoftaskedgesis347in5instancesand375intheother
+5instances. Theinstances“egl-g1-A”and“egl-g2-A”wereselectedtorepresentonefrom
+bothkindsofinstances.
+TheattributesofallthefiveselectedinstancesarebrieflysummarizedinTable2.These
+CARPinstanceswereselectedtorepresentCARPsofverydifferentsizes,thusrequiring
+verydifferentcomplexitylevelstosolvethem. Itcanbeseen,thatthe“kshs1”instanceisa
+smallsyntheticCARPinstance,whichmeansasmallsearchspaceforthealgorithm,sofor
+problemdifficultyitcanbeputintotheeasycategory. TheEGLinstancesarereal-lifebased
+CARPinstances,sotheyarenaturallymorecomplex. Basedontheirsize,thedifficultyof
+the“egl-e1-A”instanceismedium,thedifficultyofthe“egl-s1-A”instanceishard,andthe
+difficultyoftheinstances“egl-g1-A”and“egl-g2-A”areveryhard.
+Mathematics2022,10,2205 27of38
+Table2.AttributesoftheusedCARPinstances.
+Name kshs1[54] egl-e1-A[2] egl-s1-A[2] egl-g1-A[29] egl-g2-A[29]
+Numberofvertices 8 77 140 255 255
+Numberoftaskedges 15 51 75 347 375
+Numberofotheredges 0 47 115 28 0
+Numberofvehicles 4 5 7 20 22
+Capacityofthevehicles 150 305 210 28,600 28,000
+Lowerboundofthetotalcost 8705 1468 1394 553,696 604,228
+Totalcostofthebestsolution1 14,661 3548 5018 992,045 1,088,040
+1Basedontheliterature.
+6.1.2. ParameterSettings
+TheABCalgorithmwastestedwithmultipleparametersettings. Basedontheresults,
+thefollowingsettingsprovidedthebestqualityresultswithoutunnecessarilyincreasing
+therunningtimeofthealgorithm,thustheseareusedintheexperiments:
+• n : 10;
+cs
+• n : 10,000;
+mi
+• n : 100;
+gsl
+• n : 20;
+lsl
+• n : 20.
+sal
+According to the investigation in [47], the ideal parameter values for the GSTM
+√
+operatorarethefollowings: p = 0.5, p = 0.8, p = 0.2,l = 2,l = Int( n),and
+rc cp l min max
+n =5,wherenisthenumberofcities. Intheexperiments,thesameparametervalues
+max
+areusedforthesub-routeplanmoveoperator. Theonlydifferenceisthatnisthenumber
+oftaskswithintheselectedrouteplan.
+FortheHMAandtheACOPR,theoptimalparametersettingsdefinedbythecorre-
+spondingworks[7,8]wereused. FortheRR1,noparametersareneeded.
+6.2. ResultsoftheCARPExperiments
+ThechartsonFigures7–9showtheconvergencespeedof30independentrunsofthe
+algorithmsfortheselectedinstances. Asitwasmentionedbefore,forthese,thenewglobal
+bestsolutionandthetimeittookforthealgorithmtofindthenewglobalbestsolution
+wererecorded. They-axisshowsthetotalcostofthesolution,andthex-axisshowsthe
+elapsedtimesincethealgorithmstartedrunninginseconds. Thedifferentcolorsindicate
+theoutputsofthedifferentalgorithms. Thecoloredlinesindicatetheaverageconvergence
+speed and the colored areas cover all the values that were recorded (i.e., the areas are
+enclosedbytheminimumandmaximumvalues). Thecloserthelineistotheintersection
+oftheaxes,thebettertheconvergencespeedofthealgorithm.
+Inthecaseofthe“kshs1”instance(Figure7),itcanbeseenthattheconvergencespeed
+oftheACOPRandtheABCalgorithmisaroundtwiceasfastasthespeedoftheHMA.
+However,eventhoughthespeedoftheACOPRandtheABCalgorithmisnearlythesame,
+theACOPRalgorithmhasfailedtofindthebestsolutionin30runs,thusmakingtheABC
+algorithmthebestsolverforCARPsofsmallsizelikethe“kshs1”instance.
+Mathematics2022,10,2205 28of38
+Figure7.Theconvergencespeedof30independentrunsofHMA,ACOPR,andABCalgorithmson
+the“kshs1”instance,plottedononechart.
+Figure8.Theconvergencespeedof30independentrunsofHMA,ACOPR,andABCalgorithmon
+the“egl-e1-A”instance,plottedononechart,withtimelimit(t≤600s).
+In the case of the “egl-e1-A” instance (Figure 8), the differences between the con-
+vergencespeedofthealgorithmsstarttoshow. Itcanbeseenthatinallcases,theABC
+algorithm provides better solutions and faster, than the ACOPR algorithm. The HMA
+algorithmhasaveryslowcycletime,thusithasaveryslowconvergencespeedaswell. If
+timeisnottakenintoaccount,theHMAcangenerallyprovidebettersolutionsthanthe
+otheralgorithms.
+Mathematics2022,10,2205 29of38
+Figure9.Theconvergencespeedof30independentrunsofHMA,ACOPR,andABCalgorithmon
+the“egl-s1-A”instance,plottedononechartwithtimelimit(t≤600s).
+In Table 3, the total cost of the globally best solution within different time limits
+is examined, based on 30 independent runs of the ABC algorithm and the HMA. The
+calculatedstatisticsarethefollowing: minimum(Min.),maximum(Max.),average(Avg.),
+andstandarddeviation(Std.). Itcanbeseenthatwithin1min,theABCalgorithmalways
+providedbettersolutions. Within5min,insomecases,theHMAalgorithmfoundbetter
+results(ithassmallerMin. value),butinaveragetheABCalgorithmstillperformedbetter
+(ithassmallerMax. andAvg. values). Nevertheless,within10ormoreminutes,theHMA
+algorithmprovidedbettersolutions. Regardlessofthetimelimit,theABCalgorithmis
+slightlymorestablethantheHMAalgorithm,intermsofhowmuchthesolutionvariesfor
+differentruns(ithassmallerStd. values).
+Table3.StatisticsofthetotalcostofthegloballybestsolutionoftheHMAandtheABCalgorithms
+onthe“egl-e1-A”instance,withindifferenttimelimits.
+OutputatDifferentTimeLimits
+Algorithm StatisticValue
+≤1min ≤5min ≤10min
+Min. 3835 3651 3651
+Max. 4021 3887 3872
+ABC
+Avg. 3894.9 3812.5 3796.23
+Std. 38.02 68.90 65.70
+Min. 3731 3582 3582
+Max. 4357 4133 4133
+HMA
+Avg. 4091.6 3821.5 3802.4
+Std. 184.92 140.69 148.10
+Inthecaseofthe“egl-s1-A”instance(Figure9andTable4),thedifferencesbetween
+theconvergencespeedoftheHMAandtheABCalgorithmismorecomplex. Itcanbeseen
+thatbefore200s,theABCalgorithmperformsbetter,between200and400stheyperform
+aroundthesame,thenafter400stheHMAperformsbetter.
+Mathematics2022,10,2205 30of38
+Table4.StatisticsofthetotalcostofthegloballybestsolutionoftheHMAandtheABCalgorithms
+onthe“egl-s1-A”instance,withindifferenttimelimits.
+OutputatDifferentTimeLimits
+Algorithm StatisticValue
+≤1min ≤5min ≤10min
+Min. 5635 5398 5398
+Max. 5977 5903 5883
+ABC
+Avg. 5876.53 5752.87 5708.5
+Std. 66.73 131.41 130.64
+Min. 5507 5235 5235
+Max. 6628 6611 6401
+HMA
+Avg. 6176.57 5738.67 5459.87
+Std. 355.71 440.63 209.63
+Theresultsweresimilarforthe“egl-g1-A”and“egl-g2-A”instances(Figure10and
+Tables5and6). Inmostoftheruns, thesettimelimitwasnotenoughfortheHMAto
+improveitsinitialsolution,soonlyitsinitialsolutionwasrecorded. Thatiswhythegraph
+fortheHMAlookslikeastraightlineinFigure10. Asaresultofthis,inthemeasuredtime
+period,theABCalgorithmperformedbetterthantheHMAafteraround100s.
+Table5.StatisticsofthetotalcostofthegloballybestsolutionoftheHMAandtheABCalgorithms
+onthe“egl-g1-A”instance,withindifferenttimelimits.
+OutputatDifferentTimeLimits
+Algorithm StatisticValue
+≤1min ≤5min ≤10min
+Min. 1,272,733 1,224,289 1,222,579
+Max. 2,069,358 1,299,609 1,274,297
+ABC
+Avg. 1,370,687.2 1,266,411.97 1,244,482.33
+Std. 161,727.50 19,121.17 13,385.36
+Min. 1,245,358 1,245,358 1,245,358
+Max. 1,380,727 1,380,727 1,380,727
+HMA
+Avg. 1,323,545.83 1,323,544.97 1,323,519.2
+Std. 32,452.85 32,452.53 32,443.37
+Table6.StatisticsofthetotalcostofthegloballybestsolutionoftheHMAandtheABCalgorithms
+onthe“egl-g2-A”instance,withindifferenttimelimits.
+OutputatDifferentTimeLimits
+Algorithm StatisticValue
+≤1min ≤5min ≤10min
+Min. 1,389,720 1,349,032 1,343,764
+Max. 1,897,513 1,416,208 1,385,876
+ABC
+Avg. 1,527,504.47 1,386,266.17 1,366,140.43
+Std. 163,125.66 7587.12 11,848.98
+Min. 1,356,204 1,356,204 1,356,204
+Max. 1,478,279 1,478,279 1,478,279
+HMA
+Avg. 1,429,353 1,425,706.43 1,424,908.2
+Std. 30,287.61 33,358.28 34,299.91

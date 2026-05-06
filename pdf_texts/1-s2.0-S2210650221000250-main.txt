@@ -1,0 +1,1383 @@
+Swarm and Evolutionary Computation 63 (2021) 100864
+Contents lists available at ScienceDirect
+Swarm and Evolutionary Computation
+journal homepage: www.elsevier.com/locate/swevo
+A memetic algorithm based on two_Arch2 for multi-depot
+heterogeneous-vehicle capacitated arc routing problem
+Bin Cao a, b ,∗ , Weizheng Zhang a, b , Xuesong Wang a, b , Jianwei Zhao a, b , Yu Gu c, d , e , Yan Zhang a, b , ∗
+a State Key Laboratory of Reliability and Intelligence of Electrical Equipment, Hebei University of Technology, Tianjin 300130, China
+b School of Artificial Intelligence, Hebei University of Technology, Tianjin 300401, China
+c School of AutoMation, Guangdong University of Petrochemical Technology, Maoming 525000, Guangdong, China
+d Beijing Advanced Innovation Center for Soft Matter Science and Engineering, Beijing University of Chemical Technology, Beijing 100029, China
+e Department of Chemistry, Institute of Inorganic and Analytical Chemisty, Goethe-University, Frankfurt 60438, Germany
+a r t i c l e i n f o a b s t r a c t
+Keywords: With the rapid growth in the number of motor vehicles, traffic pollution has become an increasingly serious
+Capacitated arc routing problem problem, due to high carbon emission and low load utilization rate. It is reasonable to plan vehicle driving routes
+Heterogeneous-vehicle on urban roads to deliver services, (i.e., to tackle the capacitated arc routing problem (CARP)). Previous studies on
+Load utilization rate
+CARP have typically considered at most two objectives simultaneously; however, two objectives are not sufficient
+Many-objective optimization
+to solve the pollution problem. Consequently, a many-objective optimization model of multi-depot heterogeneous-
+vehicle CARP is constructed in this study that considers four objective functions: total cost, makespan, carbon
+emission and load utilization rate. Furthermore, based on the ideas of two-archive and information entropy, we
+propose a memetic algorithm based on Two_Arch2 (MATA) to tackle the constructed model. The experimental
+results show that MATA effectively optimizes the many-objective model and solves the problem.
+1. Introduction cluded two objectives —total cost and construction period. The memetic
+algorithm (MA) [12,13] has been proved to be an effective method to
+The capacitated arc routing problem (CARP) is a special vehicle solve such problem. Pia et al. [14] proposed a model that combined
+routing problem (VRP) [1] widely encountered in real life scenarios both large and small vehicles; the small vehicles periodically transfer
+such as garbage cleaning, street watering, and network monitoring ser- their goods into large vehicles and then continue to work. Then, they
+vice [2,3] . The vehicle driving routes need to be adequately planned proposed a local search heuristic obtained from a variable neighbor-
+to meet individual circumstances to solve the CARP. As a typical NP- hood procedure to solve the CARP. Many scholars believe that continued
+hard problem [4] , the difficulty of tackling the CARP increases rapidly worsening of the global greenhouse effect makes controlling the carbon
+as the problem scale and the number of constraints increase. In a single- emission of vehicles increasingly important. Bekta et al. [15] studied the
+objective CARP, only one objective function needs to be considered, pollution-routing problem (PRP) and proposed a method for calculating
+namely, finding the routes with the minimum total cost for all tasks carbon emission. Tang et al. [16] proposed applying an MA to an ex-
+under the constraint conditions [5] . In multiobjective CARP, the total tended neighborhood search to tackle the CARP. Mei et al. [6] proposed
+cost and makespan are considered simultaneously [6] . However, one a decomposition-based MA (D-MAENS) for multiobjective CARP, which
+problem with the existing methods is that they cannot find an optimal combined the MAENS method of single-objective CARP with the ad-
+solution in polynomial time [7] . In fact, a large number of practical ap- vanced functions of multiobjective optimization. And they adopted the
+plications have shown that using bio-intelligent algorithms to solve the cooperative co-evolution (CC) framework to decompose a large-scale
+CARP could substantially reduce global transportation costs [8] . CARP into smaller problems and tackled them separately [17] . They de-
+As a classic NP-hard problem, CARP has been studied by many schol- veloped an effective decomposition scheme called route distance group-
+ars for several decades, but most researches pay attention to the single- ing (RDG). The CC mechanism is effective for improving the efficiency
+objective CARP or the multiobjective CARP. Heuristic algorithms [9] are of optimization process [18] . Following the work of Mei et al., Shang
+widely used to solve such problems. Golden et al. [10] proposed the et al. [19] proposed an improved MA based on path distance grouping
+CARP, established the mathematical model, and provided the corre- to solve a multiobjective large-scale CARP (LSCARP). Recently, Yu et al.
+sponding solution. Subsequently, many scholars have studied the CARP. [20] studied a split-delivery mixed CARP and provided a mathematical
+Lacomme et al. [11] proposed a multiobjective CARP model that in- formulation to accelerate the meta-heuristic algorithm search process.
+∗ Corresponding authors at: State Key Laboratory of Reliability and Intelligence of Electrical Equipment, Hebei University of Technology, Tianjin 300130, China.
+https://doi.org/10.1016/j.swevo.2021.100864
+Received 1 May 2020; Received in revised form 31 January 2021; Accepted 16 February 2021
+Available online 1 March 2021
+2210-6502/©2021 Elsevier B.V. All rights reserved.
+B. Cao, W. Zhang, X. Wang et al. Swarm and Evolutionary Computation 63 (2021) 100864
+The traditional studies on the CARP only consider multiobjective
+multi-depot problems or multiobjective heterogeneous-vehicle prob-
+lems. However, they have not combined these two aspects. The multi-
+depot [21] scenario refers to a traffic network with multiple depots in
+which every vehicle departs from and returns to a depot after completing
+its tasks or reaching an upper capacity limit. The heterogeneous vehi-
+cle [22] scenario involves various types of vehicles that feature different
+maximum capacities, speeds and other characteristics. In the real world,
+the practical engineering problems mostly involve many-objective prob-
+lems with multiple depots and various kinds of vehicles.
+In addition, most of the previous studies have used the MA to tackle
+the CARP, but in many-objective CARP, as the number of objectives Fig. 1. The model of multi-depot heterogeneous-vehicle CARP.
+increases, the traditional MA approaches degrade. Therefore, based on
+( )
+MA, this paper adopts the two-archive strategy [23,24] and combines street 𝑣 𝑘 , 𝑣 𝑘 +1 , and 𝐿 is the t(otal le)ngth of the st(reet. T)he total cost
+local optimization with global optimization, which effectively prevents includes two aspects: 𝑠𝑒𝑟𝑣𝑒 _𝑐 𝑜𝑠𝑡 𝑣 𝑖 , 𝑣 𝑗 and 𝑡𝑟𝑎𝑣 _𝑐 𝑜𝑠𝑡 𝑣 𝑖 , 𝑣 𝑗 . Constraints
+the algorithm from falling into local optima. Meanwhile, by introducing ensure that the total load cannot exceed an upper limit and that each
+the information entropy strategy, this paper designs a dynamic crossover task will be served only once.
+operator and a dynamic local search operator that more closely emulate
+the biological evolution. 2.2. Many-objective model of multi-depot heterogeneous-vehicle CARP
+Besides, via taking the carbon emission [25] and load utilization
+into account, this paper constructs a many-objective optimization model By combining many-objective optimization theory [27,28] , car-
+for multi-depot heterogeneous-vehicle CARP that reduces the total cost, bon emission theory, load utilization rate [29] , and multi-depot
+makespan, and carbon emission while improving the load utilization heterogeneous-vehicle CARP, this paper proposes a many-objective op-
+rate. The main contributions of this paper are as follows: timization model for multi-depot heterogeneous-vehicle CARP, which is
+1) We construct a many-objective optimization model with four ob- described in detail as below.
+jectives (total cost, makespan, carbon emission, and load utilization Assume that a city has multiple depots; each depot has multiple ve-
+rate) to tackle the multi-depot and heterogeneous-vehicle CARP. hicles; and that these vehicles are not of the same type and serve the
+2) By combining the Two_Arch2 algorithm with the MA, we propose edges or arcs of the city.
+an MA based on Two_Arch2 (MATA) to optimize the constructed model. Fig. 1 shows a schematic diagram of urban garbage collection. The
+3) We introduce the information entropy strategy, accordingly, the solid lines and dotted lines indicate routes requiring service or not, re-
+local search operator and the crossover operator are adjusted dynami- spectively. During the garbage collection process, the constraints are the
+cally to adapt to different evolutionary periods. same as those in the basic CARP. Four objectives must be optimized: to-
+tal cost, makespan, carbon emission and load utilization rate. And the
+2. Problem description and model construction
+goal is to reduce the total cost, makespan, and carbon emission as much
+as possible, as well as increase the load utilization rate.
+2.1. Basic CARP We denote 𝑆𝑇 𝑅 ( 𝐼𝐷, 𝐿, 𝑞) a(s the street information, 𝑌 ( 𝐼𝐷, 𝐻, 𝑣 ) a)s
+the depot information, and 𝑉 𝐼𝐷, ℎ, 𝑦, 𝐶
+1
+, 𝐶
+2
+, 𝐶
+3
+, 𝑄
+max
+, 𝑄, 𝜌
+1
+( 𝑄 ) , 𝜌
+2
+( 𝑄 )
+The CARP is constructed on the basis of a weighted connected graph
+as vehicle information.
+𝐺( 𝑉 , 𝐸, 𝐴 ) , where 𝑉 represents a set of vertices, 𝐸 r(epres)ents a set
+The basic notations used in this section are as follows:
+of edges, and 𝐴 represents a set of arcs. Each edge 𝑣 𝑖 , 𝑣 𝑗 ∈𝐸 and 𝑆: The number of streets in the city;
+arc < 𝑣 𝑖 , 𝑣 𝑗 > ∈𝐴 in graph 𝐺i(nclude)s the following attributes: the cost of 𝐷: The number of depots in the city;
+s
+𝑡𝑟
+e
+𝑎
+r
+𝑣
+v
+_
+i
+𝑐
+n
+𝑜
+g
+𝑠 𝑡
+t (h
+𝑣
+e
+𝑖 ,
+s
+𝑣
+tr
+𝑗
+e)e
+>
+ts
+0
+𝑠
+,
+𝑒 𝑟
+a
+𝑣
+n
+𝑒
+d
+_𝑐
+t
+𝑜
+h
+𝑠𝑡
+e
+𝑣
+ta
+𝑖 ,
+s
+𝑣
+k
+𝑗
+de
+≥
+m
+0
+a
+,
+n
+th
+d
+e
+𝑑
+c
+𝑒
+o
+𝑚
+s
+𝑎
+t
+𝑛
+o
+𝑑
+f (t
+𝑣
+ra
+𝑖 ,
+v
+𝑣
+e
+𝑗
+l )lin
+≥
+g
+0
+t
+.
+h
+T
+e
+h
+st
+e
+r
+r
+e
+e
+e t
+i
+s
+s
+𝑉
+𝐻 𝑑
+ℎ
+𝑑
+:
+:
+T
+T
+h
+h
+e
+e
+n
+n
+u
+u
+m
+m
+b
+b
+e
+e
+r
+r
+o
+o
+f
+f
+ℎ
+v
+-
+e
+t
+h
+y
+i
+p
+c
+e
+le
+v
+t
+e
+y
+h
+p
+i
+e
+c
+s
+le
+i
+s
+n
+i n
+th
+t
+e
+h
+d
+e
+e
+d
+p
+e
+o
+p
+t
+o
+;
+t;
+a specific point in the vertex set 𝑉 called the depot. In addition, the 𝐶 ℎ : The fixed cost of an ℎ -type vehicle;
+maximum vehicle load is 𝑄 . The basic CARP involves designing a set of 𝐶 1ℎ : The service cost per meter of an ℎ -type vehicle;
+routes in graph 𝐺that satisfy the following constraints: 𝐶 2ℎ : The traversal cost of an ℎ -type vehicle;
+1) Each vehicle must start from a depot and finally return to the 𝐶 3
+4
+: The environmental cost per kilogram of 𝐶𝑂
+2
+emission;
+depot; 𝑞 𝑖 : The number of the tasks on street 𝑖 ;
+2) Each street can be passed several times, but can be served only 𝐿 𝑖 : The length of street 𝑖 ;
+once; 𝑄 ℎ 𝑚 𝑎𝑥 : The maximum capacity of an ℎ -type vehicle;
+m th u e m 3 U b ) s a l i s F o n i o a c g r d C t e h 𝑄 A a e R . c p h P o r w i o n i u t t h t c e o o , d n t i h e n e g v e l m o h a i e d c t l h e o o f i d s t h e in x e p [ v r 2 e e 6 h s ] s i , e c l d t e h a e c s a m f n o a n l t l o h o t w e e m s x : a c t e i e c d a l t m he o d m e a l x o i f - 𝑖 un 𝑣 𝑣 𝜌 d ℎ 1 ℎ 1ℎ 2 e ( ( ( r 𝑄 𝑆 𝑆 t 𝑖 𝑖 𝑖 ) ) h ) : : : e T T T c h h h o e e e n s s f d u p p i e e e ti l e e o d d c n o o o n o f f s f u a a 𝑄 n n m 𝑖 ℎ ℎ p lo - - t t t i a o y y d p p n ; e e o v v f e e a h h n i i c c ℎ l l - e e t y s t p r e a e r v v v e i e n r h s g i i n c st g le r e s i e t n r t e s 𝑖 e e ; t r v 𝑖 i ; c e of street
+min 𝑓 1 = 𝐿∑ −1 serve − cost ( 𝑣 𝑘 , 𝑣 𝑘 +1 ) ×𝑥 𝑘 thro 𝜌 u ℎ 2 g ( 𝑄 h 𝑖 s ) t : r T ee h t e 𝑖 f u u n e d l e c r o n th s e u m co p n ti d o i n ti o o n f o a f n 𝑄 ℎ 𝑖 - t l y o p a e d ; vehicle when travelling
+𝑘 =1 𝜔 : The 𝐶𝑂
+2
+emission factor;
++ 𝐿
+𝑘
+∑
+=
+−
+1
+1 trav − cost ( 𝑣 𝑘 , 𝑣 𝑘 +1 ) ×𝑦 𝑘 𝑄
+𝑥 d 𝑖
+𝑖
+h
+:
+v
+T
+=
+h e{ w 1
+0
+e igh ℎ
+e
+t
+l
+- o
+s e
+t f y a p e v e v h e i h c i l c e l e tr 𝑣 a v o e f l i d n e g p o o n t 𝑑 s t s r e e r e v t e 𝑖 s ; street 𝑖
+s.t. ∶ 𝐿 ( 𝑘 ∑ = − 1 1 dema ) nd ( 𝑣 ( 𝑘 , 𝑣 𝑘 +1 ) ) ×𝑥 𝑘 ≤ Q 𝑦 d 𝑖 hv = { 1 0 ℎ e l - s e ty pe vehicle 𝑣 of depot 𝑑 travels through street 𝑖
+𝑣 𝑘 , 𝑣 𝑘 +1 ≠ 𝑣 𝑗 , 𝑣 𝑗+1 , ∀𝑥 𝑘 = 1 , 𝑥 𝑗 = 1 , 𝑘 ≠𝑗 (1) 2.2.1. Objective functions
+w(here 𝑥 ) 𝑘 = 1 or 0, denoting whether a vehicle services a street A. Economic Cost: Economic cost [30] includes three parts: fixed
+𝑣 𝑘 , 𝑣 𝑘 +1 , 𝑦 𝑘 = 1 or 0, denoting whether a vehicle travels through the costs, street serving costs and street traversing costs. The fixed costs in-
+2
+B. Cao, W. Zhang, X. Wang et al. Swarm and Evolutionary Computation 63 (2021) 100864
+clude vehicle purchase and maintenance, which are related to the num- Finally, we assume that each vehicle starting from a depot will return
+bers and types of vehicles. The street serving and street traversing costs to its original depot. The equation is as follows:
+i
+c
+n
+o
+c
+s
+l
+t
+u
+s
+d
+a
+e
+r e
+t h
+r
+e
+e l
+c
+a
+o
+te
+st
+d
+s
+to
+in
+t
+c
+h
+u
+e
+r r
+l
+e
+e
+d
+n g
+d
+t
+u
+h
+r i
+o
+n
+f
+g
+s t
+t
+r
+h
+e
+e
+e
+g
+t,
+a
+t
+r
+h
+b
+e
+a g
+n
+e
+u m
+co
+b
+ll
+e
+e
+r
+c t
+o
+i
+f
+o n
+ve
+p
+h
+r
+i
+o
+c
+c
+le
+e
+s
+s s
+a
+.
+n
+T
+d
+h
+t
+e
+h
+se
+e
+𝑦 𝑑
+0
+ℎ𝑣 = 𝑦 𝑑
+𝑁
+ℎ 𝑣 , ∀𝑑, ℎ, 𝑣 (9)
+vehicle types. The economic cost function is as follows:
+3. Algorithm design
+∑𝐷 ∑𝐻 𝑑
+min 𝑓 1 = 𝑉 𝑑 ℎ 3.1. Definition of many-objective optimization
+𝑑=1 ℎ =1
+∑𝑆 ∑𝐷 ∑𝐻 𝑑 ∑𝑉 𝑑 ℎ In contrast to single-objective problems, the solutions of many-
++ 𝐶 2 ℎ 𝑥 𝑑 𝑖 ℎ𝑣 𝐿 𝑖 objective problems must optimize many conflicting objectives simulta-
+𝑖 =1 𝑑=1 ℎ =1 𝑣 =1 neously [34] . For an NP-hard combination problem, heuristic algorithms
+∑𝑆 ∑𝐷 ∑𝐻 𝑑 ∑𝑉 𝑑 ℎ can generate a set of non-dominated solutions. Therefore, we adopted
++ 𝐶 3 ℎ 𝑦 𝑑 𝑖 ℎ𝑣 𝐿 𝑖 (2) heuristic algorithms to solve the many-objective CARP in this paper. The
+𝑖 =1 𝑑=1 ℎ =1 𝑣 =1 mathematical form of multiobjective optimization is generally defined
+B. Makespan: In practical garbage collection applications [31] , for as [35,36] :
+{ }
+a le e c s t t i h o e n t i t c a r s e k a s s a o s n s f , a m st u a n s i c p i o p s a s l i b d l e e p . a I r n t m [3 e 2 n ] t , s t w h i e s h F r to en c c o h m c p i l t e y t e o f g a T r r b o a y g e st c a o rt l s - min 𝑓⃗ ( 𝑥⃗) = 𝑓 1 ( 𝑥⃗) , 𝑓 2 ( 𝑥⃗) , …𝑓 𝑛 ( 𝑥⃗) (10)
+garbage trucks on their routes at the same time every morning in an s.t.
+{
+a p t o t s e s m ib p le t t s o o c th o a m t p t l h e e t e c l t e h a e n i e n n g t i p re e r g so a n rb n a e g l e c a c n o l b le e c t a i s o s n ig p n r e o d c e to ss o a th s e s r o t o a n s k a s s . 𝑔 ℎ 𝑖 𝑖 ( ( 𝑥 𝑥 ⃗ ⃗ ) ) ≤ = 0 0 𝑖 𝑖 = = 1 1 , , 2 2 , , … … 𝑚 𝑝 (11)
+The makespan function is as follows: ( )
+min 𝑓 2 = m 𝑑∈ a 𝐷 x
+(
+𝑣 ∈ ∑𝐻 ℎ = m 1 a 𝑣 ℎ 𝑑 x , ℎ ∈𝐻 𝑑
+( ∑
+𝑖 =
+𝑆
+1 𝑣
+𝑥
+ℎ 1
+𝑑
+𝑖
+ℎ
+(
+𝑣
+𝑆
+𝐿
+𝑖 ) 𝑖 +
+∑
+𝑖 =
+𝑆
+1 𝑣
+𝑦
+ℎ 2
+𝑑
+𝑖
+ℎ
+(
+𝑣
+𝑆
+𝐿
+𝑖 ) 𝑖
+))
+(3)
+w
+𝑓 st 𝑖 r
+h
+( a 𝑥⃗
+e
+i )
+r
+n
+e
+t i s c
+𝑥⃗
+o t
+=
+h n e d i
+𝑥
+t 𝑖 i -
+1
+o t
+,
+h n
+𝑥
+s
+2
+o .
+,
+b
+…
+In je
+𝑥
+p c
+𝑛
+t a i r v
+𝑇
+t e ic
+i
+u f
+s
+u la
+a
+n r c ,
+v
+t w i
+e
+o
+c
+h n
+to
+e , n
+r
+a 𝑛
+c
+n
+o
+d >
+m
+𝑔 3
+p
+𝑖 ,
+o
+( 𝑥 a ⃗
+s
+)
+e
+m
+d
+a u n
+o
+l d t
+f
+i o
+d
+ℎ b
+e
+𝑖 j (
+c
+e 𝑥⃗
+i
+c
+s
+) t
+io
+i a v
+n
+r e e
+v
+o t
+a
+p h
+r
+t e
+i
+i
+a
+m
+b
+c i
+l
+o z
+e
+n a
+s
+- -
+,
+C. Carbon Emission: Different from the VRP, the carbon emission tion problem is called a many-objective optimization problem. The ulti-
+[33] of vehicles on arc paths include two factors: vehicle emission when mate goal is to obtain a set of Pareto-optimal solutions that are as close
+servicing the street and vehicle emission when traversing the street. Car- to the Pareto front (PF) as possible [37] while guaranteeing the conver-
+bon emission is related to driving distance and fuel consumption coeffi- gence and distribution of the solution set insofar as possible.
+cient. The carbon emission function is as follows:
+∑𝑆 ∑𝐷 ∑𝐻 𝑑 ∑𝑉 𝑑 ℎ ( )
+3.2. Dynamic adjustment of depots and heterogeneous-vehicle
+min 𝑓 3 = 𝐶 4 𝜔 𝑥 𝑑 𝑖 ℎ𝑣 𝐿 𝑖 𝜌ℎ 1 𝑄 𝑖 For the closed multi-depot problem, according to the distance prior-
+𝑖 =1 𝑑=1 ℎ =1 𝑣 =1
+ity principle, task arcs are assigned to the nearest depots, which trans-
++ 𝐶 4 𝜔
+∑𝑆 ∑𝐷 ∑𝐻 𝑑 ∑𝑉 𝑑 ℎ
+𝑦 𝑦 𝑖 ℎ𝑣 𝐿 𝑖 𝜌ℎ 2
+(
+𝑄 𝑖
+)
+(4)
+f
+t
+o
+h
+r
+e
+m
+d
+s
+e p
+th
+o
+e
+t
+m
+in
+u
+fo
+lt
+r
+i
+m
+-d
+a
+e
+t
+p
+io
+o
+n
+t p
+is
+r o
+d
+b
+e
+l
+t
+e
+e
+m
+rm
+i
+i
+n
+n
+t
+e
+o
+d
+s e
+b
+v
+a
+e
+s
+r
+e
+a
+d
+l
+o
+si
+n
+n
+t
+g
+h
+le
+e
+-
+b
+d
+o
+ep
+u
+o
+n
+t
+d
+p
+a
+r
+r
+o
+y
+b
+a
+l
+r
+e
+c
+m
+d
+s
+y
+.
+n
+T
+a
+h
+m
+en
+ic
+,
+𝑖 =1 𝑑=1 ℎ =1 𝑣 =1
+adjustment strategy [3] .
+D. Load Utilization Rate: The load utilization rate reflects the load- For heterogeneous-vehicle task allocation problems [38] , we must
+ing efficiency of the vehicles. It cannot be guaranteed that the vehicles consider not only the path selection but also the vehicle selection. Ar-
+will reach their maximum load capacities after completing their tasks; rangements of different types of vehicles can have an enormous effect on
+therefore, the load utilization rate can be only as close to the threshold the results. In this paper, the vehicles are classified based on the paths.
+value as possible. We use the relationship between the total lengths of To avoid having large-capacity vehicles serving small-return roads, this
+the service routes and the travelled routes to quantify the load utiliza- paper sets a threshold value 𝛼, as shown in Eq. (12) . When the ratio of
+tion. 𝑥 𝑖 𝐿 𝑖 represents the served street lengths for each vehicle, while circuit demand to the maximum vehicle capacity is greater than 𝛼, these
+𝑦 𝑖 𝐿 𝑖 is the traversed street lengths for each vehicle. :The load utilization vehicles are called same-group vehicles (SGV). For a certain rout(e 𝑅 ) 𝑖 ,
+rate function is as follows: these constraints are met by exchanging vehicles among the 𝑆𝐺𝑉 𝑅 𝑖 .
+max 𝑓 4 = ∑ 𝑆 𝑖 = 1 ∑
+∑
+𝐷 𝑑
+𝑆
+𝑖 = = 1 1
+∑
+∑
+𝐷
+𝑑 𝐻 ℎ = = 𝑑 1 1
+∑
+∑
+𝐻
+ℎ 𝑉 𝑣 = = 𝑎 ℎ
+𝑑
+1 1 (
+∑
+𝑥
+𝑉
+𝑣 𝑑 𝑖 =
+𝑑
+ℎ
+ℎ
+1 𝑣 𝐿
+𝑥 𝑑
+𝑖 𝑖
+ℎ
++
+𝑣 𝐿
+𝑦 𝑑 𝑖 𝑖 ℎ𝑣 𝐿 𝑖 ) (5)
+T
+a ar n
+h
+e d
+e n
+d d
+,
+e e ( t
+u
+p a
+s
+o i
+i
+l t
+n
+) e s d
+g
+t h i
+E
+n a
+q
+t
+s
+A a
+.
+l c g
+(
+h
+1
+o i
+3
+r e i
+)
+v t h i
+a
+n m
+n
+g
+d
+1 t h
+(
+.
+1
+e
+4
+m
+) ,
+a
+w
+xi
+e
+m
+c
+u
+a
+m
+n
+fi
+fi
+t
+n
+n
+d
+e s
+a
+s
+n
+v
+o
+al
+p
+u
+t
+e
+im
+. T
+a
+h
+l
+e
+s e
+s
+t
+p e
+o
+c
+f
+i
+v
+fi
+e
+c
+h
+s
+i
+t
+c
+e
+l
+p
+e
+s
+s
+2.2.2. Constraints 𝛿=
+𝑄 𝑅
+𝑖 (12)
+We assume that the load of an ℎ -type vehicle cannot exceed its max- 𝑄 𝑗 m ax
+imum capacity. The formula is as follows: ∑𝑁
+∑𝑆 𝑓𝑖𝑡 = 𝜆 𝑖 𝑓 𝑖 ′ (13)
+𝑥 𝑑 𝑖 ℎ𝑘 𝑞 𝑖 ≤ 𝑄 ℎ m ax , ∀𝑑, ℎ, 𝑘 (6) 𝑖 =1
+𝑖 =1 We also assume that each street must be serviced only once. The 𝑓 𝑖 ′ = m 𝑓 a 𝑖 x − 𝑖 − m m in i 𝑖 n 𝑖 (14)
+equation is as follows:
+∑𝐷 ∑𝐻 𝑑 ∑𝑉 𝑑 ℎ 3.3. Information entropy strategy
+𝑥 𝑑
+𝑖
+ℎ𝑣 = 1 , ∀𝑖 (7)
+𝑑=1 ℎ =1 𝑣 =1 The information entropy represents the uncertainty inherent in in-
+Another assumption is that each street can be traversed many times. formation and can be used to describe the probability of information
+The formula is as follows: [39] . Information entropy in a population can be expressed as follows:
+∑𝐷 ∑𝐻 𝑑 ∑𝑉 𝑑 ℎ ∑𝑁
+𝑦 d 𝑖 hv ≥ 0 , ∀𝑖 (8) 𝐸 = − 𝑝 𝑖 log | |𝑞 𝑖 | | (15)
+𝑑=1 ℎ =1 𝑣 =1 𝑖 =1
+3
+B. Cao, W. Zhang, X. Wang et al. Swarm and Evolutionary Computation 63 (2021) 100864
+In conclusion, the final crossover probability and local search prob-
+Algorithm 1: SBX_Vehicle
+ability are given by:
+Input : 𝑁 ℎ p lo r - o t ; o d y p b p e a p m e b a i v a t l n e h it h d y n i : c o u 𝑃 l f m e . l s b o : e o 𝑄 r p : ℎ m p 𝑅 ax a 𝑖 ; t ; t t h h h e 𝑖 e : n t 𝑄 o u t( m a 𝑅 l b 𝑖 n e ) r ; u t m h o e f b t m e y ( r p a o e x f s ) i m : l o 𝐻 u o m 𝑑 p ; C p c r a a o t p h s a s : c o i v ty e r o f ⎧ ⎪ ⎨ ⎪ ⎩ 𝑝 𝑝 𝑐 𝑙 = = 𝛼 𝛼 2 1 − − 𝛼 𝛼 𝑀 2 𝑀 1 𝑁 𝑁 + + 𝑎 𝑝 𝑒 ′ 𝑐 ′ − ( ( 𝑘 𝑘 2 − 0 𝑐 𝑏 ) 2 ) 2 × 𝑒 − 𝑡𝑘 (18)
+Outp(ut : )The chosen vehicle type for 𝑅 𝑖 : best 𝑅 𝑖 .
+1 𝑆𝐺𝑉 𝑅 𝑖 ← ∅; 3.4. Memetic algorithm based on two_Arch2
+2 for 𝑅 𝑖 = 1 to 𝑁 do
+3 for 𝑗 =( 1 t)o 𝐻 𝑑 do The MA is an intelligent algorithm that combines the genetic algo-
+4 5 if 𝑄 𝑆 𝐺 𝑅 𝑉 𝑖 ( ≤ 𝑅 𝑖 𝑄 ) 𝑗 m ← ax 𝑆 a 𝐺 nd 𝑉 𝛿 ( 𝑅 > 𝑖 ) 𝛼 ∪ th{e 𝑉 n 𝑗 } ; r b i i t n h i m ng ( G th A e ) l [ o 4 c 0 a ] l a se n a d r c a h l o s c t a ra l t s e e g a y r , c h th s e t r i a n t d eg iv y i . d V u i a a l s t h in e m th e e c h p a o n p i u s l m at i o o f n c o c m an -
+achieve local optimization during each iteration. MA has high optimiza-
+6 else
+tion efficiency and strong fault tolerance. Although the initial popula-
+7 break ;
+tion may include individuals far from the optimal solution, the algorithm
+( ) can also eliminate the individuals with poor fitness through the genetic
+8 for 𝑖 = 1 to 𝑆𝐺𝑉 𝑅 𝑖 do operations and the local search strategy, causing the feasible solutions
+1
+1
+9 0
+1
+if 𝑃 fi
+b e
+< n
+s
+d
+t
+r a t(h n
+𝑅
+e d
+𝑖
+)b th e
+←
+s e t n
+𝑉
+𝑓
+𝑖
+𝑖
+;
+𝑡 ( 𝑉 𝑖 ) ; t
+l a a
+o
+n r g
+c
+o e
+o
+p -
+n
+t s i
+s
+c m
+t
+a
+a
+l a
+n
+e l
+t
+m
+l
+s
+y
+o a lu
+a
+n
+p
+t y i
+p
+- o o
+r
+n
+o
+b
+a
+j u e
+c
+s c
+h
+i t n i g v
+th
+e o
+e
+o n p l
+o
+y t
+p
+i
+t
+t m
+i
+h
+m
+i e z
+a
+a l
+l
+o t i c
+s
+o a
+o
+n l
+l u
+s p e
+t
+r
+i
+a
+o
+o r
+n
+b c
+.
+l h e
+H
+m st
+o
+s r
+w
+, a t i
+e
+e t
+v
+g i
+e
+s y
+r
+. d
+,
+i
+w
+ffi
+h
+c
+e
+u
+n
+lt
+s
+t
+o
+o
+l v
+fi
+i
+n
+n
+d
+g
+In solving constrained many-objective optimization problems, it is
+important to consider both convergence and diversity. Based on the idea
+of two-archive, Two_Arch2 [41,42] maintains two archives simultane-
+where 𝑝 𝑖 = | 𝑀 𝑞 𝑖 | , 𝑀is the number of individuals in the population, | |𝑞 𝑖 | |is
+o
+in
+u
+d
+s
+u
+ly
+c
+:
+e
+a
+s
+c
+in
+o
+d
+n
+i
+v
+v
+e
+id
+rg
+u
+e
+a
+n
+ls
+c e
+t o
+a r
+m
+ch
+o
+i
+v
+v
+e
+e
+t
+(
+o
+C A
+th
+)
+e
+a
+P
+n
+F
+d
+q
+a
+u
+d
+i
+i
+c
+v
+k
+e
+l
+r
+y
+s
+,
+i t
+w
+y
+h
+a
+i
+r
+le
+c h
+t
+i
+h
+v
+e
+e
+D
+(D
+A
+A
+m
+).
+a
+T
+in
+h
+t
+e
+a
+C
+in
+A
+s
+the number of individuals included in 𝑞 𝑖 , and 𝑁 is the number of indi- a diverse population. Individuals can be subjected to crossover between
+viduals in the same range in the population after dividing the objective CA and DA, but they mutate only in the CA (because crossover and mu-
+values into 𝑀 equal parts in the feasible solution range. tation are carried out independently). The sizes of the CA and DA are
+By combining the many-objective optimization problem with the in- fixed individually and they are updated using different strategies. The
+formation entropy theory, during the many-objective optimization pro- final DA is output as the final solution set.
+cess, the probabilities of crossover and local search during population Inspired by the idea of two archives, this paper proposes an MA
+evolution are as follows: based on Two_Arch2 (MATA) to tackle the many-objective CARP op-
+{ timization problem. First, the population is initialized by the Dijkstra
+𝑝 𝑝 ′ 𝑐 ′
+𝑙
+= = 𝛼 𝛼
+2
+1 − − 𝛼 𝛼
+𝑀
+2 𝑀 1 𝑁 𝑁 (16) a p l o g i o n r t i s t . h S m e c [ o 4 n 3 d ] , , t w w h o i c a h r c c h a i l v cu es la a te re s t c h o e n s s h tr o u r c t t e e s d t , d t i h st e a n n c o e n - b d e o tw m e in e a n t a ed n y s o tw lu o -
+tions in the DA and CA are empty. Then, individuals are subjected to
+crossover, and depots and vehicles are adjusted between the CA and
+where 𝛼
+1
+, 𝛼
+2
+∈(0 , 1) are parameters. As the population evolves, the
+DA. Local search is performed only in the CA by ACO [44] (crossover
+smaller 𝑁 is, the greater the probability of crossover and local search,
+and local search are independent). Then, the CA and DA are updated
+and the better the diversity of the population. Conversely, the larger the
+independently. Finally, take DA as the final output when the algorithm
+𝑁 is, the smaller the probabilities of crossover and local search, and
+reaches the maximum number of iterations. The specific steps are listed
+the better the convergence of the population. Thus, introducing the in-
+in Algorithm 2 .
+formation entropy mechanism helps to better simulate the process of
+population evolution.
+The population evolution process can be divided into three stages:
+Algorithm 2: MATA
+the initial stage, the intermediate stage and the final stage. During the Input : population: 𝐺( 𝑉 , 𝐸, 𝐴 ) ;crossover probability : 𝑃 𝑐 ( 𝑖𝑡𝑒 ) ;local
+initial population evolution stage, the population diversity is rich and in- search probability : 𝑃 𝑙 ( 𝑖𝑡𝑒 ) ;ACO related variables.
+dividual similarity is low. To accelerate population evolution, the popu- Output : DA ( )
+lation crossover probability can be increased, and the local search prob- 1 𝑃 𝑂𝑃 ← initialize population using Dijkstra 𝑣 𝑖 , 𝑣 𝑗 ; 𝐷𝐴 ← find
+ability can be reduced. During the second stage of population evolution, non-dominated solution(POP), 𝐶𝐴 ← ∅;
+to prevent local optimization, the local search probability should be in- 2 for 𝑖𝑡𝑒 = 1 to 𝐺 𝑚𝑎𝑥 do
+creased accordingly, and during the last stage of evolution, the popula- 3 if rand < 𝑃 𝑐 ( ite) then
+tion structure is relatively simple; therefore, to accelerate the algorithm, 4 𝑁 𝑃 𝑂𝑃 1 ← SBX(CA,DA); 𝑁 𝑃 𝑂𝑃 2 ←
+the crossover probability and local search probability should be reduced. SBX_vehicle( 𝑁𝑃 𝑂𝑃 1 )by Algorithm 1;
+According to the above analysis, the crossover probability follows a de- 5 if rand < 𝑃 𝑙 ( ite) then
+c c r o e o a li s n in g g m fu o n d c e t l i . o I n n m co o n d t e r l a d s u t, r i t n h g e t l h o e c a e l v s o e l a u r t c io h n p , r a o n b d a w bi e li a ty d o fo p l t l o th w e s N a e f w u t n o c n - 6 𝑁𝑃 𝑂𝑃 3( ← ACO(DA); )
+tion model that first increases and then decreases; therefore we adopt 7 𝑁 𝑃 𝑂𝑃 ← 𝑁 𝑃 𝑂𝑃 2 ∪𝑁 𝑃 𝑂𝑃 3 ; 𝐶𝑃 𝑂𝑃 ← find
+non-dominated solution(NPOP); [ 𝐶𝐴, 𝐷𝐴 ] ←
+the Gaussian function model. These two formulas are as follows:
+update(CPOP);
+{
+𝑝
+𝑝
+′
+𝑐
+′ 𝑙
+′
+′
+=
+=
+𝑝
+𝑎
+′
+𝑐
+𝑒
+′
+−
+(
+𝑘
+( 𝑘 2
+0
+− 𝑐
+)
+𝑏 2 ) 2
+× 𝑒 − 𝑡𝑘
+(17) 4. Experimental results and analysis
+( )
+where 𝑘 is the generation number, 𝑘 0 denotes the first generation, 𝑝 ′ 𝑐 ′ 𝑘 0 In this experiment, we compared MATA with MDILSMA/D [3] , IACO
+is the crossover probability in the first generation, and 𝑡 , 𝑎 , 𝑏 and 𝑐are [1] and D-MAENS [6] on the gdb set, the val set and the Chicago set, and
+real constants with 𝑡 and 𝑎 greater than 0. evaluated the results with the hypervolume (HV) and the visualization.
+4
+B. Cao, W. Zhang, X. Wang et al. Swarm and Evolutionary Computation 63 (2021) 100864
+Table 1
+HV values of MATA, MDILSMA/D, IACO and D-MAENS on the gdb set.
+Problem MATA D-MAENS MDILSMA/D IACO winner
+gdb1 0.1027 0.0383 0.0853 0.337 MATA
+gdb2 0.0526 0.0415 0.0498 0.0377 MATA
+gdb3 0.0536 0.0652 0.1050 0.0333 MDILSMA/D
+gdb4 0.0612 0.0457 0.0612 0.0360 MATA and MDILSMA/D
+gdb5 0.0527 0.0427 0.0898 0.0242 MDILSMA/D
+gdb6 0.0562 0.0787 0.0760 0.0353 MDILSMA/D
+gdb7 0.0583 0.0760 0.1005 0.0290 MDILSMA/D
+gdb8 0.0698 0.0461 0.0579 0.0433 MATA
+gdb9 0.0721 0.0410 0.0580 0.0365 MATA
+gdb10 0.0507 0.0606 0.0732 0.0247 MDILSMA/D
+gdb11 0.0572 0.0423 0.0569 0.0365 MATA
+gdb12 0.0458 0.0413 0.0910 0.0265 MDILSMA/D
+gdb13 0.0691 0.0430 0.0422 0.0609 MATA
+gdb14 0.0506 0.0456 0.0458 0.0360 MATA
+gdb15 0.0514 0.0304 0.0589 0.0226 MDILSMA/D
+gdb16 0.0534 0.0320 0.0441 0.0285 MATA
+gdb17 0.0590 0.0345 0.0555 0.0255 MATA
+gdb18 0.0533 0.0453 0.0435 0.0267 MATA
+gdb19 0.0797 0.0340 0.0393 0.0504 MATA
+gdb20 0.0591 0.0502 0.0586 0.0253 MATA
+gdb21 0.0524 0.0203 0.0458 0.0206 MATA
+gdb22 0.0554 0.0193 0.0454 0.0179 MATA
+gdb23 0.0403 0.0292 0.0524 0.0320 MDILSMA/D
+4.1. Hypervolume (HV) Table 2
+HV values of MATA, MDILSMA/D, IACO and D-MAENS on the val set.
+To evaluate the set of obtained non-dominanted solutions, we should
+Problem MATA D-MAENS MDILSMA/D IACO winner
+consider two aspects: the convergence and diversity of the solution set,
+val1 0.0899 0.0246 0.0975 0.0358 MDILSMA/D
+that is, the solutions should be as close to the PF as possible, and the dis-
+val2 0.0790 0.0135 0.0640 0.0586 MATA
+tribution of the non-dominated solution set, which should be evenly dis-
+val3 0.0612 0.0619 0.0799 0.0230 MATA
+tributed along the ideal PF. Therefore, two commonly used performance val4 0.0433 0.0081 0.0214 0.0182 MATA
+indicators are selected for this study: the hypervolume (HV) [24] and val5 0.0506 0.0054 0.0209 0.0214 MATA
+the performance visualization indicator. The HV represents the volume val6 0.0597 0.0373 0.0139 0.0228 MATA
+val7 0.0532 0.0164 0.0488 0.0229 MATA
+of the region formed by the solutions and the reference point in the
+val8 0.0501 0.0122 0.0125 0.0240 MATA
+objective space. The formula is as follows: val9 0.0408 0.0095 0.0365 0.0152 MATA
+(
+⋃[ ] [ ]
+)
+val10 0.0426 0.0064 0.0238 0.0144 MATA
+𝐻𝑉 ( 𝑃 , 𝑍) = volume 𝑝 1 , 𝑧 1 ×… 𝑝 𝑁 , 𝑧 𝑁 (19)
+𝑝 ∈𝑃 Table 3
+where 𝑃 is the obtained set of non-dominanted solutions and 𝑍 is the HV values and objective-function-optimized results of MATA, MDILSMA/D,
+reference point. A larger HV value indicates better convergence and dis-
+IACO and D-MAENS on the Chicago set.
+tribution. Algorithm HV 𝑓 1 /Yuan 𝑓 2 /minute 𝑓 3 /Yuan 𝑓 4
+MATA 0.0230 2154.766 57.254 779.952 92.897%
+4.2. Visualization
+D-MAENS 0.0062 3073.363 50.928 971.719 82.872%
+MDILSMA/D 0.0223 2288.199 47.079 573.151 91.015%
+In many-objective optimization problems, it is nearly impossible to IACO 0.0208 2333.683 55.056 632.853 91.294%
+observe the evolution process in the many-objective space directly be-
+cause it is difficult to describe the high-dimensional hyperplane. He Table 3 also shows that MATA achieved the best HV value (0.0230).
+et al. [45] proposed a new visualization method that maps the non- The function values for 𝑓
+1
+, 𝑓
+2
+, 𝑓
+3
+and 𝑓
+4
+were obtained by averaging
+dominated solution set from the high-dimensional objective space to a the non-dominated solutions and are also listed in Table 3 . As the table
+two-dimensional polar graph. This approach preserves both the Pareto shows, after optimization, MATA achieved the best economic cost 𝑓
+1
+dominance relationships and the shape and position of the PF. Using and load utilization rate 𝑓
+4
+. Therefore, MATA can better optimize this
+this method, the diversity and convergence of solutions can be observed complex CARP.
+intuitively. Fig. 2 shows the visualizations of the four algorithms. There are some
+problems in creating the visualizations because the mutation operator is
+4.3. Algorithm comparisons replaced by local search in MA. In addition, the traditional MA cannot
+effectively deal with many-objective optimization problems. The visu-
+Table 1 and Table 2 show the HV values of MATA, MDILSMA/D, alized performance of MATA remains good.
+IACO and D-MAENS on the gdb and val sets. As Table 1 shows, MATA
+achieved the best performance, winning 15 times, while MDILSMA/D 5. Conclusion
+was second best, winning 9 times on the gdb set. In Table 2 , MATA again
+obtained the best performance, winning 9 times, while MDILSMA/D per- In this paper, we designed and tested a many-objective model, with
+formed second best, winning once on the val set. These results show that four objectives, economic cost, makespan, carbon emission and load uti-
+the MATA algorithm is stable on these test sets. lization, to solve the multi-depot and heterogeneous-vehicle CARP prob-
+Table 3 shows the HV values and objective function values obtained lem. Based on the model characteristics, we designed MATA to optimize
+by MATA, MDILSMA/D, IACO and D-MAENS on the Chicago example. the driving routes of urban garbage collection vehicles.
+5
+B. Cao, W. Zhang, X. Wang et al. Swarm and Evolutionary Computation 63 (2021) 100864
+Fig. 2. Visualizations of MATA, IACO, MDILSMA/D and D-MENAS.
+The results of the simulation experiments in this paper comparing 61773151 , and in part by the Ministry of Science and Technology of the
+MATA with MDILSMA/D, IACO and D-MAENS show that the MATA is People’s Republic of China under Grant no. 2017YFB1400100 .
+able to solve the many-objective optimization model proposed in this
+paper effectively. The goal of our future work is to find a series of PSs
+References
+at different times by considering the time-window mechanism and the
+dynamic multiobjective operator.
+[1] Y. Li, H. Soleimani, M. Zohal, An improved ant colony optimization algorithm for
+the multi-depot green vehicle routing problem with multiple objectives, J. Clean.
+Prod. 227 (2019) 1161–1172, doi: 10.1016/j.jclepro.2019.03.185 .
+Declaration of Competing Interest [2] M. Chen , L. Chen , A case base reasoning approach for a capacitated arc routing
+problem, in: 2019 International Conference on Industrial Engineering and Systems
+Management (IESM), 2019, pp. 1–6 .
+The authors declared that they have no conflicts of interest to this
+[3] B. Cao, R. Li, S. Chen, A modified memetic algorithm for multi-depot green capaci-
+work. We declare that we do not have any commercial or associative tated arc routing problem, pp. 739–750. 10.1007/978-981-15-3425-6_59
+interest that represents a conflict of interest in connection with the work [4] Y. Zhong, L. Wang, M. Lin, H. Zhang, Discrete pigeon-inspired optimization algo-
+submitted. rithm with metropolis acceptance criterion for large-scale traveling salesman prob-
+lem, Swarm Evol. Comput. 48 (2019) 134–144, doi: 10.1016/j.swevo.2019.04.002 .
+We believe that this manuscript is appropriate for publication in the [5] X. Deng , Z. Zhu , Y. Yang , X. Li , Y. Tian , M. Xia , A genetic algorithm for the capac-
+Swarm and Evolutionary Computation. This manuscript has not been itated arc routing problem, in: 2007 IEEE International Conference on Automation
+published and is not under consideration for publication elsewhere. All and Logistics, 2007, pp. 1551–1556 .
+[6] Y. Mei , K. Tang , X. Yao , Decomposition-based memetic algorithm for multiobjective
+authors have read and approved the final version of the manuscript.
+capacitated arc routing problem, IEEE Trans. Evol. Comput. 15 (2) (2011) 151–165 .
+[7] W. Zhou , T. Song , F. He , X. Liu , Multiobjective vehicle routing problem with route
+balance based on genetic algorithm, Discret. Dyn. Nat. Soc. 2013 (2) (2013) 1–9 .
+Acknowledgements [8] P. Toth , D. Vigo , P. Toth , D. Vigo , Vehicle Routing: Problems, Methods, and Appli-
+cations, Second Edition, Society for Industrial and Applied Mathematics, USA, 2014 .
+[9] A. Rajasekhar, N. Lynn, S. Das, P. Suganthan, Computing with the collective in-
+This work was supported in part by the National Natural Science
+telligence of honey bees – a survey, Swarm Evol. Comput. 32 (2017) 25–48,
+Foundation of China (NSFC) under Grant nos. 61976242 , 61876059 and doi: 10.1016/j.swevo.2016.06.001 .
+6
+B. Cao, W. Zhang, X. Wang et al. Swarm and Evolutionary Computation 63 (2021) 100864
+[10] B.L. Golden, R.T. Wong, Capacitated arc routing problems, Networks 11 (3) (1981) [29] P. Mrazovic , E. Eser , H. Ferhatosmanoglu , J.L. Larriba-Pey , M. Matskin , Multi-vehi-
+305–315, doi: 10.1002/net.3230110308 . cle route planning for efficient urban freight transport, in: 2018 International Con-
+[11] P. Lacomme , C. Prins , W. Ramdane-Cherif , Competitive memetic algorithms for arc ference on Intelligent Systems (IS), 2018, pp. 744–753 .
+routing problems, Ann. Oper. Res. 131 (1) (2004) 159–185 . [30] S. Ranawaka, H.R. Pasindu, Estimating the vehicle operating cost used for eco-
+[12] J. Sun, Z. Miao, D. Gong, X. Zeng, J. Li, G. Wang, Interval multiobjective opti- nomic feasibility analysis of highway construction projects, in: 2017 Moratuwa En-
+mization with memetic algorithms, IEEE Trans. Cybern. 50 (8) (2020) 3444–3457, gineering Research Conference (MERCon), 2017, pp. 347–350, doi: 10.1109/MER-
+doi: 10.1109/TCYB.2019.2908485 . Con.2017.7980508 .
+[13] K. Zerrouki, K. Belkadi, Parallelization of memetic algorithms for the problem of [31] A.B. Melo, A.M. Oliveira, D. Silva de Souza, M. Jose da Cunha, Optimization
+scheduling in the production systems of hfs type, in: 2013 International Conference of garbage collection using genetic algorithm, in: 2017 IEEE 14th International
+on Control, Decision and Information Technologies (CoDIT), 2013, pp. 762–765, Conference on Mobile Ad Hoc and Sensor Systems (MASS), 2017, pp. 672–677,
+doi: 10.1109/CoDIT.2013.6689638 . doi: 10.1109/MASS.2017.57 .
+[14] A. Pia , C. Filippi , A variable neighborhood descent algorithm for a real waste col- [32] S. Mandal, D. Pacciarelli, A. LØkketangen, G. Hasle, A memetic NSGA-II for the
+lection problem with mobile depots, Int. Trans. Oper. Res. 13 (2) (2010) 125–141 . bi-objective mixed capacitated general routing problem, J. Heurist. 21 (2015),
+[15] T. Bekta ş , G. Laporte, The pollution-routing problem, Transp. Res. Part B 45 (8) doi: 10.1007/s10732-015-9280-7 .
+(2011) 1232–1250, doi: 10.1016/j.trb.2011.02.004 . Supply chain disruption and risk [33] H. Yu, D. Mu, Carbon emission research of Beijing transportation system based on
+management sd, in: 2016 International Conference on Logistics, Informatics and Service Sciences
+[16] K. Tang , Y. Mei , X. Yao , Memetic algorithm with extended neighborhood search (LISS), 2016, pp. 1–4, doi: 10.1109/LISS.2016.7854591 .
+for capacitated arc routing problems, IEEE Trans. Evol. Comput. 13 (5) (2009) [34] K. Deb , H. Jain , An evolutionary many-objective optimization algorithm using ref-
+1151–1166 . erence-point-based nondominated sorting approach, part I: Solving problems with
+[17] Y. Mei , X. Li , X. Yao , Cooperative coevolution with route distance grouping for box constraints, IEEE Trans. Evol. Comput. 18 (4) (2014) 577–601 .
+large-scale capacitated arc routing problems, IEEE Trans. Evol. Comput. 18 (3) [35] J.D. Schaffer , Multiple objective optimization with vector evaluated genetic algo-
+(2014) 435–449 . rithms, in: Proceedings of the 1st International Conference on Genetic Algorithms,
+[18] D. Gong, B. Xu, Y. Zhang, Y. Guo, S. Yang, A similarity-based coop- Pittsburgh, PA, USA, July 1985, 1985 .
+erative co-evolutionary algorithm for dynamic interval multiobjective opti- [36] B. Cao, S. Fan, J. Zhao, P. Yang, K. Muhammad, M. Tanveer, Quantum-enhanced
+mization problems, IEEE Trans. Evol. Comput. 24 (1) (2020) 142–156, multiobjective large-scale optimization via parallelism, Swarm Evol. Comput. 57
+doi: 10.1109/TEVC.2019.2912204 . (2020) 100697, doi: 10.1016/j.swevo.2020.100697 .
+[19] R. Shang , K. Dai , L. Jiao , R. Stolkin , Improved memetic algorithm based on route [37] K. Deb , A. Pratap , S. Agarwal , T. Meyarivan , A fast and elitist multiobjective genetic
+distance grouping for multiobjective large scale capacitated arc routing problems, algorithm: Nsga-ii, IEEE Trans. Evol. Comput. 6 (2) (2002) 182–197 .
+IEEE Trans. Cybern. 46 (4) (2016) 1000–1013 . [38] N. Geng, Q. Meng, D. Gong, P.W.H. Chung, How good are distributed allocation
+[20] M. Yu, X. Jin, Z. Zhang, H. Qin, Q. Lai, The split-delivery mixed capacitated arc- algorithms for solving urban search and rescue problems? A comparative study
+routing problem: applications and a forest-based tabu search approach, Transp. Res. with centralized algorithms, IEEE Trans. Autom. Sci.Eng. 16 (1) (2019) 478–485,
+Part E 132 (2019) 141–162, doi: 10.1016/j.tre.2019.09.017 . doi: 10.1109/TASE.2018.2866395 .
+[21] A. Lim , Fan Wang , Multi-depot vehicle routing problem: a one-stage approach, IEEE [39] Ding Wei , Hu Ting , Zhang Huanguo , Multi-objective optimization by a new dynami-
+Trans. Autom. Sci.Eng. 2 (4) (2005) 397–402 . cal evolutionary algorithm based on the information entropy, in: 2005 International
+[22] Shijin Wang , Xin Liu , Energy minimization vehicle routing problem with hetero- Conference on Neural Networks and Brain, 1, 2005, pp. 50–53 .
+geneous vehicles, in: 2016 13th International Conference on Service Systems and [40] K. Krishna , M. Narasimha Murty , Genetic k-means algorithm, IEEE Trans. Syst. Man
+Service Management (ICSSSM), 2016, pp. 1–5 . Cybern. Part B 29 (3) (1999) 433–439 .
+[23] K. Praditwong , X. Yao , A new multi-objective evolutionary optimisation algorithm: [41] H. Wang , L. Jiao , X. Yao , Two_arch2: an improved two-archive algorithm for
+the two-archive algorithm, in: 2006 International Conference on Computational In- many-objective optimization, IEEE Trans. Evol. Comput. 19 (4) (2015) 524–541 .
+telligence and Security, 1, 2006, pp. 286–291 . [42] B. Cao , X. Wang , W. Zhang , H. Song , Z. Lv , A many-objective optimization model of
+[24] S. Jiang , Y. Ong , J. Zhang , L. Feng , Consistencies and contradictions of perfor- industrial internet of things based on private blockchain, IEEE Netw. 34 (5) (2020)
+mance metrics in multiobjective optimization, IEEE Trans. Cybern. 44 (12) (2014) 78–83 .
+2391–2404 . [43] Y. Wen, W. Zang, C. Li, A novel shortest path method based on heuristic algorithm,
+[25] S. Wang, F. Tao, Y. Shi, H. Wen, Optimization of vehicle routing problem with time in: 2010 International Conference on Machine Vision and Human-machine Interface,
+windows for cold chain logistics based on carbon tax, Sustainability 9 (5) (2017), 2010, pp. 545–548, doi: 10.1109/MVHI.2010.157 .
+doi: 10.3390/su9050694 . [44] V.N. Kubil , V.A. Mokhov , D.V. Grinchenkov , Multi-objective ant colony optimiza-
+[26] Y. Mei , X. Li , X. Yao , Decomposing large-scale capacitated arc routing problems tion for multi-depot heterogenous vehicle routing problem, in: 2018 International
+using a random route grouping method, in: 2013 IEEE Congress on Evolutionary Conference on Industrial Engineering, Applications and Manufacturing (ICIEAM),
+Computation, 2013, pp. 1013–1020 . 2018, pp. 1–6 .
+[27] B. Cao, Z. Sun, J. Zhang, Y. Gu, Resource allocation in 5g IOV architecture [45] Z. He , G.G. Yen , Visualization and performance metric in many-objective optimiza-
+based on SDN and fog-cloud computing, IEEE Trans. Intell. Transp.Syst. (2021) ., tion, IEEE Trans. Evol. Comput. 20 (3) (2016) 386–402 .
+doi: 10.1109/TITS.2020.3048844 .
+[28] M. Li , S. Yang , X. Liu , Diversity comparison of Pareto front approximations in
+many-objective optimization, IEEE Trans. Cybern. 44 (12) (2014) 2568–2584 .
+7
